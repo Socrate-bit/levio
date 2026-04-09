@@ -2,19 +2,27 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AlarmService {
   static StreamSubscription? _subscription;
 
-  /// Returns the ID of the first currently-alerting alarm, if any.
-  /// When AlarmKit transitions a one-shot alarm to alerting state,
-  /// toDictionary() maps the state to "unknown" (the @unknown default branch).
-  static Future<String?> getRingingAlarm() async {
+  static String _challengeKey(String id) => 'challenge_$id';
+
+  /// Returns nav args map with 'alarmId' and 'challenge' for the first
+  /// alerting alarm, or null if none is ringing.
+  static Future<Map<String, String>?> getRingingAlarm() async {
     final plugin = FlutterAlarmkit();
+    final prefs = await SharedPreferences.getInstance();
     final alarms = await plugin.getAlarms();
     for (final alarm in alarms) {
       final state = alarm['state'] as String?;
-      if (state == 'unknown') return alarm['id'] as String?;
+      if (state == 'unknown') {
+        final id = alarm['id'] as String?;
+        if (id == null) continue;
+        final challenge = prefs.getString(_challengeKey(id)) ?? 'pushup';
+        return {'alarmId': id, 'challenge': challenge};
+      }
     }
     return null;
   }
@@ -23,7 +31,7 @@ class AlarmService {
   /// an alarm transitions to alerting state (state == "unknown").
   static void listenForRing(GlobalKey<NavigatorState> navigatorKey) {
     _subscription?.cancel();
-    _subscription = FlutterAlarmkit.alarmUpdates().listen((event) {
+    _subscription = FlutterAlarmkit.alarmUpdates().listen((event) async {
       if (event is! Map) return;
       if (event['event'] != 'update') return;
 
@@ -34,9 +42,12 @@ class AlarmService {
       final alarmId = event['id'] as String?;
       if (alarmId == null) return;
 
+      final prefs = await SharedPreferences.getInstance();
+      final challenge = prefs.getString(_challengeKey(alarmId)) ?? 'pushup';
+
       navigatorKey.currentState?.pushNamed(
         '/alarm-dismiss',
-        arguments: alarmId,
+        arguments: {'alarmId': alarmId, 'challenge': challenge},
       );
     });
   }
