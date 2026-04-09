@@ -23,6 +23,7 @@ dependencies:
   cloud_firestore: ^6.2.0
   firebase_auth: ^6.3.0
   adaptive_platform_ui: ^0.1.104
+  audioplayers: ^6.6.0
 
 dev_dependencies:
   flutter_test:

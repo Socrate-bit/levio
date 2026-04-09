@@ -116,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               _SettingsCard(children: [
                 _LinkRow(
                   icon: Icons.star_outline,
-                  label: 'Rate Wayk',
+                  label: 'Rate Levio',
                   onTap: () {},
                 ),
                 const _Divider(),
@@ -141,7 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               const SizedBox(height: 16),
               Center(
                 child: Text(
-                  'Wayk v0.1.0',
+                  'Levio v0.1.0',
                   style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,

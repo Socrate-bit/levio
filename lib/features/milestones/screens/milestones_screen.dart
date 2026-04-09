@@ -357,7 +357,7 @@ class _HowStreaksWork extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Wake up with Wayk daily to build your streak. You get 2 freeze days per week to skip without losing progress. If you miss a day without a freeze, your streak drops by 3 instead of resetting to zero.',
+            'Wake up with Levio daily to build your streak. You get 2 freeze days per week to skip without losing progress. If you miss a day without a freeze, your streak drops by 3 instead of resetting to zero.',
             style: TextStyle(
               fontSize: 13,
               color: AppColors.textSecondary,

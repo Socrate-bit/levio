@@ -531,7 +531,7 @@ class _ConsistencyCard extends StatelessWidget {
       builder: (_) => AlertDialog(
         title: const Text('Consistency Score'),
         content: const Text(
-          'Your consistency score measures how regularly you wake up with Wayk. '
+          'Your consistency score measures how regularly you wake up with Levio. '
           'It improves as your streak grows.',
         ),
         actions: [

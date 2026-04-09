@@ -67,7 +67,7 @@ class AlarmCubit extends Cubit<AlarmState> {
       timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
       label: entry.name.isNotEmpty
           ? entry.name
-          : 'Wayk — ${info.name} mission',
+          : 'Levio — ${info.name} mission',
       secondaryButton: AlarmButton(
         text: info.name,
         textColor: '#FFFFFF',
@@ -90,6 +90,45 @@ class AlarmCubit extends Cubit<AlarmState> {
       alarms: state.alarms
           .map((a) => a.id == id ? a.copyWith(isEnabled: enabled) : a)
           .toList(),
+    ));
+  }
+
+  Future<void> editAlarm(AppAlarmEntry old, AppAlarmEntry updated) async {
+    await _plugin.cancelAlarm(alarmId: old.id);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_missionKey(old.id));
+    await prefs.remove(_nameKey(old.id));
+    await prefs.remove(_soundKey(old.id));
+    await prefs.remove('challenge_${old.id}');
+
+    var scheduled = kDebugMode
+        ? DateTime.now().add(const Duration(seconds: 5))
+        : updated.dateTime;
+    if (!kDebugMode && scheduled.isBefore(DateTime.now())) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+
+    final info = missionInfoFor(updated.missionType);
+    final newId = await _plugin.scheduleOneShotAlarm(
+      timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
+      label: updated.name.isNotEmpty
+          ? updated.name
+          : 'Levio — ${info.name} mission',
+      secondaryButton: AlarmButton(
+        text: info.name,
+        textColor: '#FFFFFF',
+        systemImageName: _systemImageFor(updated.missionType),
+      ),
+      secondaryButtonBehavior: AlarmSecondaryButtonBehavior.snooze(300),
+    );
+
+    await prefs.setString(_missionKey(newId), updated.missionType.name);
+    await prefs.setString(_nameKey(newId), updated.name);
+    await prefs.setString(_soundKey(newId), updated.soundId);
+
+    final saved = updated.copyWith(id: newId, dateTime: scheduled);
+    emit(state.copyWith(
+      alarms: state.alarms.map((a) => a.id == old.id ? saved : a).toList(),
     ));
   }
 

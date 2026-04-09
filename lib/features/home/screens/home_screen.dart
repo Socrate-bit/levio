@@ -137,7 +137,7 @@ class _TopBar extends StatelessWidget {
         const Text('🌟', style: TextStyle(fontSize: 24)),
         const SizedBox(width: 6),
         const Text(
-          'Wayk',
+          'Levio',
           style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,

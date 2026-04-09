@@ -34,7 +34,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _detector = ShakeDetector.autoStart(
-      shakeThresholdGravity: 2.7,
+      shakeThresholdGravity: 1.5,
       shakeSlopTimeMS: 500,
       minimumShakeCount: 1,
       onPhoneShake: (_) => _onShake(),
@@ -87,7 +87,6 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            AlarmBanner(label: widget.alarmLabel),
             Expanded(
               child: Center(
                 child: Column(

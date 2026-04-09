@@ -28,27 +28,27 @@ void main() async {
 
   final ringingAlarm = await AlarmService.getRingingAlarm();
 
-  runApp(WaykApp(
+  runApp(LevioApp(
     navigatorKey: _navigatorKey,
     ringingAlarm: ringingAlarm,
   ));
 }
 
-class WaykApp extends StatefulWidget {
+class LevioApp extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final Map<String, String>? ringingAlarm;
 
-  const WaykApp({
+  const LevioApp({
     super.key,
     required this.navigatorKey,
     this.ringingAlarm,
   });
 
   @override
-  State<WaykApp> createState() => _WaykAppState();
+  State<LevioApp> createState() => _LevioAppState();
 }
 
-class _WaykAppState extends State<WaykApp> {
+class _LevioAppState extends State<LevioApp> {
   @override
   void initState() {
     super.initState();
@@ -82,7 +82,7 @@ class _WaykAppState extends State<WaykApp> {
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) => MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Wayk',
+        title: 'Levio',
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: themeMode,
