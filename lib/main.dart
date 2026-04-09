@@ -1,15 +1,21 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/alarm_dismiss_screen.dart';
 import 'screens/alarm_list_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/photo_dismiss_screen.dart';
 import 'screens/shake_dismiss_screen.dart';
+import 'screens/speech_dismiss_screen.dart';
 import 'services/alarm_service.dart';
 
 final _navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Requires GoogleService-Info.plist (iOS) / google-services.json (Android)
+  // and optionally firebase_options.dart from `flutterfire configure`.
+  await Firebase.initializeApp();
 
   // Check for a ringing alarm before the widget tree is built (cold start).
   final ringingAlarm = await AlarmService.getRingingAlarm();
@@ -78,6 +84,16 @@ class _LevioAppState extends State<LevioApp> {
           if (args['challenge'] == 'shake') {
             return MaterialPageRoute(
               builder: (_) => ShakeDismissScreen(alarmId: alarmId),
+            );
+          }
+          if (args['challenge'] == 'photo') {
+            return MaterialPageRoute(
+              builder: (_) => PhotoDismissScreen(alarmId: alarmId),
+            );
+          }
+          if (args['challenge'] == 'speech') {
+            return MaterialPageRoute(
+              builder: (_) => SpeechDismissScreen(alarmId: alarmId),
             );
           }
           return MaterialPageRoute(

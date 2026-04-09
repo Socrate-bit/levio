@@ -55,15 +55,26 @@ class AlarmCubit extends Cubit<AlarmState> {
 
     final id = await _plugin.scheduleOneShotAlarm(
       timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
-      label: challenge == ChallengeType.shake
-          ? 'Levio — shake to dismiss'
-          : 'Levio — do push-ups to dismiss',
+      label: switch (challenge) {
+        ChallengeType.shake => 'Levio — shake to dismiss',
+        ChallengeType.pushup => 'Levio — do push-ups to dismiss',
+        ChallengeType.photo => 'Levio — take a photo to dismiss',
+        ChallengeType.speech => 'Levio — speak to dismiss',
+      },
       secondaryButton: AlarmButton(
-        text: challenge == ChallengeType.shake ? 'Shake' : 'Do push-up',
+        text: switch (challenge) {
+          ChallengeType.shake => 'Shake',
+          ChallengeType.pushup => 'Do push-up',
+          ChallengeType.photo => 'Take photo',
+          ChallengeType.speech => 'Speak',
+        },
         textColor: '#FFFFFF',
-        systemImageName: challenge == ChallengeType.shake
-            ? 'iphone.radiowaves.left.and.right'
-            : 'figure.strengthtraining.traditional',
+        systemImageName: switch (challenge) {
+          ChallengeType.shake => 'iphone.radiowaves.left.and.right',
+          ChallengeType.pushup => 'figure.strengthtraining.traditional',
+          ChallengeType.photo => 'camera.fill',
+          ChallengeType.speech => 'mic.fill',
+        },
       ),
       secondaryButtonBehavior: AlarmSecondaryButtonBehavior.snooze(300),
     );

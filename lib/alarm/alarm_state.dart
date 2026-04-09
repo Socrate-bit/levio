@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum ChallengeType { pushup, shake }
+enum ChallengeType { pushup, shake, photo, speech }
 
 /// Local model for a scheduled alarm (flutter_alarmkit returns UUID strings,
 /// not rich objects, so we track dateTime ourselves).
