@@ -34,10 +34,11 @@ class _InsightsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return BlocBuilder<InsightsCubit, InsightsState>(
       builder: (ctx, state) {
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: c.background,
           body: SafeArea(
             child: state.loading
                 ? const Center(child: CircularProgressIndicator())
@@ -49,12 +50,12 @@ class _InsightsView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Insights',
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: c.textPrimary,
                               letterSpacing: -0.5,
                             ),
                           ),
@@ -98,12 +99,12 @@ class _InsightsView extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          const Text(
+                          Text(
                             'Stats',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: c.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -165,10 +166,11 @@ class _RangeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -182,7 +184,7 @@ class _RangeToggle extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.textPrimary
+                      ? c.textPrimary
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -194,7 +196,7 @@ class _RangeToggle extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: isSelected
                         ? Colors.white
-                        : AppColors.textSecondary,
+                        : c.textSecondary,
                   ),
                 ),
               ),
@@ -221,25 +223,26 @@ class _StreakCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final todayIndex = DateTime.now().weekday % 7;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: c.card,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           children: [
             const Text('🔥', style: TextStyle(fontSize: 32)),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Day Streak',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
             const SizedBox(height: 10),
@@ -255,8 +258,8 @@ class _StreakCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 9,
                         color: isToday
-                            ? AppColors.textPrimary
-                            : AppColors.textSecondary,
+                            ? c.textPrimary
+                            : c.textSecondary,
                         fontWeight: isToday
                             ? FontWeight.bold
                             : FontWeight.normal,
@@ -270,7 +273,7 @@ class _StreakCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: done
                             ? Colors.transparent
-                            : AppColors.separator,
+                            : c.separator,
                         border: isToday && !done
                             ? Border.all(
                                 color: AppColors.orange, width: 1.5)
@@ -305,12 +308,13 @@ class _BadgesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: c.card,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -322,12 +326,12 @@ class _BadgesCard extends StatelessWidget {
               earnedColor: const Color(0xFFB8860B),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Badges Earned',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
             if (earned > 0)
@@ -335,9 +339,9 @@ class _BadgesCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   '$earned/$total',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
                 ),
               ),
@@ -361,11 +365,12 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: c.card,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -373,14 +378,14 @@ class _StatCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 14, color: AppColors.textSecondary),
+                Icon(icon, size: 14, color: c.textSecondary),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: c.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -390,10 +395,10 @@ class _StatCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
           ],
@@ -409,10 +414,11 @@ class _ConsistencyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -420,29 +426,29 @@ class _ConsistencyCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text(
+              Text(
                 'Consistency',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                 ),
               ),
               const Spacer(),
               GestureDetector(
                 onTap: () => _showInfo(context),
-                child: const Icon(Icons.help_outline,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.help_outline,
+                    size: 18, color: c.textSecondary),
               ),
             ],
           ),
           const SizedBox(height: 8),
           if (score < 30)
-            const Text(
+            Text(
               'Need 3+ wake ups',
               style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
               ),
             ),
           const SizedBox(height: 12),
@@ -454,23 +460,23 @@ class _ConsistencyCard extends StatelessWidget {
               child: Stack(
                 children: [
                   // Background gradient
-                  Row(
+                  const Row(
                     children: [
                       Expanded(
                         flex: 30,
-                        child: Container(color: const Color(0xFFFC8181)),
+                        child: ColoredBox(color: Color(0xFFFC8181)),
                       ),
                       Expanded(
                         flex: 20,
-                        child: Container(color: const Color(0xFFED8936)),
+                        child: ColoredBox(color: Color(0xFFED8936)),
                       ),
                       Expanded(
                         flex: 20,
-                        child: Container(color: const Color(0xFF4299E1)),
+                        child: ColoredBox(color: Color(0xFF4299E1)),
                       ),
                       Expanded(
                         flex: 30,
-                        child: Container(color: const Color(0xFF48BB78)),
+                        child: ColoredBox(color: Color(0xFF48BB78)),
                       ),
                     ],
                   ),
@@ -482,7 +488,7 @@ class _ConsistencyCard extends StatelessWidget {
                     width: (1 - score / 100) *
                         (MediaQuery.of(context).size.width - 72),
                     child: Container(
-                      color: AppColors.card.withAlpha(200),
+                      color: c.card.withAlpha(200),
                     ),
                   ),
                 ],
@@ -493,21 +499,21 @@ class _ConsistencyCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('0',
+              Text('0',
                   style: TextStyle(
-                      fontSize: 11, color: AppColors.textSecondary)),
-              const Text('30',
+                      fontSize: 11, color: c.textSecondary)),
+              Text('30',
                   style: TextStyle(
-                      fontSize: 11, color: AppColors.textSecondary)),
-              const Text('50',
+                      fontSize: 11, color: c.textSecondary)),
+              Text('50',
                   style: TextStyle(
-                      fontSize: 11, color: AppColors.textSecondary)),
-              const Text('70',
+                      fontSize: 11, color: c.textSecondary)),
+              Text('70',
                   style: TextStyle(
-                      fontSize: 11, color: AppColors.textSecondary)),
-              const Text('100',
+                      fontSize: 11, color: c.textSecondary)),
+              Text('100',
                   style: TextStyle(
-                      fontSize: 11, color: AppColors.textSecondary)),
+                      fontSize: 11, color: c.textSecondary)),
             ],
           ),
           const SizedBox(height: 8),
@@ -553,6 +559,7 @@ class _LegendDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -563,8 +570,8 @@ class _LegendDot extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         Text(label,
-            style: const TextStyle(
-                fontSize: 11, color: AppColors.textSecondary)),
+            style: TextStyle(
+                fontSize: 11, color: c.textSecondary)),
       ],
     );
   }

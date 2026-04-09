@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 import 'package:shake/shake.dart';
 
-import '_alarm_banner.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
@@ -80,10 +79,11 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final progress = _shakeCount / _target;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -102,7 +102,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                             child: CircularProgressIndicator(
                               value: progress,
                               strokeWidth: 12,
-                              backgroundColor: AppColors.separator,
+                              backgroundColor: c.separator,
                               valueColor: const AlwaysStoppedAnimation<Color>(
                                 AppColors.orange,
                               ),
@@ -119,16 +119,16 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                                 children: [
                                   Text(
                                     '$_shakeCount',
-                                    style: const TextStyle(
-                                      color: AppColors.textPrimary,
+                                    style: TextStyle(
+                                      color: c.textPrimary,
                                       fontSize: 64,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
                                     '/ $_target',
-                                    style: const TextStyle(
-                                      color: AppColors.textSecondary,
+                                    style: TextStyle(
+                                      color: c.textSecondary,
                                       fontSize: 22,
                                     ),
                                   ),
@@ -140,11 +140,11 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
+                    Text(
                       'Shake your phone',
                       style: TextStyle(
                         fontSize: 18,
-                        color: AppColors.textSecondary,
+                        color: c.textSecondary,
                       ),
                     ),
                   ],

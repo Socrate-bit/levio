@@ -16,6 +16,7 @@ class TodayWakeupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final ts = session.timestamp;
     final h = ts.hour > 12 ? ts.hour - 12 : (ts.hour == 0 ? 12 : ts.hour);
     final isPM = ts.hour >= 12;
@@ -26,7 +27,7 @@ class TodayWakeupScreen extends StatelessWidget {
         : 'Wake Up';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -35,12 +36,12 @@ class TodayWakeupScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     "Today's Wakeup",
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: c.textPrimary,
                     ),
                   ),
                 ],
@@ -107,7 +108,7 @@ class TodayWakeupScreen extends StatelessWidget {
                       ),
                       // Info bar
                       Container(
-                        color: Colors.white,
+                        color: c.card,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 18, vertical: 14),
                         child: Row(
@@ -131,10 +132,10 @@ class TodayWakeupScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       timeStr,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.textPrimary,
+                                        color: c.textPrimary,
                                         letterSpacing: -0.5,
                                       ),
                                     ),
@@ -143,9 +144,9 @@ class TodayWakeupScreen extends StatelessWidget {
                                       padding: const EdgeInsets.only(top: 6),
                                       child: Text(
                                         isPM ? 'pm' : 'am',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 14,
-                                          color: AppColors.textSecondary,
+                                          color: c.textSecondary,
                                         ),
                                       ),
                                     ),
@@ -159,16 +160,16 @@ class TodayWakeupScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   dateStr,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: AppColors.textSecondary,
+                                    color: c.textSecondary,
                                   ),
                                 ),
                                 Text(
                                   '#$wakeupNumber',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
-                                    color: AppColors.textSecondary,
+                                    color: c.textSecondary,
                                   ),
                                 ),
                               ],

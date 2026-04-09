@@ -8,7 +8,6 @@ import '../../../shared/theme/app_theme.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
-import '_alarm_banner.dart';
 
 class MathDismissScreen extends StatefulWidget {
   final String alarmId;
@@ -157,12 +156,12 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           children: [
-            AlarmBanner(label: widget.alarmLabel),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -172,9 +171,9 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                     // Progress
                     Text(
                       '${_solved + 1} / $_totalProblems',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: c.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -183,7 +182,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                       child: LinearProgressIndicator(
                         value: _solved / _totalProblems,
                         minHeight: 6,
-                        backgroundColor: AppColors.separator,
+                        backgroundColor: c.separator,
                         valueColor: const AlwaysStoppedAnimation(AppColors.orange),
                       ),
                     ),
@@ -191,10 +190,10 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                     // Problem
                     Text(
                       _problemText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: c.textPrimary,
                         letterSpacing: -1,
                       ),
                     ),
@@ -205,19 +204,19 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       autofocus: true,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: c.textPrimary,
                       ),
                       decoration: InputDecoration(
                         hintText: '?',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           fontSize: 32,
-                          color: AppColors.textSecondary,
+                          color: c.textSecondary,
                         ),
                         filled: true,
-                        fillColor: AppColors.card,
+                        fillColor: c.card,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none,

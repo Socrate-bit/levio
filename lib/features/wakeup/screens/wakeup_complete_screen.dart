@@ -76,8 +76,9 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -87,20 +88,20 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
               // Sun emoji mascot
               const Text('🌞', style: TextStyle(fontSize: 80)),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Alarm turned off!',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'You joined 23 922 others waking up today',
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: c.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -139,19 +140,19 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                     fullscreenDialog: true,
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Daily Quote',
                       style: TextStyle(
                         fontSize: 15,
-                        color: AppColors.textSecondary,
+                        color: c.textSecondary,
                       ),
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Icon(Icons.chevron_right,
-                        size: 18, color: AppColors.textSecondary),
+                        size: 18, color: c.textSecondary),
                   ],
                 ),
               ),
@@ -183,11 +184,12 @@ class _StatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: c.card,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -196,18 +198,18 @@ class _StatBox extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),

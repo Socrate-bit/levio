@@ -25,10 +25,11 @@ class _MilestonesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return BlocBuilder<MilestonesCubit, MilestonesState>(
       builder: (ctx, state) {
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: c.background,
           body: SafeArea(
             child: Column(
               children: [
@@ -41,12 +42,12 @@ class _MilestonesView extends StatelessWidget {
                         child: Container(
                           width: 36,
                           height: 36,
-                          decoration: const BoxDecoration(
-                            color: AppColors.card,
+                          decoration: BoxDecoration(
+                            color: c.card,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close,
-                              size: 18, color: AppColors.textPrimary),
+                          child: Icon(Icons.close,
+                              size: 18, color: c.textPrimary),
                         ),
                       ),
                     ],
@@ -60,12 +61,12 @@ class _MilestonesView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Milestones',
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
+                                  color: c.textPrimary,
                                   letterSpacing: -0.5,
                                 ),
                               ),
@@ -119,24 +120,24 @@ class _MilestonesView extends StatelessWidget {
                                 const SizedBox(height: 20),
                               ],
                               // Streak Badges
-                              const Text(
+                              Text(
                                 'Streak Badges',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
+                                  color: c.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 12),
                               _BadgeGrid(badges: state.streakBadges),
                               const SizedBox(height: 24),
                               // Achievement Badges
-                              const Text(
+                              Text(
                                 'Achievement Badges',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
+                                  color: c.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -162,10 +163,11 @@ class _TopCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: c.card,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -174,10 +176,10 @@ class _TopCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: c.textPrimary,
             ),
           ),
         ],
@@ -193,10 +195,11 @@ class _BadgeTopCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: c.card,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -208,12 +211,12 @@ class _BadgeTopCard extends StatelessWidget {
             earnedColor: const Color(0xFFB8860B),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Badges Earned',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: c.textPrimary,
             ),
           ),
         ],
@@ -235,10 +238,11 @@ class _InfoBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -250,17 +254,17 @@ class _InfoBox extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                 ),
               ),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.textSecondary,
+                  color: c.textSecondary,
                 ),
               ),
             ],
@@ -279,10 +283,11 @@ class _BadgeProgressBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -294,10 +299,10 @@ class _BadgeProgressBox extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 '$earned/$total badges',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                 ),
               ),
             ],
@@ -308,7 +313,7 @@ class _BadgeProgressBox extends StatelessWidget {
             child: LinearProgressIndicator(
               value: total > 0 ? earned / total : 0,
               minHeight: 6,
-              backgroundColor: AppColors.separator,
+              backgroundColor: c.separator,
               valueColor: const AlwaysStoppedAnimation(Color(0xFFB8860B)),
             ),
           ),
@@ -325,10 +330,11 @@ class _HowStreaksWork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: c.card,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -336,31 +342,31 @@ class _HowStreaksWork extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.info_outline,
-                  size: 18, color: AppColors.textSecondary),
+              Icon(Icons.info_outline,
+                  size: 18, color: c.textSecondary),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'How Streaks Work',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                 ),
               ),
               const Spacer(),
               GestureDetector(
                 onTap: onDismiss,
-                child: const Icon(Icons.close,
-                    size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.close,
+                    size: 18, color: c.textSecondary),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Wake up with Levio daily to build your streak. You get 2 freeze days per week to skip without losing progress. If you miss a day without a freeze, your streak drops by 3 instead of resetting to zero.',
             style: TextStyle(
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
               height: 1.5,
             ),
           ),
@@ -399,6 +405,7 @@ class _BadgeCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: badge.earned
           ? () => Navigator.push(
@@ -422,19 +429,19 @@ class _BadgeCell extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             badge.name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: c.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 2),
           Text(
             badge.description,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
             textAlign: TextAlign.center,
             maxLines: 2,

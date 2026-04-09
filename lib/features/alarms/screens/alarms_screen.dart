@@ -22,10 +22,11 @@ class _AlarmsScreenState extends State<AlarmsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final c = AppColors.of(context);
     return BlocBuilder<AlarmCubit, AlarmState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: c.background,
           appBar: AppBar(
             title: const Text('Alarms'),
           ),
@@ -40,19 +41,19 @@ class _AlarmsScreenState extends State<AlarmsScreen>
                     children: [
                       const Text('⏰', style: TextStyle(fontSize: 56)),
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'No alarms yet',
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
-                      const Text(
+                      Text(
                         'Tap + to create your first alarm',
                         style: TextStyle(
-                            fontSize: 14, color: AppColors.textSecondary),
+                            fontSize: 14, color: c.textSecondary),
                       ),
                     ],
                   ),
@@ -143,6 +144,7 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -168,8 +170,7 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
           const SizedBox(height: 12),
         ],
         FloatingActionButton(
-          backgroundColor:
-              _open ? AppColors.textPrimary : AppColors.textPrimary,
+          backgroundColor: c.textPrimary,
           foregroundColor: Colors.white,
           onPressed: _toggle,
           child: RotationTransition(
@@ -195,12 +196,13 @@ class _PopupOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: c.card,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -216,17 +218,17 @@ class _PopupOption extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
             Text(
               subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
               ),
             ),
           ],
@@ -242,6 +244,7 @@ class _AlarmCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final t = alarm.dateTime;
     final h = t.hour > 12 ? t.hour - 12 : (t.hour == 0 ? 12 : t.hour);
     final m = t.minute.toString().padLeft(2, '0');
@@ -260,91 +263,82 @@ class _AlarmCard extends StatelessWidget {
         ),
       ),
       child: Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(6),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            dayStr,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondary,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(6),
+              blurRadius: 10,
             ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '$h:$m',
-                style: const TextStyle(
-                  fontSize: 44,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -1,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8, left: 4),
-                child: Text(
-                  isPM ? 'PM' : 'AM',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              dayStr,
+              style: TextStyle(fontSize: 13, color: c.textSecondary),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '$h:$m',
+                  style: TextStyle(
+                    fontSize: 44,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -1,
+                    color: c.textPrimary,
                   ),
                 ),
-              ),
-              const Spacer(),
-              Switch(
-                value: alarm.isEnabled,
-                activeThumbColor: AppColors.green,
-                onChanged: (val) =>
-                    context.read<AlarmCubit>().toggleAlarm(alarm.id, val),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                alarm.name.isNotEmpty
-                    ? '${alarm.name} · '
-                    : 'Alarm #1 · ',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8, left: 4),
+                  child: Text(
+                    isPM ? 'PM' : 'AM',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: c.textSecondary,
+                    ),
+                  ),
                 ),
-              ),
-              Icon(info.icon, size: 13, color: info.iconColor),
-              const SizedBox(width: 4),
-              Text(
-                info.name,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
+                const Spacer(),
+                Switch(
+                  value: alarm.isEnabled,
+                  activeThumbColor: AppColors.green,
+                  onChanged: (val) =>
+                      context.read<AlarmCubit>().toggleAlarm(alarm.id, val),
                 ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () =>
-                    context.read<AlarmCubit>().removeAlarm(alarm.id),
-                child: const Icon(Icons.delete_outline,
-                    size: 18, color: AppColors.textSecondary),
-              ),
-            ],
-          ),
-        ],
-      ),
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  alarm.name.isNotEmpty
+                      ? '${alarm.name} · '
+                      : 'Alarm #1 · ',
+                  style: TextStyle(fontSize: 13, color: c.textSecondary),
+                ),
+                Icon(info.icon, size: 13, color: info.iconColor),
+                const SizedBox(width: 4),
+                Text(
+                  info.name,
+                  style: TextStyle(fontSize: 13, color: c.textSecondary),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () =>
+                      context.read<AlarmCubit>().removeAlarm(alarm.id),
+                  child: Icon(Icons.delete_outline,
+                      size: 18, color: c.textSecondary),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 
-import '_alarm_banner.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
@@ -288,13 +287,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 ),
               ),
 
-            // Top banner
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: AlarmBanner(label: widget.alarmLabel),
-            ),
           ],
         ),
       ),

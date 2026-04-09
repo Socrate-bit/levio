@@ -154,8 +154,9 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -168,12 +169,12 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: const BoxDecoration(
-                        color: AppColors.card,
+                      decoration: BoxDecoration(
+                        color: c.card,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close,
-                          size: 18, color: AppColors.textPrimary),
+                      child: Icon(Icons.close,
+                          size: 18, color: c.textPrimary),
                     ),
                   ),
                   const Expanded(
@@ -245,25 +246,25 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                   ),
                   const SizedBox(height: 20),
                   // Your Sounds section
-                  const _SectionHeader(title: 'Your Sounds'),
+                  _SectionHeader(title: 'Your Sounds'),
                   Container(
                     margin: const EdgeInsets.only(top: 8, bottom: 4),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppColors.card,
+                      color: c.card,
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.add,
-                            size: 18, color: AppColors.textSecondary),
-                        SizedBox(width: 12),
+                            size: 18, color: c.textSecondary),
+                        const SizedBox(width: 12),
                         Text(
                           'Upload Sound',
                           style: TextStyle(
                             fontSize: 15,
-                            color: AppColors.textPrimary,
+                            color: c.textPrimary,
                           ),
                         ),
                       ],
@@ -283,7 +284,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                         const SizedBox(height: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.card,
+                            color: c.card,
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Column(
@@ -295,7 +296,6 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                               final isLast = i == catSounds.length - 1;
                               final isSelected =
                                   _selectedId == sound.id;
-
                               final isPlaying = _playingId == sound.id;
                               return GestureDetector(
                                 onTap: () => setState(
@@ -338,9 +338,9 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                       const SizedBox(width: 14),
                                       Text(
                                         sound.name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 16,
-                                          color: AppColors.textPrimary,
+                                          color: c.textPrimary,
                                         ),
                                       ),
                                       const Spacer(),
@@ -353,7 +353,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                               : Icons.play_circle_outline,
                                           color: isPlaying
                                               ? AppColors.orange
-                                              : AppColors.textSecondary,
+                                              : c.textSecondary,
                                           size: 22,
                                         ),
                                       ),
@@ -397,6 +397,7 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Row(
       children: [
         if (icon != null) ...[
@@ -405,10 +406,10 @@ class _SectionHeader extends StatelessWidget {
         ],
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: c.textPrimary,
           ),
         ),
       ],

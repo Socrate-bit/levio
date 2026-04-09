@@ -84,8 +84,9 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -100,7 +101,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.card,
+                        color: c.card,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
@@ -109,8 +110,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.close,
-                          size: 18, color: AppColors.textPrimary),
+                      child: Icon(Icons.close,
+                          size: 18, color: c.textPrimary),
                     ),
                   ),
                   Expanded(
@@ -139,15 +140,15 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       child: TextField(
                         controller: _nameCtrl,
                         onChanged: (_) => setState(() {}),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
-                          color: AppColors.textPrimary,
+                          color: c.textPrimary,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Alarm name',
                           hintStyle:
-                              TextStyle(color: AppColors.textSecondary),
+                              TextStyle(color: c.textSecondary),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
@@ -157,10 +158,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                     _FormCard(
                       child: Row(
                         children: [
-                          const Text(
+                          Text(
                             'Alarm Time',
                             style: TextStyle(
-                                fontSize: 16, color: AppColors.textPrimary),
+                                fontSize: 16, color: c.textPrimary),
                           ),
                           const Spacer(),
                           GestureDetector(
@@ -175,10 +176,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                             },
                             child: Text(
                               _time.format(context),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
+                                color: c.textPrimary,
                               ),
                             ),
                           ),
@@ -213,11 +214,11 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Repeat on:',
                               style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary),
+                                  color: c.textSecondary),
                             ),
                             const SizedBox(height: 12),
                             Row(
@@ -240,8 +241,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: selected
-                                          ? AppColors.textPrimary
-                                          : AppColors.background,
+                                          ? c.textPrimary
+                                          : c.background,
                                     ),
                                     child: Center(
                                       child: Text(
@@ -251,7 +252,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                           fontWeight: FontWeight.w600,
                                           color: selected
                                               ? Colors.white
-                                              : AppColors.textSecondary,
+                                              : c.textSecondary,
                                         ),
                                       ),
                                     ),
@@ -291,8 +292,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           Container(
                             width: 36,
                             height: 36,
-                            decoration: const BoxDecoration(
-                              color: AppColors.background,
+                            decoration: BoxDecoration(
+                              color: c.background,
                               shape: BoxShape.circle,
                             ),
                             child: _mission != null
@@ -301,34 +302,34 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                     size: 18,
                                     color: missionInfoFor(_mission!).iconColor,
                                   )
-                                : const Icon(Icons.add,
+                                : Icon(Icons.add,
                                     size: 18,
-                                    color: AppColors.textSecondary),
+                                    color: c.textSecondary),
                           ),
                           const SizedBox(width: 12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Mission',
                                 style: TextStyle(
                                     fontSize: 12,
-                                    color: AppColors.textSecondary),
+                                    color: c.textSecondary),
                               ),
                               Text(
                                 _mission != null
                                     ? missionInfoFor(_mission!).name
                                     : 'Tap to add a mission',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 15,
-                                  color: AppColors.textPrimary,
+                                  color: c.textPrimary,
                                 ),
                               ),
                             ],
                           ),
                           const Spacer(),
-                          const Icon(Icons.chevron_right,
-                              color: AppColors.textSecondary),
+                          Icon(Icons.chevron_right,
+                              color: c.textSecondary),
                         ],
                       ),
                     ),
@@ -340,11 +341,11 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Difficulty',
                               style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary),
+                                  color: c.textSecondary),
                             ),
                             const SizedBox(height: 10),
                             Row(
@@ -367,7 +368,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                         decoration: BoxDecoration(
                                           color: selected
                                               ? AppColors.orange
-                                              : AppColors.background,
+                                              : c.background,
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
@@ -379,7 +380,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                               fontWeight: FontWeight.w600,
                                               color: selected
                                                   ? Colors.white
-                                                  : AppColors.textSecondary,
+                                                  : c.textSecondary,
                                             ),
                                           ),
                                         ),
@@ -401,23 +402,23 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Custom Object (optional)',
                               style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary),
+                                  color: c.textSecondary),
                             ),
                             const SizedBox(height: 8),
                             TextField(
                               controller: _customObjectCtrl,
-                              style: const TextStyle(
-                                  fontSize: 15, color: AppColors.textPrimary),
-                              decoration: const InputDecoration(
+                              style: TextStyle(
+                                  fontSize: 15, color: c.textPrimary),
+                              decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText:
                                     'e.g. coffee mug (blank = random)',
                                 hintStyle:
-                                    TextStyle(color: AppColors.textSecondary),
+                                    TextStyle(color: c.textSecondary),
                                 contentPadding: EdgeInsets.zero,
                               ),
                             ),
@@ -446,16 +447,16 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       },
                       child: Row(
                         children: [
-                          const Icon(Icons.notifications_outlined,
-                              size: 22, color: AppColors.textSecondary),
+                          Icon(Icons.notifications_outlined,
+                              size: 22, color: c.textSecondary),
                           const SizedBox(width: 12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Sound',
+                              Text('Sound',
                                   style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.textSecondary)),
+                                      color: c.textSecondary)),
                               Text(
                                 _soundName,
                                 style: const TextStyle(
@@ -466,8 +467,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                             ],
                           ),
                           const Spacer(),
-                          const Icon(Icons.chevron_right,
-                              color: AppColors.textSecondary),
+                          Icon(Icons.chevron_right,
+                              color: c.textSecondary),
                         ],
                       ),
                     ),
@@ -482,10 +483,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                 onPressed: _canSave ? () => _save(context) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
-                      _canSave ? AppColors.textPrimary : AppColors.separator,
+                      _canSave ? c.textPrimary : c.separator,
                   foregroundColor: _canSave
                       ? Colors.white
-                      : AppColors.textSecondary,
+                      : c.textSecondary,
                   minimumSize: const Size(double.infinity, 54),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -545,13 +546,14 @@ class _FormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: c.card,
           borderRadius: BorderRadius.circular(14),
         ),
         child: child,
@@ -573,14 +575,14 @@ class _TogglePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color:
-              selected ? AppColors.textPrimary : AppColors.background,
+          color: selected ? c.textPrimary : c.background,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
@@ -588,7 +590,7 @@ class _TogglePill extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : AppColors.textSecondary,
+            color: selected ? Colors.white : c.textSecondary,
           ),
         ),
       ),

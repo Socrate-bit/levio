@@ -1,10 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-import '_alarm_banner.dart';
+import '../data/affirmations.dart';
+import '../data/bible_verses.dart';
+import '../data/wisdom_citations.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
@@ -35,12 +39,24 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   double? _lastScore;
   bool _initialized = false;
   final _startTime = DateTime.now();
+  late final String _targetText;
 
-  String get _targetText => speechPhraseFor(widget.missionType);
+  static String _randomPhrase(MissionType type) {
+    final rng = Random();
+    switch (type) {
+      case MissionType.bibleVerse:
+        return bibleVerses[rng.nextInt(bibleVerses.length)];
+      case MissionType.affirmation:
+        return affirmations[rng.nextInt(affirmations.length)];
+      default:
+        return wisdomCitations[rng.nextInt(wisdomCitations.length)];
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _targetText = _randomPhrase(widget.missionType);
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _initSpeech();
   }
@@ -120,17 +136,17 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final score = _lastScore;
     final scoreText =
         score != null ? '${(score * 100).round()}% — try again' : null;
     final info = missionInfoFor(widget.missionType);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           children: [
-            AlarmBanner(label: widget.alarmLabel),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -149,19 +165,19 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                           color: info.iconColor, size: 30),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       'Say:',
                       style: TextStyle(
-                          fontSize: 16, color: AppColors.textSecondary),
+                          fontSize: 16, color: c.textSecondary),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       '"$_targetText"',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: c.textPrimary,
                         height: 1.4,
                       ),
                     ),
@@ -177,13 +193,13 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                           shape: BoxShape.circle,
                           color: _isListening
                               ? AppColors.orange
-                              : AppColors.separator,
+                              : c.separator,
                         ),
                         child: Icon(
                           _isListening ? Icons.mic : Icons.mic_none,
                           color: _isListening
                               ? Colors.white
-                              : AppColors.textSecondary,
+                              : c.textSecondary,
                           size: 36,
                         ),
                       ),
@@ -191,9 +207,9 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                     const SizedBox(height: 16),
                     Text(
                       _isListening ? 'Listening…' : 'Tap to speak',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: c.textSecondary,
                       ),
                     ),
                     if (_transcription.isNotEmpty) ...[
@@ -201,9 +217,9 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                       Text(
                         _transcription,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
-                          color: AppColors.textPrimary,
+                          color: c.textPrimary,
                           fontStyle: FontStyle.italic,
                         ),
                       ),

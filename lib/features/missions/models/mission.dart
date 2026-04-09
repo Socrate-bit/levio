@@ -203,13 +203,3 @@ String geminiPromptFor(MissionType type) {
   }
 }
 
-String speechPhraseFor(MissionType type) {
-  switch (type) {
-    case MissionType.bibleVerse:
-      return 'The Lord is my shepherd, I shall not want';
-    case MissionType.affirmation:
-      return 'Today is going to be a great day';
-    default:
-      return 'Good morning, time to rise and shine';
-  }
-}

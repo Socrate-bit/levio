@@ -20,8 +20,9 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -34,12 +35,12 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: const BoxDecoration(
-                        color: AppColors.card,
+                      decoration: BoxDecoration(
+                        color: c.card,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close,
-                          size: 18, color: AppColors.textPrimary),
+                      child: Icon(Icons.close,
+                          size: 18, color: c.textPrimary),
                     ),
                   ),
                   const Expanded(
@@ -85,8 +86,7 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color:
-                              selected ? AppColors.textPrimary : AppColors.card,
+                          color: selected ? c.textPrimary : c.card,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -96,7 +96,7 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                             fontWeight: FontWeight.w600,
                             color: selected
                                 ? Colors.white
-                                : AppColors.textSecondary,
+                                : c.textSecondary,
                           ),
                         ),
                       ),
@@ -133,9 +133,10 @@ class _MissionCard extends StatelessWidget {
   const _MissionCard({required this.info});
 
   void _showPreview(BuildContext context, MissionInfo info) {
+    final c = AppColors.of(context);
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.card,
+      backgroundColor: c.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -156,19 +157,19 @@ class _MissionCard extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               info.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               info.description,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
               ),
             ),
             const SizedBox(height: 20),
@@ -187,12 +188,13 @@ class _MissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: () => Navigator.pop(context, info.type),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: c.card,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -210,18 +212,18 @@ class _MissionCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               info.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               info.description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -232,7 +234,7 @@ class _MissionCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: c.background,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: const Color(0xFF00B5D8), width: 1),
                 ),
@@ -253,14 +255,14 @@ class _MissionCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: c.background,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Preview',
                     style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: c.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

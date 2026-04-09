@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../alarms/cubit/alarm_cubit.dart';
 import '../../milestones/services/streak_service.dart';
 import '../../wakeup/services/history_service.dart';
 import 'home_state.dart';
@@ -8,7 +7,7 @@ import 'home_state.dart';
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(const HomeState());
 
-  Future<void> load(AlarmCubit alarmCubit) async {
+  Future<void> load() async {
     emit(state.copyWith(loading: true));
     try {
       final profile = await StreakService.getProfile();
@@ -22,15 +21,9 @@ class HomeCubit extends Cubit<HomeState> {
         weekDays[s.timestamp.weekday % 7] = true;
       }
 
-      // Find next upcoming alarm
-      final alarms = alarmCubit.state.alarms;
-      alarms.sort((a, b) => a.dateTime.compareTo(b.dateTime));
-      final next = alarms.where((a) => a.isEnabled).firstOrNull;
-
       emit(state.copyWith(
         currentStreak: profile.currentStreak,
         weekDays: weekDays,
-        nextAlarm: next,
         lastSession: lastSession,
         totalWakeups: totalWakeups,
         loading: false,

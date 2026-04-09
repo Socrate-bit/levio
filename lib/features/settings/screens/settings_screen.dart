@@ -21,20 +21,21 @@ class _SettingsScreenState extends State<SettingsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Settings',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -43,7 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.card,
+                  color: c.card,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -60,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                       ),
                     ),
                     const SizedBox(width: 14),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -68,15 +69,15 @@ class _SettingsScreenState extends State<SettingsScreen>
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: c.textPrimary,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           'Signed in anonymously',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: c.textSecondary,
                           ),
                         ),
                       ],
@@ -85,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
               ),
               const SizedBox(height: 24),
-              const _SectionTitle(title: 'App'),
+              _SectionTitle(title: 'App'),
               BlocBuilder<ThemeCubit, ThemeMode>(
                 builder: (context, themeMode) => _SettingsCard(children: [
                   _ToggleRow(
@@ -112,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ]),
               ),
               const SizedBox(height: 16),
-              const _SectionTitle(title: 'About'),
+              _SectionTitle(title: 'About'),
               _SettingsCard(children: [
                 _LinkRow(
                   icon: Icons.star_outline,
@@ -142,9 +143,9 @@ class _SettingsScreenState extends State<SettingsScreen>
               Center(
                 child: Text(
                   'Levio v0.1.0',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
                 ),
               ),
@@ -162,14 +163,15 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w600,
-          color: AppColors.textSecondary,
+          color: c.textSecondary,
           letterSpacing: 0.5,
         ),
       ),
@@ -183,9 +185,10 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: c.card,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(children: children),
@@ -208,11 +211,12 @@ class _ToggleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.textSecondary),
+          Icon(icon, size: 20, color: c.textSecondary),
           const SizedBox(width: 12),
           Text(label, style: const TextStyle(fontSize: 16)),
           const Spacer(),
@@ -242,13 +246,14 @@ class _LinkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: AppColors.textSecondary),
+            Icon(icon, size: 20, color: c.textSecondary),
             const SizedBox(width: 12),
             Text(label, style: const TextStyle(fontSize: 16)),
             const Spacer(),
@@ -257,14 +262,13 @@ class _LinkRow extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 6),
                 child: Text(
                   value!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
                 ),
               ),
-            const Icon(Icons.chevron_right,
-                size: 18, color: AppColors.textSecondary),
+            Icon(Icons.chevron_right, size: 18, color: c.textSecondary),
           ],
         ),
       ),
@@ -277,9 +281,10 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(left: 48),
-      child: Divider(height: 1, color: AppColors.separator),
+    final c = AppColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(left: 48),
+      child: Divider(height: 1, color: c.separator),
     );
   }
 }

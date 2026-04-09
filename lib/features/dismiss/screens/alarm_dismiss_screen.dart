@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/pushup_cubit.dart';
 import '../cubit/pushup_state.dart';
 import '../widgets/skeleton_painter.dart';
-import '_alarm_banner.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
@@ -64,6 +63,7 @@ class _AlarmDismissViewState extends State<_AlarmDismissView> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return BlocConsumer<PushUpCubit, PushUpState>(
       listener: (context, state) async {
         if (state is SessionGoalReached) {
@@ -90,11 +90,10 @@ class _AlarmDismissViewState extends State<_AlarmDismissView> {
       builder: (context, state) {
         if (state is CameraLoading || state is PushUpInitial) {
           return Scaffold(
-            backgroundColor: AppColors.background,
+            backgroundColor: c.background,
             body: SafeArea(
               child: Column(
                 children: [
-                  AlarmBanner(label: widget.alarmLabel),
                   const Expanded(
                     child: Center(
                       child: CircularProgressIndicator(
@@ -148,14 +147,6 @@ class _AlarmDismissViewState extends State<_AlarmDismissView> {
                       ],
                     ),
                   ),
-                ),
-
-                // Top banner
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: AlarmBanner(label: widget.alarmLabel),
                 ),
 
                 // Rep counter
