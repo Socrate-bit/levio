@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../alarm/alarm_cubit.dart';
-import '../alarm/alarm_state.dart';
+import '../alarm/alarm_state.dart'; // ChallengeType is defined here
 
 class AlarmListScreen extends StatelessWidget {
   const AlarmListScreen({super.key});
@@ -27,6 +27,16 @@ class _AlarmListView extends StatelessWidget {
     );
     if (picked == null || !context.mounted) return;
 
+    final challenge = await showModalBottomSheet<ChallengeType>(
+      context: context,
+      backgroundColor: const Color(0xFF1C1C1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const _ChallengePicker(),
+    );
+    if (challenge == null || !context.mounted) return;
+
     final today = DateTime.now();
     final alarmDateTime = DateTime(
       today.year,
@@ -35,7 +45,7 @@ class _AlarmListView extends StatelessWidget {
       picked.hour,
       picked.minute,
     );
-    context.read<AlarmCubit>().addAlarm(alarmDateTime);
+    context.read<AlarmCubit>().addAlarm(alarmDateTime, challenge);
   }
 
   @override
@@ -86,7 +96,7 @@ class _AlarmListView extends StatelessWidget {
                   ),
                 ),
                 subtitle: Text(
-                  _alarmSubtitle(alarm.dateTime),
+                  '${_alarmSubtitle(alarm.dateTime)} · ${alarm.challenge == ChallengeType.shake ? 'Shake' : 'Push-ups'}',
                   style: const TextStyle(color: Colors.white54),
                 ),
                 trailing: IconButton(
@@ -109,5 +119,56 @@ class _AlarmListView extends StatelessWidget {
     if (diff.inMinutes < 60) return 'In ${diff.inMinutes} min';
     if (diff.inHours < 24) return 'In ${diff.inHours} hr ${diff.inMinutes % 60} min';
     return 'Tomorrow';
+  }
+}
+
+class _ChallengePicker extends StatelessWidget {
+  const _ChallengePicker();
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Choose Challenge',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.fitness_center, color: Colors.white),
+              title: const Text(
+                'Push-ups',
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: const Text(
+                '10 push-ups detected by camera',
+                style: TextStyle(color: Colors.white54),
+              ),
+              onTap: () => Navigator.pop(context, ChallengeType.pushup),
+            ),
+            ListTile(
+              leading: const Icon(Icons.vibration, color: Colors.white),
+              title: const Text(
+                'Shake',
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: const Text(
+                'Shake your phone vigorously 10 times',
+                style: TextStyle(color: Colors.white54),
+              ),
+              onTap: () => Navigator.pop(context, ChallengeType.shake),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/alarm_dismiss_screen.dart';
 import 'screens/alarm_list_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/shake_dismiss_screen.dart';
 import 'services/alarm_service.dart';
 
 final _navigatorKey = GlobalKey<NavigatorState>();
@@ -11,22 +12,22 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Check for a ringing alarm before the widget tree is built (cold start).
-  final ringingAlarmId = await AlarmService.getRingingAlarm();
+  final ringingAlarm = await AlarmService.getRingingAlarm();
 
   runApp(LevioApp(
     navigatorKey: _navigatorKey,
-    ringingAlarmId: ringingAlarmId,
+    ringingAlarm: ringingAlarm,
   ));
 }
 
 class LevioApp extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
-  final String? ringingAlarmId;
+  final Map<String, String>? ringingAlarm;
 
   const LevioApp({
     super.key,
     required this.navigatorKey,
-    this.ringingAlarmId,
+    this.ringingAlarm,
   });
 
   @override
@@ -40,11 +41,11 @@ class _LevioAppState extends State<LevioApp> {
     AlarmService.listenForRing(widget.navigatorKey);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.ringingAlarmId != null) {
+      if (widget.ringingAlarm != null) {
         // Alarm was actively ringing at cold start.
         widget.navigatorKey.currentState?.pushNamed(
           '/alarm-dismiss',
-          arguments: widget.ringingAlarmId,
+          arguments: widget.ringingAlarm,
         );
       } else {
         // Check whether the user tapped "Do push-up" from the notification
@@ -72,7 +73,13 @@ class _LevioAppState extends State<LevioApp> {
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/alarm-dismiss') {
-          final alarmId = settings.arguments as String;
+          final args = settings.arguments as Map<String, String>;
+          final alarmId = args['alarmId']!;
+          if (args['challenge'] == 'shake') {
+            return MaterialPageRoute(
+              builder: (_) => ShakeDismissScreen(alarmId: alarmId),
+            );
+          }
           return MaterialPageRoute(
             builder: (_) => AlarmDismissScreen(alarmId: alarmId),
           );

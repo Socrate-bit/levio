@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AlarmService {
   static StreamSubscription? _subscription;
@@ -10,20 +11,29 @@ class AlarmService {
 
   static const _actionChannel = MethodChannel('levio/alarm-action');
 
+  static String _challengeKey(String id) => 'challenge_$id';
+
   // ---------------------------------------------------------------------------
   // Public API
   // ---------------------------------------------------------------------------
 
-  /// Returns the ID of the first currently-alerting (or snoozed) alarm, if any.
+  /// Returns nav args map with 'alarmId' and 'challenge' for the first
+  /// currently-alerting (or snoozed) alarm, or null if none is ringing.
   ///
   /// AlarmKit maps both the alerting and snoozed states to the @unknown default
   /// branch in Alarm+Extension.swift, so both appear as state == "unknown" here.
-  static Future<String?> getRingingAlarm() async {
+  static Future<Map<String, String>?> getRingingAlarm() async {
     final plugin = FlutterAlarmkit();
+    final prefs = await SharedPreferences.getInstance();
     final alarms = await plugin.getAlarms();
     for (final alarm in alarms) {
       final state = alarm['state'] as String?;
-      if (state == 'unknown') return alarm['id'] as String?;
+      if (state == 'unknown') {
+        final id = alarm['id'] as String?;
+        if (id == null) continue;
+        final challenge = prefs.getString(_challengeKey(id)) ?? 'pushup';
+        return {'alarmId': id, 'challenge': challenge};
+      }
     }
     return null;
   }
@@ -53,10 +63,10 @@ class AlarmService {
     await _clearPendingDismiss();
 
     // The alarm is snoozed → still returned by getRingingAlarm().
-    final alarmId = await getRingingAlarm();
-    if (alarmId == null) return;
+    final ringing = await getRingingAlarm();
+    if (ringing == null) return;
 
-    _pushDismiss(navigatorKey, alarmId);
+    _pushDismiss(navigatorKey, ringing);
   }
 
   /// Starts the alarm-update stream listener and an AppLifecycleListener.
@@ -75,7 +85,7 @@ class AlarmService {
   ///    the next resume.
   static void listenForRing(GlobalKey<NavigatorState> navigatorKey) {
     _subscription?.cancel();
-    _subscription = FlutterAlarmkit.alarmUpdates().listen((event) {
+    _subscription = FlutterAlarmkit.alarmUpdates().listen((event) async {
       if (event is! Map) return;
 
       final eventType = event['event'] as String?;
@@ -87,7 +97,9 @@ class AlarmService {
         if (alarm['state'] != 'unknown') return;
         final alarmId = event['id'] as String?;
         if (alarmId == null) return;
-        _pushDismiss(navigatorKey, alarmId);
+        final prefs = await SharedPreferences.getInstance();
+        final challenge = prefs.getString(_challengeKey(alarmId)) ?? 'pushup';
+        _pushDismiss(navigatorKey, {'alarmId': alarmId, 'challenge': challenge});
         return;
       }
 
@@ -96,9 +108,8 @@ class AlarmService {
       if (eventType == 'secondaryButtonTapped') {
         // We don't trust the id from the notification identifier directly —
         // query AlarmKit to get the authoritative snoozed alarm id instead.
-        getRingingAlarm().then((alarmId) {
-          if (alarmId != null) _pushDismiss(navigatorKey, alarmId);
-        });
+        final ringing = await getRingingAlarm();
+        if (ringing != null) _pushDismiss(navigatorKey, ringing);
       }
     });
 
@@ -120,13 +131,13 @@ class AlarmService {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  static void _pushDismiss(GlobalKey<NavigatorState> navigatorKey, String alarmId) {
+  static void _pushDismiss(GlobalKey<NavigatorState> navigatorKey, Map<String, String> args) {
     // pushNamedAndRemoveUntil keeps only the root '/' route and pushes
     // '/alarm-dismiss', so calling this multiple times is idempotent.
     navigatorKey.currentState?.pushNamedAndRemoveUntil(
       '/alarm-dismiss',
       (route) => route.isFirst,
-      arguments: alarmId,
+      arguments: args,
     );
   }
 }
