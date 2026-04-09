@@ -5,6 +5,8 @@ import '../../missions/models/mission.dart';
 // Keep ChallengeType as a type alias / backward-compat re-export
 typedef ChallengeType = MissionType;
 
+enum MathDifficulty { easy, medium, hard }
+
 /// Local model for a scheduled alarm.
 class AppAlarmEntry extends Equatable {
   final String id;
@@ -15,6 +17,8 @@ class AppAlarmEntry extends Equatable {
   final List<bool> repeatDays; // Sun=0 … Sat=6
   final bool isEnabled;
   final bool isOneTime;
+  final MathDifficulty mathDifficulty;
+  final String? customObject; // used only for objectHunt
 
   const AppAlarmEntry({
     required this.id,
@@ -25,6 +29,8 @@ class AppAlarmEntry extends Equatable {
     this.repeatDays = const [false, true, true, true, true, true, false],
     this.isEnabled = true,
     this.isOneTime = false,
+    this.mathDifficulty = MathDifficulty.easy,
+    this.customObject,
   });
 
   AppAlarmEntry copyWith({
@@ -36,6 +42,9 @@ class AppAlarmEntry extends Equatable {
     List<bool>? repeatDays,
     bool? isEnabled,
     bool? isOneTime,
+    MathDifficulty? mathDifficulty,
+    String? customObject,
+    bool clearCustomObject = false,
   }) =>
       AppAlarmEntry(
         id: id ?? this.id,
@@ -46,11 +55,23 @@ class AppAlarmEntry extends Equatable {
         repeatDays: repeatDays ?? this.repeatDays,
         isEnabled: isEnabled ?? this.isEnabled,
         isOneTime: isOneTime ?? this.isOneTime,
+        mathDifficulty: mathDifficulty ?? this.mathDifficulty,
+        customObject: clearCustomObject ? null : customObject ?? this.customObject,
       );
 
   @override
-  List<Object?> get props =>
-      [id, dateTime, missionType, name, soundId, repeatDays, isEnabled, isOneTime];
+  List<Object?> get props => [
+        id,
+        dateTime,
+        missionType,
+        name,
+        soundId,
+        repeatDays,
+        isEnabled,
+        isOneTime,
+        mathDifficulty,
+        customObject,
+      ];
 }
 
 class AlarmState extends Equatable {

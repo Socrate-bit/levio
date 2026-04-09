@@ -10,16 +10,25 @@ import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 
+const _houseObjects = [
+  'coffee mug', 'book', 'lamp', 'pillow', 'remote control',
+  'water bottle', 'shoes', 'plant', 'clock', 'chair',
+  'towel', 'mirror', 'candle', 'bag', 'headphones',
+  'pen', 'cup', 'key', 'hat', 'glasses',
+];
+
 class PhotoDismissScreen extends StatefulWidget {
   final String alarmId;
   final MissionType missionType;
   final String alarmLabel;
+  final String? customObject;
 
   const PhotoDismissScreen({
     super.key,
     required this.alarmId,
     this.missionType = MissionType.skyPhoto,
     this.alarmLabel = 'Alarm #1',
+    this.customObject,
   });
 
   @override
@@ -31,11 +40,19 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   bool _isValidating = false;
   String? _errorMessage;
   final _startTime = DateTime.now();
+  late final String _targetObject;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    if (widget.missionType == MissionType.objectHunt) {
+      _targetObject = widget.customObject?.isNotEmpty == true
+          ? widget.customObject!
+          : (_houseObjects..shuffle()).first;
+    } else {
+      _targetObject = '';
+    }
     _initCamera();
   }
 
@@ -71,7 +88,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
 
       final model = FirebaseAI.googleAI()
           .generativeModel(model: 'gemini-2.0-flash-lite');
-      final prompt = geminiPromptFor(widget.missionType);
+      final prompt = widget.missionType == MissionType.objectHunt
+          ? 'Does this image clearly show a $_targetObject? Reply with only YES or NO.'
+          : geminiPromptFor(widget.missionType);
       final response = await model.generateContent([
         Content.multi([
           TextPart(prompt),
@@ -178,12 +197,15 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        info.name,
+                        widget.missionType == MissionType.objectHunt
+                            ? _targetObject
+                            : info.name,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
