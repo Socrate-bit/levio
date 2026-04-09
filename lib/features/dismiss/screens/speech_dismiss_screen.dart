@@ -1,0 +1,240 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_alarmkit/flutter_alarmkit.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+
+import '_alarm_banner.dart';
+import '../../missions/models/mission.dart';
+import '../../wakeup/models/wakeup_session.dart';
+import '../../wakeup/screens/wakeup_complete_screen.dart';
+import '../../../shared/theme/app_theme.dart';
+
+class SpeechDismissScreen extends StatefulWidget {
+  final String alarmId;
+  final MissionType missionType;
+  final String alarmLabel;
+
+  const SpeechDismissScreen({
+    super.key,
+    required this.alarmId,
+    this.missionType = MissionType.affirmation,
+    this.alarmLabel = 'Alarm #1',
+  });
+
+  @override
+  State<SpeechDismissScreen> createState() => _SpeechDismissScreenState();
+}
+
+class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
+  static const double _threshold = 0.70;
+
+  final SpeechToText _stt = SpeechToText();
+  bool _isListening = false;
+  String _transcription = '';
+  double? _lastScore;
+  bool _initialized = false;
+  final _startTime = DateTime.now();
+
+  String get _targetText => speechPhraseFor(widget.missionType);
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    _initSpeech();
+  }
+
+  Future<void> _initSpeech() async {
+    final available = await _stt.initialize();
+    if (mounted) setState(() => _initialized = available);
+  }
+
+  double _similarity(String spoken, String target) {
+    final targetWords = target.toLowerCase().split(RegExp(r'\s+'));
+    final spokenWords = spoken.toLowerCase().split(RegExp(r'\s+'));
+    final matches =
+        targetWords.where((w) => spokenWords.contains(w)).length;
+    return matches / targetWords.length;
+  }
+
+  Future<void> _startListening() async {
+    if (!_initialized || _isListening) return;
+    setState(() {
+      _isListening = true;
+      _transcription = '';
+      _lastScore = null;
+    });
+    await _stt.listen(
+      onResult: _onResult,
+      listenFor: const Duration(seconds: 15),
+      pauseFor: const Duration(seconds: 3),
+      listenOptions: SpeechListenOptions(
+        cancelOnError: true,
+        partialResults: true,
+      ),
+    );
+  }
+
+  void _onResult(SpeechRecognitionResult result) {
+    setState(() => _transcription = result.recognizedWords);
+    if (!result.finalResult) return;
+    final score = _similarity(result.recognizedWords, _targetText);
+    _stt.stop();
+    if (score >= _threshold) {
+      _dismiss();
+    } else {
+      setState(() {
+        _isListening = false;
+        _lastScore = score;
+      });
+    }
+  }
+
+  Future<void> _dismiss() async {
+    await FlutterAlarmkit().stopAlarm(alarmId: widget.alarmId);
+    final elapsed = DateTime.now().difference(_startTime).inSeconds;
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => WakeupCompleteScreen(
+            timeTakenSeconds: elapsed,
+            session: WakeupSession(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              timestamp: DateTime.now(),
+              timeTakenSeconds: elapsed,
+              missionType: widget.missionType,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _stt.stop();
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final score = _lastScore;
+    final scoreText =
+        score != null ? '${(score * 100).round()}% — try again' : null;
+    final info = missionInfoFor(widget.missionType);
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            AlarmBanner(label: widget.alarmLabel),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Mission icon
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: info.iconBg,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(info.icon,
+                          color: info.iconColor, size: 30),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Say:',
+                      style: TextStyle(
+                          fontSize: 16, color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '"$_targetText"',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 44),
+                    // Mic button
+                    GestureDetector(
+                      onTap: _isListening ? null : _startListening,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _isListening
+                              ? AppColors.orange
+                              : AppColors.separator,
+                        ),
+                        child: Icon(
+                          _isListening ? Icons.mic : Icons.mic_none,
+                          color: _isListening
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                          size: 36,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _isListening ? 'Listening…' : 'Tap to speak',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    if (_transcription.isNotEmpty) ...[
+                      const SizedBox(height: 20),
+                      Text(
+                        _transcription,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: AppColors.textPrimary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                    if (scoreText != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          scoreText,
+                          style: const TextStyle(
+                            color: AppColors.orange,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    if (!_initialized)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 12),
+                        child: Text(
+                          'Microphone unavailable',
+                          style: TextStyle(
+                              color: Colors.red, fontSize: 14),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

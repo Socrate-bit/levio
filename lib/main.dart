@@ -1,46 +1,51 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'screens/alarm_dismiss_screen.dart';
-import 'screens/alarm_list_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/photo_dismiss_screen.dart';
-import 'screens/shake_dismiss_screen.dart';
-import 'screens/speech_dismiss_screen.dart';
-import 'services/alarm_service.dart';
+import 'features/alarms/cubit/alarm_cubit.dart';
+import 'features/alarms/services/alarm_service.dart';
+import 'features/dismiss/screens/alarm_dismiss_screen.dart';
+import 'features/dismiss/screens/math_dismiss_screen.dart';
+import 'features/dismiss/screens/photo_dismiss_screen.dart';
+import 'features/dismiss/screens/shake_dismiss_screen.dart';
+import 'features/dismiss/screens/speech_dismiss_screen.dart';
+import 'features/missions/models/mission.dart';
+import 'services/auth_service.dart';
+import 'shared/theme/app_theme.dart';
+import 'shared/widgets/bottom_nav_shell.dart';
 
 final _navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Requires GoogleService-Info.plist (iOS) / google-services.json (Android)
-  // and optionally firebase_options.dart from `flutterfire configure`.
   await Firebase.initializeApp();
 
-  // Check for a ringing alarm before the widget tree is built (cold start).
+  // Anonymous auth — all Firestore data is scoped to this uid
+  await AuthService.signInAnonymously();
+
   final ringingAlarm = await AlarmService.getRingingAlarm();
 
-  runApp(LevioApp(
+  runApp(WaykApp(
     navigatorKey: _navigatorKey,
     ringingAlarm: ringingAlarm,
   ));
 }
 
-class LevioApp extends StatefulWidget {
+class WaykApp extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final Map<String, String>? ringingAlarm;
 
-  const LevioApp({
+  const WaykApp({
     super.key,
     required this.navigatorKey,
     this.ringingAlarm,
   });
 
   @override
-  State<LevioApp> createState() => _LevioAppState();
+  State<WaykApp> createState() => _WaykAppState();
 }
 
-class _LevioAppState extends State<LevioApp> {
+class _WaykAppState extends State<WaykApp> {
   @override
   void initState() {
     super.initState();
@@ -48,14 +53,11 @@ class _LevioAppState extends State<LevioApp> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.ringingAlarm != null) {
-        // Alarm was actively ringing at cold start.
         widget.navigatorKey.currentState?.pushNamed(
           '/alarm-dismiss',
           arguments: widget.ringingAlarm,
         );
       } else {
-        // Check whether the user tapped "Do push-up" from the notification
-        // banner while the app was killed (alarm is now snoozed, not alerting).
         AlarmService.checkAndNavigate(widget.navigatorKey);
       }
     });
@@ -69,39 +71,76 @@ class _LevioAppState extends State<LevioApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      navigatorKey: widget.navigatorKey,
-      initialRoute: '/',
-      routes: {
-        '/': (_) => const HomeScreen(),
-        '/alarms': (_) => const AlarmListScreen(),
-      },
-      onGenerateRoute: (settings) {
-        if (settings.name == '/alarm-dismiss') {
-          final args = settings.arguments as Map<String, String>;
-          final alarmId = args['alarmId']!;
-          if (args['challenge'] == 'shake') {
-            return MaterialPageRoute(
-              builder: (_) => ShakeDismissScreen(alarmId: alarmId),
-            );
+    return BlocProvider(
+      create: (_) => AlarmCubit(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Wayk',
+        theme: AppTheme.light,
+        navigatorKey: widget.navigatorKey,
+        initialRoute: '/',
+        routes: {
+          '/': (_) => const BottomNavShell(),
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == '/alarm-dismiss') {
+            final args = settings.arguments as Map<String, String>;
+            final alarmId = args['alarmId']!;
+            final challengeStr = args['challenge'] ?? 'pushUps';
+            final label = args['label'] ?? 'Alarm #1';
+            final mission = missionTypeFromString(challengeStr);
+
+            switch (mission) {
+              case MissionType.shakePhone:
+                return MaterialPageRoute(
+                  builder: (_) => ShakeDismissScreen(
+                    alarmId: alarmId,
+                    alarmLabel: label,
+                  ),
+                );
+              case MissionType.math:
+                return MaterialPageRoute(
+                  builder: (_) => MathDismissScreen(
+                    alarmId: alarmId,
+                    alarmLabel: label,
+                  ),
+                );
+              case MissionType.skyPhoto:
+              case MissionType.makeBed:
+              case MissionType.objectHunt:
+              case MissionType.petHunt:
+              case MissionType.natureHunt:
+              case MissionType.touchGrass:
+                return MaterialPageRoute(
+                  builder: (_) => PhotoDismissScreen(
+                    alarmId: alarmId,
+                    missionType: mission,
+                    alarmLabel: label,
+                  ),
+                );
+              case MissionType.bibleVerse:
+              case MissionType.affirmation:
+                return MaterialPageRoute(
+                  builder: (_) => SpeechDismissScreen(
+                    alarmId: alarmId,
+                    missionType: mission,
+                    alarmLabel: label,
+                  ),
+                );
+              case MissionType.pushUps:
+              case MissionType.squats:
+              default:
+                return MaterialPageRoute(
+                  builder: (_) => AlarmDismissScreen(
+                    alarmId: alarmId,
+                    alarmLabel: label,
+                  ),
+                );
+            }
           }
-          if (args['challenge'] == 'photo') {
-            return MaterialPageRoute(
-              builder: (_) => PhotoDismissScreen(alarmId: alarmId),
-            );
-          }
-          if (args['challenge'] == 'speech') {
-            return MaterialPageRoute(
-              builder: (_) => SpeechDismissScreen(alarmId: alarmId),
-            );
-          }
-          return MaterialPageRoute(
-            builder: (_) => AlarmDismissScreen(alarmId: alarmId),
-          );
-        }
-        return null;
-      },
+          return null;
+        },
+      ),
     );
   }
 }
