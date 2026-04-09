@@ -10,6 +10,7 @@ import 'features/dismiss/screens/alarm_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
 import 'features/dismiss/screens/photo_dismiss_screen.dart';
 import 'features/dismiss/screens/shake_dismiss_screen.dart';
+import 'features/dismiss/screens/simple_dismiss_screen.dart';
 import 'features/dismiss/screens/speech_dismiss_screen.dart';
 import 'features/dismiss/screens/squat_dismiss_screen.dart';
 import 'features/missions/models/mission.dart';
@@ -99,13 +100,37 @@ class _LevioAppState extends State<LevioApp> {
             final label = args['label'] ?? 'Alarm #1';
             final mathDiffStr = args['mathDifficulty'] ?? 'easy';
             final customObj = args['customObject'];
-            final mission = missionTypeFromString(challengeStr);
+            var mission = missionTypeFromString(challengeStr);
+            if (mission == MissionType.random) {
+              final randomPool = [
+                MissionType.pushUps,
+                MissionType.squats,
+                MissionType.shakePhone,
+                MissionType.math,
+                MissionType.skyPhoto,
+                MissionType.makeBed,
+                MissionType.objectHunt,
+                MissionType.petHunt,
+                MissionType.natureHunt,
+                MissionType.touchGrass,
+                MissionType.bibleVerse,
+                MissionType.affirmation,
+              ];
+              mission = (randomPool..shuffle()).first;
+            }
             final mathDiff = MathDifficulty.values.firstWhere(
               (d) => d.name == mathDiffStr,
               orElse: () => MathDifficulty.easy,
             );
 
             switch (mission) {
+              case MissionType.none:
+                return MaterialPageRoute(
+                  builder: (_) => SimpleDismissScreen(
+                    alarmId: alarmId,
+                    alarmLabel: label,
+                  ),
+                );
               case MissionType.shakePhone:
                 return MaterialPageRoute(
                   builder: (_) => ShakeDismissScreen(
@@ -151,6 +176,7 @@ class _LevioAppState extends State<LevioApp> {
                     alarmLabel: label,
                   ),
                 );
+
               case MissionType.pushUps:
               default:
                 return MaterialPageRoute(

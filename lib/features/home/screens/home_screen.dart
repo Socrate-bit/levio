@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../alarms/screens/alarm_form_screen.dart';
+import '../../alarms/screens/sound_picker_screen.dart';
+import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/bottom_nav_shell.dart';
@@ -225,7 +227,7 @@ class _WeekRow extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: done ? Colors.transparent : c.separator,
-                border: isToday
+                border: done
                     ? Border.all(color: AppColors.orange, width: 2)
                     : null,
               ),
@@ -312,13 +314,41 @@ class _NoAlarmCard extends StatelessWidget {
   }
 }
 
-class _NextAlarmCard extends StatelessWidget {
+class _NextAlarmCard extends StatefulWidget {
   final AppAlarmEntry alarm;
   const _NextAlarmCard({required this.alarm});
 
   @override
+  State<_NextAlarmCard> createState() => _NextAlarmCardState();
+}
+
+class _NextAlarmCardState extends State<_NextAlarmCard> {
+  Future<void> _pickMission() async {
+    final picked = await Navigator.push<MissionType>(
+      context,
+      MaterialPageRoute(builder: (_) => const MissionPickerScreen()),
+    );
+    if (picked == null || !mounted) return;
+    context
+        .read<AlarmCubit>()
+        .updateAlarmMeta(widget.alarm.copyWith(missionType: picked));
+  }
+
+  Future<void> _pickSound() async {
+    final result = await Navigator.push<Map<String, String>>(
+      context,
+      MaterialPageRoute(builder: (_) => const SoundPickerScreen()),
+    );
+    if (result == null || !mounted) return;
+    context
+        .read<AlarmCubit>()
+        .updateAlarmMeta(widget.alarm.copyWith(soundId: result['id']));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final alarm = widget.alarm;
     final now = DateTime.now();
     final diff = alarm.dateTime.difference(now);
     final hoursLeft = diff.inHours;
@@ -413,13 +443,15 @@ class _NextAlarmCard extends StatelessWidget {
                   iconColor: missionInfo.iconColor,
                   label: 'Mission',
                   value: missionInfo.name,
+                  onTap: _pickMission,
                 ),
                 const SizedBox(width: 10),
-                const _MiniInfoCard(
+                _MiniInfoCard(
                   icon: Icons.music_note,
-                  iconColor: Color(0xFFFFCC00),
+                  iconColor: const Color(0xFFFFCC00),
                   label: 'Sound',
-                  value: 'Default',
+                  value: alarm.soundId == 'default' ? 'Default' : alarm.soundId,
+                  onTap: _pickSound,
                 ),
               ],
             ),
@@ -441,19 +473,23 @@ class _MiniInfoCard extends StatelessWidget {
   final Color iconColor;
   final String label;
   final String value;
+  final VoidCallback? onTap;
 
   const _MiniInfoCard({
     required this.icon,
     required this.iconColor,
     required this.label,
     required this.value,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return Expanded(
-      child: Container(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: c.background,
@@ -472,6 +508,7 @@ class _MiniInfoCard extends StatelessWidget {
             Icon(icon, size: 22, color: iconColor),
           ],
         ),
+      ),
       ),
     );
   }
@@ -537,18 +574,10 @@ class _WakeupCard extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
+          Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: c.card,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                ),
               ),
               child: Row(
                 children: [
@@ -598,7 +627,6 @@ class _WakeupCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
         ],
       ),
     );

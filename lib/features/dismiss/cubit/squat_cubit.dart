@@ -39,9 +39,8 @@ class SquatCubit extends Cubit<PushUpState> {
       );
 
       final cameras = await availableCameras();
-      // Prefer back camera for squats (easier to see full body)
       final cam = cameras.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.back,
+        (c) => c.lensDirection == CameraLensDirection.front,
         orElse: () => cameras.first,
       );
       _sensorOrientation = cam.sensorOrientation;

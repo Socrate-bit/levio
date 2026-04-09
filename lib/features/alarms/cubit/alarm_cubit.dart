@@ -28,15 +28,12 @@ class AlarmCubit extends Cubit<AlarmState> {
   Future<void> _syncAlarms() async {
     final firestoreAlarms = await AlarmFirestoreService.getAlarms();
 
-    // Collect native alarm ids
+    // Collect native alarm ids (all types: fixed + recurrent)
     final rawNative = await _plugin.getAlarms();
     final nativeIds = <String>{};
     for (final item in rawNative) {
       final id = item['id'] as String?;
-      final schedule = item['schedule'] as Map?;
-      if (id == null || schedule == null) continue;
-      if (schedule['type'] != 'fixed') continue;
-      nativeIds.add(id);
+      if (id != null) nativeIds.add(id);
     }
 
     final prefs = await SharedPreferences.getInstance();
@@ -56,17 +53,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         scheduled = scheduled.add(const Duration(days: 1));
       }
 
-      final info = missionInfoFor(alarm.missionType);
-      final newId = await _plugin.scheduleOneShotAlarm(
-        timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
-        label: alarm.name.isNotEmpty ? alarm.name : 'Levio — ${info.name} mission',
-        secondaryButton: AlarmButton(
-          text: info.name,
-          textColor: '#FFFFFF',
-          systemImageName: _systemImageFor(alarm.missionType),
-        ),
-        secondaryButtonBehavior: AlarmSecondaryButtonBehavior.snooze(300),
-      );
+      final newId = await _scheduleNative(alarm, scheduled);
 
       // Update SharedPreferences (alarm service reads these on ring)
       await prefs.remove(_missionKey(alarm.id));
@@ -95,19 +82,7 @@ class AlarmCubit extends Cubit<AlarmState> {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
-    final info = missionInfoFor(entry.missionType);
-    final id = await _plugin.scheduleOneShotAlarm(
-      timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
-      label: entry.name.isNotEmpty
-          ? entry.name
-          : 'Levio — ${info.name} mission',
-      secondaryButton: AlarmButton(
-        text: info.name,
-        textColor: '#FFFFFF',
-        systemImageName: _systemImageFor(entry.missionType),
-      ),
-      secondaryButtonBehavior: AlarmSecondaryButtonBehavior.snooze(300),
-    );
+    final id = await _scheduleNative(entry, scheduled, forceOneShot: kDebugMode);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_missionKey(id), entry.missionType.name);
@@ -119,13 +94,52 @@ class AlarmCubit extends Cubit<AlarmState> {
     emit(state.copyWith(alarms: [...state.alarms, saved]));
   }
 
+  /// Updates only metadata (mission, sound, name) without rescheduling the
+  /// native alarm. Use this for changes that don't affect the trigger time.
+  Future<void> updateAlarmMeta(AppAlarmEntry updated) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_missionKey(updated.id), updated.missionType.name);
+    await prefs.setString(_nameKey(updated.id), updated.name);
+    await prefs.setString(_soundKey(updated.id), updated.soundId);
+    await AlarmFirestoreService.saveAlarm(updated);
+    emit(state.copyWith(
+      alarms: state.alarms.map((a) => a.id == updated.id ? updated : a).toList(),
+    ));
+  }
+
   Future<void> toggleAlarm(String id, bool enabled) async {
-    final updated = state.alarms
-        .map((a) => a.id == id ? a.copyWith(isEnabled: enabled) : a)
-        .toList();
-    emit(state.copyWith(alarms: updated));
-    final alarm = updated.firstWhere((a) => a.id == id);
-    await AlarmFirestoreService.saveAlarm(alarm);
+    final alarm = state.alarms.firstWhere((a) => a.id == id);
+
+    if (!enabled) {
+      await _plugin.cancelAlarm(alarmId: id);
+      final updated = state.alarms
+          .map((a) => a.id == id ? a.copyWith(isEnabled: false) : a)
+          .toList();
+      emit(state.copyWith(alarms: updated));
+      await AlarmFirestoreService.saveAlarm(updated.firstWhere((a) => a.id == id));
+    } else {
+      var scheduled = alarm.dateTime;
+      if (scheduled.isBefore(DateTime.now())) {
+        scheduled = scheduled.add(const Duration(days: 1));
+      }
+      final newId = await _scheduleNative(alarm, scheduled);
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_missionKey(id));
+      await prefs.remove(_nameKey(id));
+      await prefs.remove(_soundKey(id));
+      await prefs.setString(_missionKey(newId), alarm.missionType.name);
+      await prefs.setString(_nameKey(newId), alarm.name);
+      await prefs.setString(_soundKey(newId), alarm.soundId);
+
+      await AlarmFirestoreService.deleteAlarm(id);
+      final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled, isEnabled: true);
+      await AlarmFirestoreService.saveAlarm(rescheduled);
+
+      emit(state.copyWith(
+        alarms: state.alarms.map((a) => a.id == id ? rescheduled : a).toList(),
+      ));
+    }
   }
 
   Future<void> editAlarm(AppAlarmEntry old, AppAlarmEntry updated) async {
@@ -144,19 +158,7 @@ class AlarmCubit extends Cubit<AlarmState> {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
-    final info = missionInfoFor(updated.missionType);
-    final newId = await _plugin.scheduleOneShotAlarm(
-      timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
-      label: updated.name.isNotEmpty
-          ? updated.name
-          : 'Levio — ${info.name} mission',
-      secondaryButton: AlarmButton(
-        text: info.name,
-        textColor: '#FFFFFF',
-        systemImageName: _systemImageFor(updated.missionType),
-      ),
-      secondaryButtonBehavior: AlarmSecondaryButtonBehavior.snooze(300),
-    );
+    final newId = await _scheduleNative(updated, scheduled, forceOneShot: kDebugMode);
 
     await prefs.setString(_missionKey(newId), updated.missionType.name);
     await prefs.setString(_nameKey(newId), updated.name);
@@ -182,8 +184,70 @@ class AlarmCubit extends Cubit<AlarmState> {
     ));
   }
 
+  /// Schedules a native alarm, choosing one-shot or recurrent based on the
+  /// entry's [repeatDays] and [isOneTime]. Pass [forceOneShot] to override
+  /// (e.g. in debug mode).
+  Future<String> _scheduleNative(
+    AppAlarmEntry entry,
+    DateTime scheduled, {
+    bool forceOneShot = false,
+  }) {
+    final info = missionInfoFor(entry.missionType);
+    final label = entry.name.isNotEmpty
+        ? entry.name
+        : 'Levio — ${info.name} mission';
+    final secondaryButton = AlarmButton(
+      text: info.name,
+      textColor: '#FFFFFF',
+      systemImageName: _systemImageFor(entry.missionType),
+    );
+    final behavior = AlarmSecondaryButtonBehavior.snooze(300);
+
+    final isRecurrent =
+        !forceOneShot && !entry.isOneTime && entry.repeatDays.any((d) => d);
+
+    if (isRecurrent) {
+      return _plugin.scheduleRecurrentAlarm(
+        weekdays: _toWeekdays(entry.repeatDays),
+        hour: scheduled.hour,
+        minute: scheduled.minute,
+        label: label,
+        secondaryButton: secondaryButton,
+        secondaryButtonBehavior: behavior,
+      );
+    } else {
+      return _plugin.scheduleOneShotAlarm(
+        timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
+        label: label,
+        secondaryButton: secondaryButton,
+        secondaryButtonBehavior: behavior,
+      );
+    }
+  }
+
+  /// Converts [repeatDays] (Sun=0 … Sat=6) to a [Set<Weekday>].
+  /// [Weekday] enum is Mon=0 … Sun=6.
+  Set<Weekday> _toWeekdays(List<bool> days) {
+    const mapping = [
+      Weekday.sunday,    // days[0]
+      Weekday.monday,    // days[1]
+      Weekday.tuesday,   // days[2]
+      Weekday.wednesday, // days[3]
+      Weekday.thursday,  // days[4]
+      Weekday.friday,    // days[5]
+      Weekday.saturday,  // days[6]
+    ];
+    final result = <Weekday>{};
+    for (var i = 0; i < days.length; i++) {
+      if (days[i]) result.add(mapping[i]);
+    }
+    return result;
+  }
+
   String _systemImageFor(MissionType type) {
     switch (type) {
+      case MissionType.none:
+        return 'alarm';
       case MissionType.shakePhone:
         return 'iphone.radiowaves.left.and.right';
       case MissionType.pushUps:

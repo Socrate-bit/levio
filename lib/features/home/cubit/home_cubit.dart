@@ -10,9 +10,10 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> load() async {
     emit(state.copyWith(loading: true));
     try {
-      final profile = await StreakService.getProfile();
-      final lastSession = await HistoryService.getLastSession();
+      final allSessions = await HistoryService.getSessions(limit: 500);
+      final lastSession = allSessions.isEmpty ? null : allSessions.first;
       final totalWakeups = await HistoryService.getTotalWakeups();
+      final currentStreak = await StreakService.computeCurrentStreak(allSessions);
 
       // Build week days (Sun–Sat): which days this week had wakeups
       final weekSessions = await HistoryService.getSessionsThisWeek();
@@ -22,7 +23,7 @@ class HomeCubit extends Cubit<HomeState> {
       }
 
       emit(state.copyWith(
-        currentStreak: profile.currentStreak,
+        currentStreak: currentStreak,
         weekDays: weekDays,
         lastSession: lastSession,
         totalWakeups: totalWakeups,

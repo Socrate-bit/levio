@@ -184,7 +184,7 @@ class _RangeToggle extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? c.textPrimary
+                      ? AppColors.orange
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                 ),

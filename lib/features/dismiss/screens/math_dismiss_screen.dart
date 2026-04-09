@@ -6,7 +6,6 @@ import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/cubit/alarm_state.dart';
-import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 
 class MathDismissScreen extends StatefulWidget {
@@ -135,12 +134,8 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => WakeupCompleteScreen(
+            alarmId: widget.alarmId,
             timeTakenSeconds: elapsed,
-            session: WakeupSession(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              timestamp: DateTime.now(),
-              timeTakenSeconds: elapsed,
-            ),
           ),
         ),
       );

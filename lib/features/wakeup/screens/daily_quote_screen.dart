@@ -1,6 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
-const _quotes = [
+const dailyQuotes = [
   ('In the middle of every difficulty lies opportunity.', 'Albert Einstein'),
   ('The secret of getting ahead is getting started.', 'Mark Twain'),
   (
@@ -28,8 +30,7 @@ class DailyQuoteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now().dayOfYear;
-    final (quote, author) = _quotes[today % _quotes.length];
+    final (quote, author) = dailyQuotes[Random().nextInt(dailyQuotes.length)];
 
     return Scaffold(
       body: Stack(
@@ -116,12 +117,5 @@ class DailyQuoteScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-extension on DateTime {
-  int get dayOfYear {
-    final start = DateTime(year, 1, 1);
-    return difference(start).inDays;
   }
 }

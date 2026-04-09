@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 
 import '../../missions/models/mission.dart';
-import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 
@@ -119,13 +118,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => WakeupCompleteScreen(
+            alarmId: widget.alarmId,
             timeTakenSeconds: elapsed,
-            session: WakeupSession(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              timestamp: DateTime.now(),
-              timeTakenSeconds: elapsed,
-              missionType: widget.missionType,
-            ),
+            missionType: widget.missionType,
           ),
         ),
       );

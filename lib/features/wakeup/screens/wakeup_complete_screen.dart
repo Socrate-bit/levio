@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../milestones/models/badge_model.dart';
 import '../../milestones/screens/badge_unlock_screen.dart';
 import '../../milestones/services/streak_service.dart';
-import '../../wakeup/models/wakeup_session.dart';
+import '../../missions/models/mission.dart';
 import '../../wakeup/services/history_service.dart';
 import 'daily_quote_screen.dart';
 
 class WakeupCompleteScreen extends StatefulWidget {
+  final String alarmId;
   final int timeTakenSeconds;
-  final WakeupSession session;
+  final MissionType? missionType;
 
   const WakeupCompleteScreen({
     super.key,
+    required this.alarmId,
     required this.timeTakenSeconds,
-    required this.session,
+    this.missionType,
   });
 
   @override
@@ -36,11 +39,22 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
 
   Future<void> _processWakeup() async {
     try {
-      await HistoryService.saveSession(widget.session);
+      final prefs = await SharedPreferences.getInstance();
+      final sessionId = prefs.getString('pending_session_${widget.alarmId}');
+      final soundId = prefs.getString('sound_${widget.alarmId}') ?? 'default';
+
+      if (sessionId != null) {
+        await HistoryService.completeSession(
+          sessionId,
+          timeTakenSeconds: widget.timeTakenSeconds,
+        );
+      }
+
       final result = await StreakService.onWakeupCompleted(
-        soundId: widget.session.soundId,
+        sessionId: sessionId ?? widget.alarmId,
+        soundId: soundId,
         timeTakenSeconds: widget.timeTakenSeconds,
-        missionType: widget.session.missionType,
+        missionType: widget.missionType,
       );
       final total = await HistoryService.getTotalWakeups();
 
@@ -52,7 +66,6 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
           _loading = false;
         });
 
-        // Show badge unlock screens sequentially
         for (final badge in _newBadges) {
           if (!mounted) break;
           await Navigator.push(
@@ -85,7 +98,6 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
           child: Column(
             children: [
               const Spacer(),
-              // Sun emoji mascot
               const Text('🌞', style: TextStyle(fontSize: 80)),
               const SizedBox(height: 24),
               Text(
@@ -99,10 +111,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
               const SizedBox(height: 8),
               Text(
                 'You joined 23 922 others waking up today',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: c.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: c.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 36),
@@ -131,7 +140,6 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                   ],
                 ),
               const Spacer(),
-              // Daily Quote
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
@@ -145,14 +153,10 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                   children: [
                     Text(
                       'Daily Quote',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: c.textSecondary,
-                      ),
+                      style: TextStyle(fontSize: 15, color: c.textSecondary),
                     ),
                     const SizedBox(width: 4),
-                    Icon(Icons.chevron_right,
-                        size: 18, color: c.textSecondary),
+                    Icon(Icons.chevron_right, size: 18, color: c.textSecondary),
                   ],
                 ),
               ),
@@ -207,10 +211,7 @@ class _StatBox extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 11,
-                color: c.textSecondary,
-              ),
+              style: TextStyle(fontSize: 11, color: c.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

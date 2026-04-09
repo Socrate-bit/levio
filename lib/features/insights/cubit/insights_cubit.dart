@@ -32,9 +32,15 @@ class InsightsCubit extends Cubit<InsightsState> {
         InsightsRange.allTime => null,
       };
 
+      // Fetch all completed sessions for streak (no date filter needed)
+      final allSessions = await HistoryService.getSessions(limit: 500);
       final sessions = since != null
-          ? await HistoryService.getSessions(limit: 500, since: since)
-          : await HistoryService.getSessions(limit: 500);
+          ? allSessions.where((s) => s.timestamp.isAfter(since)).toList()
+          : allSessions;
+
+      // Compute streak live from sessions so it reflects reality even if
+      // onWakeupCompleted wasn't called (e.g. manual sessions, testing).
+      final currentStreak = await StreakService.computeCurrentStreak(allSessions);
 
       // Week dots (always for current week regardless of range)
       final weekSessions = await HistoryService.getSessionsThisWeek();
@@ -62,7 +68,7 @@ class InsightsCubit extends Cubit<InsightsState> {
       const totalBadges = 13;
 
       emit(state.copyWith(
-        currentStreak: profile.currentStreak,
+        currentStreak: currentStreak,
         longestStreak: profile.longestStreak,
         weekDays: weekDays,
         badgesEarned: badgesEarned,

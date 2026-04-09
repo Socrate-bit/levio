@@ -11,8 +11,10 @@ import 'sound_picker_screen.dart';
 class AlarmFormScreen extends StatefulWidget {
   /// If non-null, the form is in edit mode for this alarm.
   final AppAlarmEntry? alarm;
+  /// When false, the mission picker is hidden.
+  final bool showMission;
 
-  const AlarmFormScreen({super.key, this.alarm});
+  const AlarmFormScreen({super.key, this.alarm, this.showMission = true});
 
   @override
   State<AlarmFormScreen> createState() => _AlarmFormScreenState();
@@ -46,7 +48,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _time = TimeOfDay(hour: a.dateTime.hour, minute: a.dateTime.minute);
       _isScheduled = !a.isOneTime;
       _repeatDays = List.from(a.repeatDays);
-      _mission = a.missionType;
+      _mission = a.missionType == MissionType.none ? null : a.missionType;
       _soundId = a.soundId;
       _soundName = _soundIdToName(a.soundId);
       _mathDifficulty = a.mathDifficulty;
@@ -117,7 +119,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        _isEditing ? 'Edit Alarm' : 'Mission Alarm',
+                        _isEditing ? 'Edit Alarm' : 'New Alarm',
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -241,7 +243,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: selected
-                                          ? c.textPrimary
+                                          ? AppColors.orange
                                           : c.background,
                                     ),
                                     child: Center(
@@ -266,73 +268,87 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       const SizedBox(height: 12),
                     ],
                     // Mission
-                    _FormCard(
-                      onTap: () async {
-                        final picked = await Navigator.push<MissionType>(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const MissionPickerScreen(),
-                          ),
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            _mission = picked;
-                            // Reset mission-specific fields on change
-                            if (picked != MissionType.math) {
-                              _mathDifficulty = MathDifficulty.easy;
-                            }
-                            if (picked != MissionType.objectHunt) {
-                              _customObjectCtrl.clear();
-                            }
-                          });
-                        }
-                      },
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: c.background,
-                              shape: BoxShape.circle,
+                    if (widget.showMission) ...[
+                      _FormCard(
+                        highlighted: _mission != null,
+                        onTap: () async {
+                          final picked = await Navigator.push<MissionType>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MissionPickerScreen(),
                             ),
-                            child: _mission != null
-                                ? Icon(
-                                    missionInfoFor(_mission!).icon,
-                                    size: 18,
-                                    color: missionInfoFor(_mission!).iconColor,
-                                  )
-                                : Icon(Icons.add,
-                                    size: 18,
-                                    color: c.textSecondary),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Mission',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: c.textSecondary),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _mission = picked;
+                              // Reset mission-specific fields on change
+                              if (picked != MissionType.math) {
+                                _mathDifficulty = MathDifficulty.easy;
+                              }
+                              if (picked != MissionType.objectHunt) {
+                                _customObjectCtrl.clear();
+                              }
+                            });
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: _mission != null
+                                    ? Colors.white.withAlpha(40)
+                                    : c.background,
+                                shape: BoxShape.circle,
                               ),
-                              Text(
-                                _mission != null
-                                    ? missionInfoFor(_mission!).name
-                                    : 'Tap to add a mission',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: c.textPrimary,
+                              child: _mission != null
+                                  ? Icon(
+                                      missionInfoFor(_mission!).icon,
+                                      size: 18,
+                                      color: Colors.white,
+                                    )
+                                  : Icon(Icons.add,
+                                      size: 18,
+                                      color: c.textSecondary),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Mission',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: _mission != null
+                                          ? Colors.white.withAlpha(180)
+                                          : c.textSecondary),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Icon(Icons.chevron_right,
-                              color: c.textSecondary),
-                        ],
+                                Text(
+                                  _mission != null
+                                      ? missionInfoFor(_mission!).name
+                                      : 'Tap to add a mission',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: _mission != null
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                    color: _mission != null
+                                        ? Colors.white
+                                        : c.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Icon(Icons.chevron_right,
+                                color: _mission != null
+                                    ? Colors.white.withAlpha(180)
+                                    : c.textSecondary),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
 
                     // Math difficulty picker
                     if (_mission == MissionType.math) ...[
@@ -519,7 +535,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     final entry = AppAlarmEntry(
       id: widget.alarm?.id ?? '',
       dateTime: dt,
-      missionType: _mission ?? MissionType.shakePhone,
+      missionType: _mission ?? MissionType.none,
       name: _nameCtrl.text.trim(),
       soundId: _soundId,
       repeatDays: _repeatDays,
@@ -541,20 +557,31 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
 class _FormCard extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
+  final bool highlighted;
 
-  const _FormCard({required this.child, this.onTap});
+  const _FormCard({required this.child, this.onTap, this.highlighted = false});
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         padding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: c.card,
+          color: highlighted ? AppColors.orange : c.card,
           borderRadius: BorderRadius.circular(14),
+          boxShadow: highlighted
+              ? [
+                  BoxShadow(
+                    color: AppColors.orange.withAlpha(80),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: child,
       ),
@@ -582,7 +609,7 @@ class _TogglePill extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? c.textPrimary : c.background,
+          color: selected ? AppColors.orange : c.background,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(

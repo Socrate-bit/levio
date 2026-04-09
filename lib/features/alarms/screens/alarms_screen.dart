@@ -25,67 +25,70 @@ class _AlarmsScreenState extends State<AlarmsScreen>
     final c = AppColors.of(context);
     return BlocBuilder<AlarmCubit, AlarmState>(
       builder: (context, state) {
+        final bottomPadding = MediaQuery.viewPaddingOf(context).bottom + 60;
         return Scaffold(
           backgroundColor: c.background,
           appBar: AppBar(
             title: const Text('Alarms'),
           ),
-          floatingActionButton: _AddAlarmFab(
-            onNormal: () => _addNormalAlarm(context),
-            onMission: () => _addMissionAlarm(context),
-          ),
-          body: state.alarms.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('⏰', style: TextStyle(fontSize: 56)),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No alarms yet',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          color: c.textPrimary,
-                        ),
+          body: Stack(
+            children: [
+              state.alarms.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('⏰', style: TextStyle(fontSize: 56)),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No alarms yet',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                              color: c.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Tap + to create your first alarm',
+                            style: TextStyle(
+                                fontSize: 14, color: c.textSecondary),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Tap + to create your first alarm',
-                        style: TextStyle(
-                            fontSize: 14, color: c.textSecondary),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.separated(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  itemCount: state.alarms.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (ctx, i) =>
-                      _AlarmCard(alarm: state.alarms[i]),
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.fromLTRB(20, 16, 20, bottomPadding + 72),
+                      itemCount: state.alarms.length,
+                      separatorBuilder: (context, index) => const SizedBox(height: 12),
+                      itemBuilder: (ctx, i) =>
+                          _AlarmCard(alarm: state.alarms[i]),
+                    ),
+              Positioned(
+                right: 20,
+                bottom: bottomPadding + 10,
+                child: _AddAlarmFab(
+                  onNormal: () => _addNormalAlarm(context),
+                  onMission: () => _addMissionAlarm(context),
                 ),
+              ),
+            ],
+          ),
         );
       },
     );
   }
 
-  Future<void> _addNormalAlarm(BuildContext context) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
+  void _addNormalAlarm(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<AlarmCubit>(),
+          child: const AlarmFormScreen(showMission: false),
+        ),
+      ),
     );
-    if (picked == null || !context.mounted) return;
-    final now = DateTime.now();
-    var dt = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
-    if (dt.isBefore(now)) dt = dt.add(const Duration(days: 1));
-    context.read<AlarmCubit>().addAlarm(AppAlarmEntry(
-          id: '',
-          dateTime: dt,
-          missionType: MissionType.shakePhone,
-          name: 'Normal Alarm',
-        ));
   }
 
   void _addMissionAlarm(BuildContext context) {
@@ -144,7 +147,6 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
 
   @override
   Widget build(BuildContext context) {
-    final c = AppColors.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -170,7 +172,7 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
           const SizedBox(height: 12),
         ],
         FloatingActionButton(
-          backgroundColor: c.textPrimary,
+          backgroundColor: AppColors.orange,
           foregroundColor: Colors.white,
           onPressed: _toggle,
           child: RotationTransition(
@@ -317,17 +319,18 @@ class _AlarmCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  alarm.name.isNotEmpty
-                      ? '${alarm.name} · '
-                      : 'Alarm #1 · ',
+                  alarm.name.isNotEmpty ? alarm.name : 'Alarm #1',
                   style: TextStyle(fontSize: 13, color: c.textSecondary),
                 ),
-                Icon(info.icon, size: 13, color: info.iconColor),
-                const SizedBox(width: 4),
-                Text(
-                  info.name,
-                  style: TextStyle(fontSize: 13, color: c.textSecondary),
-                ),
+                if (alarm.missionType != MissionType.none) ...[
+                  Text(' · ', style: TextStyle(fontSize: 13, color: c.textSecondary)),
+                  Icon(info.icon, size: 13, color: info.iconColor),
+                  const SizedBox(width: 4),
+                  Text(
+                    info.name,
+                    style: TextStyle(fontSize: 13, color: c.textSecondary),
+                  ),
+                ],
                 const Spacer(),
                 GestureDetector(
                   onTap: () =>

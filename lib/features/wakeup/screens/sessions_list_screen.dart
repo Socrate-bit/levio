@@ -25,7 +25,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
 
   Future<void> _load() async {
     final results = await Future.wait([
-      HistoryService.getSessions(),
+      HistoryService.getSessions(limit: 50, includeIncomplete: true),
       HistoryService.getTotalWakeups(),
     ]);
     if (!mounted) return;
@@ -139,71 +139,81 @@ class _SessionTile extends StatelessWidget {
     final secs = session.timeTakenSeconds % 60;
     final durationStr = mins > 0 ? '${mins}m ${secs}s' : '${secs}s';
 
+    final missed = !session.completed;
+    final iconColor = missed ? c.textSecondary : missionColor;
+    final iconBg = missed
+        ? c.textSecondary.withAlpha(20)
+        : missionColor.withAlpha(25);
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: c.card,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: missionColor.withAlpha(25),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(missionIcon, color: missionColor, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    timeStr,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: c.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    missionLabel,
-                    style: TextStyle(fontSize: 13, color: c.textSecondary),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  dateStr,
-                  style: TextStyle(fontSize: 13, color: c.textSecondary),
+      child: Opacity(
+        opacity: missed ? 0.6 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: c.card,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                Row(
+                child: Icon(
+                  missed ? Icons.alarm_off_outlined : missionIcon,
+                  color: iconColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.timer_outlined,
-                      size: 12,
-                      color: c.textSecondary,
-                    ),
-                    const SizedBox(width: 3),
                     Text(
-                      durationStr,
-                      style: TextStyle(fontSize: 12, color: c.textSecondary),
+                      timeStr,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      missed ? 'Missed' : missionLabel,
+                      style: TextStyle(fontSize: 13, color: c.textSecondary),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    dateStr,
+                    style: TextStyle(fontSize: 13, color: c.textSecondary),
+                  ),
+                  const SizedBox(height: 2),
+                  if (!missed)
+                    Row(
+                      children: [
+                        Icon(Icons.timer_outlined, size: 12, color: c.textSecondary),
+                        const SizedBox(width: 3),
+                        Text(
+                          durationStr,
+                          style: TextStyle(fontSize: 12, color: c.textSecondary),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

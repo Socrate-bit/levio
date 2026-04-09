@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../services/auth_service.dart';
+import '../../missions/models/mission.dart';
 import '../models/wakeup_session.dart';
 
 class HistoryService {
@@ -12,8 +13,37 @@ class HistoryService {
   static DocumentReference<Map<String, dynamic>> get _profile =>
       _db.collection('users').doc(AuthService.uid).collection('meta').doc('profile');
 
-  static Future<void> saveSession(WakeupSession session) async {
-    await _sessions.doc(session.id).set(session.toFirestore());
+  /// Creates a pending (not yet completed) session when an alarm fires.
+  /// Returns the new session document ID.
+  static Future<String> createPendingSession({
+    required String alarmId,
+    MissionType? missionType,
+    String soundId = 'default',
+  }) async {
+    final now = DateTime.now();
+    final session = WakeupSession(
+      id: '',
+      alarmId: alarmId,
+      timestamp: now,
+      timeTakenSeconds: 0,
+      missionType: missionType,
+      soundId: soundId,
+      completed: false,
+    );
+    final docId = now.millisecondsSinceEpoch.toString();
+    await _sessions.doc(docId).set(session.toFirestore());
+    return docId;
+  }
+
+  /// Marks a pending session as completed and records how long it took.
+  static Future<void> completeSession(
+    String sessionId, {
+    required int timeTakenSeconds,
+  }) async {
+    await _sessions.doc(sessionId).update({
+      'completed': true,
+      'timeTakenSeconds': timeTakenSeconds,
+    });
     await _profile.set(
       {'totalWakeups': FieldValue.increment(1)},
       SetOptions(merge: true),
@@ -21,10 +51,12 @@ class HistoryService {
   }
 
   /// Returns up to [limit] sessions ordered newest-first.
-  /// If [since] is provided, only returns sessions after that date.
+  /// By default only returns completed sessions. Pass [includeIncomplete: true]
+  /// to include pending/missed sessions.
   static Future<List<WakeupSession>> getSessions({
     int limit = 50,
     DateTime? since,
+    bool includeIncomplete = false,
   }) async {
     var query = _sessions
         .orderBy('timestamp', descending: true)
@@ -38,26 +70,29 @@ class HistoryService {
     }
 
     final snap = await query.get();
-    return snap.docs
+    final sessions = snap.docs
         .map((d) => WakeupSession.fromFirestore(d.id, d.data()))
         .toList();
+
+    if (!includeIncomplete) {
+      return sessions.where((s) => s.completed).toList();
+    }
+    return sessions;
   }
 
+  /// Returns sessions in the current week (Mon–Sun), both completed and incomplete.
   static Future<List<WakeupSession>> getSessionsThisWeek() async {
     final now = DateTime.now();
-    final daysFromSunday = now.weekday % 7;
-    final startOfWeek = DateTime(
-      now.year,
-      now.month,
-      now.day - daysFromSunday,
-    );
-    return getSessions(limit: 100, since: startOfWeek);
+    // weekday: Mon=1 … Sun=7
+    final daysFromMonday = now.weekday - 1;
+    final startOfWeek = DateTime(now.year, now.month, now.day - daysFromMonday);
+    return getSessions(limit: 100, since: startOfWeek, includeIncomplete: true);
   }
 
   static Future<List<WakeupSession>> getSessionsThisMonth() async {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    return getSessions(limit: 200, since: startOfMonth);
+    return getSessions(limit: 200, since: startOfMonth, includeIncomplete: true);
   }
 
   static Future<int> getTotalWakeups() async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum MissionType {
+  none,
   pushUps,
   squats,
   shakePhone,
@@ -158,12 +159,26 @@ const allMissions = <MissionInfo>[
   ),
 ];
 
+const _noneInfo = MissionInfo(
+  type: MissionType.none,
+  name: 'No mission',
+  description: 'Simple alarm with no task',
+  iconColor: Color(0xFF8E8E93),
+  iconBg: Color(0xFFF2F2F7),
+  icon: Icons.alarm,
+  category: MissionCategory.all,
+);
+
 MissionInfo missionInfoFor(MissionType type) =>
-    allMissions.firstWhere((m) => m.type == type);
+    type == MissionType.none
+        ? _noneInfo
+        : allMissions.firstWhere((m) => m.type == type);
 
 /// Maps old ChallengeType string names (backward compat) + new MissionType names
 MissionType missionTypeFromString(String s) {
   switch (s) {
+    case 'none':
+      return MissionType.none;
     case 'pushup':
     case 'pushUps':
       return MissionType.pushUps;

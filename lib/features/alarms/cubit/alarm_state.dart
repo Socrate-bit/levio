@@ -23,7 +23,7 @@ class AppAlarmEntry extends Equatable {
   const AppAlarmEntry({
     required this.id,
     required this.dateTime,
-    this.missionType = MissionType.pushUps,
+    this.missionType = MissionType.none,
     this.name = '',
     this.soundId = 'default',
     this.repeatDays = const [false, true, true, true, true, true, false],

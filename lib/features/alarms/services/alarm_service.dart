@@ -5,7 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../milestones/services/streak_service.dart';
+import '../../missions/models/mission.dart';
+import '../../wakeup/services/history_service.dart';
 
 class AlarmService {
   static StreamSubscription? _subscription;
@@ -102,14 +103,22 @@ class AlarmService {
         if (alarmState != 'unknown') return;
         final alarmId = event['id'] as String?;
         if (alarmId == null) return;
-        // Record this alarm fired for rest-day streak tracking
-        StreakService.recordAlarmFired().ignore();
         final prefs = await SharedPreferences.getInstance();
         final challenge = prefs.getString('mission_$alarmId') ??
             prefs.getString(_challengeKey(alarmId)) ??
             'pushUps';
         final mathDiff = prefs.getString('math_diff_$alarmId') ?? 'easy';
         final customObj = prefs.getString('custom_obj_$alarmId') ?? '';
+        final soundId = prefs.getString('sound_$alarmId') ?? 'default';
+        // Create a pending session in Firestore for this alarm ring
+        final missionType = missionTypeFromString(challenge);
+        HistoryService.createPendingSession(
+          alarmId: alarmId,
+          missionType: missionType,
+          soundId: soundId,
+        ).then((sessionId) {
+          prefs.setString('pending_session_$alarmId', sessionId);
+        }).ignore();
         debugPrint('[AlarmService] Path 1 → pushing dismiss  alarmId=$alarmId  challenge=$challenge');
         _pushDismiss(navigatorKey, {
           'alarmId': alarmId,

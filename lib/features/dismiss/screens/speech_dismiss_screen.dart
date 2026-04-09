@@ -8,9 +8,8 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 import '../data/affirmations.dart';
 import '../data/bible_verses.dart';
-import '../data/wisdom_citations.dart';
+import '../../wakeup/screens/daily_quote_screen.dart';
 import '../../missions/models/mission.dart';
-import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 
@@ -31,7 +30,7 @@ class SpeechDismissScreen extends StatefulWidget {
 }
 
 class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
-  static const double _threshold = 0.70;
+  static const double _threshold = 0.50;
 
   final SpeechToText _stt = SpeechToText();
   bool _isListening = false;
@@ -49,7 +48,8 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
       case MissionType.affirmation:
         return affirmations[rng.nextInt(affirmations.length)];
       default:
-        return wisdomCitations[rng.nextInt(wisdomCitations.length)];
+        final (quote, author) = dailyQuotes[rng.nextInt(dailyQuotes.length)];
+        return '"$quote" – $author';
     }
   }
 
@@ -66,11 +66,22 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
     if (mounted) setState(() => _initialized = available);
   }
 
+  static String _normalize(String text) {
+    // Remove attribution: everything from " –" / " —" / " -" followed by a
+    // capitalised word (e.g. "– Psalm 23:1" or "— Luke 1:37").
+    final withoutAttribution =
+        text.replaceAll(RegExp(r'\s[–—-]\s+\S.*$'), '');
+    // Strip punctuation (quotes, commas, periods, colons, semi-colons…)
+    return withoutAttribution.replaceAll(RegExp(r'[^\w\s]'), '').toLowerCase();
+  }
+
   double _similarity(String spoken, String target) {
-    final targetWords = target.toLowerCase().split(RegExp(r'\s+'));
-    final spokenWords = spoken.toLowerCase().split(RegExp(r'\s+'));
-    final matches =
-        targetWords.where((w) => spokenWords.contains(w)).length;
+    final targetWords =
+        _normalize(target).split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    final spokenWords =
+        _normalize(spoken).split(RegExp(r'\s+')).toSet();
+    if (targetWords.isEmpty) return 1.0;
+    final matches = targetWords.where((w) => spokenWords.contains(w)).length;
     return matches / targetWords.length;
   }
 
@@ -114,13 +125,9 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => WakeupCompleteScreen(
+            alarmId: widget.alarmId,
             timeTakenSeconds: elapsed,
-            session: WakeupSession(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              timestamp: DateTime.now(),
-              timeTakenSeconds: elapsed,
-              missionType: widget.missionType,
-            ),
+            missionType: widget.missionType,
           ),
         ),
       );
