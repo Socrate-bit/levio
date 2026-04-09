@@ -1,0 +1,26 @@
+name: flutter_alarmkit
+description: "A Flutter plugin for AlarmKit."
+version: 0.0.10
+homepage: https://github.com/gdelataillade/flutter_alarmkit
+
+environment:
+  sdk: ^3.7.0
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.0.2
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^9.0.0
+
+flutter:
+  plugin:
+    platforms:
+      ios:
+        pluginClass: FlutterAlarmkitPlugin
+        minimumVersion: "26.0"

@@ -40,16 +40,19 @@ class _LevioAppState extends State<LevioApp> {
     super.initState();
     AlarmService.listenForRing(widget.navigatorKey);
 
-    // If the app was opened from a ringing alarm (cold start), navigate after
-    // the first frame so the navigator is fully initialised.
-    if (widget.ringingAlarm != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.ringingAlarm != null) {
+        // Alarm was actively ringing at cold start.
         widget.navigatorKey.currentState?.pushNamed(
           '/alarm-dismiss',
           arguments: widget.ringingAlarm,
         );
-      });
-    }
+      } else {
+        // Check whether the user tapped "Do push-up" from the notification
+        // banner while the app was killed (alarm is now snoozed, not alerting).
+        AlarmService.checkAndNavigate(widget.navigatorKey);
+      }
+    });
   }
 
   @override

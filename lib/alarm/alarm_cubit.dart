@@ -58,6 +58,14 @@ class AlarmCubit extends Cubit<AlarmState> {
       label: challenge == ChallengeType.shake
           ? 'Levio — shake to dismiss'
           : 'Levio — do push-ups to dismiss',
+      secondaryButton: AlarmButton(
+        text: challenge == ChallengeType.shake ? 'Shake' : 'Do push-up',
+        textColor: '#FFFFFF',
+        systemImageName: challenge == ChallengeType.shake
+            ? 'iphone.radiowaves.left.and.right'
+            : 'figure.strengthtraining.traditional',
+      ),
+      secondaryButtonBehavior: AlarmSecondaryButtonBehavior.snooze(300),
     );
 
     final prefs = await SharedPreferences.getInstance();
