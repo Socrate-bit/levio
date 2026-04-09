@@ -20,6 +20,8 @@ dependencies:
   speech_to_text: ^7.3.0
   firebase_ai: ^3.10.0
   firebase_core: ^4.6.0
+  cloud_firestore: ^6.2.0
+  firebase_auth: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -28,3 +30,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/sounds/
