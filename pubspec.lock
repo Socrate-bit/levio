@@ -137,10 +137,9 @@ packages:
   flutter_alarmkit:
     dependency: "direct main"
     description:
-      name: flutter_alarmkit
-      sha256: "95151ad64a51d29c8e3a684a4c40384d079263e6a693f53226b5caff6f866188"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/flutter_alarmkit"
+      relative: true
+    source: path
     version: "0.0.10"
   flutter_bloc:
     dependency: "direct main"

@@ -24,9 +24,10 @@ import UserNotifications
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
     // Method channel so Dart can check / clear the cold-start pending flag.
+    guard let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "LevioAlarmActionPlugin") else { return }
     let channel = FlutterMethodChannel(
       name: "levio/alarm-action",
-      binaryMessenger: engineBridge.pluginRegistry.messenger()
+      binaryMessenger: registrar.messenger()
     )
     channel.setMethodCallHandler { call, result in
       switch call.method {
