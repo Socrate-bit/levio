@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -193,6 +192,3 @@ class AlarmService {
     );
   }
 }
-=======
-export '../features/alarms/services/alarm_service.dart';
->>>>>>> 30bad50196b0666ae57f86f800378e7255ba9d6d

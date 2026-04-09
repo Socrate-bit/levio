@@ -1,10 +1,11 @@
+import 'package:adaptive_platform_ui/adaptive_platform_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/alarms/screens/alarms_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/insights/screens/insights_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
-import '../theme/app_theme.dart';
 
 class BottomNavShell extends StatefulWidget {
   final int initialIndex;
@@ -39,130 +40,72 @@ class BottomNavShellState extends State<BottomNavShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: _tabs,
-      ),
-      bottomNavigationBar: _WaykBottomNav(
-        currentIndex: _index,
+    final bool isIOS26 = PlatformInfo.isIOS26OrHigher();
+    final bool isIOS = PlatformInfo.isIOS;
+
+    return AdaptiveScaffold(
+      bottomNavigationBar: AdaptiveBottomNavigationBar(
+        useNativeBottomBar: true,
+        selectedIndex: _index,
         onTap: (i) => setState(() => _index = i),
-      ),
-    );
-  }
-}
-
-class _WaykBottomNav extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-
-  const _WaykBottomNav({required this.currentIndex, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.navBackground,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
+        items: [
+          AdaptiveNavigationDestination(
+            icon: isIOS26
+                ? 'house'
+                : isIOS
+                ? CupertinoIcons.home
+                : Icons.home_outlined,
+            selectedIcon: isIOS26
+                ? 'house.fill'
+                : isIOS
+                ? CupertinoIcons.home
+                : Icons.home,
+            label: 'Home',
+          ),
+          AdaptiveNavigationDestination(
+            icon: isIOS26
+                ? 'alarm'
+                : isIOS
+                ? CupertinoIcons.alarm
+                : Icons.alarm_outlined,
+            selectedIcon: isIOS26
+                ? 'alarm.fill'
+                : isIOS
+                ? CupertinoIcons.alarm
+                : Icons.alarm,
+            label: 'Alarms',
+          ),
+          AdaptiveNavigationDestination(
+            icon: isIOS26
+                ? 'chart.bar'
+                : isIOS
+                ? CupertinoIcons.chart_bar
+                : Icons.bar_chart_outlined,
+            selectedIcon: isIOS26
+                ? 'chart.bar.fill'
+                : isIOS
+                ? CupertinoIcons.chart_bar_fill
+                : Icons.bar_chart,
+            label: 'Insights',
+          ),
+          AdaptiveNavigationDestination(
+            icon: isIOS26
+                ? 'gearshape'
+                : isIOS
+                ? CupertinoIcons.settings
+                : Icons.settings_outlined,
+            selectedIcon: isIOS26
+                ? 'gearshape.fill'
+                : isIOS
+                ? CupertinoIcons.settings_solid
+                : Icons.settings,
+            label: 'Settings',
           ),
         ],
       ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home,
-                label: 'Home',
-                selected: currentIndex == 0,
-                onTap: () => onTap(0),
-              ),
-              _NavItem(
-                icon: Icons.alarm_outlined,
-                activeIcon: Icons.alarm,
-                label: 'Alarms',
-                selected: currentIndex == 1,
-                onTap: () => onTap(1),
-              ),
-              _NavItem(
-                icon: Icons.bar_chart_outlined,
-                activeIcon: Icons.bar_chart,
-                label: 'Insights',
-                selected: currentIndex == 2,
-                onTap: () => onTap(2),
-              ),
-              _NavItem(
-                icon: Icons.settings_outlined,
-                activeIcon: Icons.settings,
-                label: 'Settings',
-                selected: currentIndex == 3,
-                onTap: () => onTap(3),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _NavItem({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.background : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              selected ? activeIcon : icon,
-              size: 24,
-              color: selected
-                  ? AppColors.textPrimary
-                  : AppColors.textSecondary,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                color: selected
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
+      body: IndexedStack(
+        index: _index,
+        children: _tabs,
       ),
     );
   }

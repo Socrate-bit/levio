@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,8 +55,10 @@ class AlarmCubit extends Cubit<AlarmState> {
   }
 
   Future<void> addAlarm(AppAlarmEntry entry) async {
-    var scheduled = entry.dateTime;
-    if (scheduled.isBefore(DateTime.now())) {
+    var scheduled = kDebugMode
+        ? DateTime.now().add(const Duration(seconds: 5))
+        : entry.dateTime;
+    if (!kDebugMode && scheduled.isBefore(DateTime.now())) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
