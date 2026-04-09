@@ -213,7 +213,9 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
   }
 
   /// Parses a `SecondaryButtonBehavior` from `args["secondaryButtonBehavior"]`.
-  /// Supports `"countdown"`, `"stop"`, and `"snooze"` (with `durationInSeconds`).
+  /// AlarmKit only provides `.countdown` and `.custom` cases.
+  /// Dart's "snooze" maps to `.countdown` (re-triggers after postAlert interval),
+  /// and "stop" maps to `.custom` (opens the app).
   private func parseSecondaryButtonBehavior(
     from args: [String: Any]
   ) -> AlarmPresentation.Alert.SecondaryButtonBehavior? {
@@ -222,13 +224,10 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
     else { return nil }
 
     switch type {
-    case "countdown":
+    case "countdown", "snooze":
       return .countdown
-    case "stop":
-      return .stop
-    case "snooze":
-      let seconds = dict["durationInSeconds"] as? Int ?? 300
-      return .snooze(duration: TimeInterval(seconds))
+    case "stop", "custom":
+      return .custom
     default:
       return nil
     }
@@ -330,7 +329,7 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
     )
     if let secondaryButton {
       alertContent.secondaryButton = secondaryButton
-      alertContent.secondaryButtonBehavior = secondaryButtonBehavior ?? .stop
+      alertContent.secondaryButtonBehavior = secondaryButtonBehavior ?? .custom
     }
 
     let tintColor = parseTintColor(from: args)
@@ -472,7 +471,7 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
     )
     if let secondaryButton {
       alertContent.secondaryButton = secondaryButton
-      alertContent.secondaryButtonBehavior = secondaryButtonBehavior ?? .stop
+      alertContent.secondaryButtonBehavior = secondaryButtonBehavior ?? .custom
     }
 
     let presentation = AlarmPresentation(alert: alertContent)
