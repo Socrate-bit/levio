@@ -206,7 +206,7 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
     else { return nil }
 
     return AlarmButton(
-      text: text,
+      text: LocalizedStringResource(stringLiteral: text),
       textColor: Color(uiColor: uiColor),
       systemImageName: imageName
     )
@@ -342,16 +342,24 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
     )
 
     let soundPath = parseSoundPath(from: args)
+    let alarmId = UUID()
+
+    // Build secondaryIntent when the behavior is .custom so the button launches the app.
+    let secondaryIntent: OpenAlarmAppIntent? = (secondaryButtonBehavior == .custom)
+      ? OpenAlarmAppIntent(alarmID: alarmId.uuidString)
+      : nil
+
     let alarmConfiguration = AlarmManager.AlarmConfiguration<NeverMetadata>(
         schedule: .fixed(date),
         attributes: attributes,
+        secondaryIntent: secondaryIntent,
         sound: resolveSoundAsset(soundPath),
     )
 
     // 7. Schedule and return the UUID string
     do {
       let alarm = try await manager.schedule(
-        id: UUID(),
+        id: alarmId,
         configuration: alarmConfiguration
       )
       result(alarm.id.uuidString)
@@ -411,17 +419,24 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
       tintColor: tintColor
     )
     let soundPath = parseSoundPath(from: args)
+    let alarmId = UUID()
+
+    let secondaryIntent: OpenAlarmAppIntent? = (secondaryButtonBehavior == .custom)
+      ? OpenAlarmAppIntent(alarmID: alarmId.uuidString)
+      : nil
+
     let alarmConfiguration = AlarmManager
       .AlarmConfiguration<NeverMetadata>(
         countdownDuration: countdownDuration,
         attributes: attributes,
+        secondaryIntent: secondaryIntent,
         sound: resolveSoundAsset(soundPath),
       )
 
     // 7. Schedule and return the UUID string
     do {
       let alarm = try await manager.schedule(
-        id: UUID(),
+        id: alarmId,
         configuration: alarmConfiguration
       )
       result(alarm.id.uuidString)
@@ -483,16 +498,23 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
 
     // 6. Configure and schedule
     let soundPath = parseSoundPath(from: args)
+    let alarmId = UUID()
+
+    let secondaryIntent: OpenAlarmAppIntent? = (secondaryButtonBehavior == .custom)
+      ? OpenAlarmAppIntent(alarmID: alarmId.uuidString)
+      : nil
+
     let config = AlarmManager
       .AlarmConfiguration<NeverMetadata>(
         schedule: .relative(schedule),
         attributes: attributes,
+        secondaryIntent: secondaryIntent,
         sound: resolveSoundAsset(soundPath),
       )
 
     do {
       let alarm = try await manager.schedule(
-        id: UUID(), configuration: config
+        id: alarmId, configuration: config
       )
       result(alarm.id.uuidString)
     } catch {
