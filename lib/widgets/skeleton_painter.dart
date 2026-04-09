@@ -1,7 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:pose_detection/pose_detection.dart';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 import '../bloc/pushup_state.dart';
+
+// Major joints to draw as dots
+const _joints = [
+  PoseLandmarkType.leftShoulder,
+  PoseLandmarkType.rightShoulder,
+  PoseLandmarkType.leftElbow,
+  PoseLandmarkType.rightElbow,
+  PoseLandmarkType.leftWrist,
+  PoseLandmarkType.rightWrist,
+  PoseLandmarkType.leftHip,
+  PoseLandmarkType.rightHip,
+  PoseLandmarkType.leftKnee,
+  PoseLandmarkType.rightKnee,
+  PoseLandmarkType.leftAnkle,
+  PoseLandmarkType.rightAnkle,
+];
+
+// Body connections to draw (push-up focused: arms, torso, legs)
+const _connections = [
+  // Shoulders
+  [PoseLandmarkType.leftShoulder, PoseLandmarkType.rightShoulder],
+  // Left arm
+  [PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow],
+  [PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist],
+  // Right arm
+  [PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow],
+  [PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist],
+  // Torso
+  [PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip],
+  [PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip],
+  [PoseLandmarkType.leftHip, PoseLandmarkType.rightHip],
+  // Left leg
+  [PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee],
+  [PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle],
+  // Right leg
+  [PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee],
+  [PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle],
+];
 
 class SkeletonPainter extends CustomPainter {
   final List<DetectedPose> poses;
@@ -18,12 +56,12 @@ class SkeletonPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (poses.isEmpty || imageWidth == 0 || imageHeight == 0) return;
 
-    final double scaleX = size.width / imageWidth;
-    final double scaleY = size.height / imageHeight;
+    final scaleX = size.width / imageWidth;
+    final scaleY = size.height / imageHeight;
 
     final linePaint = Paint()
-      ..color = Colors.greenAccent.withValues(alpha: 0.8)
-      ..strokeWidth = 2.5
+      ..color = Colors.blue.withValues(alpha: 0.9)
+      ..strokeWidth = 4.0
       ..strokeCap = StrokeCap.round;
 
     final dotPaint = Paint()
@@ -33,30 +71,25 @@ class SkeletonPainter extends CustomPainter {
     for (final pose in poses) {
       if (!pose.hasLandmarks) continue;
 
-      // Draw connections
-      for (final connection in poseLandmarkConnections) {
-        final start = pose.getLandmark(connection[0]);
-        final end = pose.getLandmark(connection[1]);
-        if (start == null ||
-            end == null ||
-            start.visibility < 0.5 ||
-            end.visibility < 0.5) {
+      for (final conn in _connections) {
+        final a = pose.getLandmark(conn[0]);
+        final b = pose.getLandmark(conn[1]);
+        if (a == null || b == null || a.likelihood < 0.65 || b.likelihood < 0.65) {
           continue;
         }
-
         canvas.drawLine(
-          Offset(start.x * scaleX, start.y * scaleY),
-          Offset(end.x * scaleX, end.y * scaleY),
+          Offset(a.x * scaleX, a.y * scaleY),
+          Offset(b.x * scaleX, b.y * scaleY),
           linePaint,
         );
       }
 
-      // Draw joints
-      for (final landmark in pose.landmarks) {
-        if (landmark.visibility < 0.5) continue;
+      for (final type in _joints) {
+        final lm = pose.getLandmark(type);
+        if (lm == null || lm.likelihood < 0.65) continue;
         canvas.drawCircle(
-          Offset(landmark.x * scaleX, landmark.y * scaleY),
-          4,
+          Offset(lm.x * scaleX, lm.y * scaleY),
+          6,
           dotPaint,
         );
       }
@@ -64,8 +97,8 @@ class SkeletonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(SkeletonPainter oldDelegate) =>
-      poses != oldDelegate.poses ||
-      imageWidth != oldDelegate.imageWidth ||
-      imageHeight != oldDelegate.imageHeight;
+  bool shouldRepaint(SkeletonPainter old) =>
+      poses != old.poses ||
+      imageWidth != old.imageWidth ||
+      imageHeight != old.imageHeight;
 }

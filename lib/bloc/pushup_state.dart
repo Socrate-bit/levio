@@ -1,12 +1,12 @@
 import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
-import 'package:pose_detection/pose_detection.dart';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
-// Lightweight landmark data — safe to send across isolates.
+// Thin wrapper — keeps state serialisable and Equatable-friendly.
 class DetectedLandmark {
   final PoseLandmarkType type;
-  final double x, y, visibility;
-  const DetectedLandmark(this.type, this.x, this.y, this.visibility);
+  final double x, y, likelihood;
+  const DetectedLandmark(this.type, this.x, this.y, this.likelihood);
 }
 
 class DetectedPose {
@@ -76,13 +76,21 @@ class SessionActive extends PushUpState {
   }
 
   @override
-  List<Object?> get props => [repCount, feedback, poses, imageWidth, imageHeight];
+  List<Object?> get props =>
+      [repCount, feedback, poses, imageWidth, imageHeight];
 }
 
 class SessionComplete extends PushUpState {
   final int repCount;
-
   const SessionComplete({required this.repCount});
+
+  @override
+  List<Object?> get props => [repCount];
+}
+
+class SessionGoalReached extends PushUpState {
+  final int repCount;
+  const SessionGoalReached({required this.repCount});
 
   @override
   List<Object?> get props => [repCount];

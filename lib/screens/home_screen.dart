@@ -8,6 +8,16 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.alarm, color: Colors.white),
+            onPressed: () => Navigator.pushNamed(context, '/alarms'),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: Column(

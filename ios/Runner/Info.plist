@@ -4,6 +4,8 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSAlarmKitUsageDescription</key>
+    <string>Levio needs access to set system-level alarms so they ring even if the app is closed.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Levio needs camera access to count your push-ups.</string>
 	<key>CFBundleDevelopmentRegion</key>
