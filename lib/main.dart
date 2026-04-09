@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'features/alarms/cubit/alarm_cubit.dart';
+import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_service.dart';
+import 'features/settings/cubit/theme_cubit.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
 import 'features/dismiss/screens/photo_dismiss_screen.dart';
 import 'features/dismiss/screens/shake_dismiss_screen.dart';
 import 'features/dismiss/screens/speech_dismiss_screen.dart';
+import 'features/dismiss/screens/squat_dismiss_screen.dart';
 import 'features/missions/models/mission.dart';
 import 'services/auth_service.dart';
 import 'shared/theme/app_theme.dart';
@@ -71,12 +74,18 @@ class _WaykAppState extends State<WaykApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AlarmCubit(),
-      child: MaterialApp(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => AlarmCubit()),
+        BlocProvider(create: (_) => ThemeCubit()),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) => MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Wayk',
         theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: themeMode,
         navigatorKey: widget.navigatorKey,
         initialRoute: '/',
         routes: {
@@ -88,7 +97,13 @@ class _WaykAppState extends State<WaykApp> {
             final alarmId = args['alarmId']!;
             final challengeStr = args['challenge'] ?? 'pushUps';
             final label = args['label'] ?? 'Alarm #1';
+            final mathDiffStr = args['mathDifficulty'] ?? 'easy';
+            final customObj = args['customObject'];
             final mission = missionTypeFromString(challengeStr);
+            final mathDiff = MathDifficulty.values.firstWhere(
+              (d) => d.name == mathDiffStr,
+              orElse: () => MathDifficulty.easy,
+            );
 
             switch (mission) {
               case MissionType.shakePhone:
@@ -103,6 +118,7 @@ class _WaykAppState extends State<WaykApp> {
                   builder: (_) => MathDismissScreen(
                     alarmId: alarmId,
                     alarmLabel: label,
+                    difficulty: mathDiff,
                   ),
                 );
               case MissionType.skyPhoto:
@@ -116,6 +132,7 @@ class _WaykAppState extends State<WaykApp> {
                     alarmId: alarmId,
                     missionType: mission,
                     alarmLabel: label,
+                    customObject: customObj?.isNotEmpty == true ? customObj : null,
                   ),
                 );
               case MissionType.bibleVerse:
@@ -127,8 +144,14 @@ class _WaykAppState extends State<WaykApp> {
                     alarmLabel: label,
                   ),
                 );
-              case MissionType.pushUps:
               case MissionType.squats:
+                return MaterialPageRoute(
+                  builder: (_) => SquatDismissScreen(
+                    alarmId: alarmId,
+                    alarmLabel: label,
+                  ),
+                );
+              case MissionType.pushUps:
               default:
                 return MaterialPageRoute(
                   builder: (_) => AlarmDismissScreen(
@@ -140,6 +163,7 @@ class _WaykAppState extends State<WaykApp> {
           }
           return null;
         },
+      ),
       ),
     );
   }

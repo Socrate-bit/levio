@@ -9,29 +9,77 @@ import '../../missions/screens/mission_picker_screen.dart';
 import 'sound_picker_screen.dart';
 
 class AlarmFormScreen extends StatefulWidget {
-  const AlarmFormScreen({super.key});
+  /// If non-null, the form is in edit mode for this alarm.
+  final AppAlarmEntry? alarm;
+
+  const AlarmFormScreen({super.key, this.alarm});
 
   @override
   State<AlarmFormScreen> createState() => _AlarmFormScreenState();
 }
 
 class _AlarmFormScreenState extends State<AlarmFormScreen> {
-  final _nameCtrl = TextEditingController(text: 'Alarm #1');
-  TimeOfDay _time = const TimeOfDay(hour: 8, minute: 0);
-  bool _isScheduled = true;
-  List<bool> _repeatDays = [false, true, true, true, true, true, false];
-  MissionType? _mission;
-  String _soundId = 'default';
-  String _soundName = 'Default';
+  late final TextEditingController _nameCtrl;
+  late TimeOfDay _time;
+  late bool _isScheduled;
+  late List<bool> _repeatDays;
+  late MissionType? _mission;
+  late String _soundId;
+  late String _soundName;
+  late MathDifficulty _mathDifficulty;
+  late TextEditingController _customObjectCtrl;
+
+  bool get _isEditing => widget.alarm != null;
 
   static const _dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  static const _diffLabels = ['Easy', 'Medium', 'Hard'];
 
   bool get _canSave => _nameCtrl.text.trim().isNotEmpty;
 
   @override
+  void initState() {
+    super.initState();
+    final a = widget.alarm;
+    if (a != null) {
+      // Edit mode: pre-fill from existing alarm
+      _nameCtrl = TextEditingController(text: a.name);
+      _time = TimeOfDay(hour: a.dateTime.hour, minute: a.dateTime.minute);
+      _isScheduled = !a.isOneTime;
+      _repeatDays = List.from(a.repeatDays);
+      _mission = a.missionType;
+      _soundId = a.soundId;
+      _soundName = _soundIdToName(a.soundId);
+      _mathDifficulty = a.mathDifficulty;
+      _customObjectCtrl = TextEditingController(text: a.customObject ?? '');
+    } else {
+      // Create mode: defaults + auto-increment name
+      final alarmCount =
+          context.read<AlarmCubit>().state.alarms.length;
+      _nameCtrl = TextEditingController(text: 'Alarm #${alarmCount + 1}');
+      _time = const TimeOfDay(hour: 8, minute: 0);
+      _isScheduled = true;
+      _repeatDays = [false, true, true, true, true, true, false];
+      _mission = null;
+      _soundId = 'default';
+      _soundName = 'Default';
+      _mathDifficulty = MathDifficulty.easy;
+      _customObjectCtrl = TextEditingController();
+    }
+  }
+
+  @override
   void dispose() {
     _nameCtrl.dispose();
+    _customObjectCtrl.dispose();
     super.dispose();
+  }
+
+  String _soundIdToName(String id) {
+    return id
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}')
+        .join(' ');
   }
 
   @override
@@ -65,11 +113,11 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           size: 18, color: AppColors.textPrimary),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        'Mission Alarm',
-                        style: TextStyle(
+                        _isEditing ? 'Edit Alarm' : 'Mission Alarm',
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -98,7 +146,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Alarm name',
-                          hintStyle: TextStyle(color: AppColors.textSecondary),
+                          hintStyle:
+                              TextStyle(color: AppColors.textSecondary),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
@@ -144,20 +193,22 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           _TogglePill(
                             label: '↻  Scheduled',
                             selected: _isScheduled,
-                            onTap: () => setState(() => _isScheduled = true),
+                            onTap: () =>
+                                setState(() => _isScheduled = true),
                           ),
                           const SizedBox(width: 8),
                           _TogglePill(
                             label: '📅  One-time',
                             selected: !_isScheduled,
-                            onTap: () => setState(() => _isScheduled = false),
+                            onTap: () =>
+                                setState(() => _isScheduled = false),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 12),
                     // Repeat days
-                    if (_isScheduled)
+                    if (_isScheduled) ...[
                       _FormCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,11 +216,13 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                             const Text(
                               'Repeat on:',
                               style: TextStyle(
-                                  fontSize: 14, color: AppColors.textSecondary),
+                                  fontSize: 14,
+                                  color: AppColors.textSecondary),
                             ),
                             const SizedBox(height: 12),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
                               children: List.generate(7, (i) {
                                 final selected = _repeatDays[i];
                                 return GestureDetector(
@@ -209,7 +262,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           ],
                         ),
                       ),
-                    if (_isScheduled) const SizedBox(height: 12),
+                      const SizedBox(height: 12),
+                    ],
                     // Mission
                     _FormCard(
                       onTap: () async {
@@ -220,7 +274,16 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           ),
                         );
                         if (picked != null) {
-                          setState(() => _mission = picked);
+                          setState(() {
+                            _mission = picked;
+                            // Reset mission-specific fields on change
+                            if (picked != MissionType.math) {
+                              _mathDifficulty = MathDifficulty.easy;
+                            }
+                            if (picked != MissionType.objectHunt) {
+                              _customObjectCtrl.clear();
+                            }
+                          });
                         }
                       },
                       child: Row(
@@ -228,12 +291,19 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           Container(
                             width: 36,
                             height: 36,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: AppColors.background,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.add,
-                                size: 18, color: AppColors.textSecondary),
+                            child: _mission != null
+                                ? Icon(
+                                    missionInfoFor(_mission!).icon,
+                                    size: 18,
+                                    color: missionInfoFor(_mission!).iconColor,
+                                  )
+                                : const Icon(Icons.add,
+                                    size: 18,
+                                    color: AppColors.textSecondary),
                           ),
                           const SizedBox(width: 12),
                           Column(
@@ -262,11 +332,106 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         ],
                       ),
                     ),
+
+                    // Math difficulty picker
+                    if (_mission == MissionType.math) ...[
+                      const SizedBox(height: 12),
+                      _FormCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Difficulty',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textSecondary),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: List.generate(
+                                MathDifficulty.values.length,
+                                (i) {
+                                  final diff = MathDifficulty.values[i];
+                                  final selected = _mathDifficulty == diff;
+                                  return Expanded(
+                                    child: GestureDetector(
+                                      onTap: () =>
+                                          setState(() => _mathDifficulty = diff),
+                                      child: AnimatedContainer(
+                                        duration:
+                                            const Duration(milliseconds: 150),
+                                        margin: EdgeInsets.only(
+                                            right: i < 2 ? 8 : 0),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        decoration: BoxDecoration(
+                                          color: selected
+                                              ? AppColors.orange
+                                              : AppColors.background,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            _diffLabels[i],
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: selected
+                                                  ? Colors.white
+                                                  : AppColors.textSecondary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Custom object field for objectHunt
+                    if (_mission == MissionType.objectHunt) ...[
+                      const SizedBox(height: 12),
+                      _FormCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Custom Object (optional)',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textSecondary),
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: _customObjectCtrl,
+                              style: const TextStyle(
+                                  fontSize: 15, color: AppColors.textPrimary),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText:
+                                    'e.g. coffee mug (blank = random)',
+                                hintStyle:
+                                    TextStyle(color: AppColors.textSecondary),
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 12),
                     // Sound
                     _FormCard(
                       onTap: () async {
-                        final result = await Navigator.push<Map<String, String>>(
+                        final result =
+                            await Navigator.push<Map<String, String>>(
                           context,
                           MaterialPageRoute(
                             builder: (_) => const SoundPickerScreen(),
@@ -306,24 +471,6 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    // Sleep Better
-                    _FormCard(
-                      child: Row(
-                        children: [
-                          const Text('🌙', style: TextStyle(fontSize: 20)),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Sleep Better',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600),
-                          ),
-                          const Spacer(),
-                          const Icon(Icons.chevron_right,
-                              color: AppColors.textSecondary),
-                        ],
-                      ),
-                    ),
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -334,19 +481,21 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               child: ElevatedButton(
                 onPressed: _canSave ? () => _save(context) : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _canSave
-                      ? AppColors.textPrimary
-                      : AppColors.separator,
-                  foregroundColor: _canSave ? Colors.white : AppColors.textSecondary,
+                  backgroundColor:
+                      _canSave ? AppColors.textPrimary : AppColors.separator,
+                  foregroundColor: _canSave
+                      ? Colors.white
+                      : AppColors.textSecondary,
                   minimumSize: const Size(double.infinity, 54),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Save Alarm',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                child: Text(
+                  _isEditing ? 'Update Alarm' : 'Save Alarm',
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -365,16 +514,25 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _time.hour,
       _time.minute,
     );
+    final customObj = _customObjectCtrl.text.trim();
     final entry = AppAlarmEntry(
-      id: '',
+      id: widget.alarm?.id ?? '',
       dateTime: dt,
       missionType: _mission ?? MissionType.shakePhone,
       name: _nameCtrl.text.trim(),
       soundId: _soundId,
       repeatDays: _repeatDays,
       isOneTime: !_isScheduled,
+      mathDifficulty: _mathDifficulty,
+      customObject: customObj.isEmpty ? null : customObj,
     );
-    context.read<AlarmCubit>().addAlarm(entry);
+
+    final cubit = context.read<AlarmCubit>();
+    if (_isEditing) {
+      cubit.editAlarm(widget.alarm!, entry);
+    } else {
+      cubit.addAlarm(entry);
+    }
     Navigator.pop(context);
   }
 }
@@ -390,7 +548,8 @@ class _FormCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: AppColors.card,
           borderRadius: BorderRadius.circular(14),
@@ -420,7 +579,8 @@ class _TogglePill extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? AppColors.textPrimary : AppColors.background,
+          color:
+              selected ? AppColors.textPrimary : AppColors.background,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(

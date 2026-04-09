@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../cubit/theme_cubit.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -84,21 +86,31 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
               const SizedBox(height: 24),
               const _SectionTitle(title: 'App'),
-              _SettingsCard(children: [
-                _ToggleRow(
-                  icon: Icons.notifications_outlined,
-                  label: 'Notifications',
-                  value: _notifications,
-                  onChanged: (v) => setState(() => _notifications = v),
-                ),
-                const _Divider(),
-                _LinkRow(
-                  icon: Icons.wb_sunny_outlined,
-                  label: 'Default Sound',
-                  value: 'Default',
-                  onTap: () {},
-                ),
-              ]),
+              BlocBuilder<ThemeCubit, ThemeMode>(
+                builder: (context, themeMode) => _SettingsCard(children: [
+                  _ToggleRow(
+                    icon: Icons.notifications_outlined,
+                    label: 'Notifications',
+                    value: _notifications,
+                    onChanged: (v) => setState(() => _notifications = v),
+                  ),
+                  const _Divider(),
+                  _ToggleRow(
+                    icon: Icons.dark_mode_outlined,
+                    label: 'Dark Mode',
+                    value: themeMode == ThemeMode.dark,
+                    onChanged: (_) =>
+                        context.read<ThemeCubit>().toggle(),
+                  ),
+                  const _Divider(),
+                  _LinkRow(
+                    icon: Icons.wb_sunny_outlined,
+                    label: 'Default Sound',
+                    value: 'Default',
+                    onTap: () {},
+                  ),
+                ]),
+              ),
               const SizedBox(height: 16),
               const _SectionTitle(title: 'About'),
               _SettingsCard(children: [

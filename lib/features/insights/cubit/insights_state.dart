@@ -1,3 +1,5 @@
+enum InsightsRange { week, month, allTime }
+
 class InsightsState {
   final int currentStreak;
   final int longestStreak;
@@ -9,6 +11,7 @@ class InsightsState {
   final String favoriteMission;
   final String favoriteSound;
   final double consistency; // 0–100
+  final InsightsRange range;
   final bool loading;
 
   const InsightsState({
@@ -22,6 +25,7 @@ class InsightsState {
     this.favoriteMission = '--',
     this.favoriteSound = '--',
     this.consistency = 0,
+    this.range = InsightsRange.week,
     this.loading = true,
   });
 
@@ -36,6 +40,7 @@ class InsightsState {
     String? favoriteMission,
     String? favoriteSound,
     double? consistency,
+    InsightsRange? range,
     bool? loading,
   }) =>
       InsightsState(
@@ -49,6 +54,7 @@ class InsightsState {
         favoriteMission: favoriteMission ?? this.favoriteMission,
         favoriteSound: favoriteSound ?? this.favoriteSound,
         consistency: consistency ?? this.consistency,
+        range: range ?? this.range,
         loading: loading ?? this.loading,
       );
 }

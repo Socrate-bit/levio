@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import '../../../shared/theme/app_theme.dart';
@@ -125,6 +126,31 @@ class SoundPickerScreen extends StatefulWidget {
 
 class _SoundPickerScreenState extends State<SoundPickerScreen> {
   String _selectedId = 'default';
+  String? _playingId;
+  final _player = AudioPlayer();
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _previewSound(String id) async {
+    if (_playingId == id) {
+      await _player.stop();
+      setState(() => _playingId = null);
+      return;
+    }
+    setState(() => _playingId = id);
+    try {
+      await _player.play(AssetSource('sounds/$id.mp3'));
+      _player.onPlayerComplete.listen((_) {
+        if (mounted) setState(() => _playingId = null);
+      });
+    } catch (_) {
+      if (mounted) setState(() => _playingId = null);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -270,6 +296,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                               final isSelected =
                                   _selectedId == sound.id;
 
+                              final isPlaying = _playingId == sound.id;
                               return GestureDetector(
                                 onTap: () => setState(
                                     () => _selectedId = sound.id),
@@ -277,9 +304,6 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 14),
                                   decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? Colors.transparent
-                                        : Colors.transparent,
                                     borderRadius: BorderRadius.only(
                                       topLeft: isFirst
                                           ? const Radius.circular(14)
@@ -320,12 +344,19 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                         ),
                                       ),
                                       const Spacer(),
-                                      if (!isSelected)
-                                        const Icon(
-                                          Icons.play_circle_outline,
-                                          color: AppColors.textSecondary,
+                                      GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        onTap: () => _previewSound(sound.id),
+                                        child: Icon(
+                                          isPlaying
+                                              ? Icons.equalizer
+                                              : Icons.play_circle_outline,
+                                          color: isPlaying
+                                              ? AppColors.orange
+                                              : AppColors.textSecondary,
                                           size: 22,
                                         ),
+                                      ),
                                     ],
                                   ),
                                 ),

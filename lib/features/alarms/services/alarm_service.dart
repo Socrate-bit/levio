@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../milestones/services/streak_service.dart';
+
 class AlarmService {
   static StreamSubscription? _subscription;
   static AppLifecycleListener? _lifecycleListener;
@@ -17,8 +19,9 @@ class AlarmService {
   // Public API
   // ---------------------------------------------------------------------------
 
-  /// Returns nav args map with 'alarmId' and 'challenge' for the first
-  /// currently-alerting (or snoozed) alarm, or null if none is ringing.
+  /// Returns nav args map with 'alarmId', 'challenge', 'mathDifficulty',
+  /// and 'customObject' for the first currently-alerting (or snoozed) alarm,
+  /// or null if none is ringing.
   static Future<Map<String, String>?> getRingingAlarm() async {
     final plugin = FlutterAlarmkit();
     final prefs = await SharedPreferences.getInstance();
@@ -34,8 +37,15 @@ class AlarmService {
         final challenge = prefs.getString('mission_$id') ??
             prefs.getString(_challengeKey(id)) ??
             'pushUps';
+        final mathDiff = prefs.getString('math_diff_$id') ?? 'easy';
+        final customObj = prefs.getString('custom_obj_$id') ?? '';
         debugPrint('[AlarmService] → ringing alarm  id=$id  challenge=$challenge');
-        return {'alarmId': id, 'challenge': challenge};
+        return {
+          'alarmId': id,
+          'challenge': challenge,
+          'mathDifficulty': mathDiff,
+          'customObject': customObj,
+        };
       }
     }
     debugPrint('[AlarmService] → no ringing alarm');
@@ -92,12 +102,21 @@ class AlarmService {
         if (alarmState != 'unknown') return;
         final alarmId = event['id'] as String?;
         if (alarmId == null) return;
+        // Record this alarm fired for rest-day streak tracking
+        StreakService.recordAlarmFired().ignore();
         final prefs = await SharedPreferences.getInstance();
         final challenge = prefs.getString('mission_$alarmId') ??
             prefs.getString(_challengeKey(alarmId)) ??
             'pushUps';
+        final mathDiff = prefs.getString('math_diff_$alarmId') ?? 'easy';
+        final customObj = prefs.getString('custom_obj_$alarmId') ?? '';
         debugPrint('[AlarmService] Path 1 → pushing dismiss  alarmId=$alarmId  challenge=$challenge');
-        _pushDismiss(navigatorKey, {'alarmId': alarmId, 'challenge': challenge});
+        _pushDismiss(navigatorKey, {
+          'alarmId': alarmId,
+          'challenge': challenge,
+          'mathDifficulty': mathDiff,
+          'customObject': customObj,
+        });
         return;
       }
 

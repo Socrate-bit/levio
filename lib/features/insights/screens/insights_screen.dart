@@ -58,6 +58,12 @@ class _InsightsView extends StatelessWidget {
                               letterSpacing: -0.5,
                             ),
                           ),
+                          const SizedBox(height: 16),
+                          _RangeToggle(
+                            selected: state.range,
+                            onChanged: (r) =>
+                                ctx.read<InsightsCubit>().changeRange(r),
+                          ),
                           const SizedBox(height: 20),
                           // Streak + Badges cards row
                           Row(
@@ -141,6 +147,61 @@ class _InsightsView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _RangeToggle extends StatelessWidget {
+  final InsightsRange selected;
+  final ValueChanged<InsightsRange> onChanged;
+
+  const _RangeToggle({required this.selected, required this.onChanged});
+
+  static const _labels = {
+    InsightsRange.week: 'Week',
+    InsightsRange.month: 'Month',
+    InsightsRange.allTime: 'All Time',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: InsightsRange.values.map((r) {
+          final isSelected = selected == r;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(r),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.textPrimary
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  _labels[r]!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected
+                        ? Colors.white
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
