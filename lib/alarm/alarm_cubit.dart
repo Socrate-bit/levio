@@ -46,6 +46,12 @@ class AlarmCubit extends Cubit<AlarmState> {
     final id = await _plugin.scheduleOneShotAlarm(
       timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
       label: 'Levio — do push-ups to dismiss',
+      secondaryButton: AlarmButton(
+        text: 'Do push-up',
+        textColor: '#FFFFFF',
+        systemImageName: 'figure.strengthtraining.traditional',
+      ),
+      secondaryButtonBehavior: AlarmSecondaryButtonBehavior.snooze(300),
     );
 
     emit(state.copyWith(
