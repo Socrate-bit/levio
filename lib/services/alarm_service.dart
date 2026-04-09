@@ -43,20 +43,23 @@ class AlarmService {
     debugPrint('[AlarmService] checkAndNavigate called');
     await _printNativeDebugLog();
 
+    // Always check for a ringing alarm first — handles the button-tap path
+    // where OpenAlarmAppIntent (running in the widget extension process) can't
+    // share UserDefaults with the main app without an App Group.
+    final ringing = await getRingingAlarm();
+    if (ringing != null) {
+      debugPrint('[AlarmService] checkAndNavigate → ringing alarm found, navigating  args=$ringing');
+      _pushDismiss(navigatorKey, ringing);
+      return;
+    }
+
+    // Cold-start fallback: check the UserDefaults flag written by AppDelegate.
     if (!await _hasPendingDismiss()) {
-      debugPrint('[AlarmService] checkAndNavigate → no pending dismiss, aborting');
+      debugPrint('[AlarmService] checkAndNavigate → no ringing alarm and no pending dismiss, aborting');
       return;
     }
     await _clearPendingDismiss();
-
-    final ringing = await getRingingAlarm();
-    if (ringing == null) {
-      debugPrint('[AlarmService] checkAndNavigate → pendingDismiss was true but no ringing alarm found');
-      return;
-    }
-
-    debugPrint('[AlarmService] checkAndNavigate → navigating to /alarm-dismiss  args=$ringing');
-    _pushDismiss(navigatorKey, ringing);
+    debugPrint('[AlarmService] checkAndNavigate → pendingDismiss was true but no ringing alarm');
   }
 
   static void listenForRing(GlobalKey<NavigatorState> navigatorKey) {
