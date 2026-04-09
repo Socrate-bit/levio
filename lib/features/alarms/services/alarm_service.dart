@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -18,6 +17,8 @@ class AlarmService {
   // Public API
   // ---------------------------------------------------------------------------
 
+  /// Returns nav args map with 'alarmId' and 'challenge' for the first
+  /// currently-alerting (or snoozed) alarm, or null if none is ringing.
   static Future<Map<String, String>?> getRingingAlarm() async {
     final plugin = FlutterAlarmkit();
     final prefs = await SharedPreferences.getInstance();
@@ -29,7 +30,10 @@ class AlarmService {
       debugPrint('[AlarmService]   id=$id  state=$state');
       if (state == 'unknown') {
         if (id == null) continue;
-        final challenge = prefs.getString(_challengeKey(id)) ?? 'pushup';
+        // Support both old 'challenge_X' key and new 'mission_X' key
+        final challenge = prefs.getString('mission_$id') ??
+            prefs.getString(_challengeKey(id)) ??
+            'pushUps';
         debugPrint('[AlarmService] → ringing alarm  id=$id  challenge=$challenge');
         return {'alarmId': id, 'challenge': challenge};
       }
@@ -44,23 +48,20 @@ class AlarmService {
     debugPrint('[AlarmService] checkAndNavigate called');
     await _printNativeDebugLog();
 
-    // Always check for a ringing alarm first — handles the button-tap path
-    // where OpenAlarmAppIntent (running in the widget extension process) can't
-    // share UserDefaults with the main app without an App Group.
-    final ringing = await getRingingAlarm();
-    if (ringing != null) {
-      debugPrint('[AlarmService] checkAndNavigate → ringing alarm found, navigating  args=$ringing');
-      _pushDismiss(navigatorKey, ringing);
-      return;
-    }
-
-    // Cold-start fallback: check the UserDefaults flag written by AppDelegate.
     if (!await _hasPendingDismiss()) {
-      debugPrint('[AlarmService] checkAndNavigate → no ringing alarm and no pending dismiss, aborting');
+      debugPrint('[AlarmService] checkAndNavigate → no pending dismiss, aborting');
       return;
     }
     await _clearPendingDismiss();
-    debugPrint('[AlarmService] checkAndNavigate → pendingDismiss was true but no ringing alarm');
+
+    final ringing = await getRingingAlarm();
+    if (ringing == null) {
+      debugPrint('[AlarmService] checkAndNavigate → pendingDismiss was true but no ringing alarm found');
+      return;
+    }
+
+    debugPrint('[AlarmService] checkAndNavigate → navigating to /alarm-dismiss  args=$ringing');
+    _pushDismiss(navigatorKey, ringing);
   }
 
   static void listenForRing(GlobalKey<NavigatorState> navigatorKey) {
@@ -92,7 +93,9 @@ class AlarmService {
         final alarmId = event['id'] as String?;
         if (alarmId == null) return;
         final prefs = await SharedPreferences.getInstance();
-        final challenge = prefs.getString(_challengeKey(alarmId)) ?? 'pushup';
+        final challenge = prefs.getString('mission_$alarmId') ??
+            prefs.getString(_challengeKey(alarmId)) ??
+            'pushUps';
         debugPrint('[AlarmService] Path 1 → pushing dismiss  alarmId=$alarmId  challenge=$challenge');
         _pushDismiss(navigatorKey, {'alarmId': alarmId, 'challenge': challenge});
         return;
@@ -170,22 +173,20 @@ class AlarmService {
   }
 
   /// Reads native debug counters written by OpenAlarmAppIntent.perform()
-  /// and AppDelegate.userNotificationCenter and prints them to Flutter output.
+  /// and prints them to Flutter output.
   static Future<void> _printNativeDebugLog() async {
     try {
       final log = await _actionChannel.invokeMethod<Map>('getDebugLog');
       if (log != null) {
         debugPrint('[AlarmService] native debug log: '
             'pendingDismiss=${log['pendingDismiss']}  '
-            'intentFiredCount=${log['intentFiredCount']}  '
-            'delegateFiredCount=${log['delegateFiredCount']}');
+            'intentFireCount=${log['intentFireCount']}');
       }
-    } catch (e) {
-      debugPrint('[AlarmService] _printNativeDebugLog error: $e');
-    }
+    } catch (_) {}
   }
 
-  static void _pushDismiss(GlobalKey<NavigatorState> navigatorKey, Map<String, String> args) {
+  static void _pushDismiss(
+      GlobalKey<NavigatorState> navigatorKey, Map<String, String> args) {
     navigatorKey.currentState?.pushNamedAndRemoveUntil(
       '/alarm-dismiss',
       (route) => route.isFirst,
@@ -193,6 +194,3 @@ class AlarmService {
     );
   }
 }
-=======
-export '../features/alarms/services/alarm_service.dart';
->>>>>>> 30bad50196b0666ae57f86f800378e7255ba9d6d
