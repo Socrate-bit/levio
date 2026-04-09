@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
+import '../../alarms/screens/alarm_form_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/bottom_nav_shell.dart';
 import '../../wakeup/screens/today_wakeup_screen.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
@@ -144,31 +146,34 @@ class _TopBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(10),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              const Text('🔥', style: TextStyle(fontSize: 16)),
-              const SizedBox(width: 4),
-              Text(
-                '$streak',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+        GestureDetector(
+          onTap: () => BottomNavShell.of(context)?.navigateTo(2),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(10),
+                  blurRadius: 8,
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Row(
+              children: [
+                const Text('🔥', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 4),
+                Text(
+                  '$streak',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -238,7 +243,17 @@ class _NextAlarmCard extends StatelessWidget {
     final isPM = alarm.dateTime.hour >= 12;
     final missionInfo = missionInfoFor(alarm.missionType);
 
-    return Container(
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: context.read<AlarmCubit>(),
+            child: AlarmFormScreen(alarm: alarm),
+          ),
+        ),
+      ),
+      child: Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.card,
@@ -331,6 +346,7 @@ class _NextAlarmCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../alarms/cubit/alarm_state.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '_alarm_banner.dart';
@@ -12,11 +13,13 @@ import '_alarm_banner.dart';
 class MathDismissScreen extends StatefulWidget {
   final String alarmId;
   final String alarmLabel;
+  final MathDifficulty difficulty;
 
   const MathDismissScreen({
     super.key,
     required this.alarmId,
     this.alarmLabel = 'Alarm #1',
+    this.difficulty = MathDifficulty.easy,
   });
 
   @override
@@ -30,6 +33,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   late int _b;
   late String _op;
   late int _answer;
+  late String _problemText;
   final _ctrl = TextEditingController();
   int _solved = 0;
   String? _errorMsg;
@@ -44,22 +48,62 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
 
   void _nextProblem() {
     final rng = Random();
-    final ops = ['+', '-', '×'];
+    final diff = widget.difficulty;
+
+    final maxVal = switch (diff) {
+      MathDifficulty.easy => 10,
+      MathDifficulty.medium => 25,
+      MathDifficulty.hard => 50,
+    };
+    final ops = switch (diff) {
+      MathDifficulty.easy => ['+', '-'],
+      MathDifficulty.medium => ['+', '-', '×'],
+      MathDifficulty.hard => ['+', '-', '×'],
+    };
+
+    // Hard mode: 50% chance of chained 3-operand problem
+    if (diff == MathDifficulty.hard && rng.nextBool()) {
+      final opA = ops[rng.nextInt(ops.length)];
+      final opB = ops[rng.nextInt(ops.length)];
+      final x = rng.nextInt(maxVal) + 1;
+      final y = rng.nextInt(maxVal) + 1;
+      final z = rng.nextInt(maxVal) + 1;
+      int mid;
+      switch (opA) {
+        case '+': mid = x + y;
+        case '-': mid = x - y;
+        default: mid = x * y;
+      }
+      switch (opB) {
+        case '+': _answer = mid + z;
+        case '-': _answer = mid - z;
+        default: _answer = mid * z;
+      }
+      _a = x;
+      _b = y;
+      _op = opA;
+      _problemText = '($x $opA $y) $opB $z = ?';
+      _ctrl.clear();
+      _errorMsg = null;
+      return;
+    }
+
     _op = ops[rng.nextInt(ops.length)];
     switch (_op) {
       case '+':
-        _a = rng.nextInt(50) + 10;
-        _b = rng.nextInt(50) + 10;
+        _a = rng.nextInt(maxVal) + 1;
+        _b = rng.nextInt(maxVal) + 1;
         _answer = _a + _b;
       case '-':
-        _a = rng.nextInt(50) + 20;
-        _b = rng.nextInt(_a ~/ 2) + 1;
+        _a = rng.nextInt(maxVal) + 1;
+        _b = rng.nextInt(_a) + 1;
         _answer = _a - _b;
       default: // ×
-        _a = rng.nextInt(9) + 2;
-        _b = rng.nextInt(9) + 2;
+        _a = rng.nextInt(maxVal ~/ 2) + 2;
+        _b = rng.nextInt(maxVal ~/ 2) + 2;
         _answer = _a * _b;
     }
+    _problemText = '$_a $_op $_b = ?';
     _ctrl.clear();
     _errorMsg = null;
   }
@@ -146,7 +190,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                     const SizedBox(height: 48),
                     // Problem
                     Text(
-                      '$_a $_op $_b = ?',
+                      _problemText,
                       style: const TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,

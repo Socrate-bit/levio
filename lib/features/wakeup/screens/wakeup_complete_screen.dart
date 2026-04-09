@@ -40,6 +40,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
       final result = await StreakService.onWakeupCompleted(
         soundId: widget.session.soundId,
         timeTakenSeconds: widget.timeTakenSeconds,
+        missionType: widget.session.missionType,
       );
       final total = await HistoryService.getTotalWakeups();
 

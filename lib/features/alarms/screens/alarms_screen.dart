@@ -249,7 +249,17 @@ class _AlarmCard extends StatelessWidget {
     final info = missionInfoFor(alarm.missionType);
     final dayStr = _daysLabel(alarm.repeatDays);
 
-    return Container(
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: context.read<AlarmCubit>(),
+            child: AlarmFormScreen(alarm: alarm),
+          ),
+        ),
+      ),
+      child: Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.card,
@@ -334,6 +344,7 @@ class _AlarmCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
       ),
     );
   }
