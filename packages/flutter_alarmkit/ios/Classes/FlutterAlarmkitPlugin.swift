@@ -349,6 +349,14 @@ public class FlutterAlarmkitPlugin: NSObject, FlutterPlugin {
       ? OpenAlarmAppIntent(alarmID: alarmId.uuidString)
       : nil
 
+    // Debug: emit to Flutter stream so it's visible in `flutter run` output.
+    AlarmUpdateStreamHandler.shared?.emit([
+      "event": "debugSchedule",
+      "alarmID": alarmId.uuidString,
+      "secondaryBehavior": secondaryButtonBehavior.map { "\($0)" } ?? "nil",
+      "secondaryIntentSet": secondaryIntent != nil,
+    ])
+
     let alarmConfiguration = AlarmManager.AlarmConfiguration<NeverMetadata>(
         schedule: .fixed(date),
         attributes: attributes,

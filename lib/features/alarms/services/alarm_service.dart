@@ -23,76 +23,122 @@ class AlarmService {
     final plugin = FlutterAlarmkit();
     final prefs = await SharedPreferences.getInstance();
     final alarms = await plugin.getAlarms();
+    debugPrint('[AlarmService] getRingingAlarm: ${alarms.length} alarm(s) found');
     for (final alarm in alarms) {
       final state = alarm['state'] as String?;
+      final id = alarm['id'] as String?;
+      debugPrint('[AlarmService]   id=$id  state=$state');
       if (state == 'unknown') {
-        final id = alarm['id'] as String?;
         if (id == null) continue;
         // Support both old 'challenge_X' key and new 'mission_X' key
         final challenge = prefs.getString('mission_$id') ??
             prefs.getString(_challengeKey(id)) ??
             'pushUps';
+        debugPrint('[AlarmService] → ringing alarm  id=$id  challenge=$challenge');
         return {'alarmId': id, 'challenge': challenge};
       }
     }
+    debugPrint('[AlarmService] → no ringing alarm');
     return null;
-  }
-
-  static Future<bool> _hasPendingDismiss() async {
-    try {
-      return await _actionChannel.invokeMethod<bool>('hasPendingDismiss') ??
-          false;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  static Future<void> _clearPendingDismiss() async {
-    try {
-      await _actionChannel.invokeMethod('clearPendingDismiss');
-    } catch (_) {}
   }
 
   static Future<void> checkAndNavigate(
     GlobalKey<NavigatorState> navigatorKey,
   ) async {
-    if (!await _hasPendingDismiss()) return;
+    debugPrint('[AlarmService] checkAndNavigate called');
+    await _printNativeDebugLog();
+
+    if (!await _hasPendingDismiss()) {
+      debugPrint('[AlarmService] checkAndNavigate → no pending dismiss, aborting');
+      return;
+    }
     await _clearPendingDismiss();
+
     final ringing = await getRingingAlarm();
-    if (ringing == null) return;
+    if (ringing == null) {
+      debugPrint('[AlarmService] checkAndNavigate → pendingDismiss was true but no ringing alarm found');
+      return;
+    }
+
+    debugPrint('[AlarmService] checkAndNavigate → navigating to /alarm-dismiss  args=$ringing');
     _pushDismiss(navigatorKey, ringing);
   }
 
   static void listenForRing(GlobalKey<NavigatorState> navigatorKey) {
+    debugPrint('[AlarmService] listenForRing: starting stream + lifecycle listener');
     _subscription?.cancel();
     _subscription = FlutterAlarmkit.alarmUpdates().listen((event) async {
-      if (event is! Map) return;
+      if (event is! Map) {
+        debugPrint('[AlarmService] stream: unexpected event type ${event.runtimeType}');
+        return;
+      }
       final eventType = event['event'] as String?;
+
+      if (eventType == 'debugSchedule') {
+        debugPrint('[AlarmService] 🔧 debugSchedule: '
+            'alarmID=${event['alarmID']}  '
+            'secondaryBehavior=${event['secondaryBehavior']}  '
+            'secondaryIntentSet=${event['secondaryIntentSet']}');
+        return;
+      }
+
+      debugPrint('[AlarmService] stream event: $event');
 
       if (eventType == 'update') {
         final alarm = event['alarm'] as Map?;
         if (alarm == null) return;
-        if (alarm['state'] != 'unknown') return;
+        final alarmState = alarm['state'];
+        debugPrint('[AlarmService] update event: alarmState=$alarmState');
+        if (alarmState != 'unknown') return;
         final alarmId = event['id'] as String?;
         if (alarmId == null) return;
         final prefs = await SharedPreferences.getInstance();
         final challenge = prefs.getString('mission_$alarmId') ??
             prefs.getString(_challengeKey(alarmId)) ??
             'pushUps';
-        _pushDismiss(
-            navigatorKey, {'alarmId': alarmId, 'challenge': challenge});
+        debugPrint('[AlarmService] Path 1 → pushing dismiss  alarmId=$alarmId  challenge=$challenge');
+        _pushDismiss(navigatorKey, {'alarmId': alarmId, 'challenge': challenge});
         return;
       }
 
       if (eventType == 'secondaryButtonTapped') {
+        debugPrint('[AlarmService] Path 2 → secondaryButtonTapped, querying ringing alarm');
         final ringing = await getRingingAlarm();
-        if (ringing != null) _pushDismiss(navigatorKey, ringing);
+        if (ringing != null) {
+          debugPrint('[AlarmService] Path 2 → pushing dismiss  args=$ringing');
+          _pushDismiss(navigatorKey, ringing);
+        } else {
+          debugPrint('[AlarmService] Path 2 → no ringing alarm found after secondaryButtonTapped');
+        }
       }
+
+      // intentFired = OpenAlarmAppIntent.perform() ran in the main app process.
+      if (eventType == 'intentFired') {
+        debugPrint('[AlarmService] ✅ intentFired received → intent IS running in main process');
+        final ringing = await getRingingAlarm();
+        if (ringing != null) {
+          debugPrint('[AlarmService] intentFired → pushing dismiss  args=$ringing');
+          _pushDismiss(navigatorKey, ringing);
+        } else {
+          debugPrint('[AlarmService] intentFired → no ringing alarm (already stopped?)');
+        }
+      }
+    }, onError: (Object e, StackTrace st) {
+      debugPrint('[AlarmService] stream error: $e\n$st');
     });
 
     _lifecycleListener?.dispose();
     _lifecycleListener = AppLifecycleListener(
-      onResume: () => checkAndNavigate(navigatorKey),
+      onResume: () {
+        debugPrint('[AlarmService] lifecycle: onResume');
+        checkAndNavigate(navigatorKey);
+      },
+      onHide: () => debugPrint('[AlarmService] lifecycle: onHide'),
+      onShow: () => debugPrint('[AlarmService] lifecycle: onShow'),
+      onInactive: () => debugPrint('[AlarmService] lifecycle: onInactive'),
+      onPause: () => debugPrint('[AlarmService] lifecycle: onPause'),
+      onDetach: () => debugPrint('[AlarmService] lifecycle: onDetach'),
+      onRestart: () => debugPrint('[AlarmService] lifecycle: onRestart'),
     );
   }
 
@@ -101,6 +147,42 @@ class AlarmService {
     _subscription = null;
     _lifecycleListener?.dispose();
     _lifecycleListener = null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  static Future<bool> _hasPendingDismiss() async {
+    try {
+      final result = await _actionChannel.invokeMethod<bool>('hasPendingDismiss') ?? false;
+      debugPrint('[AlarmService] _hasPendingDismiss → $result');
+      return result;
+    } catch (e) {
+      debugPrint('[AlarmService] _hasPendingDismiss error: $e');
+      return false;
+    }
+  }
+
+  static Future<void> _clearPendingDismiss() async {
+    try {
+      await _actionChannel.invokeMethod('clearPendingDismiss');
+    } catch (e) {
+      debugPrint('[AlarmService] _clearPendingDismiss error: $e');
+    }
+  }
+
+  /// Reads native debug counters written by OpenAlarmAppIntent.perform()
+  /// and prints them to Flutter output.
+  static Future<void> _printNativeDebugLog() async {
+    try {
+      final log = await _actionChannel.invokeMethod<Map>('getDebugLog');
+      if (log != null) {
+        debugPrint('[AlarmService] native debug log: '
+            'pendingDismiss=${log['pendingDismiss']}  '
+            'intentFireCount=${log['intentFireCount']}');
+      }
+    } catch (_) {}
   }
 
   static void _pushDismiss(

@@ -2,112 +2,102 @@ import AlarmKit
 import AppIntents
 
 @available(iOS 26.0, *)
-struct PauseIntent: LiveActivityIntent {
-    func perform() throws -> some IntentResult {
+public struct PauseIntent: LiveActivityIntent {
+    public func perform() throws -> some IntentResult {
         try AlarmManager.shared.pause(id: UUID(uuidString: alarmID)!)
         return .result()
     }
-    
-    static var title: LocalizedStringResource = "Pause"
-    static var description = IntentDescription("Pause a countdown")
-    
+
+    public static var title: LocalizedStringResource = "Pause"
+    public static var description = IntentDescription("Pause a countdown")
+
     @Parameter(title: "alarmID")
-    var alarmID: String
-    
-    init(alarmID: String) {
-        self.alarmID = alarmID
-    }
-    
-    init() {
-        self.alarmID = ""
-    }
+    public var alarmID: String
+
+    public init(alarmID: String) { self.alarmID = alarmID }
+    public init() { self.alarmID = "" }
 }
 
 @available(iOS 26.0, *)
-struct StopIntent: LiveActivityIntent {
-    func perform() throws -> some IntentResult {
+public struct StopIntent: LiveActivityIntent {
+    public func perform() throws -> some IntentResult {
         try AlarmManager.shared.stop(id: UUID(uuidString: alarmID)!)
         return .result()
     }
-    
-    static var title: LocalizedStringResource = "Stop"
-    static var description = IntentDescription("Stop an alert")
-    
+
+    public static var title: LocalizedStringResource = "Stop"
+    public static var description = IntentDescription("Stop an alert")
+
     @Parameter(title: "alarmID")
-    var alarmID: String
-    
-    init(alarmID: String) {
-        self.alarmID = alarmID
-    }
-    
-    init() {
-        self.alarmID = ""
-    }
+    public var alarmID: String
+
+    public init(alarmID: String) { self.alarmID = alarmID }
+    public init() { self.alarmID = "" }
 }
 
 @available(iOS 26.0, *)
-struct RepeatIntent: LiveActivityIntent {
-    func perform() throws -> some IntentResult {
+public struct RepeatIntent: LiveActivityIntent {
+    public func perform() throws -> some IntentResult {
         try AlarmManager.shared.countdown(id: UUID(uuidString: alarmID)!)
         return .result()
     }
-    
-    static var title: LocalizedStringResource = "Repeat"
-    static var description = IntentDescription("Repeat a countdown")
-    
+
+    public static var title: LocalizedStringResource = "Repeat"
+    public static var description = IntentDescription("Repeat a countdown")
+
     @Parameter(title: "alarmID")
-    var alarmID: String
-    
-    init(alarmID: String) {
-        self.alarmID = alarmID
-    }
-    
-    init() {
-        self.alarmID = ""
-    }
+    public var alarmID: String
+
+    public init(alarmID: String) { self.alarmID = alarmID }
+    public init() { self.alarmID = "" }
 }
 
 @available(iOS 26.0, *)
-struct ResumeIntent: LiveActivityIntent {
-    func perform() throws -> some IntentResult {
+public struct ResumeIntent: LiveActivityIntent {
+    public func perform() throws -> some IntentResult {
         try AlarmManager.shared.resume(id: UUID(uuidString: alarmID)!)
         return .result()
     }
-    
-    static var title: LocalizedStringResource = "Resume"
-    static var description = IntentDescription("Resume a countdown")
-    
+
+    public static var title: LocalizedStringResource = "Resume"
+    public static var description = IntentDescription("Resume a countdown")
+
     @Parameter(title: "alarmID")
-    var alarmID: String
-    
-    init(alarmID: String) {
-        self.alarmID = alarmID
-    }
-    
-    init() {
-        self.alarmID = ""
-    }
+    public var alarmID: String
+
+    public init(alarmID: String) { self.alarmID = alarmID }
+    public init() { self.alarmID = "" }
 }
 
 @available(iOS 26.0, *)
-struct OpenAlarmAppIntent: LiveActivityIntent {
-    func perform() throws -> some IntentResult {
-        try AlarmManager.shared.stop(id: UUID(uuidString: alarmID)!)
+public struct OpenAlarmAppIntent: LiveActivityIntent {
+    public func perform() throws -> some IntentResult {
+        let key = "levio_debug_intent_fired_count"
+        let prev = UserDefaults.standard.integer(forKey: key)
+        UserDefaults.standard.set(prev + 1, forKey: key)
+        NSLog("[OpenAlarmAppIntent] perform #%d alarmID=%@", prev + 1, alarmID)
+
+        // Set the pending flag so AlarmService navigates on app open.
+        UserDefaults.standard.set(true, forKey: "levio_pending_alarm_dismiss")
+
+        // Emit directly to the Flutter stream — visible in `flutter run` output.
+        // If Dart sees "intentFired" → intent runs in the main app process.
+        // If Dart never sees it → intent runs in a separate process (or never fires).
+        AlarmUpdateStreamHandler.shared?.emit([
+            "event": "intentFired",
+            "alarmID": alarmID,
+        ])
+
         return .result()
     }
-    
-    static var title: LocalizedStringResource = "Open App"
-    static var description = IntentDescription("Opens the Sample app")
-    static var openAppWhenRun = true
-    
+
+    public static var title: LocalizedStringResource = "Open App"
+    public static var description = IntentDescription("Opens the app for the alarm challenge")
+    public static var openAppWhenRun = true
+
     @Parameter(title: "alarmID")
-    var alarmID: String
-    
-    init(alarmID: String) {
-        self.alarmID = alarmID
-    }
-    
-    init() {
-        self.alarmID = ""
-    }
+    public var alarmID: String
+
+    public init(alarmID: String) { self.alarmID = alarmID }
+    public init() { self.alarmID = "" }
 }
