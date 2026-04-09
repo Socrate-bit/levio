@@ -96,7 +96,12 @@ class _AlarmListView extends StatelessWidget {
                   ),
                 ),
                 subtitle: Text(
-                  '${_alarmSubtitle(alarm.dateTime)} · ${alarm.challenge == ChallengeType.shake ? 'Shake' : 'Push-ups'}',
+                  '${_alarmSubtitle(alarm.dateTime)} · ${switch (alarm.challenge) {
+                    ChallengeType.pushup => 'Push-ups',
+                    ChallengeType.shake => 'Shake',
+                    ChallengeType.photo => 'Photo',
+                    ChallengeType.speech => 'Speech',
+                  }}',
                   style: const TextStyle(color: Colors.white54),
                 ),
                 trailing: IconButton(
@@ -165,6 +170,30 @@ class _ChallengePicker extends StatelessWidget {
                 style: TextStyle(color: Colors.white54),
               ),
               onTap: () => Navigator.pop(context, ChallengeType.shake),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: Colors.white),
+              title: const Text(
+                'Photo',
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: const Text(
+                'Take a picture of a door',
+                style: TextStyle(color: Colors.white54),
+              ),
+              onTap: () => Navigator.pop(context, ChallengeType.photo),
+            ),
+            ListTile(
+              leading: const Icon(Icons.mic, color: Colors.white),
+              title: const Text(
+                'Speech',
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: const Text(
+                "Read 'My name is Lucas' aloud",
+                style: TextStyle(color: Colors.white54),
+              ),
+              onTap: () => Navigator.pop(context, ChallengeType.speech),
             ),
           ],
         ),

@@ -16,7 +16,11 @@
 	<key>NSAlarmKitUsageDescription</key>
     <string>Levio needs access to set system-level alarms so they ring even if the app is closed.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Levio needs camera access to count your push-ups.</string>
+	<string>Levio needs camera access to count your push-ups and take photos to dismiss alarms.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Levio needs microphone access to listen to your voice for the speech challenge.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Levio uses speech recognition to verify you read the phrase aloud to dismiss the alarm.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
