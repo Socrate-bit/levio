@@ -92,7 +92,7 @@ public struct ResumeIntent: LiveActivityIntent {
 @available(iOS 26.0, *)
 public struct OpenAlarmAppIntent: LiveActivityIntent {
     public func perform() throws -> some IntentResult {
-        try AlarmManager.shared.stop(id: UUID(uuidString: alarmID)!)
+        // try AlarmManager.shared.stop(id: UUID(uuidString: alarmID)!)
         return .result()
     }
     

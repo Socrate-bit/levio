@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,9 +48,11 @@ class AlarmCubit extends Cubit<AlarmState> {
   }
 
   Future<void> addAlarm(DateTime dateTime, ChallengeType challenge) async {
-    // If the picked time is in the past today, schedule for tomorrow.
     var scheduled = dateTime;
-    if (scheduled.isBefore(DateTime.now())) {
+    if (kDebugMode) {
+      scheduled = DateTime.now().add(const Duration(seconds: 5));
+    } else if (scheduled.isBefore(DateTime.now())) {
+      // If the picked time is in the past today, schedule for tomorrow.
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
@@ -76,7 +79,7 @@ class AlarmCubit extends Cubit<AlarmState> {
           ChallengeType.speech => 'mic.fill',
         },
       ),
-      secondaryButtonBehavior: AlarmSecondaryButtonBehavior.snooze(300),
+      secondaryButtonBehavior: AlarmSecondaryButtonBehavior.stop,
     );
 
     final prefs = await SharedPreferences.getInstance();

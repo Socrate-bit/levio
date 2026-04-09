@@ -8,6 +8,8 @@ import UserNotifications
   /// UserDefaults key written when the user taps a notification action while
   /// the app is killed (cold-start path — Flutter stream is not yet active).
   private static let pendingDismissKey = "levio_pending_alarm_dismiss"
+  private static let intentFiredCountKey = "levio_debug_intent_fired_count"
+  private static let delegateFiredCountKey = "levio_debug_delegate_fired_count"
 
   /// Foundation notification name shared with the plugin's stream handler.
   private static let alarmTappedName = Notification.Name("levio.alarmNotificationTapped")
@@ -37,6 +39,19 @@ import UserNotifications
       case "clearPendingDismiss":
         UserDefaults.standard.removeObject(forKey: AppDelegate.pendingDismissKey)
         result(nil)
+      case "getDebugLog":
+        let pending = UserDefaults.standard.bool(forKey: AppDelegate.pendingDismissKey)
+        let intentCount = UserDefaults.standard.integer(forKey: AppDelegate.intentFiredCountKey)
+        let delegateCount = UserDefaults.standard.integer(forKey: AppDelegate.delegateFiredCountKey)
+        result([
+          "pendingDismiss": pending,
+          "intentFiredCount": intentCount,
+          "delegateFiredCount": delegateCount,
+        ])
+      case "clearDebugLog":
+        UserDefaults.standard.removeObject(forKey: AppDelegate.intentFiredCountKey)
+        UserDefaults.standard.removeObject(forKey: AppDelegate.delegateFiredCountKey)
+        result(nil)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -53,6 +68,11 @@ import UserNotifications
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
     let alarmId = response.notification.request.identifier
+    let actionId = response.actionIdentifier
+    NSLog("[AppDelegate] didReceive notification response: alarmId=%@ actionId=%@", alarmId, actionId)
+
+    let prevCount = UserDefaults.standard.integer(forKey: AppDelegate.delegateFiredCountKey)
+    UserDefaults.standard.set(prevCount + 1, forKey: AppDelegate.delegateFiredCountKey)
 
     // ① Warm path — Flutter engine is already running, plugin stream is active.
     //   Post to the Foundation NotificationCenter that AlarmUpdateStreamHandler
