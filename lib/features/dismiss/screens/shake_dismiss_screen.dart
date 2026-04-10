@@ -136,7 +136,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Shake your phone',
+                      'Shake your phone to stop the alarm',
                       style: TextStyle(
                         fontSize: 18,
                         color: c.textSecondary,

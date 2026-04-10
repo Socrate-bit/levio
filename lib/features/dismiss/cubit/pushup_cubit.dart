@@ -8,8 +8,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 import 'pushup_state.dart';
+import '../../../shared/services/sound_service.dart';
 
-enum _Phase { up, down }
+enum _Phase { no, up, hdown, down }
 
 class PushUpCubit extends Cubit<PushUpState> {
   PushUpCubit({this.targetReps}) : super(const PushUpInitial());
@@ -25,18 +26,17 @@ class PushUpCubit extends Cubit<PushUpState> {
   static const int _minIntervalMs = 200; // ~5 fps detection
 
   // Counting — angle-based (elbow joint)
-  _Phase _phase = _Phase.up;
+  _Phase _phase = _Phase.no;
   int _repCount = 0;
-  static const double _armsUpAngle = 140.0;
-  static const double _armsDownAngle = 100.0;
+  static const double _armsUpAngle = 175.0;
+  static const double _armsDownAngle = 130.0;
+  static const double _armsHalfAngle = 170.0;
 
   Future<void> startSession() async {
     emit(const CameraLoading());
     try {
       _detector = PoseDetector(
-        options: PoseDetectorOptions(
-          mode: PoseDetectionMode.stream,
-        ),
+        options: PoseDetectorOptions(mode: PoseDetectionMode.stream),
       );
 
       final cameras = await availableCameras();
@@ -48,22 +48,24 @@ class PushUpCubit extends Cubit<PushUpState> {
 
       _camera = CameraController(
         front,
-        ResolutionPreset.low,
+        ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.bgra8888,
       );
       await _camera!.initialize();
 
-      _phase = _Phase.up;
+      _phase = _Phase.no;
       _repCount = 0;
 
-      emit(SessionActive(
-        camera: _camera!,
-        repCount: 0,
-        poses: const [],
-        imageWidth: _camera!.value.previewSize?.width.toInt() ?? 480,
-        imageHeight: _camera!.value.previewSize?.height.toInt() ?? 640,
-      ));
+      emit(
+        SessionActive(
+          camera: _camera!,
+          repCount: 0,
+          poses: const [],
+          imageWidth: _camera!.value.previewSize?.width.toInt() ?? 480,
+          imageHeight: _camera!.value.previewSize?.height.toInt() ?? 640,
+        ),
+      );
 
       await _camera!.startImageStream(_onCameraImage);
     } catch (e, st) {
@@ -100,50 +102,92 @@ class PushUpCubit extends Cubit<PushUpState> {
       final poses = await _detector!.processImage(inputImage);
 
       String? feedback;
+      FeedbackType? feedbackType;
       List<DetectedPose> detectedPoses;
 
       if (poses.isEmpty) {
-        feedback = 'Move into frame';
+        feedback = 'Move your whole body into frame';
+        feedbackType = FeedbackType.warning;
         detectedPoses = const [];
       } else {
         final landmarks = poses.first.landmarks.entries
-            .map((e) => DetectedLandmark(
-                  e.key,
-                  e.value.x,
-                  e.value.y,
-                  e.value.likelihood,
-                ))
+            .map(
+              (e) => DetectedLandmark(
+                e.key,
+                e.value.x,
+                e.value.y,
+                e.value.likelihood,
+              ),
+            )
             .toList();
         detectedPoses = [DetectedPose(landmarks)];
 
         final pose = detectedPoses.first;
-        final elbowAngle = _avgElbowAngle(pose);
+        final elbowAngles = _bothElbowAngles(pose);
 
-        if (elbowAngle == null) {
-          feedback = 'Move into frame';
+        // Check landmark
+        if (elbowAngles == null) {
+          feedback = 'Move your whole body into frame';
+          _phase = _Phase.no;
+          feedbackType = FeedbackType.warning;
+          detectedPoses = const [];
         } else {
-          if (_phase == _Phase.up && elbowAngle < _armsDownAngle) {
-            _phase = _Phase.down;
-          } else if (_phase == _Phase.down && elbowAngle > _armsUpAngle) {
+          final leftAngle = elbowAngles.$1;
+          final rightAngle = elbowAngles.$2;
+
+          // Check position
+          final wristBelowElbow = _isWristsBelowElbows(pose);
+          if (!wristBelowElbow) {
+            _phase = _Phase.no;
+            feedback = 'Lie down in push-up position';
+            feedbackType = FeedbackType.warning;
+          } else if (_phase == _Phase.no &&
+              leftAngle >= _armsUpAngle &&
+              rightAngle >= _armsUpAngle) {
             _phase = _Phase.up;
-            _repCount++;
-            if (targetReps != null && _repCount >= targetReps!) {
-              unawaited(stopSession(goalReached: true));
-              return;
+            feedback = 'Start doing your push-ups!';
+            feedbackType = FeedbackType.positive;
+          }
+
+          if (_phase == _Phase.up &&
+              leftAngle < _armsHalfAngle &&
+              rightAngle < _armsHalfAngle) {
+            _phase = _Phase.hdown;
+          } else if ((_phase == _Phase.up || _phase == _Phase.hdown) &&
+              leftAngle < _armsDownAngle &&
+              rightAngle < _armsDownAngle) {
+            _phase = _Phase.down;
+          } else if (leftAngle > _armsUpAngle && rightAngle > _armsUpAngle) {
+            if (_phase == _Phase.hdown) {
+              feedback = 'Go deeper, your chest should touch the ground!';
+              feedbackType = FeedbackType.warning;
+            } else if (_phase == _Phase.down) {
+              _phase = _Phase.up;
+              _repCount++;
+              feedback = 'Yes, keep going!';
+              feedbackType = FeedbackType.positive;
+              unawaited(SoundService.instance.playRepBell());
+              if (targetReps != null && _repCount >= targetReps!) {
+                unawaited(stopSession(goalReached: true));
+                return;
+              }
             }
           }
         }
       }
 
       if (state is SessionActive) {
-        emit(current.copyWith(
-          repCount: _repCount,
-          feedback: feedback,
-          clearFeedback: feedback == null,
-          poses: detectedPoses,
-          imageWidth: image.width,
-          imageHeight: image.height,
-        ));
+        emit(
+          current.copyWith(
+            repCount: _repCount,
+            feedback: feedback,
+            feedbackType: feedbackType,
+            poses: detectedPoses,
+            imageWidth: image.width,
+            imageHeight: image.height,
+            hasFirstFrame: true,
+          ),
+        );
       }
     } catch (e) {
       debugPrint('[PushUpCubit] _processFrame error: $e');
@@ -151,33 +195,75 @@ class PushUpCubit extends Cubit<PushUpState> {
   }
 
   double _angleDeg(
-      double ax, double ay, double bx, double by, double cx, double cy) {
+    double ax,
+    double ay,
+    double bx,
+    double by,
+    double cx,
+    double cy,
+  ) {
     final v1x = ax - bx, v1y = ay - by;
     final v2x = cx - bx, v2y = cy - by;
     final dot = v1x * v2x + v1y * v2y;
-    final mag = math.sqrt(v1x * v1x + v1y * v1y) *
-        math.sqrt(v2x * v2x + v2y * v2y);
+    final mag =
+        math.sqrt(v1x * v1x + v1y * v1y) * math.sqrt(v2x * v2x + v2y * v2y);
     if (mag == 0) return 0;
     return math.acos((dot / mag).clamp(-1.0, 1.0)) * 180 / math.pi;
   }
 
-  double? _avgElbowAngle(DetectedPose pose) {
-    final angles = <double>[];
-    for (final side in [
-      [PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist],
-      [PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist],
-    ]) {
-      final s = pose.getLandmark(side[0]);
-      final e = pose.getLandmark(side[1]);
-      final w = pose.getLandmark(side[2]);
-      if (s == null || e == null || w == null) continue;
+  /// Returns (leftAngle, rightAngle), or null if either side is not visible.
+  (double, double)? _bothElbowAngles(DetectedPose pose) {
+    double? sideAngle(
+      PoseLandmarkType shoulder,
+      PoseLandmarkType elbow,
+      PoseLandmarkType wrist,
+    ) {
+      final s = pose.getLandmark(shoulder);
+      final e = pose.getLandmark(elbow);
+      final w = pose.getLandmark(wrist);
+      if (s == null || e == null || w == null) return null;
       if (s.likelihood < 0.65 || e.likelihood < 0.65 || w.likelihood < 0.65) {
-        continue;
+        return null;
       }
-      angles.add(_angleDeg(s.x, s.y, e.x, e.y, w.x, w.y));
+      return _angleDeg(s.x, s.y, e.x, e.y, w.x, w.y);
     }
-    if (angles.isEmpty) return null;
-    return angles.reduce((a, b) => a + b) / angles.length;
+
+    final left = sideAngle(
+      PoseLandmarkType.leftShoulder,
+      PoseLandmarkType.leftElbow,
+      PoseLandmarkType.leftWrist,
+    );
+    final right = sideAngle(
+      PoseLandmarkType.rightShoulder,
+      PoseLandmarkType.rightElbow,
+      PoseLandmarkType.rightWrist,
+    );
+    if (left == null || right == null) return null;
+    return (left, right);
+  }
+
+  bool _isWristsBelowElbows(DetectedPose pose) {
+    bool left = false, right = false;
+
+    final lw = pose.getLandmark(PoseLandmarkType.leftWrist);
+    final le = pose.getLandmark(PoseLandmarkType.leftElbow);
+    if (lw != null &&
+        le != null &&
+        lw.likelihood >= 0.6 &&
+        le.likelihood >= 0.6) {
+      left = lw.y > le.y;
+    }
+
+    final rw = pose.getLandmark(PoseLandmarkType.rightWrist);
+    final re = pose.getLandmark(PoseLandmarkType.rightElbow);
+    if (rw != null &&
+        re != null &&
+        rw.likelihood >= 0.6 &&
+        re.likelihood >= 0.6) {
+      right = rw.y > re.y;
+    }
+
+    return left && right;
   }
 
   InputImageRotation _sensorOrientationToRotation(int orientation) {
@@ -196,7 +282,6 @@ class PushUpCubit extends Cubit<PushUpState> {
   Future<void> stopSession({bool goalReached = false}) async {
     final count = _repCount;
     await _camera?.stopImageStream();
-    await _camera?.dispose();
     _camera = null;
     _detector?.close();
     _detector = null;
@@ -206,6 +291,7 @@ class PushUpCubit extends Cubit<PushUpState> {
     } else {
       emit(SessionComplete(repCount: count));
     }
+    await _camera?.dispose();
   }
 
   @override

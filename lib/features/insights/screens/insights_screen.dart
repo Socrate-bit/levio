@@ -23,7 +23,7 @@ class _InsightsScreenState extends State<InsightsScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return BlocProvider(
-      create: (_) => InsightsCubit()..load(),
+      create: (_) => InsightsCubit(),
       child: const _InsightsView(),
     );
   }
@@ -72,7 +72,6 @@ class _InsightsView extends StatelessWidget {
                               Expanded(
                                 child: _StreakCard(
                                   streak: state.currentStreak,
-                                  weekDays: state.weekDays,
                                   onTap: () => Navigator.push(
                                     ctx,
                                     MaterialPageRoute(
@@ -139,8 +138,6 @@ class _InsightsView extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 24),
-                          _ConsistencyCard(score: state.consistency),
                         ],
                       ),
                     ),
@@ -210,21 +207,16 @@ class _RangeToggle extends StatelessWidget {
 
 class _StreakCard extends StatelessWidget {
   final int streak;
-  final List<bool> weekDays;
   final VoidCallback onTap;
-
-  static const _labels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   const _StreakCard({
     required this.streak,
-    required this.weekDays,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    final todayIndex = DateTime.now().weekday % 7;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -234,59 +226,25 @@ class _StreakCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('🔥', style: TextStyle(fontSize: 32)),
             const SizedBox(height: 4),
+            Text(
+              '$streak',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: c.textPrimary,
+              ),
+            ),
             Text(
               'Day Streak',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: c.textPrimary,
+                color: c.textSecondary,
               ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(7, (i) {
-                final isToday = i == todayIndex;
-                final done = weekDays.length > i && weekDays[i];
-                return Column(
-                  children: [
-                    Text(
-                      _labels[i],
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: isToday
-                            ? c.textPrimary
-                            : c.textSecondary,
-                        fontWeight: isToday
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Container(
-                      width: 22,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: done
-                            ? Colors.transparent
-                            : c.separator,
-                        border: isToday && !done
-                            ? Border.all(
-                                color: AppColors.orange, width: 1.5)
-                            : null,
-                      ),
-                      child: done
-                          ? const Icon(Icons.check,
-                              size: 13, color: AppColors.orange)
-                          : null,
-                    ),
-                  ],
-                );
-              }),
             ),
           ],
         ),

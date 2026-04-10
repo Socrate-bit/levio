@@ -4,17 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../missions/models/mission.dart';
 import '../../wakeup/services/history_service.dart';
 import 'alarm_channel.dart';
+import 'alarm_firestore_service.dart';
 
 class AlarmService {
   static StreamSubscription? _subscription;
   static AppLifecycleListener? _lifecycleListener;
 
   static const _actionChannel = MethodChannel('levio/alarm-action');
-
-  static String _challengeKey(String id) => 'challenge_$id';
 
   // ---------------------------------------------------------------------------
   // Public API
@@ -26,18 +24,17 @@ class AlarmService {
     debugPrint('[AlarmService] getRingingAlarm: ringingId=$id');
     if (id == null) return null;
 
-    final prefs = await SharedPreferences.getInstance();
-    final challenge = prefs.getString('mission_$id') ??
-        prefs.getString(_challengeKey(id)) ??
-        'pushUps';
-    final mathDiff = prefs.getString('math_diff_$id') ?? 'easy';
-    final customObj = prefs.getString('custom_obj_$id') ?? '';
-    debugPrint('[AlarmService] → ringing alarm  id=$id  challenge=$challenge');
+    final entry = await AlarmFirestoreService.getAlarm(id);
+    if (entry == null) {
+      debugPrint('[AlarmService] → ringing alarm $id not found in Firestore');
+      return null;
+    }
+    debugPrint('[AlarmService] → ringing alarm  id=$id  challenge=${entry.missionType.name}');
     return {
       'alarmId': id,
-      'challenge': challenge,
-      'mathDifficulty': mathDiff,
-      'customObject': customObj,
+      'challenge': entry.missionType.name,
+      'mathDifficulty': entry.mathDifficulty.name,
+      'customObject': entry.customObject ?? '',
     };
   }
 
@@ -72,27 +69,25 @@ class AlarmService {
       if (eventType == 'ring') {
         final alarmId = event['id'] as String?;
         if (alarmId == null) return;
-        final prefs = await SharedPreferences.getInstance();
-        final challenge = prefs.getString('mission_$alarmId') ??
-            prefs.getString(_challengeKey(alarmId)) ??
-            'pushUps';
-        final mathDiff = prefs.getString('math_diff_$alarmId') ?? 'easy';
-        final customObj = prefs.getString('custom_obj_$alarmId') ?? '';
-        final soundId = prefs.getString('sound_$alarmId') ?? 'default';
-        final missionType = missionTypeFromString(challenge);
+        final entry = await AlarmFirestoreService.getAlarm(alarmId);
+        if (entry == null) {
+          debugPrint('[AlarmService] ring: alarm $alarmId not found in Firestore');
+          return;
+        }
         HistoryService.createPendingSession(
           alarmId: alarmId,
-          missionType: missionType,
-          soundId: soundId,
-        ).then((sessionId) {
+          missionType: entry.missionType,
+          soundId: entry.soundId,
+        ).then((sessionId) async {
+          final prefs = await SharedPreferences.getInstance();
           prefs.setString('pending_session_$alarmId', sessionId);
         }).ignore();
-        debugPrint('[AlarmService] ring → pushing dismiss  alarmId=$alarmId  challenge=$challenge');
+        debugPrint('[AlarmService] ring → pushing dismiss  alarmId=$alarmId  challenge=${entry.missionType.name}');
         _pushDismiss(navigatorKey, {
           'alarmId': alarmId,
-          'challenge': challenge,
-          'mathDifficulty': mathDiff,
-          'customObject': customObj,
+          'challenge': entry.missionType.name,
+          'mathDifficulty': entry.mathDifficulty.name,
+          'customObject': entry.customObject ?? '',
         });
         return;
       }
