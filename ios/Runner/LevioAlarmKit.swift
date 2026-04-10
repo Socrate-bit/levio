@@ -148,7 +148,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let title = args["title"] as? String ?? "Alarm"
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
-        let soundPath = args["soundPath"] as? String
         let alarmId = UUID()
         let date = Date(timeIntervalSince1970: timestampMs / 1000)
 
@@ -157,14 +156,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            soundPath: soundPath,
             schedule: .fixed(date)
         )
 
         do {
             let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
             saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
-                       soundPath: soundPath, isOneShot: true, timestampMs: timestampMs)
+                       isOneShot: true, timestampMs: timestampMs)
             result(alarm.id.uuidString)
         } catch {
             result(FlutterError(code: "SCHEDULE_ERROR", message: error.localizedDescription, details: nil))
@@ -185,7 +183,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let title = args["title"] as? String ?? "Alarm"
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
-        let soundPath = args["soundPath"] as? String
         let alarmId = UUID()
         let weekdays = decodeWeekdays(from: mask)
         let time = Alarm.Schedule.Relative.Time(hour: hour, minute: minute)
@@ -197,14 +194,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            soundPath: soundPath,
             schedule: .relative(schedule)
         )
 
         do {
             let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
             saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
-                       soundPath: soundPath, isOneShot: false, weekdayMask: mask, hour: hour, minute: minute)
+                       isOneShot: false, weekdayMask: mask, hour: hour, minute: minute)
             result(alarm.id.uuidString)
         } catch {
             result(FlutterError(code: "SCHEDULE_ERROR", message: error.localizedDescription, details: nil))
@@ -307,9 +303,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         title: String,
         sfSymbol: String,
         secondaryLabel: String,
-        soundPath: String?,
         schedule: Alarm.Schedule
     ) -> AlarmManager.AlarmConfiguration<LevioAlarmMetadata> {
+        let stopButton = AlarmButton(
+            text: "Stop",
+            textColor: .white,
+            systemImageName: "xmark.circle"
+        )
         let secondaryButton = AlarmButton(
             text: LocalizedStringResource(stringLiteral: secondaryLabel),
             textColor: .white,
@@ -317,6 +317,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         )
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: title),
+            stopButton: stopButton,
             secondaryButton: secondaryButton,
             secondaryButtonBehavior: .custom
         )
@@ -328,8 +329,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             schedule: schedule,
             attributes: attributes,
             stopIntent: StopAndRescheduleIntent(alarmID: id.uuidString),
-            secondaryIntent: OpenAlarmAppIntent(alarmID: id.uuidString),
-            sound: resolveSoundAsset(soundPath)
+            secondaryIntent: OpenAlarmAppIntent(alarmID: id.uuidString)
         )
     }
 
@@ -338,7 +338,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         title: String,
         sfSymbol: String,
         secondaryLabel: String,
-        soundPath: String?,
         isOneShot: Bool,
         timestampMs: Double = 0,
         weekdayMask: Int = 0,
@@ -351,9 +350,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             "secondaryLabel": secondaryLabel,
             "isOneShot": isOneShot,
         ]
-        if let sp = soundPath {
-            config["soundFileName"] = URL(fileURLWithPath: sp).lastPathComponent
-        }
         if isOneShot {
             config["timestampMs"] = timestampMs
         } else {
@@ -366,30 +362,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         }
     }
 
-    /// Copies a Flutter sound asset to Library/Sounds and returns a named AlertSound.
-    private func resolveSoundAsset(_ assetPath: String?) -> AlertConfiguration.AlertSound {
-        guard let assetPath = assetPath, !assetPath.isEmpty else { return .default }
-        let fileName = URL(fileURLWithPath: assetPath).lastPathComponent
-        let fileManager = FileManager.default
-        guard let libraryUrl = fileManager.urls(for: .libraryDirectory, in: .userDomainMask).first else {
-            return .default
-        }
-        let soundsUrl = libraryUrl.appendingPathComponent("Sounds")
-        let destinationUrl = soundsUrl.appendingPathComponent(fileName)
-        if !fileManager.fileExists(atPath: destinationUrl.path) {
-            guard let key = LevioAlarmKit.registrar?.lookupKey(forAsset: assetPath),
-                  let sourcePath = Bundle.main.path(forResource: key, ofType: nil) else {
-                return .default
-            }
-            do {
-                try fileManager.createDirectory(at: soundsUrl, withIntermediateDirectories: true)
-                try fileManager.copyItem(at: URL(fileURLWithPath: sourcePath), to: destinationUrl)
-            } catch {
-                return .default
-            }
-        }
-        return .named(fileName)
-    }
+
 
     private func decodeWeekdays(from mask: Int) -> [Locale.Weekday] {
         var weekdays: [Locale.Weekday] = []

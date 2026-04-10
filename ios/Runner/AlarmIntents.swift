@@ -62,8 +62,12 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
-        let soundFileName = config["soundFileName"] as? String
 
+        let stopButton = AlarmButton(
+            text: "Stop",
+            textColor: .white,
+            systemImageName: "xmark.circle"
+        )
         let secondaryButton = AlarmButton(
             text: LocalizedStringResource(stringLiteral: secondaryLabel),
             textColor: .white,
@@ -71,6 +75,7 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         )
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: title),
+            stopButton: stopButton,
             secondaryButton: secondaryButton,
             secondaryButtonBehavior: .custom
         )
@@ -78,13 +83,11 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
             presentation: AlarmPresentation(alert: alert),
             tintColor: .white
         )
-        let sound: AlertConfiguration.AlertSound = soundFileName.map { .named($0) } ?? .default
         let newConfig = AlarmManager.AlarmConfiguration.alarm(
             schedule: .fixed(fireDate),
             attributes: attributes,
             stopIntent: StopAndRescheduleIntent(alarmID: newId.uuidString),
-            secondaryIntent: OpenAlarmAppIntent(alarmID: newId.uuidString),
-            sound: sound
+            secondaryIntent: OpenAlarmAppIntent(alarmID: newId.uuidString)
         )
 
         try? await AlarmManager.shared.schedule(id: newId, configuration: newConfig)
