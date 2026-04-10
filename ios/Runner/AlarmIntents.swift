@@ -39,14 +39,13 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         let defaults = UserDefaults.standard
         let stoppedIdsKey = "levio_stopped_ids"
 
-        // Helper: mark an alarm as stopped in the shared stopped-IDs set
         func markStopped(_ id: String) {
             var ids = defaults.stringArray(forKey: stoppedIdsKey) ?? []
             if !ids.contains(id) { ids.append(id) }
             defaults.set(ids, forKey: stoppedIdsKey)
         }
 
-        // If challenge was already completed via the app, just stop — don't reschedule.
+        // If challenge was already completed via the app, just stop — don't snooze.
         let completedKey = "levio_completed_\(alarmID)"
         if defaults.bool(forKey: completedKey) {
             defaults.removeObject(forKey: completedKey)
@@ -55,7 +54,7 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
             return .result()
         }
 
-        // Read stored config so we can rebuild the alarm.
+        // Read stored config so we can rebuild the snooze alarm.
         guard let data = defaults.data(forKey: "levio_config_\(alarmID)"),
               let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
@@ -64,20 +63,20 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
             return .result()
         }
 
-        let isOneShot = config["isOneShot"] as? Bool ?? true
+        // Resolve the original alarm ID.
+        // If alarmID is itself a snooze, follow the link; otherwise alarmID IS the original.
+        let originalId = defaults.string(forKey: "levio_snooze_\(alarmID)") ?? alarmID
 
-        // For recurring alarms: cancel entirely to prevent orphan native alarm.
-        // For one-shot: stop is sufficient.
-        if isOneShot {
-            try? AlarmManager.shared.stop(id: oldUUID)
-        } else {
-            try? AlarmManager.shared.cancel(id: oldUUID)
-        }
+        // Stop the current ringing alarm (recurring original stays scheduled for future occurrences).
+        try? AlarmManager.shared.stop(id: oldUUID)
         markStopped(alarmID)
 
-        // Schedule a new one-shot alarm 5 minutes from now.
+        // Clean up the current snooze link (if this was a snooze).
+        defaults.removeObject(forKey: "levio_snooze_\(alarmID)")
+
+        // Schedule a new one-shot snooze alarm 5 minutes from now.
         let newId = UUID()
-        let fireDate = Date().addingTimeInterval(1 * 10)
+        let fireDate = Date().addingTimeInterval(5 * 60)
 
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
@@ -112,17 +111,12 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
 
         try? await AlarmManager.shared.schedule(id: newId, configuration: newConfig)
 
-        // Carry config to the new UUID.
+        // Carry display config to the new snooze UUID.
         defaults.set(data, forKey: "levio_config_\(newId.uuidString)")
         defaults.removeObject(forKey: "levio_config_\(alarmID)")
 
-        // Signal to the main app (read in _syncAlarms) so Firestore can be updated.
-        defaults.set(newId.uuidString, forKey: "levio_rescheduled_\(alarmID)")
-
-        // For recurring alarms: signal app to restore the recurring schedule after snooze.
-        if !isOneShot {
-            defaults.set(data, forKey: "levio_recurring_restore_\(alarmID)")
-        }
+        // Link new snooze → original so getRingingAlarm can look up mission info.
+        defaults.set(originalId, forKey: "levio_snooze_\(newId.uuidString)")
 
         return .result()
     }

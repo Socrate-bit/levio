@@ -108,10 +108,11 @@ class AlarmChannel {
     return _method.invokeMethod<String?>('getRingingId');
   }
 
-  /// Returns a map of {oldId → newId} for alarms rescheduled natively while
-  /// the app was killed. Keys are consumed (cleared) on the native side.
-  static Future<Map<String, String>> getPendingReschedules() async {
-    final raw = await _method.invokeMapMethod<String, String>('getPendingReschedules');
+  /// Returns {snoozeId → originalId} for all active snooze alarms.
+  /// Read-only — never clears keys. Used by _syncAlarms (orphan check)
+  /// and getRingingAlarm (Firestore lookup fallback).
+  static Future<Map<String, String>> getSnoozeMap() async {
+    final raw = await _method.invokeMapMethod<String, String>('getSnoozeMap');
     return raw ?? {};
   }
 
