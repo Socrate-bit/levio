@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../missions/models/mission.dart';
 import '../services/alarm_channel.dart';
@@ -11,10 +10,6 @@ class AlarmCubit extends Cubit<AlarmState> {
   AlarmCubit() : super(const AlarmState()) {
     _init();
   }
-
-  static String _missionKey(String id) => 'mission_$id';
-  static String _nameKey(String id) => 'name_$id';
-  static String _soundKey(String id) => 'sound_$id';
 
   Future<void> _init() async {
     await AlarmChannel.requestAuthorization();
@@ -27,21 +22,18 @@ class AlarmCubit extends Cubit<AlarmState> {
     final results = await Future.wait([
       AlarmFirestoreService.getAlarms(),
       AlarmChannel.getAlarmIds(),
-      SharedPreferences.getInstance(),
       AlarmChannel.getPendingReschedules(),
     ]);
     final firestoreAlarms = results[0] as List<AppAlarmEntry>;
     final nativeIds = (results[1] as List<String>).toSet();
-    final prefs = results[2] as SharedPreferences;
     // Reschedule signals written by StopAndRescheduleIntent while app was killed.
-    final reschedules = results[3] as Map<String, String>;
+    final reschedules = results[2] as Map<String, String>;
     final now = DateTime.now();
     final resolved = <AppAlarmEntry>[];
 
     for (final alarm in firestoreAlarms) {
       if (reschedules.containsKey(alarm.id)) {
         final newId = reschedules[alarm.id]!;
-        await _clearOldPrefs(prefs, alarm.id);
         await AlarmFirestoreService.deleteAlarm(alarm.id);
         final rescheduled = alarm.copyWith(
           id: newId,
@@ -69,9 +61,6 @@ class AlarmCubit extends Cubit<AlarmState> {
 
       final newId = await _scheduleNative(alarm, scheduled);
 
-      await _clearOldPrefs(prefs, alarm.id);
-      await _saveAlarmPrefs(prefs, newId, alarm);
-
       await AlarmFirestoreService.deleteAlarm(alarm.id);
       final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled);
       await AlarmFirestoreService.saveAlarm(rescheduled);
@@ -91,9 +80,6 @@ class AlarmCubit extends Cubit<AlarmState> {
 
     final id = await _scheduleNative(entry, scheduled, forceOneShot: kDebugMode);
 
-    final prefs = await SharedPreferences.getInstance();
-    await _saveAlarmPrefs(prefs, id, entry);
-
     final saved = entry.copyWith(id: id, dateTime: scheduled);
     await AlarmFirestoreService.saveAlarm(saved);
     emit(state.copyWith(alarms: [...state.alarms, saved]));
@@ -102,8 +88,6 @@ class AlarmCubit extends Cubit<AlarmState> {
   /// Updates only metadata (mission, sound, name) without rescheduling the
   /// native alarm. Use this for changes that don't affect the trigger time.
   Future<void> updateAlarmMeta(AppAlarmEntry updated) async {
-    final prefs = await SharedPreferences.getInstance();
-    await _saveAlarmPrefs(prefs, updated.id, updated);
     await AlarmFirestoreService.saveAlarm(updated);
     emit(state.copyWith(
       alarms: state.alarms.map((a) => a.id == updated.id ? updated : a).toList(),
@@ -127,10 +111,6 @@ class AlarmCubit extends Cubit<AlarmState> {
       }
       final newId = await _scheduleNative(alarm, scheduled);
 
-      final prefs = await SharedPreferences.getInstance();
-      await _clearOldPrefs(prefs, id);
-      await _saveAlarmPrefs(prefs, newId, alarm);
-
       await AlarmFirestoreService.deleteAlarm(id);
       final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled, isEnabled: true);
       await AlarmFirestoreService.saveAlarm(rescheduled);
@@ -143,8 +123,6 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   Future<void> editAlarm(AppAlarmEntry old, AppAlarmEntry updated) async {
     await AlarmChannel.cancel(old.id);
-    final prefs = await SharedPreferences.getInstance();
-    await _clearOldPrefs(prefs, old.id);
     await AlarmFirestoreService.deleteAlarm(old.id);
 
     var scheduled = kDebugMode
@@ -156,8 +134,6 @@ class AlarmCubit extends Cubit<AlarmState> {
 
     final newId = await _scheduleNative(updated, scheduled, forceOneShot: kDebugMode);
 
-    await _saveAlarmPrefs(prefs, newId, updated);
-
     final saved = updated.copyWith(id: newId, dateTime: scheduled);
     await AlarmFirestoreService.saveAlarm(saved);
     emit(state.copyWith(
@@ -167,8 +143,6 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   Future<void> removeAlarm(String id) async {
     await AlarmChannel.cancel(id);
-    final prefs = await SharedPreferences.getInstance();
-    await _clearOldPrefs(prefs, id);
     await AlarmFirestoreService.deleteAlarm(id);
     emit(state.copyWith(
       alarms: state.alarms.where((a) => a.id != id).toList(),
@@ -214,23 +188,6 @@ class AlarmCubit extends Cubit<AlarmState> {
         soundPath: soundPath,
       );
     }
-  }
-
-  Future<void> _clearOldPrefs(SharedPreferences prefs, String id) async {
-    await prefs.remove(_missionKey(id));
-    await prefs.remove(_nameKey(id));
-    await prefs.remove(_soundKey(id));
-    await prefs.remove('challenge_$id');
-  }
-
-  Future<void> _saveAlarmPrefs(
-    SharedPreferences prefs,
-    String id,
-    AppAlarmEntry entry,
-  ) async {
-    await prefs.setString(_missionKey(id), entry.missionType.name);
-    await prefs.setString(_nameKey(id), entry.name);
-    await prefs.setString(_soundKey(id), entry.soundId);
   }
 
   String _systemImageFor(MissionType type) {
