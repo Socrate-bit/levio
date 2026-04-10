@@ -62,6 +62,7 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
+        let soundFileName = config["soundFileName"] as? String
 
         let stopButton = AlarmButton(
             text: "Stop",
@@ -83,11 +84,13 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
             presentation: AlarmPresentation(alert: alert),
             tintColor: .white
         )
-        let newConfig = AlarmManager.AlarmConfiguration<LevioAlarmMetadata>(
+        let sound: AlertConfiguration.AlertSound = soundFileName.map { .named($0) } ?? .default
+        let newConfig = AlarmManager.AlarmConfiguration.alarm(
             schedule: .fixed(fireDate),
             attributes: attributes,
             stopIntent: StopAndRescheduleIntent(alarmID: newId.uuidString),
-            secondaryIntent: OpenAlarmAppIntent(alarmID: newId.uuidString)
+            secondaryIntent: OpenAlarmAppIntent(alarmID: newId.uuidString),
+            sound: sound
         )
 
         try? await AlarmManager.shared.schedule(id: newId, configuration: newConfig)
