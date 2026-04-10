@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../alarms/services/alarm_channel.dart';
-
-import '../../missions/models/mission.dart';
-import '../../wakeup/screens/wakeup_complete_screen.dart';
+import '../../alarms/services/alarm_firestore_service.dart';
+import '../../wakeup/services/history_service.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class SimpleDismissScreen extends StatefulWidget {
@@ -39,16 +38,24 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
     HapticFeedback.mediumImpact();
     await AlarmChannel.dismissAlarm(widget.alarmId);
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => WakeupCompleteScreen(
-            alarmId: widget.alarmId,
-            timeTakenSeconds: elapsed,
-            missionType: MissionType.none,
-          ),
-        ),
+
+    // Disable one-time alarms so they don't get rescheduled.
+    final alarmEntry = await AlarmFirestoreService.getAlarm(widget.alarmId);
+    if (alarmEntry != null && alarmEntry.isOneTime) {
+      await AlarmFirestoreService.saveAlarm(alarmEntry.copyWith(isEnabled: false));
+    }
+
+    // Complete the pending session for history, but skip streak validation.
+    final session = await HistoryService.getPendingSession(widget.alarmId);
+    if (session != null) {
+      await HistoryService.completeSession(
+        session.id,
+        timeTakenSeconds: elapsed,
       );
+    }
+
+    if (mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 
