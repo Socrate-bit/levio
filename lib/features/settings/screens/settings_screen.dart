@@ -1,7 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../shared/theme/app_theme.dart';
+import '../../alarms/cubit/alarm_cubit.dart';
+import '../../alarms/services/alarm_channel.dart';
 import '../cubit/theme_cubit.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -17,6 +22,79 @@ class _SettingsScreenState extends State<SettingsScreen>
   bool get wantKeepAlive => true;
 
   bool _notifications = true;
+
+  Future<void> _printAllAlarms(BuildContext context) async {
+    final flutterAlarms = context.read<AlarmCubit>().state.alarms;
+    final nativeAlarms = await AlarmChannel.getAlarms();
+    final nativeIds = nativeAlarms.map((a) => a['id'] as String).toSet();
+
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('[Admin] Native AlarmKit alarms (${nativeAlarms.length}):');
+    for (final native in nativeAlarms) {
+      final id = native['id'] as String;
+      debugPrint('  • $id');
+      debugPrint('      state          : ${native['state']}');
+      debugPrint('      title          : ${native['title'] ?? '-'}');
+      debugPrint('      sfSymbol       : ${native['sfSymbol'] ?? '-'}');
+      debugPrint('      secondaryLabel : ${native['secondaryLabel'] ?? '-'}');
+      debugPrint('      isOneShot      : ${native['isOneShot']}');
+      if (native['timestampMs'] != null) {
+        final dt = DateTime.fromMillisecondsSinceEpoch((native['timestampMs'] as double).toInt());
+        debugPrint('      scheduledAt    : $dt');
+      }
+      if (native['weekdayMask'] != null) {
+        debugPrint('      weekdayMask    : ${native['weekdayMask']}  hour=${native['hour']}  minute=${native['minute']}');
+      }
+
+      // Cross-reference with Flutter state
+      final match = flutterAlarms.where((a) => a.id == id).firstOrNull;
+      if (match != null) {
+        debugPrint('      [Flutter] name       : ${match.name.isEmpty ? "(no name)" : match.name}');
+        debugPrint('      [Flutter] enabled    : ${match.isEnabled}');
+        debugPrint('      [Flutter] mission    : ${match.missionType.name}');
+        debugPrint('      [Flutter] difficulty : ${match.mathDifficulty.name}');
+        debugPrint('      [Flutter] sound      : ${match.soundId}');
+        debugPrint('      [Flutter] repeatDays : ${match.repeatDays}');
+        if (match.customObject != null) {
+          debugPrint('      [Flutter] customObj  : ${match.customObject}');
+        }
+      } else {
+        debugPrint('      [Flutter] ⚠ not found in Flutter state');
+      }
+    }
+
+    final orphans = flutterAlarms.where((a) => !nativeIds.contains(a.id));
+    if (orphans.isNotEmpty) {
+      debugPrint('[Admin] Flutter-only (not in AlarmKit):');
+      for (final a in orphans) {
+        debugPrint('  • ${a.id}  name=${a.name}  enabled=${a.isEnabled}');
+      }
+    }
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }
+
+  Future<void> _printSharedPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().toList()..sort();
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('[Admin] SharedPreferences (${keys.length} keys):');
+    for (final key in keys) {
+      final value = prefs.get(key);
+      debugPrint('  $key = $value  (${value.runtimeType})');
+    }
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }
+
+  Future<void> _deleteAllAlarms(BuildContext context) async {
+    final cubit = context.read<AlarmCubit>();
+    final ids = await AlarmChannel.getAlarmIds();
+    debugPrint('[Admin] Deleting ${ids.length} alarms…');
+    for (final id in ids) {
+      await cubit.removeAlarm(id);
+      debugPrint('[Admin] Deleted $id');
+    }
+    debugPrint('[Admin] All alarms deleted.');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,6 +218,33 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
               ]),
               const SizedBox(height: 16),
+              if (kDebugMode) ...[
+                const SizedBox(height: 16),
+                _SectionTitle(title: 'Admin (debug only)'),
+                _SettingsCard(children: [
+                  _ActionRow(
+                    icon: Icons.bug_report_outlined,
+                    label: 'Print All Alarms',
+                    color: AppColors.orange,
+                    onTap: () => _printAllAlarms(context),
+                  ),
+                  const _Divider(),
+                  _ActionRow(
+                    icon: Icons.storage_outlined,
+                    label: 'Print SharedPreferences',
+                    color: AppColors.orange,
+                    onTap: _printSharedPrefs,
+                  ),
+                  const _Divider(),
+                  _ActionRow(
+                    icon: Icons.delete_sweep_outlined,
+                    label: 'Delete All Alarms',
+                    color: Colors.red,
+                    onTap: () => _deleteAllAlarms(context),
+                  ),
+                ]),
+                const SizedBox(height: 16),
+              ],
               Center(
                 child: Text(
                   'Levio v0.1.0',
@@ -285,6 +390,40 @@ class _Divider extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 48),
       child: Divider(height: 1, color: c.separator),
+    );
+  }
+}
+
+class _ActionRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ActionRow({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(fontSize: 16, color: color, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

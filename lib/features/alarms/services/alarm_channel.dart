@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class AlarmChannel {
@@ -50,11 +51,21 @@ class AlarmChannel {
   }
 
   static Future<void> cancel(String id) async {
-    await _method.invokeMethod('cancel', id);
+    try {
+      await _method.invokeMethod('cancel', id);
+    } on PlatformException catch (e) {
+      debugPrint('[AlarmChannel] cancel($id) failed — code=${e.code} | message=${e.message} | details=${e.details}');
+      rethrow;
+    }
   }
 
   static Future<void> stop(String id) async {
-    await _method.invokeMethod('stop', id);
+    try {
+      await _method.invokeMethod('stop', id);
+    } on PlatformException catch (e) {
+      debugPrint('[AlarmChannel] stop($id) failed — code=${e.code} | message=${e.message} | details=${e.details}');
+      rethrow;
+    }
   }
 
   static Future<void> markCompleted(String id) async {
@@ -63,12 +74,28 @@ class AlarmChannel {
 
   static Future<void> dismissAlarm(String id) async {
     await markCompleted(id);
-    await stop(id);
+    try {
+      await stop(id);
+    } on PlatformException catch (e) {
+      // The alarm may already be stopped by the system (race condition when the
+      // user taps the native stop button before the challenge completes).
+      // AlarmError 0 = alarm not in a stoppable state. Log and continue.
+      debugPrint('[AlarmChannel] dismissAlarm: stop failed (code=${e.code}) — ${e.message} | details: ${e.details}');
+    }
   }
 
   static Future<List<String>> getAlarmIds() async {
     final result = await _method.invokeListMethod<String>('getAlarmIds');
     return result ?? [];
+  }
+
+  /// Returns full native info for each scheduled alarm.
+  static Future<List<Map<String, dynamic>>> getAlarms() async {
+    final raw = await _method.invokeListMethod<Object?>('getAlarms') ?? [];
+    return raw
+        .whereType<Map>()
+        .map((m) => m.cast<String, dynamic>())
+        .toList();
   }
 
   static Future<String?> getRingingId() async {

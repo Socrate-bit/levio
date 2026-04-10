@@ -1,5 +1,6 @@
 import AlarmKit
 import AppIntents
+import SwiftUI
 
 // MARK: - Open App Intent (secondary button)
 
@@ -24,7 +25,7 @@ public struct OpenAlarmAppIntent: LiveActivityIntent {
 public struct StopAndRescheduleIntent: LiveActivityIntent {
     public static var title: LocalizedStringResource = "Stop"
     public static var description = IntentDescription("Stops the alarm and reschedules it shortly")
-    public static var openAppWhenRun = false
+    public static var openAppWhenRun = true
 
     @Parameter(title: "alarmID")
     public var alarmID: String
@@ -57,7 +58,7 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
 
         // Schedule a new one-shot alarm 5 minutes from now.
         let newId = UUID()
-        let fireDate = Date().addingTimeInterval(5 * 60)
+        let fireDate = Date().addingTimeInterval(1 * 10)
 
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
@@ -70,7 +71,7 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         )
         let secondaryButton = AlarmButton(
             text: LocalizedStringResource(stringLiteral: secondaryLabel),
-            textColor: .white,
+            textColor: Color(red: 1.0, green: 107.0 / 255.0, blue: 0.0),
             systemImageName: sfSymbol
         )
         let alert = AlarmPresentation.Alert(
