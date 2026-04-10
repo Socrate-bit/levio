@@ -106,6 +106,20 @@ class HistoryService {
     return sessions.isEmpty ? null : sessions.first;
   }
 
+  /// Returns the most recent pending (incomplete) session for the given alarm,
+  /// or null if none exists.
+  static Future<WakeupSession?> getPendingSession(String alarmId) async {
+    final snap = await _sessions
+        .where('alarmId', isEqualTo: alarmId)
+        .where('completed', isEqualTo: false)
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .get();
+    if (snap.docs.isEmpty) return null;
+    final doc = snap.docs.first;
+    return WakeupSession.fromFirestore(doc.id, doc.data());
+  }
+
   /// Real-time stream of completed sessions, newest-first.
   static Stream<List<WakeupSession>> watchSessions({int limit = 500}) {
     return _sessions

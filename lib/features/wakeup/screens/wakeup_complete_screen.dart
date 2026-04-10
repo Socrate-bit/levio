@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../milestones/models/badge_model.dart';
@@ -39,20 +38,18 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
 
   Future<void> _processWakeup() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final sessionId = prefs.getString('pending_session_${widget.alarmId}');
-      final soundId = prefs.getString('sound_${widget.alarmId}') ?? 'default';
+      final session = await HistoryService.getPendingSession(widget.alarmId);
 
-      if (sessionId != null) {
+      if (session != null) {
         await HistoryService.completeSession(
-          sessionId,
+          session.id,
           timeTakenSeconds: widget.timeTakenSeconds,
         );
       }
 
       final result = await StreakService.onWakeupCompleted(
-        sessionId: sessionId ?? widget.alarmId,
-        soundId: soundId,
+        sessionId: session?.id ?? widget.alarmId,
+        soundId: session?.soundId ?? 'default',
         timeTakenSeconds: widget.timeTakenSeconds,
         missionType: widget.missionType,
       );

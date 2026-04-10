@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../wakeup/services/history_service.dart';
 import 'alarm_channel.dart';
 import 'alarm_firestore_service.dart';
@@ -78,10 +76,7 @@ class AlarmService {
           alarmId: alarmId,
           missionType: entry.missionType,
           soundId: entry.soundId,
-        ).then((sessionId) async {
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setString('pending_session_$alarmId', sessionId);
-        }).ignore();
+        ).ignore();
         debugPrint('[AlarmService] ring → pushing dismiss  alarmId=$alarmId  challenge=${entry.missionType.name}');
         _pushDismiss(navigatorKey, {
           'alarmId': alarmId,
