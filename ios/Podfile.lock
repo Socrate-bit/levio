@@ -1281,7 +1281,7 @@ PODS:
     - nanopb (~> 3.30910.0)
   - FirebaseSharedSwift (12.9.0)
   - Flutter (1.0.0)
-  - flutter_alarmkit (0.0.1):
+  - flutter_native_splash (2.4.3):
     - Flutter
   - google_mlkit_commons (0.11.1):
     - Flutter
@@ -1480,7 +1480,7 @@ DEPENDENCIES:
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
-  - flutter_alarmkit (from `.symlinks/plugins/flutter_alarmkit/ios`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_pose_detection (from `.symlinks/plugins/google_mlkit_pose_detection/ios`)
   - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
@@ -1543,8 +1543,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_core/ios"
   Flutter:
     :path: Flutter
-  flutter_alarmkit:
-    :path: ".symlinks/plugins/flutter_alarmkit/ios"
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
   google_mlkit_commons:
     :path: ".symlinks/plugins/google_mlkit_commons/ios"
   google_mlkit_pose_detection:
@@ -1582,7 +1582,7 @@ SPEC CHECKSUMS:
   FirebaseFirestoreInternal: 02341a9ba87f6309227b04685022a5e16307bbf7
   FirebaseSharedSwift: 9d2fa84a46676302b89dbd5e6e62bce2fe376909
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_alarmkit: b5aa316acc4d00450da556241864cda3b349321c
+  flutter_native_splash: df59bb2e1421aa0282cb2e95618af4dcb0c56c29
   google_mlkit_commons: 1e6ef6605d7281f35baf2b355e6049b9984fd624
   google_mlkit_pose_detection: 765dbe5fc48366b3472379f64d891652ed606835
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -1607,6 +1607,6 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
   speech_to_text: 87bf9298952e8d9073be1b6aade6d5758db5170c
 
-PODFILE CHECKSUM: cda317d3661d7a5f318938de8c63514272c4c66c
+PODFILE CHECKSUM: c44dc9b2d2dfc0da8e909bbc40d5d1d4c6d648b0
 
 COCOAPODS: 1.16.2
