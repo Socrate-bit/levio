@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_alarmkit/flutter_alarmkit.dart';
+import '../../alarms/services/alarm_channel.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -119,7 +119,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   }
 
   Future<void> _dismiss() async {
-    await FlutterAlarmkit().stopAlarm(alarmId: widget.alarmId);
+    await AlarmChannel.dismissAlarm(widget.alarmId);
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
       Navigator.of(context).pushReplacement(

@@ -25,6 +25,12 @@ import UserNotifications
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
+    if #available(iOS 26.0, *) {
+      if let alarmRegistrar = engineBridge.pluginRegistry.registrar(forPlugin: "LevioAlarmKit") {
+        LevioAlarmKit.register(with: alarmRegistrar)
+      }
+    }
+
     // Method channel so Dart can check / clear the cold-start pending flag.
     guard let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "LevioAlarmActionPlugin") else { return }
     let channel = FlutterMethodChannel(

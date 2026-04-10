@@ -7,8 +7,6 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
-  flutter_alarmkit:
-    path: packages/flutter_alarmkit
   camera: ^0.12.0+1
   equatable: ^2.0.8
   flutter:

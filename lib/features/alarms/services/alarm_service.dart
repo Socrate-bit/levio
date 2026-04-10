@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_alarmkit/flutter_alarmkit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../wakeup/services/history_service.dart';
+import 'alarm_channel.dart';
 import 'alarm_firestore_service.dart';
 
 class AlarmService {
@@ -18,39 +16,30 @@ class AlarmService {
   // Public API
   // ---------------------------------------------------------------------------
 
-  /// Returns nav args map with 'alarmId', 'challenge', 'mathDifficulty',
-  /// and 'customObject' for the first currently-alerting (or snoozed) alarm,
-  /// or null if none is ringing.
+  /// Returns nav args map for the first currently-alerting alarm, or null.
   static Future<Map<String, String>?> getRingingAlarm() async {
-    final plugin = FlutterAlarmkit();
-    final alarms = await plugin.getAlarms();
-    debugPrint('[AlarmService] getRingingAlarm: ${alarms.length} alarm(s) found');
-    for (final alarm in alarms) {
-      final state = alarm['state'] as String?;
-      final id = alarm['id'] as String?;
-      debugPrint('[AlarmService]   id=$id  state=$state');
-      if (state == 'unknown') {
-        if (id == null) continue;
-        final entry = await AlarmFirestoreService.getAlarm(id);
-        if (entry == null) continue;
-        debugPrint('[AlarmService] → ringing alarm  id=$id  challenge=${entry.missionType.name}');
-        return {
-          'alarmId': id,
-          'challenge': entry.missionType.name,
-          'mathDifficulty': entry.mathDifficulty.name,
-          'customObject': entry.customObject ?? '',
-        };
-      }
+    final id = await AlarmChannel.getRingingId();
+    debugPrint('[AlarmService] getRingingAlarm: ringingId=$id');
+    if (id == null) return null;
+
+    final entry = await AlarmFirestoreService.getAlarm(id);
+    if (entry == null) {
+      debugPrint('[AlarmService] → ringing alarm $id not found in Firestore');
+      return null;
     }
-    debugPrint('[AlarmService] → no ringing alarm');
-    return null;
+    debugPrint('[AlarmService] → ringing alarm  id=$id  challenge=${entry.missionType.name}');
+    return {
+      'alarmId': id,
+      'challenge': entry.missionType.name,
+      'mathDifficulty': entry.mathDifficulty.name,
+      'customObject': entry.customObject ?? '',
+    };
   }
 
   static Future<void> checkAndNavigate(
     GlobalKey<NavigatorState> navigatorKey,
   ) async {
     debugPrint('[AlarmService] checkAndNavigate called');
-    await _printNativeDebugLog();
 
     if (!await _hasPendingDismiss()) {
       debugPrint('[AlarmService] checkAndNavigate → no pending dismiss, aborting');
@@ -60,7 +49,7 @@ class AlarmService {
 
     final ringing = await getRingingAlarm();
     if (ringing == null) {
-      debugPrint('[AlarmService] checkAndNavigate → pendingDismiss was true but no ringing alarm found');
+      debugPrint('[AlarmService] checkAndNavigate → pendingDismiss true but no ringing alarm');
       return;
     }
 
@@ -71,79 +60,41 @@ class AlarmService {
   static void listenForRing(GlobalKey<NavigatorState> navigatorKey) {
     debugPrint('[AlarmService] listenForRing: starting stream + lifecycle listener');
     _subscription?.cancel();
-    _subscription = FlutterAlarmkit.alarmUpdates().listen((event) async {
-      if (event is! Map) {
-        debugPrint('[AlarmService] stream: unexpected event type ${event.runtimeType}');
-        return;
-      }
+    _subscription = AlarmChannel.events.listen((event) async {
       final eventType = event['event'] as String?;
-
-      if (eventType == 'debugSchedule') {
-        debugPrint('[AlarmService] 🔧 debugSchedule: '
-            'alarmID=${event['alarmID']}  '
-            'secondaryBehavior=${event['secondaryBehavior']}  '
-            'secondaryIntentSet=${event['secondaryIntentSet']}');
-        return;
-      }
-
       debugPrint('[AlarmService] stream event: $event');
 
-      if (eventType == 'update') {
-        final alarm = event['alarm'] as Map?;
-        if (alarm == null) return;
-        final alarmState = alarm['state'];
-        debugPrint('[AlarmService] update event: alarmState=$alarmState');
-        if (alarmState != 'unknown') return;
+      if (eventType == 'ring') {
         final alarmId = event['id'] as String?;
         if (alarmId == null) return;
         final entry = await AlarmFirestoreService.getAlarm(alarmId);
         if (entry == null) {
-          debugPrint('[AlarmService] update event: alarm $alarmId not found in Firestore');
+          debugPrint('[AlarmService] ring: alarm $alarmId not found in Firestore');
           return;
         }
-        final challenge = entry.missionType.name;
-        final mathDiff = entry.mathDifficulty.name;
-        final customObj = entry.customObject ?? '';
-        final soundId = entry.soundId;
-        // Create a pending session in Firestore for this alarm ring
         HistoryService.createPendingSession(
           alarmId: alarmId,
           missionType: entry.missionType,
-          soundId: soundId,
-        ).then((sessionId) async {
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setString('pending_session_$alarmId', sessionId);
-        }).ignore();
-        debugPrint('[AlarmService] Path 1 → pushing dismiss  alarmId=$alarmId  challenge=$challenge');
+          soundId: entry.soundId,
+        ).ignore();
+        debugPrint('[AlarmService] ring → pushing dismiss  alarmId=$alarmId  challenge=${entry.missionType.name}');
         _pushDismiss(navigatorKey, {
           'alarmId': alarmId,
-          'challenge': challenge,
-          'mathDifficulty': mathDiff,
-          'customObject': customObj,
+          'challenge': entry.missionType.name,
+          'mathDifficulty': entry.mathDifficulty.name,
+          'customObject': entry.customObject ?? '',
         });
         return;
       }
 
-      if (eventType == 'secondaryButtonTapped') {
-        debugPrint('[AlarmService] Path 2 → secondaryButtonTapped, querying ringing alarm');
-        final ringing = await getRingingAlarm();
-        if (ringing != null) {
-          debugPrint('[AlarmService] Path 2 → pushing dismiss  args=$ringing');
-          _pushDismiss(navigatorKey, ringing);
-        } else {
-          debugPrint('[AlarmService] Path 2 → no ringing alarm found after secondaryButtonTapped');
-        }
-      }
-
-      // intentFired = OpenAlarmAppIntent.perform() ran in the main app process.
       if (eventType == 'intentFired') {
-        debugPrint('[AlarmService] ✅ intentFired received → intent IS running in main process');
+        debugPrint('[AlarmService] intentFired → querying ringing alarm');
         final ringing = await getRingingAlarm();
         if (ringing != null) {
           debugPrint('[AlarmService] intentFired → pushing dismiss  args=$ringing');
           _pushDismiss(navigatorKey, ringing);
         } else {
-          debugPrint('[AlarmService] intentFired → no ringing alarm (already stopped?)');
+          debugPrint('[AlarmService] intentFired → no ringing alarm found');
         }
       }
     }, onError: (Object e, StackTrace st) {
@@ -193,19 +144,6 @@ class AlarmService {
     } catch (e) {
       debugPrint('[AlarmService] _clearPendingDismiss error: $e');
     }
-  }
-
-  /// Reads native debug counters written by OpenAlarmAppIntent.perform()
-  /// and prints them to Flutter output.
-  static Future<void> _printNativeDebugLog() async {
-    try {
-      final log = await _actionChannel.invokeMethod<Map>('getDebugLog');
-      if (log != null) {
-        debugPrint('[AlarmService] native debug log: '
-            'pendingDismiss=${log['pendingDismiss']}  '
-            'intentFireCount=${log['intentFireCount']}');
-      }
-    } catch (_) {}
   }
 
   static void _pushDismiss(

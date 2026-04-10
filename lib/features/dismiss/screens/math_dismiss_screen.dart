@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_alarmkit/flutter_alarmkit.dart';
+import '../../alarms/services/alarm_channel.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/cubit/alarm_state.dart';
@@ -127,7 +127,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   }
 
   Future<void> _dismiss() async {
-    await FlutterAlarmkit().stopAlarm(alarmId: widget.alarmId);
+    await AlarmChannel.dismissAlarm(widget.alarmId);
     final elapsed =
         DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {

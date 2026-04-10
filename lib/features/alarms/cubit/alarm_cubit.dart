@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_alarmkit/flutter_alarmkit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../missions/models/mission.dart';
+import '../services/alarm_channel.dart';
 import '../services/alarm_firestore_service.dart';
 import 'alarm_state.dart';
 
@@ -11,49 +11,59 @@ class AlarmCubit extends Cubit<AlarmState> {
     _init();
   }
 
-  final _plugin = FlutterAlarmkit();
-
   Future<void> _init() async {
-    await _plugin.requestAuthorization();
+    await AlarmChannel.requestAuthorization();
     await _syncAlarms();
   }
 
   /// Restores alarms from Firestore (source of truth) and reschedules any
   /// that are no longer registered in the native alarm system.
   Future<void> _syncAlarms() async {
-    final firestoreAlarms = await AlarmFirestoreService.getAlarms();
-
-    // Collect native alarm ids (all types: fixed + recurrent)
-    final rawNative = await _plugin.getAlarms();
-    final nativeIds = <String>{};
-    for (final item in rawNative) {
-      final id = item['id'] as String?;
-      if (id != null) nativeIds.add(id);
-    }
-
+    final results = await Future.wait([
+      AlarmFirestoreService.getAlarms(),
+      AlarmChannel.getAlarmIds(),
+      AlarmChannel.getPendingReschedules(),
+    ]);
+    final firestoreAlarms = results[0] as List<AppAlarmEntry>;
+    final nativeIds = (results[1] as List<String>).toSet();
+    // Reschedule signals written by StopAndRescheduleIntent while app was killed.
+    final reschedules = results[2] as Map<String, String>;
     final now = DateTime.now();
     final resolved = <AppAlarmEntry>[];
 
     for (final alarm in firestoreAlarms) {
-      // Disabled alarms or alarms already scheduled natively need no action
+      if (reschedules.containsKey(alarm.id)) {
+        final newId = reschedules[alarm.id]!;
+        await AlarmFirestoreService.deleteAlarm(alarm.id);
+        final rescheduled = alarm.copyWith(
+          id: newId,
+          dateTime: now.add(const Duration(minutes: 5)),
+        );
+        await AlarmFirestoreService.saveAlarm(rescheduled);
+        resolved.add(rescheduled);
+        continue;
+      }
+
+      // Disabled or already scheduled natively — no action needed.
       if (!alarm.isEnabled || nativeIds.contains(alarm.id)) {
         resolved.add(alarm);
         continue;
       }
 
-      // Alarm is enabled but missing from native — reschedule it
+      // Alarm is enabled but missing from native — reschedule it.
       var scheduled = alarm.dateTime;
       if (scheduled.isBefore(now)) {
-        scheduled = scheduled.add(const Duration(days: 1));
+        final diff = now.difference(scheduled);
+        scheduled = diff < const Duration(hours: 2)
+            ? now.add(const Duration(minutes: 5))
+            : scheduled.add(const Duration(days: 1));
       }
 
       final newId = await _scheduleNative(alarm, scheduled);
 
-      // Update Firestore with new native id
       await AlarmFirestoreService.deleteAlarm(alarm.id);
       final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled);
       await AlarmFirestoreService.saveAlarm(rescheduled);
-
       resolved.add(rescheduled);
     }
 
@@ -88,7 +98,7 @@ class AlarmCubit extends Cubit<AlarmState> {
     final alarm = state.alarms.firstWhere((a) => a.id == id);
 
     if (!enabled) {
-      await _plugin.cancelAlarm(alarmId: id);
+      await AlarmChannel.cancel(id);
       final updated = state.alarms
           .map((a) => a.id == id ? a.copyWith(isEnabled: false) : a)
           .toList();
@@ -112,7 +122,7 @@ class AlarmCubit extends Cubit<AlarmState> {
   }
 
   Future<void> editAlarm(AppAlarmEntry old, AppAlarmEntry updated) async {
-    await _plugin.cancelAlarm(alarmId: old.id);
+    await AlarmChannel.cancel(old.id);
     await AlarmFirestoreService.deleteAlarm(old.id);
 
     var scheduled = kDebugMode
@@ -132,7 +142,7 @@ class AlarmCubit extends Cubit<AlarmState> {
   }
 
   Future<void> removeAlarm(String id) async {
-    await _plugin.cancelAlarm(alarmId: id);
+    await AlarmChannel.cancel(id);
     await AlarmFirestoreService.deleteAlarm(id);
     emit(state.copyWith(
       alarms: state.alarms.where((a) => a.id != id).toList(),
@@ -148,55 +158,36 @@ class AlarmCubit extends Cubit<AlarmState> {
     bool forceOneShot = false,
   }) {
     final info = missionInfoFor(entry.missionType);
-    final label = entry.name.isNotEmpty
-        ? entry.name
-        : 'Levio — ${info.name} mission';
-    final secondaryButton = AlarmButton(
-      text: info.name,
-      textColor: '#FFFFFF',
-      systemImageName: _systemImageFor(entry.missionType),
-    );
-    final behavior = AlarmSecondaryButtonBehavior.snooze(300);
+    final title = entry.name.isNotEmpty ? entry.name : 'Levio';
+    final sfSymbol = _systemImageFor(entry.missionType);
+    final secondaryLabel = info.name;
+    // soundId is the filename (without .mp3) under assets/sounds/
+    final soundPath = entry.soundId != 'default'
+        ? 'assets/sounds/${entry.soundId}.mp3'
+        : null;
 
     final isRecurrent =
         !forceOneShot && !entry.isOneTime && entry.repeatDays.any((d) => d);
 
     if (isRecurrent) {
-      return _plugin.scheduleRecurrentAlarm(
-        weekdays: _toWeekdays(entry.repeatDays),
+      return AlarmChannel.scheduleRepeating(
+        weekdayMask: AlarmChannel.toWeekdayMask(entry.repeatDays),
         hour: scheduled.hour,
         minute: scheduled.minute,
-        label: label,
-        secondaryButton: secondaryButton,
-        secondaryButtonBehavior: behavior,
+        title: title,
+        sfSymbol: sfSymbol,
+        secondaryLabel: secondaryLabel,
+        soundPath: soundPath,
       );
     } else {
-      return _plugin.scheduleOneShotAlarm(
-        timestamp: scheduled.millisecondsSinceEpoch.toDouble(),
-        label: label,
-        secondaryButton: secondaryButton,
-        secondaryButtonBehavior: behavior,
+      return AlarmChannel.scheduleOneShot(
+        timestampMs: scheduled.millisecondsSinceEpoch,
+        title: title,
+        sfSymbol: sfSymbol,
+        secondaryLabel: secondaryLabel,
+        soundPath: soundPath,
       );
     }
-  }
-
-  /// Converts [repeatDays] (Sun=0 … Sat=6) to a [Set<Weekday>].
-  /// [Weekday] enum is Mon=0 … Sun=6.
-  Set<Weekday> _toWeekdays(List<bool> days) {
-    const mapping = [
-      Weekday.sunday,    // days[0]
-      Weekday.monday,    // days[1]
-      Weekday.tuesday,   // days[2]
-      Weekday.wednesday, // days[3]
-      Weekday.thursday,  // days[4]
-      Weekday.friday,    // days[5]
-      Weekday.saturday,  // days[6]
-    ];
-    final result = <Weekday>{};
-    for (var i = 0; i < days.length; i++) {
-      if (days[i]) result.add(mapping[i]);
-    }
-    return result;
   }
 
   String _systemImageFor(MissionType type) {

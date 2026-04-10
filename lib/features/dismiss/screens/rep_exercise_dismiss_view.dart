@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_alarmkit/flutter_alarmkit.dart';
+import '../../alarms/services/alarm_channel.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/pushup_state.dart';
@@ -79,7 +79,7 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
     return BlocConsumer<C, PushUpState>(
       listener: (context, state) async {
         if (state is SessionGoalReached) {
-          await FlutterAlarmkit().stopAlarm(alarmId: widget.alarmId);
+          await AlarmChannel.dismissAlarm(widget.alarmId);
           final elapsed = DateTime.now().difference(_startTime).inSeconds;
           if (context.mounted) {
             Navigator.of(context).pushReplacement(

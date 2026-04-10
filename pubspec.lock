@@ -382,13 +382,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_alarmkit:
-    dependency: "direct main"
-    description:
-      path: "packages/flutter_alarmkit"
-      relative: true
-    source: path
-    version: "0.0.10"
   flutter_bloc:
     dependency: "direct main"
     description:
