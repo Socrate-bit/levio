@@ -23,6 +23,8 @@ class DetectedPose {
   bool get hasLandmarks => landmarks.isNotEmpty;
 }
 
+enum FeedbackType { warning, positive }
+
 // ---------- States ----------
 
 abstract class PushUpState extends Equatable {
@@ -44,40 +46,48 @@ class SessionActive extends PushUpState {
   final CameraController camera;
   final int repCount;
   final String? feedback;
+  final FeedbackType feedbackType;
   final List<DetectedPose> poses;
   final int imageWidth;
   final int imageHeight;
+  final bool hasFirstFrame;
 
   const SessionActive({
     required this.camera,
     required this.repCount,
     this.feedback,
+    this.feedbackType = FeedbackType.warning,
     required this.poses,
     required this.imageWidth,
     required this.imageHeight,
+    this.hasFirstFrame = false,
   });
 
   SessionActive copyWith({
     int? repCount,
     String? feedback,
     bool clearFeedback = false,
+    FeedbackType? feedbackType,
     List<DetectedPose>? poses,
     int? imageWidth,
     int? imageHeight,
+    bool? hasFirstFrame,
   }) {
     return SessionActive(
       camera: camera,
       repCount: repCount ?? this.repCount,
       feedback: clearFeedback ? null : (feedback ?? this.feedback),
+      feedbackType: feedbackType ?? this.feedbackType,
       poses: poses ?? this.poses,
       imageWidth: imageWidth ?? this.imageWidth,
       imageHeight: imageHeight ?? this.imageHeight,
+      hasFirstFrame: hasFirstFrame ?? this.hasFirstFrame,
     );
   }
 
   @override
   List<Object?> get props =>
-      [repCount, feedback, poses, imageWidth, imageHeight];
+      [repCount, feedback, feedbackType, poses, imageWidth, imageHeight, hasFirstFrame];
 }
 
 class SessionComplete extends PushUpState {

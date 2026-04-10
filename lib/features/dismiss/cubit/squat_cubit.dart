@@ -8,8 +8,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 import 'pushup_state.dart';
+import '../../../shared/services/sound_service.dart';
 
-enum _SquatPhase { up, down }
+enum _Phase { no, up, hdown, down }
 
 class SquatCubit extends Cubit<PushUpState> {
   SquatCubit({this.targetReps}) : super(const PushUpInitial());
@@ -24,10 +25,12 @@ class SquatCubit extends Cubit<PushUpState> {
   int _lastSentMs = 0;
   static const int _minIntervalMs = 200;
 
-  _SquatPhase _phase = _SquatPhase.up;
+  // Counting — angle-based (knee joint)
+  _Phase _phase = _Phase.no;
   int _repCount = 0;
-  static const double _kneeDownAngle = 100.0;  // bent (squat down)
-  static const double _kneeUpAngle = 160.0;    // straight (standing)
+  static const double _kneeUpAngle = 160.0;   // straight (standing)
+  static const double _kneeDownAngle = 90.0; // fully squatted
+  static const double _kneeHalfAngle = 150.0; // halfway down
 
   Future<void> startSession() async {
     emit(const CameraLoading());
@@ -47,13 +50,13 @@ class SquatCubit extends Cubit<PushUpState> {
 
       _camera = CameraController(
         cam,
-        ResolutionPreset.low,
+        ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.bgra8888,
       );
       await _camera!.initialize();
 
-      _phase = _SquatPhase.up;
+      _phase = _Phase.no;
       _repCount = 0;
 
       emit(SessionActive(
@@ -99,10 +102,12 @@ class SquatCubit extends Cubit<PushUpState> {
       final poses = await _detector!.processImage(inputImage);
 
       String? feedback;
+      FeedbackType? feedbackType;
       List<DetectedPose> detectedPoses;
 
       if (poses.isEmpty) {
-        feedback = 'Move into frame';
+        feedback = 'Move your whole body into frame';
+        feedbackType = FeedbackType.warning;
         detectedPoses = const [];
       } else {
         final landmarks = poses.first.landmarks.entries
@@ -118,17 +123,45 @@ class SquatCubit extends Cubit<PushUpState> {
         final pose = detectedPoses.first;
         final kneeAngle = _avgKneeAngle(pose);
 
+        // Check landmark
         if (kneeAngle == null) {
-          feedback = 'Move into frame';
+          feedback = 'Move your whole body into frame';
+          _phase = _Phase.no;
+          feedbackType = FeedbackType.warning;
+          detectedPoses = const [];
         } else {
-          if (_phase == _SquatPhase.up && kneeAngle < _kneeDownAngle) {
-            _phase = _SquatPhase.down;
-          } else if (_phase == _SquatPhase.down && kneeAngle > _kneeUpAngle) {
-            _phase = _SquatPhase.up;
-            _repCount++;
-            if (targetReps != null && _repCount >= targetReps!) {
-              unawaited(stopSession(goalReached: true));
-              return;
+          // Check position
+          final kneesAboveAnkles = _isKneesAboveAnkles(pose);
+          if (!kneesAboveAnkles) {
+            _phase = _Phase.no;
+            feedback = 'Stand up to start squats';
+            feedbackType = FeedbackType.warning;
+          } else if (_phase == _Phase.no && kneeAngle >= _kneeUpAngle) {
+            _phase = _Phase.up;
+            feedback = 'Start doing your squats!';
+            feedbackType = FeedbackType.positive;
+          }
+
+          if (_phase == _Phase.up &&
+              kneeAngle < _kneeHalfAngle) {
+            _phase = _Phase.hdown;
+          } else if ((_phase == _Phase.up || _phase == _Phase.hdown) &&
+              kneeAngle < _kneeDownAngle) {
+            _phase = _Phase.down;
+          } else if (kneeAngle > _kneeUpAngle) {
+            if (_phase == _Phase.hdown) {
+              feedback = 'Go deeper, your thighs should be parallel to the ground!';
+              feedbackType = FeedbackType.warning;
+            } else if (_phase == _Phase.down) {
+              _phase = _Phase.up;
+              _repCount++;
+              feedback = 'Yes, keep going!';
+              feedbackType = FeedbackType.positive;
+              unawaited(SoundService.instance.playRepBell());
+              if (targetReps != null && _repCount >= targetReps!) {
+                unawaited(stopSession(goalReached: true));
+                return;
+              }
             }
           }
         }
@@ -138,10 +171,11 @@ class SquatCubit extends Cubit<PushUpState> {
         emit(current.copyWith(
           repCount: _repCount,
           feedback: feedback,
-          clearFeedback: feedback == null,
+          feedbackType: feedbackType,
           poses: detectedPoses,
           imageWidth: image.width,
           imageHeight: image.height,
+          hasFirstFrame: true,
         ));
       }
     } catch (e) {
@@ -177,6 +211,30 @@ class SquatCubit extends Cubit<PushUpState> {
     }
     if (angles.isEmpty) return null;
     return angles.reduce((a, b) => a + b) / angles.length;
+  }
+
+  bool _isKneesAboveAnkles(DetectedPose pose) {
+    bool left = false, right = false;
+
+    final lk = pose.getLandmark(PoseLandmarkType.leftKnee);
+    final la = pose.getLandmark(PoseLandmarkType.leftAnkle);
+    if (lk != null &&
+        la != null &&
+        lk.likelihood >= 0.6 &&
+        la.likelihood >= 0.6) {
+      left = la.y > lk.y;
+    }
+
+    final rk = pose.getLandmark(PoseLandmarkType.rightKnee);
+    final ra = pose.getLandmark(PoseLandmarkType.rightAnkle);
+    if (rk != null &&
+        ra != null &&
+        rk.likelihood >= 0.6 &&
+        ra.likelihood >= 0.6) {
+      right = ra.y > rk.y;
+    }
+
+    return left && right;
   }
 
   InputImageRotation _sensorOrientationToRotation(int orientation) {

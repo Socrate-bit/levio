@@ -77,6 +77,14 @@ class StreakService {
     return StreakProfile.fromMap(doc.data()!);
   }
 
+  /// Real-time stream of the user's streak profile.
+  static Stream<StreakProfile> watchProfile() {
+    return _profileDoc.snapshots().map((doc) {
+      if (!doc.exists || doc.data() == null) return const StreakProfile();
+      return StreakProfile.fromMap(doc.data()!);
+    });
+  }
+
   /// Called when the user successfully dismisses an alarm.
   /// [sessionId] is the Firestore session document ID (already completed).
   static Future<WakeupResult> onWakeupCompleted({

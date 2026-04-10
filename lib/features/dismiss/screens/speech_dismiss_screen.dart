@@ -94,8 +94,8 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
     });
     await _stt.listen(
       onResult: _onResult,
-      listenFor: const Duration(seconds: 15),
-      pauseFor: const Duration(seconds: 3),
+      listenFor: const Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 4),
       listenOptions: SpeechListenOptions(
         cancelOnError: true,
         partialResults: true,

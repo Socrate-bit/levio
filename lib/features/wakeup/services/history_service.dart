@@ -105,4 +105,16 @@ class HistoryService {
     final sessions = await getSessions(limit: 1);
     return sessions.isEmpty ? null : sessions.first;
   }
+
+  /// Real-time stream of completed sessions, newest-first.
+  static Stream<List<WakeupSession>> watchSessions({int limit = 500}) {
+    return _sessions
+        .orderBy('timestamp', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snap) => snap.docs
+            .map((d) => WakeupSession.fromFirestore(d.id, d.data()))
+            .where((s) => s.completed)
+            .toList());
+  }
 }

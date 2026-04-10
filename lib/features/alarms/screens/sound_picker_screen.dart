@@ -197,53 +197,6 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  // AI promo banner
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFE85D04), Color(0xFF9B2226)],
-                      ),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  _NewBadge(),
-                                ],
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                'Create Your Alarm Sound',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'AI-generated jingles, made for you',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              _CreditBadge(),
-                            ],
-                          ),
-                        ),
-                        Icon(Icons.auto_awesome,
-                            color: Colors.white70, size: 32),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 20),
                   // Your Sounds section
                   _SectionHeader(title: 'Your Sounds'),

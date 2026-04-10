@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,81 +10,113 @@ import '../../wakeup/services/history_service.dart';
 import 'insights_state.dart';
 
 class InsightsCubit extends Cubit<InsightsState> {
-  InsightsCubit() : super(const InsightsState());
+  StreamSubscription<List<WakeupSession>>? _sessionsSub;
+  StreamSubscription<StreakProfile>? _profileSub;
+  Completer<void>? _loadCompleter;
 
-  Future<void> load() async {
-    await _loadForRange(state.range);
+  List<WakeupSession> _allSessions = [];
+  StreakProfile _profile = const StreakProfile();
+  bool _sessionsReady = false;
+  bool _profileReady = false;
+
+  InsightsCubit() : super(const InsightsState()) {
+    _subscribe();
+  }
+
+  void _subscribe() {
+    _sessionsReady = false;
+    _profileReady = false;
+
+    _sessionsSub = HistoryService.watchSessions(limit: 500).listen((sessions) {
+      _allSessions = sessions;
+      _sessionsReady = true;
+      if (_profileReady) _recompute();
+    });
+
+    _profileSub = StreakService.watchProfile().listen((profile) {
+      _profile = profile;
+      _profileReady = true;
+      if (_sessionsReady) _recompute();
+    });
+  }
+
+  /// Called by [RefreshIndicator]. Re-subscribes so Firestore fires a fresh
+  /// snapshot; the returned future completes once the first recompute finishes.
+  Future<void> load() {
+    _loadCompleter?.complete();
+    _loadCompleter = Completer<void>();
+    emit(state.copyWith(loading: true));
+    _cancelSubs();
+    _subscribe();
+    return _loadCompleter!.future;
   }
 
   Future<void> changeRange(InsightsRange range) async {
-    await _loadForRange(range);
+    if (state.range == range) return;
+    emit(state.copyWith(range: range));
+    await _recompute();
   }
 
-  Future<void> _loadForRange(InsightsRange range) async {
-    emit(state.copyWith(loading: true, range: range));
-    try {
-      final profile = await StreakService.getProfile();
+  Future<void> _recompute() async {
+    if (isClosed) return;
+    final range = state.range;
+    final now = DateTime.now();
 
-      // Determine date range
-      final now = DateTime.now();
-      final DateTime? since = switch (range) {
-        InsightsRange.week => _startOfWeek(now),
-        InsightsRange.month => DateTime(now.year, now.month, 1),
-        InsightsRange.allTime => null,
-      };
+    final DateTime? since = switch (range) {
+      InsightsRange.week => _startOfWeek(now),
+      InsightsRange.month => DateTime(now.year, now.month, 1),
+      InsightsRange.allTime => null,
+    };
 
-      // Fetch all completed sessions for streak (no date filter needed)
-      final allSessions = await HistoryService.getSessions(limit: 500);
-      final sessions = since != null
-          ? allSessions.where((s) => s.timestamp.isAfter(since)).toList()
-          : allSessions;
+    final sessions = since != null
+        ? _allSessions.where((s) => s.timestamp.isAfter(since)).toList()
+        : _allSessions;
 
-      // Compute streak live from sessions so it reflects reality even if
-      // onWakeupCompleted wasn't called (e.g. manual sessions, testing).
-      final currentStreak = await StreakService.computeCurrentStreak(allSessions);
-
-      // Week dots (always for current week regardless of range)
-      final weekSessions = await HistoryService.getSessionsThisWeek();
-      final weekDays = List<bool>.filled(7, false);
-      for (final s in weekSessions) {
-        weekDays[s.timestamp.weekday % 7] = true;
-      }
-
-      // Avg wake time (clock time, formatted "7:14 AM")
-      final avgWakeTime = _computeAvgWakeTime(sessions);
-
-      // Avg response time
-      final avgResponseTime = _computeAvgResponseTime(sessions);
-
-      // Favorite mission
-      final favoriteMission = _computeFavoriteMission(sessions);
-
-      // Favorite sound
-      final favoriteSound = _computeFavoriteSound(sessions);
-
-      // Consistency: distinct wakeup days / days in range * 100
-      final consistency = _computeConsistency(sessions, range, now);
-
-      final badgesEarned = profile.earnedBadgeIds.length;
-      const totalBadges = 13;
-
-      emit(state.copyWith(
-        currentStreak: currentStreak,
-        longestStreak: profile.longestStreak,
-        weekDays: weekDays,
-        badgesEarned: badgesEarned,
-        totalBadges: totalBadges,
-        avgWakeTime: avgWakeTime,
-        avgResponseTime: avgResponseTime,
-        favoriteMission: favoriteMission,
-        favoriteSound: favoriteSound,
-        consistency: consistency,
-        range: range,
-        loading: false,
-      ));
-    } catch (_) {
-      emit(state.copyWith(loading: false));
+    // Week dots always reflect the current calendar week
+    final startOfWeek = _startOfWeek(now);
+    final weekSessions =
+        _allSessions.where((s) => s.timestamp.isAfter(startOfWeek)).toList();
+    final weekDays = List<bool>.filled(7, false);
+    for (final s in weekSessions) {
+      weekDays[s.timestamp.weekday % 7] = true;
     }
+
+    final currentStreak =
+        await StreakService.computeCurrentStreak(_allSessions);
+
+    if (isClosed) return;
+
+    emit(state.copyWith(
+      currentStreak: currentStreak,
+      longestStreak: _profile.longestStreak,
+      weekDays: weekDays,
+      badgesEarned: _profile.earnedBadgeIds.length,
+      totalBadges: 13,
+      avgWakeTime: _computeAvgWakeTime(sessions),
+      avgResponseTime: _computeAvgResponseTime(sessions),
+      favoriteMission: _computeFavoriteMission(sessions),
+      favoriteSound: _computeFavoriteSound(sessions),
+      consistency: _computeConsistency(sessions, range, now),
+      loading: false,
+    ));
+
+    _loadCompleter?.complete();
+    _loadCompleter = null;
+  }
+
+  void _cancelSubs() {
+    _sessionsSub?.cancel();
+    _profileSub?.cancel();
+    _sessionsSub = null;
+    _profileSub = null;
+  }
+
+  @override
+  Future<void> close() {
+    _cancelSubs();
+    _loadCompleter?.complete();
+    _loadCompleter = null;
+    return super.close();
   }
 
   // ---------------------------------------------------------------------------
@@ -105,9 +138,8 @@ class InsightsCubit extends Cubit<InsightsState> {
 
   String _computeAvgResponseTime(List<WakeupSession> sessions) {
     if (sessions.isEmpty) return '--';
-    final totalSec = sessions
-        .map((s) => s.timeTakenSeconds)
-        .reduce((a, b) => a + b);
+    final totalSec =
+        sessions.map((s) => s.timeTakenSeconds).reduce((a, b) => a + b);
     final avgSec = totalSec ~/ sessions.length;
     if (avgSec >= 60) {
       final m = avgSec ~/ 60;
@@ -149,7 +181,6 @@ class InsightsCubit extends Cubit<InsightsState> {
   ) {
     if (sessions.isEmpty) return 0;
 
-    // Count distinct calendar days with a wakeup
     final distinctDays = sessions.map((s) {
       final t = s.timestamp;
       return '${t.year}-${t.month}-${t.day}';
@@ -157,7 +188,7 @@ class InsightsCubit extends Cubit<InsightsState> {
 
     final int totalDays = switch (range) {
       InsightsRange.week => 7,
-      InsightsRange.month => now.day, // days elapsed so far this month
+      InsightsRange.month => now.day,
       InsightsRange.allTime => () {
           if (sessions.isEmpty) return 1;
           final oldest = sessions.last.timestamp;

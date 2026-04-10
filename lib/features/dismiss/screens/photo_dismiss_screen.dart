@@ -8,7 +8,7 @@ import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 
-const _houseObjects = [
+var _houseObjects = [
   'coffee mug', 'book', 'lamp', 'pillow', 'remote control',
   'water bottle', 'shoes', 'plant', 'clock', 'chair',
   'towel', 'mirror', 'candle', 'bag', 'headphones',
@@ -85,7 +85,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       final imageBytes = await image.readAsBytes();
 
       final model = FirebaseAI.googleAI()
-          .generativeModel(model: 'gemini-2.0-flash-lite');
+          .generativeModel(model: 'gemini-2.5-flash-lite');
       final prompt = widget.missionType == MissionType.objectHunt
           ? 'Does this image clearly show a $_targetObject? Reply with only YES or NO.'
           : geminiPromptFor(widget.missionType);
@@ -138,150 +138,216 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   Widget build(BuildContext context) {
     final controller = _controller;
     final info = missionInfoFor(widget.missionType);
+    final targetLabel = widget.missionType == MissionType.objectHunt
+        ? _targetObject
+        : info.name;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0A0A0A),
       body: SafeArea(
-        child: Stack(
-          fit: StackFit.expand,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Camera preview
-            if (controller != null && controller.value.isInitialized)
-              CameraPreview(controller)
-            else
-              const Center(
-                child: CircularProgressIndicator(color: Colors.white),
+            // Instruction heading
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              child: Text(
+                'Take a photo of $targetLabel to stop the alarm',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                  height: 1.1,
+                ),
               ),
+            ),
 
-            // Mission target overlay card
-            Positioned(
-              top: 60,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha(160),
-                    borderRadius: BorderRadius.circular(16),
+            const SizedBox(height: 16),
+
+            // Rounded camera preview — fills remaining space, no stretching
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(28),
+                  child: controller != null && controller.value.isInitialized
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CameraPreview(controller),
+
+                            // Subtle vignette
+                            const DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: RadialGradient(
+                                  center: Alignment.center,
+                                  radius: 1.0,
+                                  colors: [
+                                    Colors.transparent,
+                                    Color(0x50000000),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Error feedback banner inside camera
+                            if (_errorMessage != null)
+                              Positioned(
+                                top: 14,
+                                left: 16,
+                                right: 16,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 7,
+                                    horizontal: 14,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE53935).withAlpha(200),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    _errorMessage!,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                            // Validating overlay
+                            if (_isValidating)
+                              Container(
+                                color: Colors.black54,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const CircularProgressIndicator(
+                                        color: AppColors.orange,
+                                        strokeWidth: 2.5,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Checking for ${info.name.toLowerCase()}…',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
+                      : const ColoredBox(
+                          color: Color(0xFF1A1A1A),
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(
+                                  color: AppColors.orange,
+                                  strokeWidth: 2.5,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Starting camera…',
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 14,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Object icon card
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(12),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: info.iconBg,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(info.icon, color: info.iconColor, size: 24),
                   ),
-                  child: Column(
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
                         'TAKE A PHOTO OF',
                         style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
+                          color: Colors.white54,
+                          fontSize: 10,
                           letterSpacing: 1.5,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: info.iconBg,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(info.icon,
-                            color: info.iconColor, size: 28),
-                      ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 2),
                       Text(
-                        widget.missionType == MissionType.objectHunt
-                            ? _targetObject
-                            : info.name,
+                        targetLabel,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
 
-            // Loading overlay
-            if (_isValidating)
-              Container(
-                color: Colors.black54,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(
-                          color: AppColors.orange),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Checking for ${info.name.toLowerCase()}…',
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-            // Error message
-            if (_errorMessage != null)
-              Positioned(
-                bottom: 140,
-                left: 24,
-                right: 24,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade900.withAlpha(220),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 15),
-                  ),
-                ),
-              ),
+            const SizedBox(height: 20),
 
             // Capture button
-            if (!_isValidating)
-              Positioned(
-                bottom: 48,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: GestureDetector(
-                    onTap: _captureAndValidate,
-                    child: Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(40),
-                            blurRadius: 12,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.black,
-                        size: 32,
-                      ),
+            GestureDetector(
+              onTap: _isValidating ? null : _captureAndValidate,
+              child: Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _isValidating
+                      ? Colors.white.withAlpha(80)
+                      : Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(40),
+                      blurRadius: 12,
                     ),
-                  ),
+                  ],
                 ),
+                child: const Icon(Icons.camera_alt, color: Colors.black, size: 32),
               ),
+            ),
 
+            const SizedBox(height: 32),
           ],
         ),
       ),
