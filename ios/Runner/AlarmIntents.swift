@@ -1,5 +1,4 @@
 import AlarmKit
-import SwiftUI
 import AppIntents
 
 // MARK: - Open App Intent (secondary button)
@@ -63,7 +62,6 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
-        let soundPath = config["soundPath"] as? String
 
         let stopButton = AlarmButton(
             text: "Stop",
@@ -85,13 +83,11 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
             presentation: AlarmPresentation(alert: alert),
             tintColor: .white
         )
-        let sound = resolveSound(soundPath)
         let newConfig = AlarmManager.AlarmConfiguration<LevioAlarmMetadata>(
             schedule: .fixed(fireDate),
             attributes: attributes,
             stopIntent: StopAndRescheduleIntent(alarmID: newId.uuidString),
-            secondaryIntent: OpenAlarmAppIntent(alarmID: newId.uuidString),
-            sound: sound
+            secondaryIntent: OpenAlarmAppIntent(alarmID: newId.uuidString)
         )
 
         try? await AlarmManager.shared.schedule(id: newId, configuration: newConfig)
@@ -104,17 +100,5 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         defaults.set(newId.uuidString, forKey: "levio_rescheduled_\(alarmID)")
 
         return .result()
-    }
-
-    // Resolve a sound path that was already copied to Library/Sounds.
-    private func resolveSound(_ path: String?) -> AlertConfiguration.AlertSound {
-        guard let path = path, !path.isEmpty else { return .default }
-        let fileName = URL(fileURLWithPath: path).lastPathComponent
-        let fileManager = FileManager.default
-        guard let libraryUrl = fileManager.urls(for: .libraryDirectory, in: .userDomainMask).first else {
-            return .default
-        }
-        let destUrl = libraryUrl.appendingPathComponent("Sounds").appendingPathComponent(fileName)
-        return fileManager.fileExists(atPath: destUrl.path) ? .named(fileName) : .default
     }
 }
