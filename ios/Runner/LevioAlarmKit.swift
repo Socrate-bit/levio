@@ -139,6 +139,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             markCompleted(call: call, result: result)
         case "getAlarmIds":
             Task { await getAlarmIds(result: result) }
+        case "getAlarms":
+            Task { await getAlarms(result: result) }
         case "getRingingId":
             Task { await getRingingId(result: result) }
         case "getPendingReschedules":
@@ -267,13 +269,25 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             return
         }
         do {
+            // Log alarm state before stopping to diagnose intermittent STOP_ERROR
+            if let alarms = try? AlarmManager.shared.alarms,
+               let alarm = alarms.first(where: { $0.id == uuid }) {
+                NSLog("[LevioAlarmKit] stopAlarm: id=%@ state=%@", idString, "\(alarm.state)")
+            } else {
+                NSLog("[LevioAlarmKit] stopAlarm: id=%@ — alarm not found in AlarmManager", idString)
+            }
             try AlarmManager.shared.stop(id: uuid)
             addStoppedId(idString)
             // Clear completed flag so recurring alarms don't carry stale state to next occurrence
             UserDefaults.standard.removeObject(forKey: "levio_completed_\(idString)")
             result(nil)
         } catch {
-            result(FlutterError(code: "STOP_ERROR", message: error.localizedDescription, details: nil))
+            NSLog("[LevioAlarmKit] stopAlarm FAILED: id=%@ error=%@", idString, "\(error)")
+            result(FlutterError(
+                code: "STOP_ERROR",
+                message: error.localizedDescription,
+                details: "\(error)"
+            ))
         }
     }
 
@@ -303,6 +317,52 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             result(Array(nativeIds))
         } catch {
             result([String]())
+        }
+    }
+
+    // MARK: - Get Alarms (full info)
+
+    private func getAlarms(result: @escaping FlutterResult) async {
+        do {
+            let alarms = try AlarmManager.shared.alarms
+            let list: [[String: Any]] = alarms.map { alarm in
+                let idString = alarm.id.uuidString
+                var info: [String: Any] = ["id": idString]
+
+                // Alarm state
+                switch alarm.state {
+                case .scheduled:
+                    info["state"] = "scheduled"
+                @unknown default:
+                    info["state"] = "alerting"
+                }
+
+                // Merge saved config from UserDefaults
+                if let data = UserDefaults.standard.data(forKey: "levio_config_\(idString)"),
+                   let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    info["title"] = config["title"] as? String ?? ""
+                    info["sfSymbol"] = config["sfSymbol"] as? String ?? ""
+                    info["secondaryLabel"] = config["secondaryLabel"] as? String ?? ""
+                    info["isOneShot"] = config["isOneShot"] as? Bool ?? false
+                    if let ts = config["timestampMs"] as? Double {
+                        info["timestampMs"] = ts
+                    }
+                    if let mask = config["weekdayMask"] as? Int {
+                        info["weekdayMask"] = mask
+                    }
+                    if let hour = config["hour"] as? Int {
+                        info["hour"] = hour
+                    }
+                    if let minute = config["minute"] as? Int {
+                        info["minute"] = minute
+                    }
+                }
+
+                return info
+            }
+            result(list)
+        } catch {
+            result([[String: Any]]())
         }
     }
 
@@ -412,7 +472,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         )
         let secondaryButton = AlarmButton(
             text: LocalizedStringResource(stringLiteral: secondaryLabel),
-            textColor: .white,
+            textColor: Color(red: 1.0, green: 107.0 / 255.0, blue: 0.0),
             systemImageName: sfSymbol
         )
         let alert = AlarmPresentation.Alert(
