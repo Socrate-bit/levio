@@ -52,7 +52,7 @@ class AlarmChannel {
 
   static Future<void> cancel(String id) async {
     try {
-      await _method.invokeMethod('cancel', id);
+      await _method.invokeMethod('cancel', {'id': id});
     } on PlatformException catch (e) {
       debugPrint('[AlarmChannel] cancel($id) failed — code=${e.code} | message=${e.message} | details=${e.details}');
       rethrow;
@@ -61,7 +61,7 @@ class AlarmChannel {
 
   static Future<void> stop(String id) async {
     try {
-      await _method.invokeMethod('stop', id);
+      await _method.invokeMethod('stop', {'id': id});
     } on PlatformException catch (e) {
       debugPrint('[AlarmChannel] stop($id) failed — code=${e.code} | message=${e.message} | details=${e.details}');
       rethrow;
@@ -69,7 +69,13 @@ class AlarmChannel {
   }
 
   static Future<void> markCompleted(String id) async {
-    await _method.invokeMethod('markCompleted', id);
+    await _method.invokeMethod('markCompleted', {'id': id});
+  }
+
+  /// Cleans up UserDefaults entries (config, completed flag, stopped set)
+  /// for a fully dismissed or removed alarm.
+  static Future<void> cleanupConfig(String id) async {
+    await _method.invokeMethod('cleanupConfig', {'id': id});
   }
 
   static Future<void> dismissAlarm(String id) async {
@@ -107,6 +113,20 @@ class AlarmChannel {
   static Future<Map<String, String>> getPendingReschedules() async {
     final raw = await _method.invokeMapMethod<String, String>('getPendingReschedules');
     return raw ?? {};
+  }
+
+  /// Same as [getPendingReschedules] but read-only — does NOT clear keys.
+  /// Used by AlarmService for cold-start fallback before _syncAlarms runs.
+  static Future<Map<String, String>> peekPendingReschedules() async {
+    final raw = await _method.invokeMapMethod<String, String>('peekPendingReschedules');
+    return raw ?? {};
+  }
+
+  /// Returns configs for recurring alarms that need to be re-scheduled
+  /// after their snooze was created by StopAndRescheduleIntent.
+  static Future<List<Map<String, dynamic>>> getPendingRecurringRestores() async {
+    final raw = await _method.invokeListMethod<Map>('getPendingRecurringRestores');
+    return raw?.map((m) => Map<String, dynamic>.from(m)).toList() ?? [];
   }
 
   static Stream<Map<Object?, Object?>> get events =>

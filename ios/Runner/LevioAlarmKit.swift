@@ -61,7 +61,9 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
     }
 
     // AlarmKit uses @unknown default for the alerting state in iOS 26.
+    // Exclude alarms we already stopped/cancelled to prevent spurious ring events on restart.
     private func isAlerting(_ alarm: Alarm) -> Bool {
+        if LevioAlarmKit.stoppedIds().contains(alarm.id.uuidString) { return false }
         switch alarm.state {
         case .scheduled:
             return false
@@ -82,6 +84,27 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
 @available(iOS 26.0, *)
 public class LevioAlarmKit: NSObject, FlutterPlugin {
     private static var registrar: FlutterPluginRegistrar?
+    private static let stoppedIdsKey = "levio_stopped_ids"
+
+    // MARK: - Stopped-IDs helpers (shared with stream handler)
+
+    static func stoppedIds() -> Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: stoppedIdsKey) ?? [])
+    }
+
+    private func addStoppedId(_ id: String) {
+        let defaults = UserDefaults.standard
+        var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
+        if !ids.contains(id) { ids.append(id) }
+        defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)
+    }
+
+    private func removeStoppedId(_ id: String) {
+        let defaults = UserDefaults.standard
+        var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
+        ids.removeAll { $0 == id }
+        defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)
+    }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
@@ -122,6 +145,12 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             Task { await getRingingId(result: result) }
         case "getPendingReschedules":
             getPendingReschedules(result: result)
+        case "peekPendingReschedules":
+            peekPendingReschedules(result: result)
+        case "cleanupConfig":
+            cleanupConfig(call: call, result: result)
+        case "getPendingRecurringRestores":
+            getPendingRecurringRestores(result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -163,6 +192,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         do {
             let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
+            removeStoppedId(alarm.id.uuidString)
             saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
                        isOneShot: true, timestampMs: timestampMs)
             result(alarm.id.uuidString)
@@ -201,6 +231,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         do {
             let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
+            removeStoppedId(alarm.id.uuidString)
             saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
                        isOneShot: false, weekdayMask: mask, hour: hour, minute: minute)
             result(alarm.id.uuidString)
@@ -212,13 +243,15 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     // MARK: - Cancel
 
     private func cancelAlarm(call: FlutterMethodCall, result: @escaping FlutterResult) async {
-        guard let idString = call.arguments as? String,
+        guard let args = call.arguments as? [String: Any],
+              let idString = args["id"] as? String,
               let uuid = UUID(uuidString: idString) else {
             result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
             return
         }
         do {
             try AlarmManager.shared.cancel(id: uuid)
+            addStoppedId(idString)
             UserDefaults.standard.removeObject(forKey: "levio_config_\(idString)")
             result(nil)
         } catch {
@@ -229,7 +262,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     // MARK: - Stop (called from Dart after challenge completion)
 
     private func stopAlarm(call: FlutterMethodCall, result: @escaping FlutterResult) async {
-        guard let idString = call.arguments as? String,
+        guard let args = call.arguments as? [String: Any],
+              let idString = args["id"] as? String,
               let uuid = UUID(uuidString: idString) else {
             result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
             return
@@ -243,6 +277,9 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 NSLog("[LevioAlarmKit] stopAlarm: id=%@ — alarm not found in AlarmManager", idString)
             }
             try AlarmManager.shared.stop(id: uuid)
+            addStoppedId(idString)
+            // Clear completed flag so recurring alarms don't carry stale state to next occurrence
+            UserDefaults.standard.removeObject(forKey: "levio_completed_\(idString)")
             result(nil)
         } catch {
             NSLog("[LevioAlarmKit] stopAlarm FAILED: id=%@ error=%@", idString, "\(error)")
@@ -257,7 +294,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     // MARK: - Mark Completed (prevents StopAndRescheduleIntent from rescheduling)
 
     private func markCompleted(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let idString = call.arguments as? String else {
+        guard let args = call.arguments as? [String: Any],
+              let idString = args["id"] as? String else {
             result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
             return
         }
@@ -270,7 +308,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     private func getAlarmIds(result: @escaping FlutterResult) async {
         do {
             let alarms = try AlarmManager.shared.alarms
-            result(alarms.map { $0.id.uuidString })
+            let nativeIds = Set(alarms.map { $0.id.uuidString })
+            // Prune stopped-IDs set to only contain IDs still in native system
+            let defaults = UserDefaults.standard
+            let stopped = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
+            let pruned = stopped.filter { nativeIds.contains($0) }
+            defaults.set(pruned, forKey: LevioAlarmKit.stoppedIdsKey)
+            result(Array(nativeIds))
         } catch {
             result([String]())
         }
@@ -327,7 +371,9 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     private func getRingingId(result: @escaping FlutterResult) async {
         do {
             let alarms = try AlarmManager.shared.alarms
+            let stopped = LevioAlarmKit.stoppedIds()
             let ringing = alarms.first { alarm in
+                if stopped.contains(alarm.id.uuidString) { return false }
                 switch alarm.state {
                 case .scheduled: return false
                 @unknown default: return true
@@ -354,6 +400,60 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             }
         }
         result(map)
+    }
+
+    // MARK: - Peek Pending Reschedules (read-only, does NOT clear keys)
+
+    private func peekPendingReschedules(result: @escaping FlutterResult) {
+        let defaults = UserDefaults.standard
+        var map: [String: String] = [:]
+        for key in defaults.dictionaryRepresentation().keys {
+            if key.hasPrefix("levio_rescheduled_") {
+                let oldId = String(key.dropFirst("levio_rescheduled_".count))
+                if let newId = defaults.string(forKey: key) {
+                    map[oldId] = newId
+                }
+            }
+        }
+        result(map)
+    }
+
+    // MARK: - Cleanup Config (removes UserDefaults entries for a dismissed alarm)
+
+    private func cleanupConfig(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let idString = args["id"] as? String else {
+            result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
+            return
+        }
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "levio_config_\(idString)")
+        defaults.removeObject(forKey: "levio_completed_\(idString)")
+        // Remove from stopped set
+        var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
+        ids.removeAll { $0 == idString }
+        defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)
+        result(nil)
+    }
+
+    // MARK: - Get Pending Recurring Restores (reads + clears levio_recurring_restore_* keys)
+
+    private func getPendingRecurringRestores(result: @escaping FlutterResult) {
+        let defaults = UserDefaults.standard
+        var list: [[String: Any]] = []
+        for key in defaults.dictionaryRepresentation().keys {
+            if key.hasPrefix("levio_recurring_restore_") {
+                let oldId = String(key.dropFirst("levio_recurring_restore_".count))
+                if let data = defaults.data(forKey: key),
+                   let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    var entry = config
+                    entry["originalId"] = oldId
+                    list.append(entry)
+                    defaults.removeObject(forKey: key)
+                }
+            }
+        }
+        result(list)
     }
 
     // MARK: - Helpers
