@@ -36,12 +36,21 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         guard let oldUUID = UUID(uuidString: alarmID) else { return .result() }
 
         let defaults = UserDefaults.standard
+        let stoppedIdsKey = "levio_stopped_ids"
+
+        // Helper: mark an alarm as stopped in the shared stopped-IDs set
+        func markStopped(_ id: String) {
+            var ids = defaults.stringArray(forKey: stoppedIdsKey) ?? []
+            if !ids.contains(id) { ids.append(id) }
+            defaults.set(ids, forKey: stoppedIdsKey)
+        }
 
         // If challenge was already completed via the app, just stop — don't reschedule.
         let completedKey = "levio_completed_\(alarmID)"
         if defaults.bool(forKey: completedKey) {
             defaults.removeObject(forKey: completedKey)
             try? AlarmManager.shared.stop(id: oldUUID)
+            markStopped(alarmID)
             return .result()
         }
 
@@ -50,10 +59,20 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
               let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
             try? AlarmManager.shared.stop(id: oldUUID)
+            markStopped(alarmID)
             return .result()
         }
 
-        try? AlarmManager.shared.stop(id: oldUUID)
+        let isOneShot = config["isOneShot"] as? Bool ?? true
+
+        // For recurring alarms: cancel entirely to prevent orphan native alarm.
+        // For one-shot: stop is sufficient.
+        if isOneShot {
+            try? AlarmManager.shared.stop(id: oldUUID)
+        } else {
+            try? AlarmManager.shared.cancel(id: oldUUID)
+        }
+        markStopped(alarmID)
 
         // Schedule a new one-shot alarm 5 minutes from now.
         let newId = UUID()
@@ -98,6 +117,11 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
 
         // Signal to the main app (read in _syncAlarms) so Firestore can be updated.
         defaults.set(newId.uuidString, forKey: "levio_rescheduled_\(alarmID)")
+
+        // For recurring alarms: signal app to restore the recurring schedule after snooze.
+        if !isOneShot {
+            defaults.set(data, forKey: "levio_recurring_restore_\(alarmID)")
+        }
 
         return .result()
     }

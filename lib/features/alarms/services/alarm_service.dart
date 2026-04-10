@@ -22,7 +22,25 @@ class AlarmService {
     debugPrint('[AlarmService] getRingingAlarm: ringingId=$id');
     if (id == null) return null;
 
-    final entry = await AlarmFirestoreService.getAlarm(id);
+    // Try direct Firestore lookup
+    var entry = await AlarmFirestoreService.getAlarm(id);
+
+    // Fallback: if _syncAlarms hasn't run yet, the ringing alarm may have a
+    // new native UUID (from StopAndRescheduleIntent) that Firestore doesn't
+    // know about yet. Peek at pending reschedules to find the old ID.
+    if (entry == null) {
+      debugPrint('[AlarmService] → ringing alarm $id not in Firestore, checking pending reschedules');
+      final reschedules = await AlarmChannel.peekPendingReschedules();
+      final oldId = reschedules.entries
+          .where((e) => e.value == id)
+          .map((e) => e.key)
+          .firstOrNull;
+      if (oldId != null) {
+        entry = await AlarmFirestoreService.getAlarm(oldId);
+        debugPrint('[AlarmService] → found via reschedule oldId=$oldId  entry=${entry != null}');
+      }
+    }
+
     if (entry == null) {
       debugPrint('[AlarmService] → ringing alarm $id not found in Firestore');
       return null;

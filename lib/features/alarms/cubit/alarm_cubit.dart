@@ -23,11 +23,13 @@ class AlarmCubit extends Cubit<AlarmState> {
       AlarmFirestoreService.getAlarms(),
       AlarmChannel.getAlarmIds(),
       AlarmChannel.getPendingReschedules(),
+      AlarmChannel.getPendingRecurringRestores(),
     ]);
     final firestoreAlarms = results[0] as List<AppAlarmEntry>;
     final nativeIds = (results[1] as List<String>).toSet();
     // Reschedule signals written by StopAndRescheduleIntent while app was killed.
     final reschedules = results[2] as Map<String, String>;
+    final recurringRestores = results[3] as List<Map<String, dynamic>>;
     final now = DateTime.now();
     final resolved = <AppAlarmEntry>[];
 
@@ -39,8 +41,14 @@ class AlarmCubit extends Cubit<AlarmState> {
           id: newId,
           dateTime: now.add(const Duration(minutes: 5)),
         );
-        await AlarmFirestoreService.saveAlarm(rescheduled);
-        resolved.add(rescheduled);
+        try {
+          await AlarmFirestoreService.saveAlarm(rescheduled);
+          resolved.add(rescheduled);
+        } catch (e) {
+          // Native alarm was already scheduled by intent; best-effort Firestore save.
+          debugPrint('[AlarmCubit] _syncAlarms reschedule save failed: $e');
+          resolved.add(rescheduled);
+        }
         continue;
       }
 
@@ -59,12 +67,61 @@ class AlarmCubit extends Cubit<AlarmState> {
             : scheduled.add(const Duration(days: 1));
       }
 
-      final newId = await _scheduleNative(alarm, scheduled);
+      try {
+        final newId = await _scheduleNative(alarm, scheduled);
+        await AlarmFirestoreService.deleteAlarm(alarm.id);
+        final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled);
+        await AlarmFirestoreService.saveAlarm(rescheduled);
+        resolved.add(rescheduled);
+      } catch (e) {
+        debugPrint('[AlarmCubit] _syncAlarms reschedule failed for ${alarm.id}: $e');
+        resolved.add(alarm);
+      }
+    }
 
-      await AlarmFirestoreService.deleteAlarm(alarm.id);
-      final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled);
-      await AlarmFirestoreService.saveAlarm(rescheduled);
-      resolved.add(rescheduled);
+    // Restore recurring alarms that were cancelled by StopAndRescheduleIntent.
+    for (final restore in recurringRestores) {
+      final originalId = restore['originalId'] as String?;
+      if (originalId == null) continue;
+
+      // Find the alarm data — it may be in resolved (from the reschedule branch above)
+      // or still match one of the original Firestore entries.
+      final match = resolved
+          .where((a) =>
+              !a.isOneTime && a.repeatDays.any((d) => d))
+          .where((a) {
+        // Match by reschedule: the snoozed alarm came from this originalId
+        return reschedules[originalId] == a.id;
+      }).firstOrNull;
+
+      if (match != null) {
+        try {
+          final recurringId = await _scheduleNative(match, match.dateTime);
+          final recurringEntry = match.copyWith(
+            id: recurringId,
+            isOneTime: false,
+            isEnabled: true,
+          );
+          await AlarmFirestoreService.saveAlarm(recurringEntry);
+          resolved.add(recurringEntry);
+        } catch (e) {
+          debugPrint('[AlarmCubit] recurring restore failed for $originalId: $e');
+        }
+      }
+    }
+
+    // Cancel orphaned native alarms not referenced by any Firestore entry.
+    final resolvedIds = resolved.map((a) => a.id).toSet();
+    for (final nativeId in nativeIds) {
+      if (!resolvedIds.contains(nativeId)) {
+        debugPrint('[AlarmCubit] cancelling orphaned native alarm $nativeId');
+        try {
+          await AlarmChannel.cancel(nativeId);
+          await AlarmChannel.cleanupConfig(nativeId);
+        } catch (e) {
+          debugPrint('[AlarmCubit] orphan cleanup failed for $nativeId: $e');
+        }
+      }
     }
 
     emit(state.copyWith(alarms: resolved));
@@ -79,51 +136,95 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
 
     final id = await _scheduleNative(entry, scheduled, forceOneShot: kDebugMode);
-
     final saved = entry.copyWith(id: id, dateTime: scheduled);
-    await AlarmFirestoreService.saveAlarm(saved);
+
+    // Optimistic: show in UI immediately
     emit(state.copyWith(alarms: [...state.alarms, saved]));
+
+    try {
+      await AlarmFirestoreService.saveAlarm(saved);
+    } catch (e) {
+      // Rollback: remove from UI and cancel native
+      emit(state.copyWith(
+        alarms: state.alarms.where((a) => a.id != id).toList(),
+      ));
+      await AlarmChannel.cancel(id);
+      rethrow;
+    }
   }
 
   /// Updates only metadata (mission, sound, name) without rescheduling the
   /// native alarm. Use this for changes that don't affect the trigger time.
   Future<void> updateAlarmMeta(AppAlarmEntry updated) async {
-    await AlarmFirestoreService.saveAlarm(updated);
+    final previous = state.alarms.firstWhere((a) => a.id == updated.id);
+
+    // Optimistic
     emit(state.copyWith(
       alarms: state.alarms.map((a) => a.id == updated.id ? updated : a).toList(),
     ));
+
+    try {
+      await AlarmFirestoreService.saveAlarm(updated);
+    } catch (e) {
+      // Rollback
+      emit(state.copyWith(
+        alarms: state.alarms.map((a) => a.id == updated.id ? previous : a).toList(),
+      ));
+      rethrow;
+    }
   }
 
   Future<void> toggleAlarm(String id, bool enabled) async {
     final alarm = state.alarms.firstWhere((a) => a.id == id);
+    final previousAlarms = state.alarms;
 
     if (!enabled) {
       await AlarmChannel.cancel(id);
-      final updated = state.alarms
-          .map((a) => a.id == id ? a.copyWith(isEnabled: false) : a)
-          .toList();
-      emit(state.copyWith(alarms: updated));
-      await AlarmFirestoreService.saveAlarm(updated.firstWhere((a) => a.id == id));
+      final disabledAlarm = alarm.copyWith(isEnabled: false);
+
+      // Optimistic
+      emit(state.copyWith(
+        alarms: state.alarms.map((a) => a.id == id ? disabledAlarm : a).toList(),
+      ));
+
+      try {
+        await AlarmFirestoreService.saveAlarm(disabledAlarm);
+      } catch (e) {
+        // Rollback: re-schedule native and restore UI
+        await _scheduleNative(alarm, alarm.dateTime);
+        emit(state.copyWith(alarms: previousAlarms));
+        rethrow;
+      }
     } else {
       var scheduled = alarm.dateTime;
       if (scheduled.isBefore(DateTime.now())) {
         scheduled = scheduled.add(const Duration(days: 1));
       }
       final newId = await _scheduleNative(alarm, scheduled);
-
-      await AlarmFirestoreService.deleteAlarm(id);
       final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled, isEnabled: true);
-      await AlarmFirestoreService.saveAlarm(rescheduled);
 
+      // Optimistic
       emit(state.copyWith(
         alarms: state.alarms.map((a) => a.id == id ? rescheduled : a).toList(),
       ));
+
+      try {
+        await AlarmFirestoreService.deleteAlarm(id);
+        await AlarmFirestoreService.saveAlarm(rescheduled);
+      } catch (e) {
+        // Rollback
+        await AlarmChannel.cancel(newId);
+        emit(state.copyWith(alarms: previousAlarms));
+        rethrow;
+      }
     }
   }
 
   Future<void> editAlarm(AppAlarmEntry old, AppAlarmEntry updated) async {
+    final previousAlarms = state.alarms;
+
     await AlarmChannel.cancel(old.id);
-    await AlarmFirestoreService.deleteAlarm(old.id);
+    await AlarmChannel.cleanupConfig(old.id);
 
     var scheduled = kDebugMode
         ? DateTime.now().add(const Duration(seconds: 5))
@@ -133,20 +234,49 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
 
     final newId = await _scheduleNative(updated, scheduled, forceOneShot: kDebugMode);
-
     final saved = updated.copyWith(id: newId, dateTime: scheduled);
-    await AlarmFirestoreService.saveAlarm(saved);
+
+    // Optimistic
     emit(state.copyWith(
       alarms: state.alarms.map((a) => a.id == old.id ? saved : a).toList(),
     ));
+
+    try {
+      await AlarmFirestoreService.deleteAlarm(old.id);
+      await AlarmFirestoreService.saveAlarm(saved);
+    } catch (e) {
+      // Rollback: cancel new native, re-schedule old, restore UI
+      await AlarmChannel.cancel(newId);
+      try {
+        await _scheduleNative(old, old.dateTime);
+      } catch (_) {}
+      emit(state.copyWith(alarms: previousAlarms));
+      rethrow;
+    }
   }
 
   Future<void> removeAlarm(String id) async {
+    final previousAlarms = state.alarms;
+
     await AlarmChannel.cancel(id);
-    await AlarmFirestoreService.deleteAlarm(id);
+    await AlarmChannel.cleanupConfig(id);
+
+    // Optimistic
     emit(state.copyWith(
       alarms: state.alarms.where((a) => a.id != id).toList(),
     ));
+
+    try {
+      await AlarmFirestoreService.deleteAlarm(id);
+    } catch (e) {
+      // Rollback: re-schedule native and restore UI
+      final alarm = previousAlarms.firstWhere((a) => a.id == id);
+      try {
+        await _scheduleNative(alarm, alarm.dateTime);
+      } catch (_) {}
+      emit(state.copyWith(alarms: previousAlarms));
+      rethrow;
+    }
   }
 
   /// Schedules a native alarm, choosing one-shot or recurrent based on the
