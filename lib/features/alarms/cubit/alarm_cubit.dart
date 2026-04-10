@@ -22,36 +22,16 @@ class AlarmCubit extends Cubit<AlarmState> {
     final results = await Future.wait([
       AlarmFirestoreService.getAlarms(),
       AlarmChannel.getAlarmIds(),
-      AlarmChannel.getPendingReschedules(),
-      AlarmChannel.getPendingRecurringRestores(),
+      AlarmChannel.getSnoozeMap(),
     ]);
     final firestoreAlarms = results[0] as List<AppAlarmEntry>;
     final nativeIds = (results[1] as List<String>).toSet();
-    // Reschedule signals written by StopAndRescheduleIntent while app was killed.
-    final reschedules = results[2] as Map<String, String>;
-    final recurringRestores = results[3] as List<Map<String, dynamic>>;
+    // {snoozeId → originalId} — snooze alarms are native-only, no Firestore doc.
+    final snoozeMap = results[2] as Map<String, String>;
     final now = DateTime.now();
     final resolved = <AppAlarmEntry>[];
 
     for (final alarm in firestoreAlarms) {
-      if (reschedules.containsKey(alarm.id)) {
-        final newId = reschedules[alarm.id]!;
-        await AlarmFirestoreService.deleteAlarm(alarm.id);
-        final rescheduled = alarm.copyWith(
-          id: newId,
-          dateTime: now.add(const Duration(minutes: 5)),
-        );
-        try {
-          await AlarmFirestoreService.saveAlarm(rescheduled);
-          resolved.add(rescheduled);
-        } catch (e) {
-          // Native alarm was already scheduled by intent; best-effort Firestore save.
-          debugPrint('[AlarmCubit] _syncAlarms reschedule save failed: $e');
-          resolved.add(rescheduled);
-        }
-        continue;
-      }
-
       // Disabled or already scheduled natively — no action needed.
       if (!alarm.isEnabled || nativeIds.contains(alarm.id)) {
         resolved.add(alarm);
@@ -79,48 +59,28 @@ class AlarmCubit extends Cubit<AlarmState> {
       }
     }
 
-    // Restore recurring alarms that were cancelled by StopAndRescheduleIntent.
-    for (final restore in recurringRestores) {
-      final originalId = restore['originalId'] as String?;
-      if (originalId == null) continue;
-
-      // Find the alarm data — it may be in resolved (from the reschedule branch above)
-      // or still match one of the original Firestore entries.
-      final match = resolved
-          .where((a) =>
-              !a.isOneTime && a.repeatDays.any((d) => d))
-          .where((a) {
-        // Match by reschedule: the snoozed alarm came from this originalId
-        return reschedules[originalId] == a.id;
-      }).firstOrNull;
-
-      if (match != null) {
-        try {
-          final recurringId = await _scheduleNative(match, match.dateTime);
-          final recurringEntry = match.copyWith(
-            id: recurringId,
-            isOneTime: false,
-            isEnabled: true,
-          );
-          await AlarmFirestoreService.saveAlarm(recurringEntry);
-          resolved.add(recurringEntry);
-        } catch (e) {
-          debugPrint('[AlarmCubit] recurring restore failed for $originalId: $e');
-        }
-      }
-    }
-
     // Cancel orphaned native alarms not referenced by any Firestore entry.
+    // Snooze alarms are intentionally native-only — skip them unless their
+    // original alarm has been disabled, in which case cancel the snooze too.
     final resolvedIds = resolved.map((a) => a.id).toSet();
     for (final nativeId in nativeIds) {
-      if (!resolvedIds.contains(nativeId)) {
+      if (resolvedIds.contains(nativeId)) continue;
+
+      final originalId = snoozeMap[nativeId];
+      if (originalId != null) {
+        final originalEnabled = resolved.any((a) => a.id == originalId && a.isEnabled);
+        if (originalEnabled) continue; // valid active snooze — leave it alone
+        // Original was disabled — cancel the orphaned snooze too
+        debugPrint('[AlarmCubit] cancelling snooze $nativeId (original $originalId disabled)');
+      } else {
         debugPrint('[AlarmCubit] cancelling orphaned native alarm $nativeId');
-        try {
-          await AlarmChannel.cancel(nativeId);
-          await AlarmChannel.cleanupConfig(nativeId);
-        } catch (e) {
-          debugPrint('[AlarmCubit] orphan cleanup failed for $nativeId: $e');
-        }
+      }
+
+      try {
+        await AlarmChannel.cancel(nativeId);
+        await AlarmChannel.cleanupConfig(nativeId);
+      } catch (e) {
+        debugPrint('[AlarmCubit] orphan cleanup failed for $nativeId: $e');
       }
     }
 

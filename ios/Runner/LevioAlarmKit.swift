@@ -143,14 +143,10 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             Task { await getAlarms(result: result) }
         case "getRingingId":
             Task { await getRingingId(result: result) }
-        case "getPendingReschedules":
-            getPendingReschedules(result: result)
-        case "peekPendingReschedules":
-            peekPendingReschedules(result: result)
+        case "getSnoozeMap":
+            getSnoozeMap(result: result)
         case "cleanupConfig":
             cleanupConfig(call: call, result: result)
-        case "getPendingRecurringRestores":
-            getPendingRecurringRestores(result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -385,33 +381,16 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         }
     }
 
-    // MARK: - Get Pending Reschedules
+    // MARK: - Get Snooze Map (read-only: {snoozeId → originalId})
 
-    private func getPendingReschedules(result: @escaping FlutterResult) {
+    private func getSnoozeMap(result: @escaping FlutterResult) {
         let defaults = UserDefaults.standard
         var map: [String: String] = [:]
         for key in defaults.dictionaryRepresentation().keys {
-            if key.hasPrefix("levio_rescheduled_") {
-                let oldId = String(key.dropFirst("levio_rescheduled_".count))
-                if let newId = defaults.string(forKey: key) {
-                    map[oldId] = newId
-                    defaults.removeObject(forKey: key)
-                }
-            }
-        }
-        result(map)
-    }
-
-    // MARK: - Peek Pending Reschedules (read-only, does NOT clear keys)
-
-    private func peekPendingReschedules(result: @escaping FlutterResult) {
-        let defaults = UserDefaults.standard
-        var map: [String: String] = [:]
-        for key in defaults.dictionaryRepresentation().keys {
-            if key.hasPrefix("levio_rescheduled_") {
-                let oldId = String(key.dropFirst("levio_rescheduled_".count))
-                if let newId = defaults.string(forKey: key) {
-                    map[oldId] = newId
+            if key.hasPrefix("levio_snooze_") {
+                let snoozeId = String(key.dropFirst("levio_snooze_".count))
+                if let originalId = defaults.string(forKey: key) {
+                    map[snoozeId] = originalId
                 }
             }
         }
@@ -429,31 +408,11 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "levio_config_\(idString)")
         defaults.removeObject(forKey: "levio_completed_\(idString)")
-        // Remove from stopped set
+        defaults.removeObject(forKey: "levio_snooze_\(idString)")
         var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
         ids.removeAll { $0 == idString }
         defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)
         result(nil)
-    }
-
-    // MARK: - Get Pending Recurring Restores (reads + clears levio_recurring_restore_* keys)
-
-    private func getPendingRecurringRestores(result: @escaping FlutterResult) {
-        let defaults = UserDefaults.standard
-        var list: [[String: Any]] = []
-        for key in defaults.dictionaryRepresentation().keys {
-            if key.hasPrefix("levio_recurring_restore_") {
-                let oldId = String(key.dropFirst("levio_recurring_restore_".count))
-                if let data = defaults.data(forKey: key),
-                   let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                    var entry = config
-                    entry["originalId"] = oldId
-                    list.append(entry)
-                    defaults.removeObject(forKey: key)
-                }
-            }
-        }
-        result(list)
     }
 
     // MARK: - Helpers
