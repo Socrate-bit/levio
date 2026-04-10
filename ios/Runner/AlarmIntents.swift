@@ -1,4 +1,5 @@
 import AlarmKit
+import SwiftUI
 import AppIntents
 
 // MARK: - Open App Intent (secondary button)
