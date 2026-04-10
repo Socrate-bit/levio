@@ -310,11 +310,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         soundPath: String?,
         schedule: Alarm.Schedule
     ) -> AlarmManager.AlarmConfiguration<LevioAlarmMetadata> {
-        let stopButton = AlarmButton(
-            text: "Stop",
-            textColor: .white,
-            systemImageName: "xmark.circle"
-        )
         let secondaryButton = AlarmButton(
             text: LocalizedStringResource(stringLiteral: secondaryLabel),
             textColor: .white,
@@ -322,7 +317,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         )
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: title),
-            stopButton: stopButton,
             secondaryButton: secondaryButton,
             secondaryButtonBehavior: .custom
         )

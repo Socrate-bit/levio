@@ -64,11 +64,6 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
         let soundFileName = config["soundFileName"] as? String
 
-        let stopButton = AlarmButton(
-            text: "Stop",
-            textColor: .white,
-            systemImageName: "xmark.circle"
-        )
         let secondaryButton = AlarmButton(
             text: LocalizedStringResource(stringLiteral: secondaryLabel),
             textColor: .white,
@@ -76,7 +71,6 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         )
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: title),
-            stopButton: stopButton,
             secondaryButton: secondaryButton,
             secondaryButtonBehavior: .custom
         )
