@@ -116,6 +116,20 @@ class AlarmChannel {
     return raw ?? {};
   }
 
+  /// Same as [getPendingReschedules] but read-only — does NOT clear keys.
+  /// Used by AlarmService for cold-start fallback before _syncAlarms runs.
+  static Future<Map<String, String>> peekPendingReschedules() async {
+    final raw = await _method.invokeMapMethod<String, String>('peekPendingReschedules');
+    return raw ?? {};
+  }
+
+  /// Returns configs for recurring alarms that need to be re-scheduled
+  /// after their snooze was created by StopAndRescheduleIntent.
+  static Future<List<Map<String, dynamic>>> getPendingRecurringRestores() async {
+    final raw = await _method.invokeListMethod<Map>('getPendingRecurringRestores');
+    return raw?.map((m) => Map<String, dynamic>.from(m)).toList() ?? [];
+  }
+
   static Stream<Map<Object?, Object?>> get events =>
       _events.receiveBroadcastStream().cast<Map<Object?, Object?>>();
 
