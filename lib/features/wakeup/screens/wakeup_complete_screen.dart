@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../alarms/services/alarm_firestore_service.dart';
 import '../../milestones/models/badge_model.dart';
 import '../../milestones/screens/badge_unlock_screen.dart';
 import '../../milestones/services/streak_service.dart';
@@ -38,6 +39,13 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
 
   Future<void> _processWakeup() async {
     try {
+      // Disable one-time alarms immediately so they don't get rescheduled.
+      final alarmEntry = await AlarmFirestoreService.getAlarm(widget.alarmId);
+      if (alarmEntry != null && alarmEntry.isOneTime) {
+        await AlarmFirestoreService.saveAlarm(
+            alarmEntry.copyWith(isEnabled: false));
+      }
+
       final session = await HistoryService.getPendingSession(widget.alarmId);
 
       if (session != null) {

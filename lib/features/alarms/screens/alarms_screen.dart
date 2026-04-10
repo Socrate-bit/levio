@@ -252,7 +252,7 @@ class _AlarmCard extends StatelessWidget {
     final m = t.minute.toString().padLeft(2, '0');
     final isPM = t.hour >= 12;
     final info = missionInfoFor(alarm.missionType);
-    final dayStr = _daysLabel(alarm.repeatDays);
+    final dayStr = alarm.isOneTime ? 'One-time' : _daysLabel(alarm.repeatDays);
 
     return GestureDetector(
       onTap: () => Navigator.push(

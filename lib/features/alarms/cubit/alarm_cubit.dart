@@ -54,7 +54,9 @@ class AlarmCubit extends Cubit<AlarmState> {
         await AlarmFirestoreService.saveAlarm(rescheduled);
         resolved.add(rescheduled);
       } catch (e) {
-        debugPrint('[AlarmCubit] _syncAlarms reschedule failed for ${alarm.id}: $e');
+        debugPrint(
+          '[AlarmCubit] _syncAlarms reschedule failed for ${alarm.id}: $e',
+        );
         resolved.add(alarm);
       }
     }
@@ -95,7 +97,7 @@ class AlarmCubit extends Cubit<AlarmState> {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
-    final id = await _scheduleNative(entry, scheduled, forceOneShot: kDebugMode);
+    final id = await _scheduleNative(entry, scheduled);
     final saved = entry.copyWith(id: id, dateTime: scheduled);
 
     // Optimistic: show in UI immediately
@@ -105,9 +107,9 @@ class AlarmCubit extends Cubit<AlarmState> {
       await AlarmFirestoreService.saveAlarm(saved);
     } catch (e) {
       // Rollback: remove from UI and cancel native
-      emit(state.copyWith(
-        alarms: state.alarms.where((a) => a.id != id).toList(),
-      ));
+      emit(
+        state.copyWith(alarms: state.alarms.where((a) => a.id != id).toList()),
+      );
       await AlarmChannel.cancel(id);
       rethrow;
     }
@@ -119,17 +121,25 @@ class AlarmCubit extends Cubit<AlarmState> {
     final previous = state.alarms.firstWhere((a) => a.id == updated.id);
 
     // Optimistic
-    emit(state.copyWith(
-      alarms: state.alarms.map((a) => a.id == updated.id ? updated : a).toList(),
-    ));
+    emit(
+      state.copyWith(
+        alarms: state.alarms
+            .map((a) => a.id == updated.id ? updated : a)
+            .toList(),
+      ),
+    );
 
     try {
       await AlarmFirestoreService.saveAlarm(updated);
     } catch (e) {
       // Rollback
-      emit(state.copyWith(
-        alarms: state.alarms.map((a) => a.id == updated.id ? previous : a).toList(),
-      ));
+      emit(
+        state.copyWith(
+          alarms: state.alarms
+              .map((a) => a.id == updated.id ? previous : a)
+              .toList(),
+        ),
+      );
       rethrow;
     }
   }
@@ -143,9 +153,13 @@ class AlarmCubit extends Cubit<AlarmState> {
       final disabledAlarm = alarm.copyWith(isEnabled: false);
 
       // Optimistic
-      emit(state.copyWith(
-        alarms: state.alarms.map((a) => a.id == id ? disabledAlarm : a).toList(),
-      ));
+      emit(
+        state.copyWith(
+          alarms: state.alarms
+              .map((a) => a.id == id ? disabledAlarm : a)
+              .toList(),
+        ),
+      );
 
       try {
         await AlarmFirestoreService.saveAlarm(disabledAlarm);
@@ -161,12 +175,20 @@ class AlarmCubit extends Cubit<AlarmState> {
         scheduled = scheduled.add(const Duration(days: 1));
       }
       final newId = await _scheduleNative(alarm, scheduled);
-      final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled, isEnabled: true);
+      final rescheduled = alarm.copyWith(
+        id: newId,
+        dateTime: scheduled,
+        isEnabled: true,
+      );
 
       // Optimistic
-      emit(state.copyWith(
-        alarms: state.alarms.map((a) => a.id == id ? rescheduled : a).toList(),
-      ));
+      emit(
+        state.copyWith(
+          alarms: state.alarms
+              .map((a) => a.id == id ? rescheduled : a)
+              .toList(),
+        ),
+      );
 
       try {
         await AlarmFirestoreService.deleteAlarm(id);
@@ -193,13 +215,15 @@ class AlarmCubit extends Cubit<AlarmState> {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
-    final newId = await _scheduleNative(updated, scheduled, forceOneShot: kDebugMode);
+    final newId = await _scheduleNative(updated, scheduled);
     final saved = updated.copyWith(id: newId, dateTime: scheduled);
 
     // Optimistic
-    emit(state.copyWith(
-      alarms: state.alarms.map((a) => a.id == old.id ? saved : a).toList(),
-    ));
+    emit(
+      state.copyWith(
+        alarms: state.alarms.map((a) => a.id == old.id ? saved : a).toList(),
+      ),
+    );
 
     try {
       await AlarmFirestoreService.deleteAlarm(old.id);
@@ -218,35 +242,31 @@ class AlarmCubit extends Cubit<AlarmState> {
   Future<void> removeAlarm(String id) async {
     final previousAlarms = state.alarms;
 
-    await AlarmChannel.cancel(id);
-    await AlarmChannel.cleanupConfig(id);
-
     // Optimistic
-    emit(state.copyWith(
-      alarms: state.alarms.where((a) => a.id != id).toList(),
-    ));
+    emit(
+      state.copyWith(alarms: state.alarms.where((a) => a.id != id).toList()),
+    );
 
     try {
       await AlarmFirestoreService.deleteAlarm(id);
     } catch (e) {
-      // Rollback: re-schedule native and restore UI
-      final alarm = previousAlarms.firstWhere((a) => a.id == id);
-      try {
-        await _scheduleNative(alarm, alarm.dateTime);
-      } catch (_) {}
+      debugPrint('Error deleting alarm with id $id: $e');
       emit(state.copyWith(alarms: previousAlarms));
-      rethrow;
+      return;
+    }
+
+    try {
+      await AlarmChannel.cancel(id);
+      await AlarmChannel.cleanupConfig(id);
+    } catch (e) {
+      debugPrint('Error cancelling/cleaning up alarm with id $id: $e');
     }
   }
 
   /// Schedules a native alarm, choosing one-shot or recurrent based on the
   /// entry's [repeatDays] and [isOneTime]. Pass [forceOneShot] to override
   /// (e.g. in debug mode).
-  Future<String> _scheduleNative(
-    AppAlarmEntry entry,
-    DateTime scheduled, {
-    bool forceOneShot = false,
-  }) {
+  Future<String> _scheduleNative(AppAlarmEntry entry, DateTime scheduled) {
     final info = missionInfoFor(entry.missionType);
     final title = entry.name.isNotEmpty ? entry.name : 'Levio';
     final sfSymbol = _systemImageFor(entry.missionType);
@@ -256,8 +276,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         ? 'assets/sounds/${entry.soundId}.mp3'
         : null;
 
-    final isRecurrent =
-        !forceOneShot && !entry.isOneTime && entry.repeatDays.any((d) => d);
+    final isRecurrent = !entry.isOneTime && entry.repeatDays.any((d) => d);
 
     if (isRecurrent) {
       return AlarmChannel.scheduleRepeating(
