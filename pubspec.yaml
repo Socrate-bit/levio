@@ -24,6 +24,10 @@ dependencies:
   audioplayers: ^6.6.0
   flutter_native_splash: ^2.4.7
   flutter_launcher_icons: ^0.14.4
+  in_app_review: ^2.0.11
+  signature: ^6.3.0
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^7.0.1
 
 dev_dependencies:
   flutter_test:

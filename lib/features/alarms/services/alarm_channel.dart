@@ -78,8 +78,12 @@ class AlarmChannel {
     await _method.invokeMethod('cleanupConfig', {'id': id});
   }
 
-  static Future<void> dismissAlarm(String id) async {
+  /// Stops the alarm and marks it completed. If [keepRinging] is true,
+  /// only marks completed without stopping the audio — used when the user
+  /// chose to keep the alarm playing during the mission.
+  static Future<void> dismissAlarm(String id, {bool keepRinging = false}) async {
     await markCompleted(id);
+    if (keepRinging) return;
     // Stop whatever is currently ringing — may differ from `id` when a snooze
     // or a different alarm fires while the screen is still open.
     final ringingId = await getRingingId() ?? id;
@@ -90,6 +94,18 @@ class AlarmChannel {
       // user taps the native stop button before the challenge completes).
       // AlarmError 0 = alarm not in a stoppable state. Log and continue.
       debugPrint('[AlarmChannel] dismissAlarm: stop failed (code=${e.code}) — ${e.message} | details: ${e.details}');
+    }
+  }
+
+  /// Stops the currently ringing alarm audio. Called when a mission completes
+  /// and the alarm was kept ringing during the mission.
+  static Future<void> stopRinging() async {
+    final ringingId = await getRingingId();
+    if (ringingId == null) return;
+    try {
+      await stop(ringingId);
+    } on PlatformException catch (e) {
+      debugPrint('[AlarmChannel] stopRinging failed: ${e.message}');
     }
   }
 

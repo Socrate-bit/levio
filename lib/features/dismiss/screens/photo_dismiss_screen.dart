@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../alarms/services/alarm_channel.dart';
 
 import '../../missions/models/mission.dart';
@@ -112,7 +113,10 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   }
 
   Future<void> _dismiss() async {
-    await AlarmChannel.dismissAlarm(widget.alarmId);
+    final prefs = await SharedPreferences.getInstance();
+    final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+    await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
+    if (keepRinging) await AlarmChannel.stopRinging();
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
       Navigator.of(context).pushReplacement(
