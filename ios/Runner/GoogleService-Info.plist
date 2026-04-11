@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>717833712614-40q2r24a2f2531uqbv3a7as36ng1l0mc.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.717833712614-40q2r24a2f2531uqbv3a7as36ng1l0mc</string>
 	<key>API_KEY</key>
 	<string>AIzaSyAySn-XS2bjKWaj209bfX27XUwazkygp_k</string>
 	<key>GCM_SENDER_ID</key>
@@ -9,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.levio</string>
+	<string>com.example.levio.dev</string>
 	<key>PROJECT_ID</key>
 	<string>levio-ef67e</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:717833712614:ios:db591b8e6f0828812edc27</string>
+	<string>1:717833712614:ios:c6904ba129591e202edc27</string>
 </dict>
 </plist>
