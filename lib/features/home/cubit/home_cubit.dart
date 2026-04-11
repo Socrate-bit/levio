@@ -1,36 +1,100 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../milestones/services/streak_service.dart';
+import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/services/history_service.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit() : super(const HomeState());
+  StreamSubscription<List<WakeupSession>>? _sessionsSub;
+  StreamSubscription<StreakProfile>? _profileSub;
+  Completer<void>? _loadCompleter;
 
-  Future<void> load() async {
+  List<WakeupSession> _allSessions = [];
+  StreakProfile _profile = const StreakProfile();
+  bool _sessionsReady = false;
+  bool _profileReady = false;
+
+  HomeCubit() : super(const HomeState()) {
+    _subscribe();
+  }
+
+  void _subscribe() {
+    _sessionsReady = false;
+    _profileReady = false;
+
+    _sessionsSub = HistoryService.watchSessions(limit: 500).listen((sessions) {
+      _allSessions = sessions;
+      _sessionsReady = true;
+      if (_profileReady) _recompute();
+    });
+
+    _profileSub = StreakService.watchProfile().listen((profile) {
+      _profile = profile;
+      _profileReady = true;
+      if (_sessionsReady) _recompute();
+    });
+  }
+
+  Future<void> load() {
+    _loadCompleter?.complete();
+    _loadCompleter = Completer<void>();
     emit(state.copyWith(loading: true));
-    try {
-      final allSessions = await HistoryService.getSessions(limit: 500);
-      final lastSession = allSessions.isEmpty ? null : allSessions.first;
-      final totalWakeups = await HistoryService.getTotalWakeups();
-      final currentStreak = await StreakService.computeCurrentStreak(allSessions);
+    _cancelSubs();
+    _subscribe();
+    return _loadCompleter!.future;
+  }
 
-      // Build week days (Sun–Sat): which days this week had wakeups
-      final weekSessions = await HistoryService.getSessionsThisWeek();
-      final weekDays = List<bool>.filled(7, false);
-      for (final s in weekSessions) {
+  Future<void> _recompute() async {
+    if (isClosed) return;
+
+    final lastSession = _allSessions.isEmpty ? null : _allSessions.first;
+    final currentStreak =
+        await StreakService.computeCurrentStreak(_allSessions);
+
+    final now = DateTime.now();
+    final startOfWeek = _startOfWeek(now);
+    final weekDays = List<bool>.filled(7, false);
+    for (final s in _allSessions) {
+      if (s.timestamp.isAfter(startOfWeek)) {
         weekDays[s.timestamp.weekday % 7] = true;
       }
-
-      emit(state.copyWith(
-        currentStreak: currentStreak,
-        weekDays: weekDays,
-        lastSession: lastSession,
-        totalWakeups: totalWakeups,
-        loading: false,
-      ));
-    } catch (_) {
-      emit(state.copyWith(loading: false));
     }
+
+    if (isClosed) return;
+
+    emit(state.copyWith(
+      currentStreak: currentStreak,
+      weekDays: weekDays,
+      lastSession: lastSession,
+      clearLastSession: lastSession == null,
+      totalWakeups: _profile.totalWakeups,
+      loading: false,
+    ));
+
+    _loadCompleter?.complete();
+    _loadCompleter = null;
+  }
+
+  void _cancelSubs() {
+    _sessionsSub?.cancel();
+    _profileSub?.cancel();
+    _sessionsSub = null;
+    _profileSub = null;
+  }
+
+  @override
+  Future<void> close() {
+    _cancelSubs();
+    _loadCompleter?.complete();
+    _loadCompleter = null;
+    return super.close();
+  }
+
+  DateTime _startOfWeek(DateTime date) {
+    final daysFromSunday = date.weekday % 7;
+    return DateTime(date.year, date.month, date.day - daysFromSunday);
   }
 }

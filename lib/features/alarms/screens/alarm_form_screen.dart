@@ -501,7 +501,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   backgroundColor:
                       _canSave ? c.textPrimary : c.separator,
                   foregroundColor: _canSave
-                      ? Colors.white
+                      ? c.background
                       : c.textSecondary,
                   minimumSize: const Size(double.infinity, 54),
                   shape: RoundedRectangleBorder(

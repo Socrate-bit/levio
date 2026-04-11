@@ -64,6 +64,7 @@ class AlarmService {
     _lifecycleListener = AppLifecycleListener(
       onResume: () async {
         debugPrint('[AlarmService] lifecycle: onResume');
+        if (_dismissScreenActive) return;
         final ringing = await getRingingAlarm();
         if (ringing != null) _pushDismiss(navigatorKey, ringing);
       },
