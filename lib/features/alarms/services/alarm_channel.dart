@@ -80,8 +80,11 @@ class AlarmChannel {
 
   static Future<void> dismissAlarm(String id) async {
     await markCompleted(id);
+    // Stop whatever is currently ringing — may differ from `id` when a snooze
+    // or a different alarm fires while the screen is still open.
+    final ringingId = await getRingingId() ?? id;
     try {
-      await stop(id);
+      await stop(ringingId);
     } on PlatformException catch (e) {
       // The alarm may already be stopped by the system (race condition when the
       // user taps the native stop button before the challenge completes).

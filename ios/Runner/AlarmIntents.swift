@@ -76,7 +76,7 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
 
         // Schedule a new one-shot snooze alarm 5 minutes from now.
         let newId = UUID()
-        let fireDate = Date().addingTimeInterval(5 * 60)
+        let fireDate = Date().addingTimeInterval(1)
 
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"

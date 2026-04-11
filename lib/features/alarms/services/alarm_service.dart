@@ -1,16 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../wakeup/services/history_service.dart';
 import 'alarm_channel.dart';
+import '../cubit/alarm_state.dart';
 import 'alarm_firestore_service.dart';
 
 class AlarmService {
   static StreamSubscription? _subscription;
   static AppLifecycleListener? _lifecycleListener;
-
-  static const _actionChannel = MethodChannel('levio/alarm-action');
+  static bool _dismissScreenActive = false;
 
   // ---------------------------------------------------------------------------
   // Public API
@@ -21,105 +20,52 @@ class AlarmService {
     final id = await AlarmChannel.getRingingId();
     debugPrint('[AlarmService] getRingingAlarm: ringingId=$id');
     if (id == null) return null;
-
-    // Try direct Firestore lookup
-    var entry = await AlarmFirestoreService.getAlarm(id);
-
-    // Fallback: ringing alarm may be a snooze (no Firestore doc).
-    // Look up the original alarm ID via the snooze map and fetch that instead.
-    if (entry == null) {
-      debugPrint('[AlarmService] → ringing alarm $id not in Firestore, checking snooze map');
-      final snoozeMap = await AlarmChannel.getSnoozeMap();
-      final originalId = snoozeMap[id];
-      if (originalId != null) {
-        entry = await AlarmFirestoreService.getAlarm(originalId);
-        debugPrint('[AlarmService] → found via snooze map originalId=$originalId  entry=${entry != null}');
-      }
-    }
-
-    if (entry == null) {
-      debugPrint('[AlarmService] → ringing alarm $id not found in Firestore');
-      return null;
-    }
-    debugPrint('[AlarmService] → ringing alarm  id=$id  challenge=${entry.missionType.name}');
-    return {
-      'alarmId': id,
-      'challenge': entry.missionType.name,
-      'mathDifficulty': entry.mathDifficulty.name,
-      'customObject': entry.customObject ?? '',
-    };
-  }
-
-  static Future<void> checkAndNavigate(
-    GlobalKey<NavigatorState> navigatorKey,
-  ) async {
-    debugPrint('[AlarmService] checkAndNavigate called');
-
-    if (!await _hasPendingDismiss()) {
-      debugPrint('[AlarmService] checkAndNavigate → no pending dismiss, aborting');
-      return;
-    }
-    await _clearPendingDismiss();
-
-    final ringing = await getRingingAlarm();
-    if (ringing == null) {
-      debugPrint('[AlarmService] checkAndNavigate → pendingDismiss true but no ringing alarm');
-      return;
-    }
-
-    debugPrint('[AlarmService] checkAndNavigate → navigating to /alarm-dismiss  args=$ringing');
-    _pushDismiss(navigatorKey, ringing);
+    return _toNavArgs(id);
   }
 
   static void listenForRing(GlobalKey<NavigatorState> navigatorKey) {
-    debugPrint('[AlarmService] listenForRing: starting stream + lifecycle listener');
+    debugPrint(
+      '[AlarmService] listenForRing: starting stream + lifecycle listener',
+    );
     _subscription?.cancel();
-    _subscription = AlarmChannel.events.listen((event) async {
-      final eventType = event['event'] as String?;
-      debugPrint('[AlarmService] stream event: $event');
+    _subscription = AlarmChannel.events.listen(
+      (event) async {
+        final eventType = event['event'] as String?;
+        debugPrint('[AlarmService] stream event: $event');
 
-      if (eventType == 'ring') {
-        final alarmId = event['id'] as String?;
-        if (alarmId == null) return;
-        final entry = await AlarmFirestoreService.getAlarm(alarmId);
-        if (entry == null) {
-          debugPrint('[AlarmService] ring: alarm $alarmId not found in Firestore');
+        if (eventType == 'ring') {
+          final alarmId = event['id'] as String?;
+          if (alarmId == null) return;
+          final entry = await _resolveEntry(alarmId);
+          if (entry == null) {
+            debugPrint('[AlarmService] ring: alarm $alarmId not found');
+            return;
+          }
+
+          if (_dismissScreenActive) return;
+          HistoryService.createPendingSession(
+            alarmId: entry.id,
+            missionType: entry.missionType,
+            soundId: entry.soundId,
+          ).ignore();
+          debugPrint(
+            '[AlarmService] ring → pushing dismiss  alarmId=$alarmId  challenge=${entry.missionType.name}',
+          );
+          _pushDismiss(navigatorKey, _argsFrom(entry.id, entry));
           return;
         }
-        HistoryService.createPendingSession(
-          alarmId: alarmId,
-          missionType: entry.missionType,
-          soundId: entry.soundId,
-        ).ignore();
-        debugPrint('[AlarmService] ring → pushing dismiss  alarmId=$alarmId  challenge=${entry.missionType.name}');
-        _pushDismiss(navigatorKey, {
-          'alarmId': alarmId,
-          'challenge': entry.missionType.name,
-          'mathDifficulty': entry.mathDifficulty.name,
-          'customObject': entry.customObject ?? '',
-        });
-        return;
-      }
-
-      if (eventType == 'intentFired') {
-        debugPrint('[AlarmService] intentFired → querying ringing alarm');
-        final ringing = await getRingingAlarm();
-        if (ringing != null) {
-          debugPrint('[AlarmService] intentFired → pushing dismiss  args=$ringing');
-          _pushDismiss(navigatorKey, ringing);
-        } else {
-          debugPrint('[AlarmService] intentFired → no ringing alarm found');
-        }
-      }
-    }, onError: (Object e, StackTrace st) {
-      debugPrint('[AlarmService] stream error: $e\n$st');
-    });
+      },
+      onError: (Object e, StackTrace st) {
+        debugPrint('[AlarmService] stream error: $e\n$st');
+      },
+    );
 
     _lifecycleListener?.dispose();
     _lifecycleListener = AppLifecycleListener(
-      onResume: () {
+      onResume: () async {
         debugPrint('[AlarmService] lifecycle: onResume');
-        checkAndNavigate(navigatorKey);
+        final ringing = await getRingingAlarm();
+        if (ringing != null) _pushDismiss(navigatorKey, ringing);
       },
       onHide: () => debugPrint('[AlarmService] lifecycle: onHide'),
       onShow: () => debugPrint('[AlarmService] lifecycle: onShow'),
@@ -141,31 +87,46 @@ class AlarmService {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  static Future<bool> _hasPendingDismiss() async {
-    try {
-      final result = await _actionChannel.invokeMethod<bool>('hasPendingDismiss') ?? false;
-      debugPrint('[AlarmService] _hasPendingDismiss → $result');
-      return result;
-    } catch (e) {
-      debugPrint('[AlarmService] _hasPendingDismiss error: $e');
-      return false;
+  /// Fetches the Firestore entry for [alarmId], falling back to the snooze map
+  /// if the ID belongs to a snooze (which has no Firestore doc of its own).
+  static Future<AppAlarmEntry?> _resolveEntry(String alarmId) async {
+    var entry = await AlarmFirestoreService.getAlarm(alarmId);
+    if (entry == null) {
+      final originalId = (await AlarmChannel.getSnoozeMap())[alarmId];
+      if (originalId != null)
+        entry = await AlarmFirestoreService.getAlarm(originalId);
     }
+    return entry;
   }
 
-  static Future<void> _clearPendingDismiss() async {
-    try {
-      await _actionChannel.invokeMethod('clearPendingDismiss');
-    } catch (e) {
-      debugPrint('[AlarmService] _clearPendingDismiss error: $e');
+  static Map<String, String> _argsFrom(String alarmId, AppAlarmEntry entry) => {
+    'alarmId': alarmId,
+    'challenge': entry.missionType.name,
+    'mathDifficulty': entry.mathDifficulty.name,
+    'customObject': entry.customObject ?? '',
+  };
+
+  /// Resolves [id] to nav args, returning null if the alarm can't be found.
+  static Future<Map<String, String>?> _toNavArgs(String id) async {
+    final entry = await _resolveEntry(id);
+    if (entry == null) {
+      debugPrint('[AlarmService] → alarm $id not found in Firestore');
+      return null;
     }
+    return _argsFrom(id, entry);
   }
 
   static void _pushDismiss(
-      GlobalKey<NavigatorState> navigatorKey, Map<String, String> args) {
-    navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      '/alarm-dismiss',
-      (route) => route.isFirst,
-      arguments: args,
-    );
+    GlobalKey<NavigatorState> navigatorKey,
+    Map<String, String> args,
+  ) {
+    _dismissScreenActive = true;
+    navigatorKey.currentState
+        ?.pushNamedAndRemoveUntil(
+          '/alarm-dismiss',
+          (route) => route.isFirst,
+          arguments: args,
+        )
+        .then((_) => _dismissScreenActive = false);
   }
 }

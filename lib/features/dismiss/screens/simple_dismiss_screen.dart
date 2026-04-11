@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
 import '../../alarms/services/alarm_channel.dart';
-import '../../alarms/services/alarm_firestore_service.dart';
 import '../../wakeup/services/history_service.dart';
 import '../../../shared/theme/app_theme.dart';
 
@@ -40,9 +41,11 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
 
     // Disable one-time alarms so they don't get rescheduled.
-    final alarmEntry = await AlarmFirestoreService.getAlarm(widget.alarmId);
-    if (alarmEntry != null && alarmEntry.isOneTime) {
-      await AlarmFirestoreService.saveAlarm(alarmEntry.copyWith(isEnabled: false));
+    final isOneTime = context.read<AlarmCubit>().state.alarms
+        .any((a) => a.id == widget.alarmId && a.isOneTime);
+    if (isOneTime) {
+      // ignore: use_build_context_synchronously
+      await context.read<AlarmCubit>().toggleAlarm(widget.alarmId, false);
     }
 
     // Complete the pending session for history, but skip streak validation.

@@ -331,7 +331,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     if (picked == null || !mounted) return;
     context
         .read<AlarmCubit>()
-        .updateAlarmMeta(widget.alarm.copyWith(missionType: picked));
+        .editAlarm(widget.alarm, widget.alarm.copyWith(missionType: picked));
   }
 
   Future<void> _pickSound() async {
@@ -342,7 +342,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     if (result == null || !mounted) return;
     context
         .read<AlarmCubit>()
-        .updateAlarmMeta(widget.alarm.copyWith(soundId: result['id']));
+        .editAlarm(widget.alarm, widget.alarm.copyWith(soundId: result['id']));
   }
 
   @override

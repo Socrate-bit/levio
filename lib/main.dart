@@ -27,22 +27,17 @@ void main() async {
   // Anonymous auth — all Firestore data is scoped to this uid
   await AuthService.signInAnonymously();
 
-  final ringingAlarm = await AlarmService.getRingingAlarm();
-
   runApp(LevioApp(
     navigatorKey: _navigatorKey,
-    ringingAlarm: ringingAlarm,
   ));
 }
 
 class LevioApp extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
-  final Map<String, String>? ringingAlarm;
 
   const LevioApp({
     super.key,
     required this.navigatorKey,
-    this.ringingAlarm,
   });
 
   @override
@@ -54,17 +49,6 @@ class _LevioAppState extends State<LevioApp> {
   void initState() {
     super.initState();
     AlarmService.listenForRing(widget.navigatorKey);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.ringingAlarm != null) {
-        widget.navigatorKey.currentState?.pushNamed(
-          '/alarm-dismiss',
-          arguments: widget.ringingAlarm,
-        );
-      } else {
-        AlarmService.checkAndNavigate(widget.navigatorKey);
-      }
-    });
   }
 
   @override

@@ -39,13 +39,15 @@ class AlarmCubit extends Cubit<AlarmState> {
       }
 
       // Alarm is enabled but missing from native — reschedule it.
+      final isRecurrent = !alarm.isOneTime && alarm.repeatDays.any((d) => d);
       var scheduled = alarm.dateTime;
-      if (scheduled.isBefore(now)) {
-        final diff = now.difference(scheduled);
-        scheduled = diff < const Duration(hours: 2)
-            ? now.add(const Duration(minutes: 5))
-            : scheduled.add(const Duration(days: 1));
+      final isPast = scheduled.isBefore(now);
+
+      if (isPast && !isRecurrent) {
+        // Unique alarm missed — ring now.
+        scheduled = now.add(const Duration(seconds: 5));
       }
+      // Recurrent: scheduleRepeating uses hour/minute as-is, no time shift needed.
 
       try {
         final newId = await _scheduleNative(alarm, scheduled);
@@ -53,6 +55,11 @@ class AlarmCubit extends Cubit<AlarmState> {
         final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled);
         await AlarmFirestoreService.saveAlarm(rescheduled);
         resolved.add(rescheduled);
+
+        // Recurrent alarm was missed — also fire an immediate one-shot ring.
+        if (isPast && isRecurrent) {
+          await _scheduleImmediateRing(alarm, now);
+        }
       } catch (e) {
         debugPrint(
           '[AlarmCubit] _syncAlarms reschedule failed for ${alarm.id}: $e',
@@ -70,10 +77,14 @@ class AlarmCubit extends Cubit<AlarmState> {
 
       final originalId = snoozeMap[nativeId];
       if (originalId != null) {
-        final originalEnabled = resolved.any((a) => a.id == originalId && a.isEnabled);
+        final originalEnabled = resolved.any(
+          (a) => a.id == originalId && a.isEnabled,
+        );
         if (originalEnabled) continue; // valid active snooze — leave it alone
         // Original was disabled — cancel the orphaned snooze too
-        debugPrint('[AlarmCubit] cancelling snooze $nativeId (original $originalId disabled)');
+        debugPrint(
+          '[AlarmCubit] cancelling snooze $nativeId (original $originalId disabled)',
+        );
       } else {
         debugPrint('[AlarmCubit] cancelling orphaned native alarm $nativeId');
       }
@@ -89,13 +100,18 @@ class AlarmCubit extends Cubit<AlarmState> {
     emit(state.copyWith(alarms: resolved));
   }
 
+  /// Returns [dt] unchanged if it's in the future, otherwise advances it by
+  /// whole days until it lands tomorrow (same time of day) or later.
+  DateTime _nextFutureDay(DateTime dt) {
+    final now = DateTime.now();
+    if (!dt.isBefore(now)) return dt;
+    return dt.add(Duration(days: now.difference(dt).inDays + 1));
+  }
+
   Future<void> addAlarm(AppAlarmEntry entry) async {
     var scheduled = kDebugMode
         ? DateTime.now().add(const Duration(seconds: 5))
-        : entry.dateTime;
-    if (!kDebugMode && scheduled.isBefore(DateTime.now())) {
-      scheduled = scheduled.add(const Duration(days: 1));
-    }
+        : _nextFutureDay(entry.dateTime);
 
     final id = await _scheduleNative(entry, scheduled);
     final saved = entry.copyWith(id: id, dateTime: scheduled);
@@ -115,41 +131,11 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
   }
 
-  /// Updates only metadata (mission, sound, name) without rescheduling the
-  /// native alarm. Use this for changes that don't affect the trigger time.
-  Future<void> updateAlarmMeta(AppAlarmEntry updated) async {
-    final previous = state.alarms.firstWhere((a) => a.id == updated.id);
-
-    // Optimistic
-    emit(
-      state.copyWith(
-        alarms: state.alarms
-            .map((a) => a.id == updated.id ? updated : a)
-            .toList(),
-      ),
-    );
-
-    try {
-      await AlarmFirestoreService.saveAlarm(updated);
-    } catch (e) {
-      // Rollback
-      emit(
-        state.copyWith(
-          alarms: state.alarms
-              .map((a) => a.id == updated.id ? previous : a)
-              .toList(),
-        ),
-      );
-      rethrow;
-    }
-  }
-
   Future<void> toggleAlarm(String id, bool enabled) async {
     final alarm = state.alarms.firstWhere((a) => a.id == id);
     final previousAlarms = state.alarms;
 
     if (!enabled) {
-      await AlarmChannel.cancel(id);
       final disabledAlarm = alarm.copyWith(isEnabled: false);
 
       // Optimistic
@@ -165,15 +151,17 @@ class AlarmCubit extends Cubit<AlarmState> {
         await AlarmFirestoreService.saveAlarm(disabledAlarm);
       } catch (e) {
         // Rollback: re-schedule native and restore UI
-        await _scheduleNative(alarm, alarm.dateTime);
         emit(state.copyWith(alarms: previousAlarms));
         rethrow;
       }
-    } else {
-      var scheduled = alarm.dateTime;
-      if (scheduled.isBefore(DateTime.now())) {
-        scheduled = scheduled.add(const Duration(days: 1));
+      try {
+        await AlarmChannel.cancel(id);
+      } catch (e, stack) {
+        debugPrint('[AlarmCubit] Failed to cancel alarm $id: $e\n$stack');
       }
+ 
+    } else {
+      final scheduled = _nextFutureDay(alarm.dateTime);
       final newId = await _scheduleNative(alarm, scheduled);
       final rescheduled = alarm.copyWith(
         id: newId,
@@ -208,12 +196,9 @@ class AlarmCubit extends Cubit<AlarmState> {
     await AlarmChannel.cancel(old.id);
     await AlarmChannel.cleanupConfig(old.id);
 
-    var scheduled = kDebugMode
+    final scheduled = kDebugMode
         ? DateTime.now().add(const Duration(seconds: 5))
-        : updated.dateTime;
-    if (!kDebugMode && scheduled.isBefore(DateTime.now())) {
-      scheduled = scheduled.add(const Duration(days: 1));
-    }
+        : _nextFutureDay(updated.dateTime);
 
     final newId = await _scheduleNative(updated, scheduled);
     final saved = updated.copyWith(id: newId, dateTime: scheduled);
@@ -260,6 +245,28 @@ class AlarmCubit extends Cubit<AlarmState> {
       await AlarmChannel.cleanupConfig(id);
     } catch (e) {
       debugPrint('Error cancelling/cleaning up alarm with id $id: $e');
+    }
+  }
+
+  /// Fires an immediate one-shot ring for a missed recurrent alarm.
+  /// Native-only (no Firestore entry) — treated like a snooze alarm.
+  Future<void> _scheduleImmediateRing(AppAlarmEntry alarm, DateTime now) async {
+    try {
+      final info = missionInfoFor(alarm.missionType);
+      final title = alarm.name.isNotEmpty ? alarm.name : 'Levio';
+      final sfSymbol = _systemImageFor(alarm.missionType);
+      final soundPath = alarm.soundId != 'default'
+          ? 'assets/sounds/${alarm.soundId}.mp3'
+          : null;
+      await AlarmChannel.scheduleOneShot(
+        timestampMs: now.add(const Duration(seconds: 5)).millisecondsSinceEpoch,
+        title: title,
+        sfSymbol: sfSymbol,
+        secondaryLabel: info.name,
+        soundPath: soundPath,
+      );
+    } catch (e) {
+      debugPrint('[AlarmCubit] immediate ring failed for ${alarm.id}: $e');
     }
   }
 
