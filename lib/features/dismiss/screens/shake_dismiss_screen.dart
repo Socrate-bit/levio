@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../alarms/services/alarm_channel.dart';
 import 'package:shake/shake.dart';
 
@@ -50,7 +51,10 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
 
   Future<void> _dismiss() async {
     _detector.stopListening();
-    await AlarmChannel.dismissAlarm(widget.alarmId);
+    final prefs = await SharedPreferences.getInstance();
+    final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+    await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
+    if (keepRinging) await AlarmChannel.stopRinging();
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
       Navigator.of(context).pushReplacement(

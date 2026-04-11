@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
 import '../../alarms/services/alarm_channel.dart';
 import '../../wakeup/services/history_service.dart';
@@ -37,7 +38,10 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
 
   Future<void> _dismiss() async {
     HapticFeedback.mediumImpact();
-    await AlarmChannel.dismissAlarm(widget.alarmId);
+    final prefs = await SharedPreferences.getInstance();
+    final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+    await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
+    if (keepRinging) await AlarmChannel.stopRinging();
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
 
     // Disable one-time alarms so they don't get rescheduled.

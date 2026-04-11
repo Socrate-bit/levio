@@ -1,10 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_service.dart';
+import 'features/onboarding/screens/onboarding_screen.dart';
 import 'features/settings/cubit/theme_cubit.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
@@ -27,17 +29,23 @@ void main() async {
   // Anonymous auth — all Firestore data is scoped to this uid
   await AuthService.signInAnonymously();
 
+  final prefs = await SharedPreferences.getInstance();
+  final onboardingDone = prefs.getBool('onboarding_complete') ?? false;
+
   runApp(LevioApp(
     navigatorKey: _navigatorKey,
+    showOnboarding: !onboardingDone,
   ));
 }
 
 class LevioApp extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
+  final bool showOnboarding;
 
   const LevioApp({
     super.key,
     required this.navigatorKey,
+    this.showOnboarding = false,
   });
 
   @override
@@ -74,7 +82,9 @@ class _LevioAppState extends State<LevioApp> {
         navigatorKey: widget.navigatorKey,
         initialRoute: '/',
         routes: {
-          '/': (_) => const BottomNavShell(),
+          '/': (_) => widget.showOnboarding
+              ? const OnboardingScreen()
+              : const BottomNavShell(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/alarm-dismiss') {

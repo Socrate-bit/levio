@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../alarms/services/alarm_channel.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -79,7 +80,10 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
     return BlocConsumer<C, PushUpState>(
       listener: (context, state) async {
         if (state is SessionGoalReached) {
-          await AlarmChannel.dismissAlarm(widget.alarmId);
+          final prefs = await SharedPreferences.getInstance();
+          final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+          await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
+          if (keepRinging) await AlarmChannel.stopRinging();
           final elapsed = DateTime.now().difference(_startTime).inSeconds;
           if (context.mounted) {
             Navigator.of(context).pushReplacement(
