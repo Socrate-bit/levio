@@ -48,6 +48,7 @@ users/{uid}/
 ├── sessions/{docId}       # alarmId, timestamp, timeTakenSeconds, missionType, soundId, completed
 └── meta/profile           # currentStreak, longestStreak, lastWakeupDate, totalWakeups, earnedBadgeIds[], usedSoundIds[], usedMissionTypeNames[]
 ```
+Firebase project: `levio-ef67e`
 
 ## Key Architecture Decisions
 
@@ -64,43 +65,34 @@ users/{uid}/
 - Event Channel: `levio/alarmkit/events` (ring, intentFired events)
 - Key methods: scheduleOneShot, scheduleRepeating, cancel, stop, dismissAlarm, getRingingId, getSnoozeMap, getAlarms, markCompleted
 
-## Mission Types
-
-| Type | Dismiss Mechanism |
-|------|-------------------|
-| none | Simple button |
-| pushUps | ML Kit pose detection (10 reps, elbow angle state machine) |
-| squats | ML Kit pose detection (20 reps) |
-| shakePhone | Shake detector |
-| math | Solve 3 problems (easy/medium/hard) |
-| bibleVerse / affirmation | Speech-to-text, 50% word match |
-| skyPhoto, makeBed, objectHunt, petHunt, natureHunt, touchGrass | Camera + Firebase AI (Gemini) image validation |
-| random | Picks random mission at runtime |
-
 ## Navigation
 
 - Bottom tabs: Home / Alarms / Insights / Settings (IndexedStack preserves state)
 - `/alarm-dismiss` deep route with args `{alarmId, challenge, mathDifficulty, customObject}`
 - Triggered by: native ring event, app resume lifecycle, cold start check
 
-## Build & Run
-
-```bash
-flutter pub get
-flutter run           # iOS simulator/device (primary target)
-```
-
-Firebase project: `levio-ef67e`
-
-## Assets
-
-- `assets/sounds/alarm.mp3`, `assets/sounds/bell.mp3`
-- `assets/app_icon.png`, `assets/icon.png`
-
 ## Conventions
 
-- Feature-first folder organization
-- Cubit (not full Bloc) for state management — no events, just methods
-- Equatable for value equality on models and states
-- debugPrint with tags like `[AlarmService]`, `[AlarmCubit]` for logging
-- Platform-adaptive UI via adaptive_platform_ui (iOS 26+ SF Symbols detection)
+### Architecture & State Management
+
+* **Folder Organization:** Use a feature-first structure.
+* **State Management:** Cubit (not full Bloc) for state management — no events, just methods.
+* **Model/State Equality:** Equatable for value equality on models and states
+* **Reactivity:** Ensure the application is fully reactive to state changes. Every data change must be reflected in the UI immediately.
+* **Optimistic Updates:** Implement optimistic UI changes where beneficial to improve perceived performance.
+* **Data Streaming:** Use Firebase Streams for real-time data synchronization when appropriate.
+
+### Development Standards
+
+* **Simplicity & Clean Code:** Keep logic as simple as possible, don't 
+* Clean code: Maintain strict separation of concerns.
+* **Dry Principle:** Reuse existing functions. Minimize boilerplate and do not write speculative code (no unused or "future-proof" functions).
+* **Error Handling:** Use `debugPrint` only for errors. Do not log successful operations.
+* **Logging Format:** All `debugPrint` statements must include a class tag for easier filtering (e.g., `[AlarmService]`, `[AlarmCubit]`).
+
+
+
+
+
+
+

@@ -1,11 +1,70 @@
 import 'package:flutter/material.dart';
 
+import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
 
-class SignInStep extends StatelessWidget {
+class SignInStep extends StatefulWidget {
   final VoidCallback onSkip;
+  final VoidCallback? onSignInComplete;
+  final bool showSkip;
+  final String title;
+  final String subtitle;
 
-  const SignInStep({super.key, required this.onSkip});
+  const SignInStep({
+    super.key,
+    required this.onSkip,
+    this.onSignInComplete,
+    this.showSkip = true,
+    this.title = 'Create your account',
+    this.subtitle = 'Save your progress and sync your plan.',
+  });
+
+  @override
+  State<SignInStep> createState() => _SignInStepState();
+}
+
+class _SignInStepState extends State<SignInStep> {
+  bool _loading = false;
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _loading = true);
+    try {
+      await AuthService.signInWithGoogle();
+      if (mounted) (widget.onSignInComplete ?? widget.onSkip)();
+    } catch (e) {
+      debugPrint('[SignInStep] Google sign-in failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Google sign-in failed. Please try again.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    setState(() => _loading = true);
+    try {
+      await AuthService.signInWithApple();
+      if (mounted) (widget.onSignInComplete ?? widget.onSkip)();
+    } catch (e) {
+      debugPrint('[SignInStep] Apple sign-in failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Apple sign-in failed. Please try again.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +75,7 @@ class SignInStep extends StatelessWidget {
         children: [
           const Spacer(flex: 2),
           Text(
-            'Create your account',
+            widget.title,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -25,7 +84,7 @@ class SignInStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Save your progress and sync your plan.',
+            widget.subtitle,
             style: TextStyle(fontSize: 16, color: c.textSecondary),
           ),
           const SizedBox(height: 32),
@@ -34,7 +93,7 @@ class SignInStep extends StatelessWidget {
             width: double.infinity,
             height: 56,
             child: ElevatedButton.icon(
-              onPressed: () => _showComingSoon(context),
+              onPressed: _loading ? null : _handleAppleSignIn,
               icon: Icon(Icons.apple, size: 24, color: c.card),
               label: Text(
                 'Sign in with Apple',
@@ -58,7 +117,7 @@ class SignInStep extends StatelessWidget {
             width: double.infinity,
             height: 56,
             child: OutlinedButton(
-              onPressed: () => _showComingSoon(context),
+              onPressed: _loading ? null : _handleGoogleSignIn,
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: c.separator, width: 1.5),
                 shape: RoundedRectangleBorder(
@@ -75,52 +134,34 @@ class SignInStep extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          // Sign in with Email
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              onPressed: () => _showComingSoon(context),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: c.separator, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
-                ),
-              ),
-              child: Text(
-                'Sign in with Email',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: c.textPrimary,
-                ),
-              ),
-            ),
-          ),
           const SizedBox(height: 24),
-          GestureDetector(
-            onTap: onSkip,
-            child: Text(
-              'Skip for now',
-              style: TextStyle(
-                fontSize: 16,
-                color: c.textSecondary,
-                decoration: TextDecoration.underline,
+          if (_loading)
+            const CircularProgressIndicator()
+          else if (widget.showSkip)
+            GestureDetector(
+              onTap: () async {
+                setState(() => _loading = true);
+                try {
+                  await AuthService.signInAnonymously();
+                } catch (e) {
+                  debugPrint('[SignInStep] Anonymous sign-in failed: $e');
+                }
+                if (mounted) {
+                  setState(() => _loading = false);
+                  widget.onSkip();
+                }
+              },
+              child: Text(
+                'Skip for now',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: c.textSecondary,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
-          ),
           const Spacer(flex: 3),
         ],
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Coming soon'),
-        duration: Duration(seconds: 1),
       ),
     );
   }

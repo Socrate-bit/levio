@@ -9,6 +9,7 @@ class OnboardingState extends Equatable {
   final int currentPage;
   final Map<String, String> surveyAnswers;
   final TimeOfDay usualWakeTime;
+  final TimeOfDay idealWakeTime;
   final TimeOfDay? alarmTime;
   final MissionType? selectedMission;
   final String soundId;
@@ -22,6 +23,7 @@ class OnboardingState extends Equatable {
     this.currentPage = 0,
     this.surveyAnswers = const {},
     this.usualWakeTime = const TimeOfDay(hour: 7, minute: 30),
+    this.idealWakeTime = const TimeOfDay(hour: 7, minute: 0),
     this.alarmTime,
     this.selectedMission,
     this.soundId = 'default',
@@ -32,16 +34,22 @@ class OnboardingState extends Equatable {
     this.isComplete = false,
   });
 
-  TimeOfDay get targetTime {
-    final totalMinutes = usualWakeTime.hour * 60 + usualWakeTime.minute - 30;
-    final adjusted = totalMinutes < 0 ? totalMinutes + 24 * 60 : totalMinutes;
-    return TimeOfDay(hour: adjusted ~/ 60, minute: adjusted % 60);
+  /// Minutes gained by waking at ideal vs usual time. Returns 0 when
+  /// the ideal time is the same or later than the usual time.
+  int get wakeTimeDeltaMinutes {
+    final usualMin = usualWakeTime.hour * 60 + usualWakeTime.minute;
+    final idealMin = idealWakeTime.hour * 60 + idealWakeTime.minute;
+    final delta = usualMin - idealMin;
+    return delta > 0 ? delta : 0;
   }
+
+  TimeOfDay get targetTime => idealWakeTime;
 
   OnboardingState copyWith({
     int? currentPage,
     Map<String, String>? surveyAnswers,
     TimeOfDay? usualWakeTime,
+    TimeOfDay? idealWakeTime,
     TimeOfDay? alarmTime,
     MissionType? selectedMission,
     String? soundId,
@@ -55,6 +63,7 @@ class OnboardingState extends Equatable {
         currentPage: currentPage ?? this.currentPage,
         surveyAnswers: surveyAnswers ?? this.surveyAnswers,
         usualWakeTime: usualWakeTime ?? this.usualWakeTime,
+        idealWakeTime: idealWakeTime ?? this.idealWakeTime,
         alarmTime: alarmTime ?? this.alarmTime,
         selectedMission: selectedMission ?? this.selectedMission,
         soundId: soundId ?? this.soundId,
@@ -70,6 +79,7 @@ class OnboardingState extends Equatable {
         currentPage,
         surveyAnswers,
         usualWakeTime,
+        idealWakeTime,
         alarmTime,
         selectedMission,
         soundId,

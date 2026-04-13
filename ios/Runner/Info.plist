@@ -12,6 +12,14 @@
 					<string>levio</string>
 				</array>
 			</dict>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>com.googleusercontent.apps.717833712614-40q2r24a2f2531uqbv3a7as36ng1l0mc</string>
+				</array>
+			</dict>
 		</array>
 		<key>NSAlarmKitUsageDescription</key>
 		<string>Levio needs access to set system-level alarms so they ring even if the app is closed.</string>

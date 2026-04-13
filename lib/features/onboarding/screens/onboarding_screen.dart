@@ -1,21 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_app_review/in_app_review.dart';
 
+import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/bottom_nav_shell.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../missions/models/mission.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
+import '../data/mission_explanations.dart';
 import '../widgets/day_picker_step.dart';
-import '../widgets/dna_helix.dart';
 import '../widgets/energy_chart.dart';
 import '../widgets/info_step.dart';
 import '../widgets/loading_step.dart';
 import '../widgets/mission_picker_step.dart';
 import '../widgets/morning_plan_step.dart';
 import '../widgets/notification_step.dart';
+import '../widgets/paywall_step.dart';
 import '../widgets/rating_step.dart';
 import '../widgets/referral_step.dart';
 import '../widgets/sign_in_step.dart';
@@ -23,87 +26,12 @@ import '../widgets/signature_step.dart';
 import '../widgets/sound_picker_step.dart';
 import '../widgets/speedometer_chart.dart';
 import '../widgets/timeline_comparison.dart';
+import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
 import '../widgets/time_picker_step.dart';
 import '../widgets/welcome_step.dart';
 
-const _totalPages = 33;
-
-// Mission explanation data
-const _missionExplanations = <MissionType, Map<String, String>>{
-  MissionType.pushUps: {
-    'title': 'Why doing push ups wakes you up',
-    'subtitle': 'Gets your blood pumping right away',
-    'body':
-        'Short bursts of effort spike cortisol and adrenaline, raising heart rate and body temperature so you feel awake fast.',
-  },
-  MissionType.squats: {
-    'title': 'Why doing squats wakes you up',
-    'subtitle': 'Activates your largest muscles',
-    'body':
-        'Squats engage your glutes and quads, driving blood flow to your brain and clearing morning fog in seconds.',
-  },
-  MissionType.shakePhone: {
-    'title': 'Why shaking your phone wakes you up',
-    'subtitle': 'Forces you to move',
-    'body':
-        'The physical act of shaking gets your arms moving and your brain engaged, making it impossible to drift back to sleep.',
-  },
-  MissionType.math: {
-    'title': 'Why solving math wakes you up',
-    'subtitle': 'Wakes up your brain',
-    'body':
-        'Solving problems forces your prefrontal cortex online, cutting through sleep inertia with pure cognitive effort.',
-  },
-  MissionType.skyPhoto: {
-    'title': 'Why taking a sky photo wakes you up',
-    'subtitle': 'Gets you to the window',
-    'body':
-        'Walking to see the sky exposes you to natural light, the most powerful signal to your circadian clock that it\'s time to wake.',
-  },
-  MissionType.makeBed: {
-    'title': 'Why making your bed wakes you up',
-    'subtitle': 'Starts your day with a win',
-    'body':
-        'Completing one small task creates momentum. A made bed means you\'ve already accomplished something before your day begins.',
-  },
-  MissionType.objectHunt: {
-    'title': 'Why an object hunt wakes you up',
-    'subtitle': 'Gets you out of bed',
-    'body':
-        'Searching for an object forces you to stand, walk, and engage your surroundings — the ultimate anti-snooze strategy.',
-  },
-  MissionType.petHunt: {
-    'title': 'Why finding your pet wakes you up',
-    'subtitle': 'Morning bonding time',
-    'body':
-        'Finding your pet gets you moving and starts your day with a moment of connection and joy.',
-  },
-  MissionType.natureHunt: {
-    'title': 'Why a nature hunt wakes you up',
-    'subtitle': 'Connects you to the outdoors',
-    'body':
-        'Stepping outside to photograph nature floods your senses with fresh air and light, resetting your internal clock.',
-  },
-  MissionType.touchGrass: {
-    'title': 'Why touching grass wakes you up',
-    'subtitle': 'Ground yourself in the morning',
-    'body':
-        'Going outside to touch grass exposes you to sunlight and fresh air, two of the strongest wake-up signals for your body.',
-  },
-  MissionType.bibleVerse: {
-    'title': 'Why reading a verse wakes you up',
-    'subtitle': 'Starts your day with purpose',
-    'body':
-        'Speaking a verse aloud engages your voice, mind, and spirit, anchoring your morning in meaning.',
-  },
-  MissionType.affirmation: {
-    'title': 'Why affirmations wake you up',
-    'subtitle': 'Sets your mindset for the day',
-    'body':
-        'Reading affirmations aloud activates your voice and focus, replacing grogginess with intention and clarity.',
-  },
-};
+const _totalPages = 36;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -114,7 +42,7 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
-  int _currentPage = 0;
+  int _currentPage = 27;
 
   @override
   void dispose() {
@@ -122,13 +50,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _goToPage(int page) {
-    _pageController.animateToPage(
-      page,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+  Future<void> _goToPage(int page) async {
+    final wasOnWelcome = _currentPage == 0;
     setState(() => _currentPage = page);
+    // PageView doesn't contain the welcome page, so its index = page - 1.
+    if (page >= 1) {
+      if (wasOnWelcome) {
+        // PageView just entered the tree — wait one frame for it to attach.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _pageController.jumpToPage(0);
+        });
+      } else {
+        await _pageController.animateToPage(
+          page - 1,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
   }
 
   void _next() => _goToPage(_currentPage + 1);
@@ -172,28 +111,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         return state.surveyAnswers.containsKey('timeToAwake');
       case 14: // info (biology)
       case 15: // info (speedometer)
-      case 16: // time picker (always has default)
-      case 17: // info
-      case 18: // info
+      case 16: // time picker - usual wake time
+      case 17: // time picker - ideal wake time
+      case 18: // info - target
+      case 19: // info - quote
         return true;
-      case 19:
+      case 20:
         return state.selectedMission != null;
-      case 20: // info
-      case 21: // time picker
-      case 22: // day picker
-      case 23: // sound picker
+      case 21: // info - mission
+      case 22: // time picker - alarm
+      case 23: // day picker
+      case 24: // sound picker
         return true;
-      case 24:
-        return state.surveyAnswers.containsKey('alarmDuringMission');
       case 25:
+        return state.surveyAnswers.containsKey('alarmDuringMission');
+      case 26:
         return state.surveyAnswers.containsKey('heardFrom');
-      case 26: // referral (optional)
-      case 27: // rating
-      case 28: // sign in
+      case 27: // referral (optional)
+      case 28: // rating
       case 29: // notification — has own buttons
       case 30: // signature — has own button
       case 31: // loading — auto-advances
-      case 32: // summary
+      case 32: // morning plan summary
+      case 33: // sign in — has own buttons
+      case 34: // paywall — has own button
+      case 35: // trial reminder — has own button
         return true;
       default:
         return true;
@@ -202,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // Pages that handle their own navigation (no shared Continue button)
   bool _hasOwnNavigation(int page) =>
-      page == 0 || page == 29 || page == 30 || page == 31;
+      page == 0 || page == 29 || page == 30 || page == 31 || page == 33 || page == 34 || page == 35;
 
   @override
   Widget build(BuildContext context) {
@@ -219,9 +161,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               bottom: false,
               child: Column(
                 children: [
-                  // Progress bar + back (hidden on welcome & loading)
-                  if (_currentPage > 0 && _currentPage < _totalPages - 1)
-                    Padding(
+                  // Progress bar + back — always in tree to keep
+                  // PageView height stable; invisible on welcome & last page.
+                  Opacity(
+                    opacity: (_currentPage > 0 &&
+                            _currentPage < _totalPages - 1)
+                        ? 1.0
+                        : 0.0,
+                    child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                       child: Row(
                         children: [
@@ -258,18 +205,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ],
                       ),
                     ),
+                  ),
 
                   // Page content
                   Expanded(
-                    child: PageView(
+                    child: _currentPage == 0
+                        ? WelcomeStep(
+                            onBuildPlan: _next,
+                            onSignIn: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const _StandaloneSignInScreen(),
+                                ),
+                              );
+                            },
+                          )
+                        : PageView(
                       controller: _pageController,
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
-                        // 0: Welcome
-                        WelcomeStep(
-                          onBuildPlan: _next,
-                          onSignIn: () => _goToPage(27),
-                        ),
                         // 1-5: Survey questions
                         SurveyStep(
                           question: 'Do you feel like a morning person?',
@@ -412,10 +367,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               cubit.answerSurvey('timeToAwake', v),
                         ),
                         // 14: Info - Biology not laziness
-                        InfoStep(
+                        const InfoStep(
                           title: 'Biology, Not Laziness',
                           centerTitle: true,
-                          imagePlaceholder: const DnaHelix(),
+                          imagePlaceholder: Text(
+                            '🧬',
+                            style: TextStyle(fontSize: 80),
+                          ),
                           bodyText:
                               "When the alarm rings, your prefrontal cortex is still asleep. This is 'Sleep Inertia.' You can't think your way out of bed when your brain is offline.",
                         ),
@@ -425,7 +383,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               'Get out of bed 5x faster with Levio vs on your own',
                           imagePlaceholder: const SpeedometerChart(),
                         ),
-                        // 16: Time picker - usual wake time (was 15)
+                        // 16: Time picker - usual wake time
                         TimePickerStep(
                           title:
                               'What time do you usually get out of bed?',
@@ -434,9 +392,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           time: state.usualWakeTime,
                           onTimeChanged: cubit.setUsualWakeTime,
                         ),
-                        // 17: Info - Target time
+                        // 17: Time picker - ideal wake time
+                        TimePickerStep(
+                          title:
+                              'What time do you want to\nbe up?',
+                          subtitle:
+                              'Your ideal daily wake up time.',
+                          time: state.idealWakeTime,
+                          onTimeChanged: cubit.setIdealWakeTime,
+                        ),
+                        // 18: Info - Target time with delta
                         Builder(builder: (context) {
                           final target = state.targetTime;
+                          final delta = state.wakeTimeDeltaMinutes;
+                          final monthHours = (delta * 30 / 60).round();
                           return InfoStep(
                             title: '',
                             centerTitle: true,
@@ -452,28 +421,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     height: 1.2,
                                   ),
                                 ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  '+45 minutes every morning',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.orange,
+                                if (delta > 0) ...[
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    '+$delta minutes every morning',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.orange,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '+22 hours this month',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: c.textSecondary,
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '+$monthHours hours this month',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: c.textSecondary,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                           );
                         }),
-                        // 18: Info - Quote
+                        // 19: Info - Quote
                         InfoStep(
                           title: '',
                           centerTitle: true,
@@ -509,18 +480,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ],
                           ),
                         ),
-                        // 19: Mission picker
+                        // 20: Mission picker
                         MissionPickerStep(
                           selectedMission: state.selectedMission,
                           onSelected: cubit.setMission,
                         ),
-                        // 20: Info - Mission explanation
+                        // 21: Info - Mission explanation
                         Builder(builder: (context) {
                           final mission =
                               state.selectedMission ?? MissionType.pushUps;
                           final explanation =
-                              _missionExplanations[mission] ??
-                                  _missionExplanations[MissionType.pushUps]!;
+                              missionExplanations[mission] ??
+                                  missionExplanations[MissionType.pushUps]!;
                           return InfoStep(
                             title: explanation['title']!,
                             imagePlaceholder: Container(
@@ -542,7 +513,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             bodyText: explanation['body'],
                           );
                         }),
-                        // 21: Alarm time picker
+                        // 22: Alarm time picker
                         Builder(builder: (context) {
                           final alarmTime =
                               state.alarmTime ?? state.targetTime;
@@ -554,17 +525,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             onTimeChanged: cubit.setAlarmTime,
                           );
                         }),
-                        // 22: Day picker
+                        // 23: Day picker
                         DayPickerStep(
                           repeatDays: state.repeatDays,
                           onToggle: cubit.toggleDay,
                         ),
-                        // 23: Sound picker
+                        // 24: Sound picker
                         SoundPickerStep(
                           selectedId: state.soundId,
                           onSelected: cubit.setSound,
                         ),
-                        // 24: Alarm during mission
+                        // 25: Alarm during mission
                         SurveyStep(
                           question:
                               'Play your alarm during the mission?',
@@ -577,7 +548,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           onSelected: (v) =>
                               cubit.answerSurvey('alarmDuringMission', v),
                         ),
-                        // 25: Where heard about us
+                        // 26: Where heard about us
                         SurveyStep(
                           question: 'Where did you hear about us?',
                           options: const [
@@ -600,22 +571,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ],
                           selectedOption:
                               state.surveyAnswers['heardFrom'],
-                          onSelected: (v) {
-                              cubit.answerSurvey('heardFrom', v);
-                              _next();
-                          },
+                          onSelected: (v) =>
+                              cubit.answerSurvey('heardFrom', v),
                         ),
-                        // 26: Referral code
+                        // 27: Referral code
                         ReferralStep(
                           code: state.referralCode,
                           status: state.referralStatus,
                           onCodeChanged: cubit.setReferralCode,
                           onSubmit: cubit.submitReferralCode,
                         ),
-                        // 27: Rating
+                        // 28: Rating
                         const RatingStep(),
-                        // 28: Sign in (placeholder)
-                        SignInStep(onSkip: _next),
                         // 29: Notification permission
                         NotificationStep(onNext: _next),
                         // 30: Signature
@@ -625,15 +592,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           onCommit: _next,
                         ),
                         // 31: Loading
-                        LoadingStep(
-                          onComplete: () async {
-                            final alarmCubit =
-                                context.read<AlarmCubit>();
-                            await cubit
-                                .completeOnboarding(alarmCubit);
-                            if (mounted) _next();
-                          },
-                        ),
+                        LoadingStep(onComplete: () {
+                          if (mounted) _next();
+                        }),
                         // 32: Morning plan summary
                         MorningPlanStep(
                           alarmTime:
@@ -643,6 +604,43 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           soundName: state.soundName,
                           repeatDays: state.repeatDays,
                         ),
+                        // 33: Sign in — completes onboarding
+                        SignInStep(
+                          onSkip: () async {
+                            final alarmCubit =
+                                context.read<AlarmCubit>();
+                            await cubit
+                                .completeOnboarding(alarmCubit);
+                            if (mounted) _next();
+                          },
+                          onSignInComplete: () async {
+                            final alarmCubit =
+                                context.read<AlarmCubit>();
+                            await cubit
+                                .completeOnboarding(alarmCubit);
+                            if (mounted) _next();
+                          },
+                        ),
+                        // 34: Paywall - Try for free
+                        PaywallStep(onContinue: _next),
+                        // 35: Trial reminder — navigates to app
+                        TrialReminderStep(onContinue: () {
+                          Navigator.of(context).pushReplacement(
+                            PageRouteBuilder(
+                              pageBuilder: (_, _, _) =>
+                                  const BottomNavShell(),
+                              transitionsBuilder:
+                                  (_, animation, _, child) =>
+                                      FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                              transitionDuration:
+                                  const Duration(
+                                      milliseconds: 400),
+                            ),
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -660,28 +658,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             onPressed: _canContinue(state)
                                 ? () {
                                     // Special: rating step triggers in_app_review
-                                    if (_currentPage == 27) {
+                                    if (_currentPage == 28) {
                                       InAppReview.instance.requestReview();
-                                    }
-                                    // Last page: go to app
-                                    if (_currentPage == _totalPages - 1) {
-                                      Navigator.of(context)
-                                          .pushReplacement(
-                                        PageRouteBuilder(
-                                          pageBuilder: (_, _, _) =>
-                                              const BottomNavShell(),
-                                          transitionsBuilder:
-                                              (_, animation, _, child) =>
-                                                  FadeTransition(
-                                            opacity: animation,
-                                            child: child,
-                                          ),
-                                          transitionDuration:
-                                              const Duration(
-                                                  milliseconds: 400),
-                                        ),
-                                      );
-                                      return;
                                     }
                                     _next();
                                   }
@@ -696,11 +674,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                             ),
                             child: Text(
-                              _currentPage == _totalPages - 1
-                                  ? 'Continue'
-                                  : _currentPage == 21
-                                      ? 'Set alarm for ${_formatTime(state.alarmTime ?? state.targetTime)}'
-                                      : 'Continue',
+                              _currentPage == 22
+                                  ? 'Set alarm for ${_formatTime(state.alarmTime ?? state.targetTime)}'
+                                  : 'Continue',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -715,6 +691,83 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _StandaloneSignInScreen extends StatelessWidget {
+  const _StandaloneSignInScreen();
+
+  Future<void> _onSignInComplete(BuildContext context) async {
+    // Check if returning user already completed onboarding
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(AuthService.uid)
+          .collection('meta')
+          .doc('onboarding')
+          .get();
+      if (doc.exists && doc.data()?['onboardingComplete'] == true) {
+        if (context.mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            PageRouteBuilder(
+              pageBuilder: (_, _, _) => const BottomNavShell(),
+              transitionsBuilder: (_, animation, _, child) =>
+                  FadeTransition(opacity: animation, child: child),
+              transitionDuration: const Duration(milliseconds: 400),
+            ),
+            (_) => false,
+          );
+        }
+        return;
+      }
+    } catch (e) {
+      debugPrint('[OnboardingScreen] onboarding check failed: $e');
+    }
+    // New user with provider account — go back to onboarding
+    if (context.mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    return Scaffold(
+      backgroundColor: c.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: c.card,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.chevron_left,
+                          size: 20, color: c.textPrimary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SignInStep(
+                title: 'Welcome back',
+                subtitle: 'Sign in to restore your plan.',
+                onSkip: () => Navigator.of(context).pop(),
+                onSignInComplete: () => _onSignInComplete(context),
+                showSkip: false,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
