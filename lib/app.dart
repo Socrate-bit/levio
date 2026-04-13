@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/features/onboarding/screens/onboarding_screen.dart';
 
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
@@ -18,8 +19,13 @@ import 'shared/widgets/bottom_nav_shell.dart';
 
 class LevioApp extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
+  final bool showOnboarding;
 
-  const LevioApp({super.key, required this.navigatorKey});
+  const LevioApp({
+    super.key,
+    required this.navigatorKey,
+    this.showOnboarding = false,
+  });
 
   @override
   State<LevioApp> createState() => _LevioAppState();
@@ -54,7 +60,11 @@ class _LevioAppState extends State<LevioApp> {
           themeMode: themeMode,
           navigatorKey: widget.navigatorKey,
           initialRoute: '/',
-          routes: {'/': (_) => const BottomNavShell()},
+          routes: {
+            '/': (_) => widget.showOnboarding
+                ? const OnboardingScreen()
+                : const BottomNavShell(),
+          },
           onGenerateRoute: (settings) {
             if (settings.name == '/alarm-dismiss') {
               final args = settings.arguments as Map<String, String>;
