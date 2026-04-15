@@ -6,6 +6,7 @@ import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
 import '../../alarms/services/alarm_channel.dart';
 import '../../wakeup/services/history_service.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/levio_brand_header.dart';
 
 class SimpleDismissScreen extends StatefulWidget {
   final String alarmId;
@@ -96,6 +97,7 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            const LevioBrandHeader(),
             Expanded(
               child: Center(
                 child: Column(
