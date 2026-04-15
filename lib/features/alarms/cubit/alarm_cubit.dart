@@ -191,8 +191,8 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   Future<void> addAlarm(AppAlarmEntry entry) async {
     final toSchedule = entry.copyWith(
-      dateTime: false
-          ? DateTime.now().add(const Duration(seconds: 5))
+      dateTime: kDebugMode
+          ? DateTime.now().add(const Duration(seconds: 10))
           : _nextFutureDay(entry.dateTime),
     );
 

@@ -19,12 +19,12 @@ class LevioBrandHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('assets/icon.png', width: 28, height: 28),
+          Image.asset('assets/icon.png', width: 38, height: 38),
           const SizedBox(width: 6),
           Text(
             'Levio',
             style: TextStyle(
-              fontSize: 26,
+              fontSize: 36,
               fontWeight: FontWeight.bold,
               color: color,
               letterSpacing: -0.5,
