@@ -61,12 +61,6 @@ const missionExplanations = <MissionType, Map<String, String>>{
     'body':
         'Going outside to touch grass exposes you to sunlight and fresh air, two of the strongest wake-up signals for your body.',
   },
-  MissionType.bibleVerse: {
-    'title': 'Why reading a verse wakes you up',
-    'subtitle': 'Starts your day with purpose',
-    'body':
-        'Speaking a verse aloud engages your voice, mind, and spirit, anchoring your morning in meaning.',
-  },
   MissionType.affirmation: {
     'title': 'Why affirmations wake you up',
     'subtitle': 'Sets your mindset for the day',

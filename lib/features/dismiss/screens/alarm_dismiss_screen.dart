@@ -9,25 +9,36 @@ class AlarmDismissScreen extends StatelessWidget {
   final String alarmId;
   final String nativeAlarmId;
   final String alarmLabel;
+  final int repCount;
+  final VoidCallback? onComplete;
+  final bool manageAlarm;
+  final bool isPreview;
 
   const AlarmDismissScreen({
     super.key,
     required this.alarmId,
     required this.nativeAlarmId,
     this.alarmLabel = 'Alarm #1',
+    this.repCount = 5,
+    this.onComplete,
+    this.manageAlarm = true,
+    this.isPreview = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => PushUpCubit(targetReps: 10)..startSession(),
+      create: (_) => PushUpCubit(targetReps: repCount)..startSession(),
       child: RepExerciseDismissView<PushUpCubit>(
         alarmId: alarmId,
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
-        target: 10,
+        target: repCount,
         missionType: MissionType.pushUps,
         mirrorCamera: true,
+        onComplete: onComplete,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
       ),
     );
   }

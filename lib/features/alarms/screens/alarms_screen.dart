@@ -6,6 +6,7 @@ import '../cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
 import '../../../shared/theme/app_theme.dart';
 import 'alarm_form_screen.dart';
+import '../../missions/models/mission_config.dart';
 
 class AlarmsScreen extends StatefulWidget {
   const AlarmsScreen({super.key});
@@ -251,7 +252,6 @@ class _AlarmCard extends StatelessWidget {
     final h = t.hour > 12 ? t.hour - 12 : (t.hour == 0 ? 12 : t.hour);
     final m = t.minute.toString().padLeft(2, '0');
     final isPM = t.hour >= 12;
-    final info = missionInfoFor(alarm.missionType);
     final dayStr = alarm.isOneTime ? 'One-time' : _daysLabel(alarm.repeatDays);
 
     return GestureDetector(
@@ -322,12 +322,14 @@ class _AlarmCard extends StatelessWidget {
                   alarm.name.isNotEmpty ? alarm.name : 'Alarm #1',
                   style: TextStyle(fontSize: 13, color: c.textSecondary),
                 ),
-                if (alarm.missionType != MissionType.none) ...[
+                if (alarm.missions.isNotEmpty) ...[
                   Text(' · ', style: TextStyle(fontSize: 13, color: c.textSecondary)),
-                  Icon(info.icon, size: 13, color: info.iconColor),
-                  const SizedBox(width: 4),
+                  _StackedMissionIcons(missions: alarm.missions),
+                  const SizedBox(width: 6),
                   Text(
-                    info.name,
+                    alarm.missions.length == 1
+                        ? missionInfoFor(alarm.missions.first.type).name
+                        : '${alarm.missions.length} Missions',
                     style: TextStyle(fontSize: 13, color: c.textSecondary),
                   ),
                 ],
@@ -361,5 +363,47 @@ class _AlarmCard extends StatelessWidget {
       return 'Mon, Tue, Wed, Thu, Fri';
     }
     return selected.join(', ');
+  }
+}
+
+/// Stacked/overlapping mission icons (like avatar groups).
+class _StackedMissionIcons extends StatelessWidget {
+  final List<MissionConfig> missions;
+  const _StackedMissionIcons({required this.missions});
+
+  @override
+  Widget build(BuildContext context) {
+    const size = 20.0;
+    const overlap = 8.0;
+    final width = size + (missions.length - 1) * (size - overlap);
+    return SizedBox(
+      width: width,
+      height: size,
+      child: Stack(
+        children: [
+          for (int i = 0; i < missions.length; i++)
+            Positioned(
+              left: i * (size - overlap),
+              child: Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  color: missionInfoFor(missions[i].type).iconBg,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.of(context).card,
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(
+                  missionInfoFor(missions[i].type).icon,
+                  size: 10,
+                  color: missionInfoFor(missions[i].type).iconColor,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

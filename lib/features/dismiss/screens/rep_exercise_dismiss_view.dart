@@ -23,9 +23,10 @@ class RepExerciseDismissView<C extends Cubit<PushUpState>>
   final String alarmLabel;
   final int target;
   final MissionType missionType;
-
-  /// Set to true when using the front camera so the preview is mirrored.
   final bool mirrorCamera;
+  final VoidCallback? onComplete;
+  final bool manageAlarm;
+  final bool isPreview;
 
   const RepExerciseDismissView({
     super.key,
@@ -35,6 +36,9 @@ class RepExerciseDismissView<C extends Cubit<PushUpState>>
     required this.target,
     required this.missionType,
     this.mirrorCamera = false,
+    this.onComplete,
+    this.manageAlarm = true,
+    this.isPreview = false,
   });
 
   @override
@@ -64,7 +68,7 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
       begin: 1.0,
       end: 1.08,
     ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeOut));
-    _initAlarm();
+    if (widget.manageAlarm && !widget.isPreview) _initAlarm();
   }
 
   Future<void> _initAlarm() async {
@@ -98,9 +102,22 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
     return BlocConsumer<C, PushUpState>(
       listener: (context, state) async {
         if (state is SessionGoalReached) {
-          await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-          await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-          await AlarmChannel.stopRinging();
+          if (widget.isPreview) {
+            if (context.mounted) Navigator.of(context).pop();
+            return;
+          }
+
+          if (widget.onComplete != null) {
+            widget.onComplete!();
+            return;
+          }
+
+          // Single-mission flow: manage alarm and go to completion
+          if (widget.manageAlarm) {
+            await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
+            await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
+            await AlarmChannel.stopRinging();
+          }
 
           final elapsed = DateTime.now().difference(_startTime).inSeconds;
           if (context.mounted) {
@@ -139,10 +156,42 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
           );
         }
 
-        return AnimatedSwitcher(
+        final content = AnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
           child: child,
         );
+
+        // Preview mode: overlay close button
+        if (widget.isPreview) {
+          return Stack(
+            children: [
+              content,
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close,
+                            size: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return content;
       },
     );
   }
@@ -204,7 +253,6 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const LevioBrandHeader(textColor: Colors.white),
-            // "Do X Push-Ups" heading
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
@@ -220,7 +268,6 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
               ),
             ),
 
-            // Camera view — shown only after first frame, so dimensions are stable
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -231,10 +278,8 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        // Camera feed — fills the correctly-sized box, no distortion
                         CameraPreview(state.camera),
 
-                        // Skeleton overlay
                         BlocSelector<
                           C,
                           PushUpState,
@@ -256,7 +301,6 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
                           },
                         ),
 
-                        // Subtle vignette
                         DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: RadialGradient(
@@ -270,7 +314,6 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
                           ),
                         ),
 
-                        // Form feedback — top of camera, discreet
                         Positioned(
                           top: 14,
                           left: 16,
@@ -326,7 +369,6 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
               ),
             ),
 
-            // Rep counter + progress arc
             _RepCounter(
               repCount: state.repCount,
               target: target,
@@ -363,13 +405,11 @@ class _RepCounter extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Progress arc
             CustomPaint(
               size: const Size(160, 160),
               painter: _ArcPainter(progress: progress),
             ),
 
-            // Count text
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -414,7 +454,6 @@ class _ArcPainter extends CustomPainter {
     const strokeWidth = 6.0;
     const startAngle = -math.pi / 2;
 
-    // Track
     canvas.drawCircle(
       center,
       radius,
@@ -426,7 +465,6 @@ class _ArcPainter extends CustomPainter {
     );
 
     if (progress > 0) {
-      // Progress arc
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         startAngle,

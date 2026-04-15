@@ -5,17 +5,20 @@ import 'package:levio/features/onboarding/screens/onboarding_screen.dart';
 import 'features/auth/cubit/auth_cubit.dart';
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
+import 'features/alarms/services/alarm_firestore_service.dart';
 import 'features/alarms/services/alarm_service.dart';
 import 'features/settings/cubit/settings_cubit.dart';
 import 'features/settings/cubit/settings_state.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
+import 'features/dismiss/screens/mission_sequence_screen.dart';
 import 'features/dismiss/screens/photo_dismiss_screen.dart';
 import 'features/dismiss/screens/shake_dismiss_screen.dart';
 import 'features/dismiss/screens/simple_dismiss_screen.dart';
 import 'features/dismiss/screens/speech_dismiss_screen.dart';
 import 'features/dismiss/screens/squat_dismiss_screen.dart';
 import 'features/missions/models/mission.dart';
+import 'features/missions/models/mission_config.dart';
 import 'shared/theme/app_theme.dart';
 import 'shared/widgets/bottom_nav_shell.dart';
 
@@ -48,7 +51,6 @@ class _LevioAppState extends State<LevioApp> {
 
   @override
   Widget build(BuildContext context) {
-    
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => AlarmCubit()),
@@ -74,110 +76,178 @@ class _LevioAppState extends State<LevioApp> {
               final args = settings.arguments as Map<String, String>;
               final alarmId = args['alarmId']!;
               final nativeAlarmId = args['nativeAlarmId'] ?? alarmId;
-              final challengeStr = args['challenge'] ?? 'pushUps';
               final label = args['label'] ?? 'Alarm #1';
-              final mathDiffStr = args['mathDifficulty'] ?? 'easy';
-              final customObj = args['customObject'];
-              var mission = missionTypeFromString(challengeStr);
-              if (mission == MissionType.random) {
-                final randomPool = [
-                  MissionType.pushUps,
-                  MissionType.squats,
-                  MissionType.shakePhone,
-                  MissionType.math,
-                  MissionType.skyPhoto,
-                  MissionType.makeBed,
-                  MissionType.objectHunt,
-                  MissionType.petHunt,
-                  MissionType.natureHunt,
-                  MissionType.touchGrass,
-                  MissionType.bibleVerse,
-                  MissionType.affirmation,
-                ];
-                mission = (randomPool..shuffle()).first;
-              }
-              final mathDiff = MathDifficulty.values.firstWhere(
-                (d) => d.name == mathDiffStr,
-                orElse: () => MathDifficulty.easy,
+
+              // Fetch mission config from Firestore asynchronously
+              return MaterialPageRoute(
+                builder: (_) => _DismissLoader(
+                  alarmId: alarmId,
+                  nativeAlarmId: nativeAlarmId,
+                  label: label,
+                ),
               );
-
-              switch (mission) {
-                case MissionType.none:
-                  return MaterialPageRoute(
-                    builder: (_) => SimpleDismissScreen(
-                      alarmId: alarmId,
-                      nativeAlarmId: nativeAlarmId,
-                      alarmLabel: label,
-                    ),
-                  );
-                case MissionType.shakePhone:
-                  return MaterialPageRoute(
-                    builder: (_) => ShakeDismissScreen(
-                      alarmId: alarmId,
-                      nativeAlarmId: nativeAlarmId,
-                      alarmLabel: label,
-                    ),
-                  );
-                case MissionType.math:
-                  return MaterialPageRoute(
-                    builder: (_) => MathDismissScreen(
-                      alarmId: alarmId,
-                      nativeAlarmId: nativeAlarmId,
-                      alarmLabel: label,
-                      difficulty: mathDiff,
-                    ),
-                  );
-                case MissionType.skyPhoto:
-                case MissionType.makeBed:
-                case MissionType.objectHunt:
-                case MissionType.petHunt:
-                case MissionType.natureHunt:
-                case MissionType.touchGrass:
-                  return MaterialPageRoute(
-                    builder: (_) => PhotoDismissScreen(
-                      alarmId: alarmId,
-                      nativeAlarmId: nativeAlarmId,
-                      missionType: mission,
-                      alarmLabel: label,
-                      customObject: customObj?.isNotEmpty == true
-                          ? customObj
-                          : null,
-                    ),
-                  );
-                case MissionType.bibleVerse:
-                case MissionType.affirmation:
-                  return MaterialPageRoute(
-                    builder: (_) => SpeechDismissScreen(
-                      alarmId: alarmId,
-                      nativeAlarmId: nativeAlarmId,
-                      missionType: mission,
-                      alarmLabel: label,
-                    ),
-                  );
-                case MissionType.squats:
-                  return MaterialPageRoute(
-                    builder: (_) => SquatDismissScreen(
-                      alarmId: alarmId,
-                      nativeAlarmId: nativeAlarmId,
-                      alarmLabel: label,
-                    ),
-                  );
-
-                case MissionType.pushUps:
-                default:
-                  return MaterialPageRoute(
-                    builder: (_) => AlarmDismissScreen(
-                      alarmId: alarmId,
-                      nativeAlarmId: nativeAlarmId,
-                      alarmLabel: label,
-                    ),
-                  );
-              }
             }
             return null;
           },
         ),
       ),
     );
+  }
+}
+
+/// Fetches alarm entry from Firestore, then routes to the appropriate dismiss
+/// screen based on mission config.
+class _DismissLoader extends StatelessWidget {
+  final String alarmId;
+  final String nativeAlarmId;
+  final String label;
+
+  const _DismissLoader({
+    required this.alarmId,
+    required this.nativeAlarmId,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<AppAlarmEntry?>(
+      future: AlarmFirestoreService.getAlarm(alarmId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            backgroundColor: Colors.black,
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final entry = snapshot.data;
+        final missions = entry?.missions ?? const [];
+
+        if (missions.isEmpty) {
+          return SimpleDismissScreen(
+            alarmId: alarmId,
+            nativeAlarmId: nativeAlarmId,
+            alarmLabel: label,
+          );
+        }
+
+        if (missions.length == 1) {
+          return buildDismissScreen(
+            config: missions.first,
+            alarmId: alarmId,
+            nativeAlarmId: nativeAlarmId,
+            alarmLabel: label,
+          );
+        }
+
+        // Multiple missions → sequence screen
+        return MissionSequenceScreen(
+          missions: missions,
+          alarmId: alarmId,
+          nativeAlarmId: nativeAlarmId,
+          alarmLabel: label,
+        );
+      },
+    );
+  }
+}
+
+/// Builds a dismiss screen for a single [MissionConfig].
+Widget buildDismissScreen({
+  required MissionConfig config,
+  required String alarmId,
+  required String nativeAlarmId,
+  required String alarmLabel,
+  VoidCallback? onComplete,
+  bool manageAlarm = true,
+  bool isPreview = false,
+}) {
+  // Resolve random mission type
+  var missionType = config.type;
+  if (missionType == MissionType.random) {
+    final pool = (config.randomPool != null && config.randomPool!.isNotEmpty)
+        ? config.randomPool!
+        : MissionType.values
+            .where((t) => t != MissionType.none && t != MissionType.random)
+            .toList();
+    missionType = (List<MissionType>.from(pool)..shuffle()).first;
+  }
+
+  switch (missionType) {
+    case MissionType.none:
+      return SimpleDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+      );
+    case MissionType.shakePhone:
+      return ShakeDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        target: config.repCount ?? 15,
+        onComplete: onComplete,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.math:
+      return MathDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        difficulty: config.mathDifficulty ?? MathDifficulty.easy,
+        problemCount: config.mathProblemCount ?? 3,
+        onComplete: onComplete,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.skyPhoto:
+    case MissionType.makeBed:
+    case MissionType.objectHunt:
+    case MissionType.petHunt:
+    case MissionType.natureHunt:
+    case MissionType.touchGrass:
+      return PhotoDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        missionType: missionType,
+        alarmLabel: alarmLabel,
+        selectedItems: config.selectedItems,
+        onComplete: onComplete,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.affirmation:
+      return SpeechDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        missionType: missionType,
+        alarmLabel: alarmLabel,
+        selectedAffirmations: config.selectedAffirmations,
+        onComplete: onComplete,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.squats:
+      return SquatDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        repCount: config.repCount ?? 10,
+        onComplete: onComplete,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.pushUps:
+    default:
+      return AlarmDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        repCount: config.repCount ?? 5,
+        onComplete: onComplete,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
   }
 }

@@ -58,13 +58,9 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (match != null) {
         debugPrint('      [Flutter] name       : ${match.name.isEmpty ? "(no name)" : match.name}');
         debugPrint('      [Flutter] enabled    : ${match.isEnabled}');
-        debugPrint('      [Flutter] mission    : ${match.missionType.name}');
-        debugPrint('      [Flutter] difficulty : ${match.mathDifficulty.name}');
+        debugPrint('      [Flutter] missions   : ${match.missions.map((m) => m.type.name).toList()}');
         debugPrint('      [Flutter] sound      : ${match.soundId}');
         debugPrint('      [Flutter] repeatDays : ${match.repeatDays}');
-        if (match.customObject != null) {
-          debugPrint('      [Flutter] customObj  : ${match.customObject}');
-        }
       } else {
         debugPrint('      [Flutter] ⚠ not found in Flutter state');
       }

@@ -9,25 +9,36 @@ class SquatDismissScreen extends StatelessWidget {
   final String alarmId;
   final String nativeAlarmId;
   final String alarmLabel;
+  final int repCount;
+  final VoidCallback? onComplete;
+  final bool manageAlarm;
+  final bool isPreview;
 
   const SquatDismissScreen({
     super.key,
     required this.alarmId,
     required this.nativeAlarmId,
     this.alarmLabel = 'Alarm #1',
+    this.repCount = 10,
+    this.onComplete,
+    this.manageAlarm = true,
+    this.isPreview = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SquatCubit(targetReps: 20)..startSession(),
+      create: (_) => SquatCubit(targetReps: repCount)..startSession(),
       child: RepExerciseDismissView<SquatCubit>(
         alarmId: alarmId,
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
-        target: 20,
+        target: repCount,
         missionType: MissionType.squats,
         mirrorCamera: true,
+        onComplete: onComplete,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
       ),
     );
   }

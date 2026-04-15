@@ -1,12 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/alarm_cubit.dart';
 import '../cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../missions/screens/mission_picker_screen.dart';
+import '../../missions/widgets/mission_config_modal.dart';
 import 'sound_picker_screen.dart';
 
 class AlarmFormScreen extends StatefulWidget {
@@ -26,16 +29,17 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   late TimeOfDay _time;
   late bool _isScheduled;
   late List<bool> _repeatDays;
-  late MissionType? _mission;
+  late List<MissionConfig> _missions;
   late String _soundId;
   late String _soundName;
-  late MathDifficulty _mathDifficulty;
-  late TextEditingController _customObjectCtrl;
+  bool _timeExpanded = false;
+
+  late FixedExtentScrollController _hourCtrl;
+  late FixedExtentScrollController _minuteCtrl;
 
   bool get _isEditing => widget.alarm != null;
 
   static const _dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  static const _diffLabels = ['Easy', 'Medium', 'Hard'];
 
   bool get _canSave => _nameCtrl.text.trim().isNotEmpty;
 
@@ -44,39 +48,36 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     super.initState();
     final a = widget.alarm;
     if (a != null) {
-      // Edit mode: pre-fill from existing alarm
       _nameCtrl = TextEditingController(text: a.name);
       _time = TimeOfDay(hour: a.dateTime.hour, minute: a.dateTime.minute);
       _isScheduled = !a.isOneTime;
       _repeatDays = List.from(a.repeatDays);
-      _mission = a.missionType == MissionType.none ? null : a.missionType;
+      _missions = List.from(a.missions);
       _soundId = a.soundId;
       _soundName = _soundIdToName(a.soundId);
-      _mathDifficulty = a.mathDifficulty;
-      _customObjectCtrl = TextEditingController(text: a.customObject ?? '');
     } else {
       // Create mode: use saved defaults from settings
-      final alarmCount =
-          context.read<AlarmCubit>().state.alarms.length;
+      final alarmCount = context.read<AlarmCubit>().state.alarms.length;
       final settings = context.read<SettingsCubit>().state;
       _nameCtrl = TextEditingController(text: 'Alarm #${alarmCount + 1}');
       _time = const TimeOfDay(hour: 8, minute: 0);
       _isScheduled = true;
       _repeatDays = [false, true, true, true, true, true, false];
-      _mission = settings.defaultMission == MissionType.none
-          ? null
-          : settings.defaultMission;
+      _missions = settings.defaultMission != MissionType.none
+          ? [MissionConfig(type: settings.defaultMission)]
+          : [];
       _soundId = settings.defaultSoundId;
       _soundName = settings.defaultSoundName;
-      _mathDifficulty = MathDifficulty.easy;
-      _customObjectCtrl = TextEditingController();
     }
+    _hourCtrl = FixedExtentScrollController(initialItem: _time.hour);
+    _minuteCtrl = FixedExtentScrollController(initialItem: _time.minute);
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _customObjectCtrl.dispose();
+    _hourCtrl.dispose();
+    _minuteCtrl.dispose();
     super.dispose();
   }
 
@@ -86,6 +87,61 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
         .split(' ')
         .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}')
         .join(' ');
+  }
+
+  /// Short summary text for a mission config.
+  String _configSummary(MissionConfig config) {
+    switch (config.type) {
+      case MissionType.pushUps:
+        return '${config.repCount ?? 5} reps';
+      case MissionType.squats:
+        return '${config.repCount ?? 10} reps';
+      case MissionType.shakePhone:
+        return '${config.repCount ?? 15} shakes';
+      case MissionType.math:
+        final diff = switch (config.mathDifficulty ?? MathDifficulty.easy) {
+          MathDifficulty.easy => 'Easy',
+          MathDifficulty.medium => 'Medium',
+          MathDifficulty.hard => 'Hard',
+        };
+        return '${config.mathProblemCount ?? 3} problems · $diff';
+      case MissionType.objectHunt:
+        final count = config.selectedItems?.length ?? 0;
+        return count > 0 ? '$count items' : 'All items';
+      case MissionType.petHunt:
+        final count = config.selectedItems?.length ?? 0;
+        return count > 0 ? '$count pets' : 'All pets';
+      case MissionType.natureHunt:
+        final count = config.selectedItems?.length ?? 0;
+        return count > 0 ? '$count items' : 'All items';
+      case MissionType.affirmation:
+        final count = config.selectedAffirmations?.length ?? 0;
+        return count > 0 ? '$count affirmations' : 'All affirmations';
+      case MissionType.random:
+        final count = config.randomPool?.length ?? 0;
+        return count == 0 ? 'All missions' : '$count in pool';
+      default:
+        return '';
+    }
+  }
+
+  Future<void> _addMission() async {
+    final config = await Navigator.push<MissionConfig>(
+      context,
+      MaterialPageRoute(builder: (_) => const MissionPickerScreen()),
+    );
+    if (config != null && mounted) {
+      setState(() => _missions.add(config));
+    }
+  }
+
+  Future<void> _editMission(int index) async {
+    final existing = _missions[index];
+    final info = missionInfoFor(existing.type);
+    final config = await showMissionConfigModal(context, info, existing);
+    if (config != null && mounted) {
+      setState(() => _missions[index] = config);
+    }
   }
 
   @override
@@ -160,35 +216,102 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    // Alarm time
+                    // Alarm time — inline CupertinoPicker
                     _FormCard(
-                      child: Row(
+                      onTap: () => setState(() => _timeExpanded = !_timeExpanded),
+                      child: Column(
                         children: [
-                          Text(
-                            'Alarm Time',
-                            style: TextStyle(
-                                fontSize: 16, color: c.textPrimary),
+                          Row(
+                            children: [
+                              Text(
+                                'Alarm Time',
+                                style: TextStyle(
+                                    fontSize: 16, color: c.textPrimary),
+                              ),
+                              const Spacer(),
+                              Text(
+                                _time.format(context),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: c.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                _timeExpanded
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                size: 20,
+                                color: c.textSecondary,
+                              ),
+                            ],
                           ),
-                          const Spacer(),
-                          GestureDetector(
-                            onTap: () async {
-                              final picked = await showTimePicker(
-                                context: context,
-                                initialTime: _time,
-                              );
-                              if (picked != null) {
-                                setState(() => _time = picked);
-                              }
-                            },
-                            child: Text(
-                              _time.format(context),
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: c.textPrimary,
+                          if (_timeExpanded) ...[
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              height: 180,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: CupertinoPicker(
+                                      scrollController: _hourCtrl,
+                                      itemExtent: 40,
+                                      onSelectedItemChanged: (i) {
+                                        setState(() {
+                                          _time = TimeOfDay(
+                                              hour: i,
+                                              minute: _time.minute);
+                                        });
+                                      },
+                                      children: List.generate(
+                                        24,
+                                        (i) => Center(
+                                          child: Text(
+                                            i.toString().padLeft(2, '0'),
+                                            style: TextStyle(
+                                                fontSize: 22,
+                                                color: c.textPrimary),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    ':',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: c.textPrimary,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: CupertinoPicker(
+                                      scrollController: _minuteCtrl,
+                                      itemExtent: 40,
+                                      onSelectedItemChanged: (i) {
+                                        setState(() {
+                                          _time = TimeOfDay(
+                                              hour: _time.hour, minute: i);
+                                        });
+                                      },
+                                      children: List.generate(
+                                        60,
+                                        (i) => Center(
+                                          child: Text(
+                                            i.toString().padLeft(2, '0'),
+                                            style: TextStyle(
+                                                fontSize: 22,
+                                                color: c.textPrimary),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -271,183 +394,59 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       ),
                       const SizedBox(height: 12),
                     ],
-                    // Mission
+                    // Missions (up to 3)
                     if (widget.showMission) ...[
-                      _FormCard(
-                        highlighted: _mission != null,
-                        onTap: () async {
-                          final picked = await Navigator.push<MissionType>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const MissionPickerScreen(),
-                            ),
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              _mission = picked;
-                              // Reset mission-specific fields on change
-                              if (picked != MissionType.math) {
-                                _mathDifficulty = MathDifficulty.easy;
-                              }
-                              if (picked != MissionType.objectHunt) {
-                                _customObjectCtrl.clear();
-                              }
-                            });
-                          }
-                        },
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: _mission != null
-                                    ? Colors.white.withAlpha(40)
-                                    : c.background,
-                                shape: BoxShape.circle,
+                      // Existing missions
+                      for (int i = 0; i < _missions.length; i++) ...[
+                        _buildMissionCard(i, c),
+                        const SizedBox(height: 12),
+                      ],
+                      // Add mission button (max 3)
+                      if (_missions.length < 3)
+                        _FormCard(
+                          onTap: _addMission,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: c.background,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.add,
+                                    size: 18, color: c.textSecondary),
                               ),
-                              child: _mission != null
-                                  ? Icon(
-                                      missionInfoFor(_mission!).icon,
-                                      size: 18,
-                                      color: Colors.white,
-                                    )
-                                  : Icon(Icons.add,
-                                      size: 18,
-                                      color: c.textSecondary),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Mission',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: _mission != null
-                                          ? Colors.white.withAlpha(180)
-                                          : c.textSecondary),
-                                ),
-                                Text(
-                                  _mission != null
-                                      ? missionInfoFor(_mission!).name
-                                      : 'Tap to add a mission',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: _mission != null
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                    color: _mission != null
-                                        ? Colors.white
-                                        : c.textPrimary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            Icon(Icons.chevron_right,
-                                color: _mission != null
-                                    ? Colors.white.withAlpha(180)
-                                    : c.textSecondary),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    // Math difficulty picker
-                    if (_mission == MissionType.math) ...[
-                      const SizedBox(height: 12),
-                      _FormCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Difficulty',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: c.textSecondary),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: List.generate(
-                                MathDifficulty.values.length,
-                                (i) {
-                                  final diff = MathDifficulty.values[i];
-                                  final selected = _mathDifficulty == diff;
-                                  return Expanded(
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          setState(() => _mathDifficulty = diff),
-                                      child: AnimatedContainer(
-                                        duration:
-                                            const Duration(milliseconds: 150),
-                                        margin: EdgeInsets.only(
-                                            right: i < 2 ? 8 : 0),
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 10),
-                                        decoration: BoxDecoration(
-                                          color: selected
-                                              ? AppColors.orange
-                                              : c.background,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            _diffLabels[i],
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: selected
-                                                  ? Colors.white
-                                                  : c.textSecondary,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                              const SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Add Mission (${_missions.length} of 3)',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: c.textPrimary,
                                     ),
-                                  );
-                                },
+                                  ),
+                                  Text(
+                                    'Stack missions & complete to turn off alarm',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: c.textSecondary,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    // Custom object field for objectHunt
-                    if (_mission == MissionType.objectHunt) ...[
-                      const SizedBox(height: 12),
-                      _FormCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Custom Object (optional)',
-                              style: TextStyle(
-                                  fontSize: 14,
+                              const Spacer(),
+                              Icon(Icons.chevron_right,
                                   color: c.textSecondary),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _customObjectCtrl,
-                              style: TextStyle(
-                                  fontSize: 15, color: c.textPrimary),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText:
-                                    'e.g. coffee mug (blank = random)',
-                                hintStyle:
-                                    TextStyle(color: c.textSecondary),
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
+                      const SizedBox(height: 12),
                     ],
-
-                    const SizedBox(height: 12),
                     // Sound
                     _FormCard(
                       onTap: () async {
@@ -526,6 +525,77 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     );
   }
 
+  /// Builds a card for an existing mission at [index].
+  Widget _buildMissionCard(int index, AppColors c) {
+    final config = _missions[index];
+    final info = missionInfoFor(config.type);
+    final summary = _configSummary(config);
+    return _FormCard(
+      highlighted: true,
+      onTap: () => _editMission(index),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(40),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(info.icon, size: 18, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Mission ${index + 1}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withAlpha(180),
+                  ),
+                ),
+                Text(
+                  info.name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                if (summary.isNotEmpty)
+                  Text(
+                    summary,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withAlpha(160),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _missions.removeAt(index)),
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(30),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close,
+                  size: 14, color: Colors.white),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(Icons.chevron_right,
+              color: Colors.white.withAlpha(180)),
+        ],
+      ),
+    );
+  }
+
   void _save(BuildContext context) {
     final now = DateTime.now();
     final dt = DateTime(
@@ -535,17 +605,14 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _time.hour,
       _time.minute,
     );
-    final customObj = _customObjectCtrl.text.trim();
     final entry = AppAlarmEntry(
       id: widget.alarm?.id ?? '',
       dateTime: dt,
-      missionType: _mission ?? MissionType.none,
+      missions: _missions,
       name: _nameCtrl.text.trim(),
       soundId: _soundId,
       repeatDays: _repeatDays,
       isOneTime: !_isScheduled,
-      mathDifficulty: _mathDifficulty,
-      customObject: customObj.isEmpty ? null : customObj,
     );
 
     final cubit = context.read<AlarmCubit>();
