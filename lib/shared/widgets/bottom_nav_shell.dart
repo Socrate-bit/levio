@@ -41,7 +41,7 @@ class BottomNavShellState extends State<BottomNavShell> {
 
   @override
   Widget build(BuildContext context) {
-    SuperwallService.registerAppStart();
+    // SuperwallService.registerAppStart();
     final bool isIOS26 = PlatformInfo.isIOS26OrHigher();
     final bool isIOS = PlatformInfo.isIOS;
 

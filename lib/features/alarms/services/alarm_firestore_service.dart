@@ -20,6 +20,7 @@ class AlarmFirestoreService {
         'isEnabled': entry.isEnabled,
         'isOneTime': entry.isOneTime,
         'mathDifficulty': entry.mathDifficulty.name,
+        'createdAtMs': entry.createdAt.millisecondsSinceEpoch,
         if (entry.customObject != null) 'customObject': entry.customObject,
       });
 
@@ -41,6 +42,9 @@ class AlarmFirestoreService {
       isOneTime: d['isOneTime'] as bool? ?? false,
       mathDifficulty: _mathDifficulty(d['mathDifficulty'] as String?),
       customObject: d['customObject'] as String?,
+      createdAt: d['createdAtMs'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(d['createdAtMs'] as int)
+          : null,
     );
   }
 
@@ -60,6 +64,9 @@ class AlarmFirestoreService {
         isOneTime: d['isOneTime'] as bool? ?? false,
         mathDifficulty: _mathDifficulty(d['mathDifficulty'] as String?),
         customObject: d['customObject'] as String?,
+        createdAt: d['createdAtMs'] != null
+            ? DateTime.fromMillisecondsSinceEpoch(d['createdAtMs'] as int)
+            : null,
       );
     }).toList();
   }
