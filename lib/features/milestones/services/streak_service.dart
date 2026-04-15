@@ -248,7 +248,12 @@ class StreakService {
     int weekMisses = 0;
     DateTime? currentWeekMonday;
 
-    for (int i = 0; i <= 365; i++) {
+    // Start from yesterday — today is still in progress and shouldn't count as a miss
+    // (but if today has a session, count it)
+    final hasSessionToday = completedDates.contains(_dateStr(today));
+    if (hasSessionToday) streak++;
+
+    for (int i = 1; i <= 365; i++) {
       final day = today.subtract(Duration(days: i));
 
       // Stop before the first alarm was created — no misses before that

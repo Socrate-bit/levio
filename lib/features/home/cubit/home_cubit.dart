@@ -72,15 +72,16 @@ class HomeCubit extends Cubit<HomeState> {
       }
     }
 
-    // Count missed past days this week (skip future days and days before first alarm)
+    // Count missed past days this week (exclude today and days before first alarm)
+    final yesterdayIndex = todayIndex > 0 ? todayIndex - 1 : -1;
     int missedCount = 0;
-    for (int i = firstCountableIndex; i <= todayIndex; i++) {
+    for (int i = firstCountableIndex; i <= yesterdayIndex; i++) {
       if (weekDays[i] == DayStatus.none) missedCount++;
     }
 
     // If ≤2 misses, mark them as frozen (streak held)
     if (missedCount <= 2) {
-      for (int i = firstCountableIndex; i <= todayIndex; i++) {
+      for (int i = firstCountableIndex; i <= yesterdayIndex; i++) {
         if (weekDays[i] == DayStatus.none) weekDays[i] = DayStatus.frozen;
       }
     }
