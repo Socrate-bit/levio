@@ -3,6 +3,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../../alarms/services/alarm_channel.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -202,20 +204,21 @@ class _LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFF0A0A0A),
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: AppColors.orange,
               strokeWidth: 2.5,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Starting camera…',
-              style: TextStyle(
+              l10n.dismissRepStarting,
+              style: const TextStyle(
                 color: Colors.white54,
                 fontSize: 14,
                 letterSpacing: 0.3,
@@ -244,6 +247,7 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final progress = (state.repCount / target).clamp(0.0, 1.0);
 
     return Scaffold(
@@ -256,7 +260,7 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                'Do $target ${missionInfoFor(missionType).name} to stop the alarm',
+                l10n.dismissRepPrompt(target, localizedMissionName(l10n, missionType)),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white,
@@ -397,6 +401,7 @@ class _RepCounter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ScaleTransition(
       scale: pulseAnimation,
       child: SizedBox(
@@ -425,7 +430,7 @@ class _RepCounter extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'of $target',
+                  l10n.dismissRepOf(target),
                   style: TextStyle(
                     color: Colors.white.withAlpha(120),
                     fontSize: 14,

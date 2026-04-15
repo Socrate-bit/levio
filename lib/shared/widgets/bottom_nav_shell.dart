@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/features/auth/cubit/auth_cubit.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/services/superwall_service.dart';
 
 import '../../features/alarms/screens/alarms_screen.dart';
@@ -47,6 +48,7 @@ class BottomNavShellState extends State<BottomNavShell> {
     if (authState.isLoaded) {
       SuperwallService.registerAppStart(skipPaywall: authState.skipsPaywall);
     }
+    final l10n = AppLocalizations.of(context);
     final bool isIOS26 = PlatformInfo.isIOS26OrHigher();
     final bool isIOS = PlatformInfo.isIOS;
 
@@ -67,7 +69,7 @@ class BottomNavShellState extends State<BottomNavShell> {
                 : isIOS
                 ? CupertinoIcons.home
                 : Icons.home,
-            label: 'Home',
+            label: l10n.navHome,
           ),
           AdaptiveNavigationDestination(
             icon: isIOS26
@@ -80,7 +82,7 @@ class BottomNavShellState extends State<BottomNavShell> {
                 : isIOS
                 ? CupertinoIcons.alarm
                 : Icons.alarm,
-            label: 'Alarms',
+            label: l10n.navAlarms,
           ),
           AdaptiveNavigationDestination(
             icon: isIOS26
@@ -93,7 +95,7 @@ class BottomNavShellState extends State<BottomNavShell> {
                 : isIOS
                 ? CupertinoIcons.chart_bar_fill
                 : Icons.bar_chart,
-            label: 'Insights',
+            label: l10n.navInsights,
           ),
           AdaptiveNavigationDestination(
             icon: isIOS26
@@ -106,7 +108,7 @@ class BottomNavShellState extends State<BottomNavShell> {
                 : isIOS
                 ? CupertinoIcons.settings_solid
                 : Icons.settings,
-            label: 'Settings',
+            label: l10n.navSettings,
           ),
         ],
       ),

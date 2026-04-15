@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../cubit/alarm_cubit.dart';
 import '../cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
@@ -24,13 +26,14 @@ class _AlarmsScreenState extends State<AlarmsScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return BlocBuilder<AlarmCubit, AlarmState>(
       builder: (context, state) {
         final bottomPadding = MediaQuery.viewPaddingOf(context).bottom + 60;
         return Scaffold(
           backgroundColor: c.background,
           appBar: AppBar(
-            title: const Text('Alarms'),
+            title: Text(l10n.alarmsTitle),
           ),
           body: Stack(
             children: [
@@ -42,7 +45,7 @@ class _AlarmsScreenState extends State<AlarmsScreen>
                           const Text('⏰', style: TextStyle(fontSize: 56)),
                           const SizedBox(height: 16),
                           Text(
-                            'No alarms yet',
+                            l10n.alarmsEmpty,
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
@@ -51,7 +54,7 @@ class _AlarmsScreenState extends State<AlarmsScreen>
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Tap + to create your first alarm',
+                            l10n.alarmsEmptyHint,
                             style: TextStyle(
                                 fontSize: 14, color: c.textSecondary),
                           ),
@@ -148,14 +151,15 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         if (_open) ...[
           _PopupOption(
-            label: 'Mission Alarm',
-            subtitle: 'Finish a task first',
+            label: l10n.alarmsMissionAlarm,
+            subtitle: l10n.alarmsMissionAlarmSubtitle,
             onTap: () {
               _toggle();
               widget.onMission();
@@ -163,8 +167,8 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
           ),
           const SizedBox(height: 8),
           _PopupOption(
-            label: 'Normal Alarm',
-            subtitle: 'Just an alarm',
+            label: l10n.alarmsNormalAlarm,
+            subtitle: l10n.alarmsNormalAlarmSubtitle,
             onTap: () {
               _toggle();
               widget.onNormal();
@@ -248,11 +252,12 @@ class _AlarmCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final t = alarm.dateTime;
     final h = t.hour > 12 ? t.hour - 12 : (t.hour == 0 ? 12 : t.hour);
     final m = t.minute.toString().padLeft(2, '0');
     final isPM = t.hour >= 12;
-    final dayStr = alarm.isOneTime ? 'One-time' : _daysLabel(alarm.repeatDays);
+    final dayStr = alarm.isOneTime ? l10n.alarmsOneTime : _daysLabel(l10n, alarm.repeatDays);
 
     return GestureDetector(
       onTap: () => Navigator.push(
@@ -319,7 +324,7 @@ class _AlarmCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  alarm.name.isNotEmpty ? alarm.name : 'Alarm #1',
+                  alarm.name.isNotEmpty ? alarm.name : l10n.alarmsDefaultName(1),
                   style: TextStyle(fontSize: 13, color: c.textSecondary),
                 ),
                 if (alarm.missions.isNotEmpty) ...[
@@ -328,8 +333,8 @@ class _AlarmCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     alarm.missions.length == 1
-                        ? missionInfoFor(alarm.missions.first.type).name
-                        : '${alarm.missions.length} Missions',
+                        ? localizedMissionName(l10n, alarm.missions.first.type)
+                        : l10n.alarmsMissionsCount(alarm.missions.length),
                     style: TextStyle(fontSize: 13, color: c.textSecondary),
                   ),
                 ],
@@ -348,19 +353,18 @@ class _AlarmCard extends StatelessWidget {
     );
   }
 
-  String _daysLabel(List<bool> days) {
-    const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    if (days.every((d) => d)) return 'Every day';
-    if (days.every((d) => !d)) return 'One-time';
+  String _daysLabel(AppLocalizations l10n, List<bool> days) {
+    if (days.every((d) => d)) return l10n.alarmsEveryDay;
+    if (days.every((d) => !d)) return l10n.alarmsOneTime;
 
     final selected = <String>[];
     for (int i = 0; i < days.length; i++) {
-      if (days[i]) selected.add(labels[i]);
+      if (days[i]) selected.add(localizedDayShort(l10n, i));
     }
     // Check weekdays
     if (days[1] && days[2] && days[3] && days[4] && days[5] &&
         !days[0] && !days[6]) {
-      return 'Mon, Tue, Wed, Thu, Fri';
+      return l10n.alarmsWeekdays;
     }
     return selected.join(', ');
   }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../alarms/services/alarm_channel.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -180,9 +181,10 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final score = _lastScore;
     final scoreText =
-        score != null ? '${(score * 100).round()}% \u2014 try again' : null;
+        score != null ? l10n.dismissSpeechTryAgain((score * 100).round()) : null;
     final info = missionInfoFor(widget.missionType);
 
     return Scaffold(
@@ -211,7 +213,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          'Say:',
+                          l10n.dismissSpeechSay,
                           style: TextStyle(
                               fontSize: 16, color: c.textSecondary),
                         ),
@@ -250,7 +252,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          _isListening ? 'Listening\u2026' : 'Tap to speak',
+                          _isListening ? l10n.dismissSpeechListening : l10n.dismissSpeechTapToSpeak,
                           style: TextStyle(
                             fontSize: 14,
                             color: c.textSecondary,
@@ -280,11 +282,11 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                             ),
                           ),
                         if (!_initialized)
-                          const Padding(
-                            padding: EdgeInsets.only(top: 12),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
                             child: Text(
-                              'Microphone unavailable',
-                              style: TextStyle(
+                              l10n.dismissSpeechMicUnavailable,
+                              style: const TextStyle(
                                   color: Colors.red, fontSize: 14),
                             ),
                           ),

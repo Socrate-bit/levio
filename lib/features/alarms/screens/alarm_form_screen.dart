@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../cubit/alarm_cubit.dart';
 import '../cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
@@ -34,8 +36,6 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   late String _soundName;
 
   bool get _isEditing => widget.alarm != null;
-
-  static const _dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   bool get _canSave => _nameCtrl.text.trim().isNotEmpty;
 
@@ -137,6 +137,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   }
 
   void _showTimePicker(AppColors c) {
+    final l10n = AppLocalizations.of(context);
     var hour = _time.hour;
     var minute = _time.minute;
     showModalBottomSheet(
@@ -153,7 +154,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Row(
                 children: [
-                  Text('Set Time',
+                  Text(l10n.alarmFormSetTime,
                       style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -172,8 +173,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         color: AppColors.orange,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Text('Done',
-                          style: TextStyle(
+                      child: Text(l10n.alarmFormDone,
+                          style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600)),
                     ),
@@ -238,6 +239,11 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final dayLabels = [
+      l10n.daySingleS, l10n.daySingleM, l10n.daySingleT, l10n.daySingleW,
+      l10n.daySingleT, l10n.daySingleF, l10n.daySingleS,
+    ];
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -270,7 +276,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        _isEditing ? 'Edit Alarm' : 'New Alarm',
+                        _isEditing ? l10n.alarmFormEditAlarm : l10n.alarmFormNewAlarm,
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -299,7 +305,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         ),
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: 'Alarm name',
+                          hintText: l10n.alarmFormAlarmName,
                           hintStyle:
                               TextStyle(color: c.textSecondary),
                           contentPadding: EdgeInsets.zero,
@@ -313,7 +319,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       child: Row(
                         children: [
                           Text(
-                            'Alarm Time',
+                            l10n.alarmFormAlarmTime,
                             style: TextStyle(
                                 fontSize: 16, color: c.textPrimary),
                           ),
@@ -338,14 +344,14 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       child: Row(
                         children: [
                           _TogglePill(
-                            label: '↻  Scheduled',
+                            label: l10n.alarmFormScheduled,
                             selected: _isScheduled,
                             onTap: () =>
                                 setState(() => _isScheduled = true),
                           ),
                           const SizedBox(width: 8),
                           _TogglePill(
-                            label: '📅  One-time',
+                            label: l10n.alarmFormOneTime,
                             selected: !_isScheduled,
                             onTap: () =>
                                 setState(() => _isScheduled = false),
@@ -361,7 +367,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Repeat on:',
+                              l10n.alarmFormRepeatOn,
                               style: TextStyle(
                                   fontSize: 14,
                                   color: c.textSecondary),
@@ -392,7 +398,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        _dayLabels[i],
+                                        dayLabels[i],
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -415,7 +421,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                     if (widget.showMission) ...[
                       // Existing missions
                       for (int i = 0; i < _missions.length; i++) ...[
-                        _buildMissionCard(i, c),
+                        _buildMissionCard(i, c, l10n),
                         const SizedBox(height: 12),
                       ],
                       // Add mission button (max 3)
@@ -440,7 +446,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                     CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Add Mission (${_missions.length} of 3)',
+                                    l10n.alarmFormAddMission(_missions.length),
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
@@ -448,7 +454,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                     ),
                                   ),
                                   Text(
-                                    'Stack missions & complete to turn off alarm',
+                                    l10n.alarmFormStackMissions,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: c.textSecondary,
@@ -489,7 +495,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Sound',
+                              Text(l10n.alarmFormSound,
                                   style: TextStyle(
                                       fontSize: 12,
                                       color: c.textSecondary)),
@@ -530,7 +536,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   elevation: 0,
                 ),
                 child: Text(
-                  _isEditing ? 'Update Alarm' : 'Save Alarm',
+                  _isEditing ? l10n.alarmFormUpdateAlarm : l10n.alarmFormSaveAlarm,
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),
@@ -543,7 +549,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   }
 
   /// Builds a card for an existing mission at [index].
-  Widget _buildMissionCard(int index, AppColors c) {
+  Widget _buildMissionCard(int index, AppColors c, AppLocalizations l10n) {
     final config = _missions[index];
     final info = missionInfoFor(config.type);
     final summary = _configSummary(config);
@@ -567,14 +573,14 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mission ${index + 1}',
+                  l10n.alarmFormMissionIndex(index + 1),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withAlpha(180),
                   ),
                 ),
                 Text(
-                  info.name,
+                  localizedMissionName(l10n, config.type),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,

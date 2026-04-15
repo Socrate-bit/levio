@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../auth/cubit/auth_cubit.dart';
@@ -25,6 +26,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return BlocConsumer<AuthCubit, AuthState>(
       listenWhen: (prev, curr) => prev.redeemStatus != curr.redeemStatus,
       listener: (context, state) {
@@ -33,7 +35,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                  'Referral code applied! You are now: ${state.userType.name}'),
+                  l10n.referralApplied(state.userType.name)),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               margin: EdgeInsets.only(
@@ -51,7 +53,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
             state.redeemStatus == ReferralRedeemStatus.submitting;
         return AlertDialog(
           backgroundColor: c.card,
-          title: Text('Enter Referral Code',
+          title: Text(l10n.referralTitle,
               style: TextStyle(color: c.textPrimary)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -60,7 +62,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
                 controller: _controller,
                 enabled: !isSubmitting,
                 decoration: InputDecoration(
-                  hintText: 'Referral Code',
+                  hintText: l10n.referralCodeLabel,
                   hintStyle: TextStyle(color: c.textSecondary),
                   filled: true,
                   fillColor: c.background,
@@ -76,18 +78,18 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
               ),
               if (state.redeemStatus == ReferralRedeemStatus.invalid) ...[
                 const SizedBox(height: 8),
-                Text('Invalid referral code',
+                Text(l10n.referralInvalid,
                     style: TextStyle(fontSize: 13, color: Colors.red.shade700)),
               ],
               if (state.redeemStatus == ReferralRedeemStatus.exhausted) ...[
                 const SizedBox(height: 8),
-                Text('This code has reached its usage limit',
+                Text(l10n.referralUsageLimit,
                     style: TextStyle(
                         fontSize: 13, color: Colors.orange.shade700)),
               ],
               if (state.redeemStatus == ReferralRedeemStatus.error) ...[
                 const SizedBox(height: 8),
-                Text('Something went wrong, please try again',
+                Text(l10n.referralError,
                     style: TextStyle(fontSize: 13, color: Colors.red.shade700)),
               ],
             ],
@@ -100,7 +102,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
                       context.read<AuthCubit>().clearRedeemStatus();
                       Navigator.of(context).pop();
                     },
-              child: Text('Cancel', style: TextStyle(color: c.textSecondary)),
+              child: Text(l10n.referralCancel, style: TextStyle(color: c.textSecondary)),
             ),
             TextButton(
               onPressed: isSubmitting
@@ -114,8 +116,8 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Submit',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
+                  : Text(l10n.referralSubmit,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ],
         );

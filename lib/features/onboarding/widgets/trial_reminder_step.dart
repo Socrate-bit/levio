@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class TrialReminderStep extends StatelessWidget {
@@ -10,13 +11,14 @@ class TrialReminderStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
           const Spacer(flex: 2),
           Text(
-            "We'll send you\na reminder before\nyour free trial ends",
+            l10n.onboardingTrialTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,
@@ -73,7 +75,7 @@ class TrialReminderStep extends StatelessWidget {
               Icon(Icons.check, size: 20, color: AppColors.orange),
               const SizedBox(width: 6),
               Text(
-                'No Payment Due Now',
+                l10n.onboardingTrialNoPayment,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
@@ -97,7 +99,7 @@ class TrialReminderStep extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Continue For Free',
+                l10n.onboardingTrialContinueFree,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -108,7 +110,7 @@ class TrialReminderStep extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Just \$29.99 per year (\$2.50/mo)',
+            l10n.onboardingTrialPrice,
             style: TextStyle(fontSize: 14, color: c.textSecondary),
           ),
           const SizedBox(height: 32),

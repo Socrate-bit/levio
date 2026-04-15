@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class LoadingStep extends StatefulWidget {
@@ -16,13 +17,15 @@ class _LoadingStepState extends State<LoadingStep>
   late final AnimationController _controller;
   late final Animation<double> _progressAnimation;
 
-  static const _steps = [
-    'Analyzing your sleep habits',
-    'Configuring your goals',
-    'Setting your mission',
-    'Calibrating alarm tone',
-    'Scheduling your alarm',
-    'Finalizing your plan',
+  static const _stepCount = 6;
+
+  List<String> _steps(AppLocalizations l10n) => [
+    l10n.onboardingLoadingStep1,
+    l10n.onboardingLoadingStep2,
+    l10n.onboardingLoadingStep3,
+    l10n.onboardingLoadingStep4,
+    l10n.onboardingLoadingStep5,
+    l10n.onboardingLoadingStep6,
   ];
 
   @override
@@ -51,12 +54,13 @@ class _LoadingStepState extends State<LoadingStep>
   }
 
   int _completedCount(double progress) {
-    return (progress * _steps.length).floor().clamp(0, _steps.length);
+    return (progress * _stepCount).floor().clamp(0, _stepCount);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return PopScope(
       canPop: false,
       child: AnimatedBuilder(
@@ -81,7 +85,7 @@ class _LoadingStepState extends State<LoadingStep>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Setting everything up\nfor you',
+                  l10n.onboardingLoadingTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22,
@@ -101,9 +105,10 @@ class _LoadingStepState extends State<LoadingStep>
                   ),
                 ),
                 const SizedBox(height: 32),
-                ...List.generate(_steps.length, (i) {
+                ...List.generate(_stepCount, (i) {
+                  final steps = _steps(l10n);
                   final done = i < completed;
-                  final active = i == completed && completed < _steps.length;
+                  final active = i == completed && completed < _stepCount;
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     child: Row(
@@ -130,7 +135,7 @@ class _LoadingStepState extends State<LoadingStep>
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          _steps[i],
+                          steps[i],
                           style: TextStyle(
                             fontSize: 16,
                             color: done || active

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/hexagon_badge.dart';
 import '../../milestones/screens/milestones_screen.dart';
+import '../../missions/models/mission.dart';
 import '../cubit/insights_cubit.dart';
 import '../cubit/insights_state.dart';
 
@@ -35,6 +38,7 @@ class _InsightsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return BlocBuilder<InsightsCubit, InsightsState>(
       builder: (ctx, state) {
         return Scaffold(
@@ -51,7 +55,7 @@ class _InsightsView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Insights',
+                            l10n.insightsTitle,
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
@@ -99,7 +103,7 @@ class _InsightsView extends StatelessWidget {
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            'Stats',
+                            l10n.insightsStats,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -111,13 +115,13 @@ class _InsightsView extends StatelessWidget {
                             children: [
                               _StatCard(
                                 icon: Icons.access_time_outlined,
-                                label: 'Avg Wake Time',
+                                label: l10n.insightsAvgWakeTime,
                                 value: state.avgWakeTime,
                               ),
                               const SizedBox(width: 12),
                               _StatCard(
                                 icon: Icons.timer_outlined,
-                                label: 'Avg Response',
+                                label: l10n.insightsAvgResponse,
                                 value: state.avgResponseTime,
                               ),
                             ],
@@ -127,14 +131,18 @@ class _InsightsView extends StatelessWidget {
                             children: [
                               _StatCard(
                                 icon: Icons.fitness_center_outlined,
-                                label: 'Favorite Mission',
-                                value: state.favoriteMission,
+                                label: l10n.insightsFavoriteMission,
+                                value: state.favoriteMission == '--'
+                                    ? '--'
+                                    : localizedMissionName(l10n, MissionType.values.byName(state.favoriteMission)),
                               ),
                               const SizedBox(width: 12),
                               _StatCard(
                                 icon: Icons.music_note_outlined,
-                                label: 'Favorite Sound',
-                                value: state.favoriteSound,
+                                label: l10n.insightsFavoriteSound,
+                                value: state.favoriteSound == '--'
+                                    ? '--'
+                                    : localizedSoundName(l10n, state.favoriteSound),
                               ),
                             ],
                           ),
@@ -155,15 +163,15 @@ class _RangeToggle extends StatelessWidget {
 
   const _RangeToggle({required this.selected, required this.onChanged});
 
-  static const _labels = {
-    InsightsRange.week: 'Week',
-    InsightsRange.month: 'Month',
-    InsightsRange.allTime: 'All Time',
-  };
-
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final labels = {
+      InsightsRange.week: l10n.insightsWeek,
+      InsightsRange.month: l10n.insightsMonth,
+      InsightsRange.allTime: l10n.insightsAllTime,
+    };
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
@@ -186,7 +194,7 @@ class _RangeToggle extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  _labels[r]!,
+                  labels[r]!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
@@ -217,6 +225,7 @@ class _StreakCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -239,7 +248,7 @@ class _StreakCard extends StatelessWidget {
               ),
             ),
             Text(
-              'Day Streak',
+              l10n.insightsDayStreak,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -267,6 +276,7 @@ class _BadgesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -285,7 +295,7 @@ class _BadgesCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Badges Earned',
+              l10n.insightsBadgesEarned,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -373,6 +383,7 @@ class _ConsistencyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -385,7 +396,7 @@ class _ConsistencyCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Consistency',
+                l10n.insightsConsistency,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -403,7 +414,7 @@ class _ConsistencyCard extends StatelessWidget {
           const SizedBox(height: 8),
           if (score < 30)
             Text(
-              'Need 3+ wake ups',
+              l10n.insightsNeed3Wakeups,
               style: TextStyle(
                 fontSize: 13,
                 color: c.textSecondary,
@@ -475,13 +486,13 @@ class _ConsistencyCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          const Wrap(
+          Wrap(
             spacing: 12,
             children: [
-              _LegendDot(color: Color(0xFFFC8181), label: 'Variable'),
-              _LegendDot(color: Color(0xFFED8936), label: 'Improving'),
-              _LegendDot(color: Color(0xFF4299E1), label: 'Regular'),
-              _LegendDot(color: Color(0xFF48BB78), label: 'Consistent'),
+              _LegendDot(color: const Color(0xFFFC8181), label: l10n.insightsConsistencyVariable),
+              _LegendDot(color: const Color(0xFFED8936), label: l10n.insightsConsistencyImproving),
+              _LegendDot(color: const Color(0xFF4299E1), label: l10n.insightsConsistencyRegular),
+              _LegendDot(color: const Color(0xFF48BB78), label: l10n.insightsConsistencyConsistent),
             ],
           ),
         ],
@@ -490,18 +501,16 @@ class _ConsistencyCard extends StatelessWidget {
   }
 
   void _showInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Consistency Score'),
-        content: const Text(
-          'Your consistency score measures how regularly you wake up with Levio. '
-          'It improves as your streak grows.',
-        ),
+        title: Text(l10n.insightsConsistencyScoreTitle),
+        content: Text(l10n.insightsConsistencyScoreBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(l10n.insightsOk),
           ),
         ],
       ),

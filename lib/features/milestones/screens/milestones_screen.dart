@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/hexagon_badge.dart';
@@ -26,6 +28,7 @@ class _MilestonesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return BlocBuilder<MilestonesCubit, MilestonesState>(
       builder: (ctx, state) {
         return Scaffold(
@@ -62,7 +65,7 @@ class _MilestonesView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Milestones',
+                                l10n.milestonesTitle,
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -77,7 +80,7 @@ class _MilestonesView extends StatelessWidget {
                                   Expanded(
                                     child: _TopCard(
                                       emoji: '🔥',
-                                      label: 'Day Streak',
+                                      label: l10n.milestonesDayStreak,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -96,8 +99,8 @@ class _MilestonesView extends StatelessWidget {
                                     child: _InfoBox(
                                       icon: '🔥',
                                       value:
-                                          '${state.longestStreak} day',
-                                      label: 'longest streak',
+                                          l10n.milestonesLongestStreak(state.longestStreak),
+                                      label: l10n.milestonesLongestStreakLabel,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -121,7 +124,7 @@ class _MilestonesView extends StatelessWidget {
                               ],
                               // Streak Badges
                               Text(
-                                'Streak Badges',
+                                l10n.milestonesStreakBadges,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -133,7 +136,7 @@ class _MilestonesView extends StatelessWidget {
                               const SizedBox(height: 24),
                               // Achievement Badges
                               Text(
-                                'Achievement Badges',
+                                l10n.milestonesAchievementBadges,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -196,6 +199,7 @@ class _BadgeTopCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -212,7 +216,7 @@ class _BadgeTopCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Badges Earned',
+            l10n.milestonesBadgesEarned,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -298,7 +302,7 @@ class _BadgeProgressBox extends StatelessWidget {
               const Text('🏅', style: TextStyle(fontSize: 16)),
               const SizedBox(width: 6),
               Text(
-                '$earned/$total badges',
+                AppLocalizations.of(context).milestonesBadgeCount(earned, total),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -331,6 +335,7 @@ class _HowStreaksWork extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -346,7 +351,7 @@ class _HowStreaksWork extends StatelessWidget {
                   size: 18, color: c.textSecondary),
               const SizedBox(width: 8),
               Text(
-                'How Streaks Work',
+                l10n.milestonesHowStreaksWork,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -363,7 +368,7 @@ class _HowStreaksWork extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Wake up with Levio daily to build your streak. You get 2 freeze days per week to skip without losing progress. If you miss a day without a freeze, your streak drops by 3 instead of resetting to zero.',
+            l10n.milestonesStreakExplanation,
             style: TextStyle(
               fontSize: 13,
               color: c.textSecondary,
@@ -406,6 +411,7 @@ class _BadgeCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: badge.earned
           ? () => Navigator.push(
@@ -428,7 +434,7 @@ class _BadgeCell extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            badge.name,
+            localizedBadgeName(l10n, badge.id),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -438,7 +444,7 @@ class _BadgeCell extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            badge.description,
+            localizedBadgeReq(l10n, badge.id),
             style: TextStyle(
               fontSize: 10,
               color: c.textSecondary,

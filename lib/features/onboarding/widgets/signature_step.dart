@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signature/signature.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class SignatureStep extends StatefulWidget {
@@ -39,13 +40,14 @@ class _SignatureStepState extends State<SignatureStep> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
           const SizedBox(height: 16),
           Text(
-            'Lock in your\ncommitment',
+            l10n.onboardingSignatureTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,
@@ -56,7 +58,7 @@ class _SignatureStepState extends State<SignatureStep> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Sign below to get out of bed at ${widget.alarmTimeText}. Feet on the floor.',
+            l10n.onboardingSignatureSubtitle(widget.alarmTimeText),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: c.textSecondary),
           ),
@@ -96,7 +98,7 @@ class _SignatureStepState extends State<SignatureStep> {
                   Icon(Icons.check, size: 20, color: c.card),
                   const SizedBox(width: 8),
                   Text(
-                    'I Commit',
+                    l10n.onboardingSignatureCommit,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,

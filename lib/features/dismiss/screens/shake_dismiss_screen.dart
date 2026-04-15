@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../alarms/services/alarm_channel.dart';
 import 'package:shake/shake.dart';
 
@@ -118,6 +119,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final progress = _shakeCount / widget.target;
 
     return Scaffold(
@@ -182,7 +184,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'Shake your phone to stop the alarm',
+                          l10n.dismissShakePrompt,
                           style: TextStyle(
                             fontSize: 18,
                             color: c.textSecondary,

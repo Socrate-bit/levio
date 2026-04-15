@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
@@ -97,6 +98,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -108,7 +110,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
               Image.asset('assets/icon.png', width: 80, height: 80),
               const SizedBox(height: 24),
               Text(
-                'Congratulations.',
+                l10n.wakeupCongratulations,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -117,7 +119,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Thanks to Levio, you woke up today.',
+                l10n.wakeupThanks,
                 style: TextStyle(fontSize: 14, color: c.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -130,19 +132,19 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                     _StatBox(
                       icon: '⏱',
                       value: _formatTime(widget.timeTakenSeconds),
-                      label: 'Time Taken',
+                      label: l10n.wakeupTimeTaken,
                     ),
                     const SizedBox(width: 12),
                     _StatBox(
                       icon: '🔥',
                       value: '$_streak',
-                      label: 'Day Streak',
+                      label: l10n.wakeupDayStreak,
                     ),
                     const SizedBox(width: 12),
                     _StatBox(
                       icon: '☀️',
                       value: '$_totalWakeups',
-                      label: 'Wakeups',
+                      label: l10n.wakeupWakeups,
                     ),
                   ],
                 ),
@@ -159,7 +161,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Daily Quote',
+                      l10n.wakeupDailyQuote,
                       style: TextStyle(fontSize: 15, color: c.textSecondary),
                     ),
                     const SizedBox(width: 4),
@@ -171,7 +173,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
               ElevatedButton(
                 onPressed: () =>
                     Navigator.of(context).popUntil((route) => route.isFirst),
-                child: const Text('Continue'),
+                child: Text(l10n.wakeupContinue),
               ),
               const SizedBox(height: 16),
             ],
