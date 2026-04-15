@@ -53,8 +53,8 @@ flutter_launcher_icons:
     image_path: "assets/app_icon.png"
 
 flutter_native_splash:
-  color: "#000000"
-  image: assets/app_icon.png
+  color: "#17093F"
+  image: assets/icon.png
   android: true
   ios: true
 
@@ -65,3 +65,4 @@ flutter:
     - assets/sounds/
     - assets/icon.png
     - assets/app_icon.png
+    - shorebird.yaml
