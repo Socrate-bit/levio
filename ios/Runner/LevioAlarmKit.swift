@@ -111,6 +111,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             cleanupConfig(call: call, result: result)
         case "cleanupSnoozeLink":
             cleanupSnoozeLink(call: call, result: result)
+        case "cancelSnoozesForAlarm":
+            Task { await cancelSnoozesForAlarm(call: call, result: result) }
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -418,6 +420,43 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "levio_snooze_\(idString)")
         result(nil)
+    }
+
+    private func cancelSnoozesForAlarm(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+        guard let args = call.arguments as? [String: Any],
+              let originalId = args["originalAlarmId"] as? String else {
+            result(FlutterError(code: "BAD_ARGS", message: "Missing originalAlarmId", details: nil))
+            return
+        }
+
+        let defaults = UserDefaults.standard
+        var snoozeIdsToCancel: [String] = []
+
+        // Find all snoozes pointing to this original alarm
+        for (key, value) in defaults.dictionaryRepresentation() {
+            if key.hasPrefix("levio_snooze_"),
+               let snoozeOriginalId = value as? String,
+               snoozeOriginalId == originalId {
+                // Extract snooze UUID from key (format: "levio_snooze_{uuid}")
+                let snoozeId = String(key.dropFirst("levio_snooze_".count))
+                snoozeIdsToCancel.append(snoozeId)
+            }
+        }
+
+        // Cancel all snoozes
+        do {
+            let alarms = try AlarmManager.shared.alarms
+            for snoozeIdString in snoozeIdsToCancel {
+                if let snoozeUUID = UUID(uuidString: snoozeIdString),
+                   alarms.contains(where: { $0.id == snoozeUUID }) {
+                    try AlarmManager.shared.cancel(id: snoozeUUID)
+                    defaults.removeObject(forKey: "levio_snooze_\(snoozeIdString)")
+                }
+            }
+            result(nil)
+        } catch {
+            result(FlutterError(code: "CANCEL_ERROR", message: error.localizedDescription, details: nil))
+        }
     }
 
     // MARK: - Helpers

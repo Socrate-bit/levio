@@ -99,6 +99,7 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
         if (state is SessionGoalReached) {
           await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
           await AlarmChannel.cleanupSnoozeLink(widget.nativeAlarmId);
+          await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
           await AlarmChannel.stopRinging();
 
           final elapsed = DateTime.now().difference(_startTime).inSeconds;
