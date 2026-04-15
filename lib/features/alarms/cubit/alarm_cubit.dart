@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
 import '../../wakeup/services/history_service.dart';
+import '../data/sounds.dart';
 import '../services/alarm_channel.dart';
 import '../services/alarm_firestore_service.dart';
 import 'alarm_state.dart';
@@ -322,7 +323,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   /// Schedules a native alarm, choosing one-shot or recurrent based on the
   /// entry's [repeatDays] and [isOneTime]. Uses entry.dateTime directly.
-  Future<String> _scheduleNative(AppAlarmEntry entry) {
+  Future<String> _scheduleNative(AppAlarmEntry entry) async {
     final title = entry.name.isNotEmpty ? entry.name : 'Levio';
     final firstType = entry.missions.isNotEmpty
         ? entry.missions.first.type
@@ -338,9 +339,19 @@ class AlarmCubit extends Cubit<AlarmState> {
       secondaryLabel = '${entry.missions.length} Missions';
     }
 
-    final soundPath = entry.soundId != 'default'
-        ? 'assets/sounds/${entry.soundId}.mp3'
-        : null;
+    // Resolve sound path: custom sounds use absolute file path, presets use asset path
+    String? soundPath;
+    if (entry.soundId == 'default') {
+      soundPath = null;
+    } else if (isCustomSound(entry.soundId)) {
+      final customs = await loadCustomSounds();
+      final custom = customs.where((s) => s.id == entry.soundId).firstOrNull;
+      if (custom != null) {
+        soundPath = await customSoundFilePath(custom.fileName);
+      }
+    } else {
+      soundPath = 'assets/sounds/${entry.soundId}.mp3';
+    }
 
     final isRecurrent = !entry.isOneTime && entry.repeatDays.any((d) => d);
 
