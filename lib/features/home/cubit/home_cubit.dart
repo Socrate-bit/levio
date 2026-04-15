@@ -51,12 +51,20 @@ class HomeCubit extends Cubit<HomeState> {
     if (isClosed) return;
 
     final lastSession = _allSessions.isEmpty ? null : _allSessions.first;
+    final firstAlarmDate = await StreakService.getFirstAlarmCreatedDate();
     final currentStreak =
-        await StreakService.computeCurrentStreak(_allSessions);
+        await StreakService.computeCurrentStreak(_allSessions, firstAlarmDate);
 
     final now = DateTime.now();
     final startOfWeek = _startOfWeek(now);
     final todayIndex = now.weekday % 7; // 0=Sun
+
+    // Determine the first day index this week that counts (after first alarm creation)
+    int firstCountableIndex = 0;
+    if (firstAlarmDate != null && firstAlarmDate.isAfter(startOfWeek)) {
+      firstCountableIndex = firstAlarmDate.weekday % 7;
+    }
+
     final weekDays = List<DayStatus>.filled(7, DayStatus.none);
     for (final s in _allSessions) {
       if (s.timestamp.isAfter(startOfWeek)) {
@@ -64,15 +72,15 @@ class HomeCubit extends Cubit<HomeState> {
       }
     }
 
-    // Count missed past days this week (skip future days)
+    // Count missed past days this week (skip future days and days before first alarm)
     int missedCount = 0;
-    for (int i = 0; i <= todayIndex; i++) {
+    for (int i = firstCountableIndex; i <= todayIndex; i++) {
       if (weekDays[i] == DayStatus.none) missedCount++;
     }
 
     // If ≤2 misses, mark them as frozen (streak held)
     if (missedCount <= 2) {
-      for (int i = 0; i <= todayIndex; i++) {
+      for (int i = firstCountableIndex; i <= todayIndex; i++) {
         if (weekDays[i] == DayStatus.none) weekDays[i] = DayStatus.frozen;
       }
     }

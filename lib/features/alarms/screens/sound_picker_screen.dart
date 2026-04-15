@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
@@ -17,6 +18,13 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
   String _selectedId = 'default';
   String? _playingId;
   final _player = AudioPlayer();
+  List<CustomSoundItem> _customSounds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomSounds();
+  }
 
   @override
   void dispose() {
@@ -24,6 +32,61 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
     super.dispose();
   }
 
+  Future<void> _loadCustomSounds() async {
+    final sounds = await loadCustomSounds();
+    if (mounted) setState(() => _customSounds = sounds);
+  }
+
+  /// Pick an audio file, copy it to app storage, and refresh the list.
+  Future<void> _uploadSound() async {
+    final result = await FilePicker.pickFiles(type: FileType.audio);
+    if (result == null || result.files.single.path == null) return;
+
+    final file = result.files.single;
+    final item = await addCustomSound(file.path!, file.name);
+    if (item == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File too large (max 10 MB)')),
+        );
+      }
+      return;
+    }
+    await _loadCustomSounds();
+    if (mounted) setState(() => _selectedId = item.id);
+  }
+
+  /// Delete a custom sound after user confirmation.
+  Future<void> _confirmDelete(CustomSoundItem item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Sound'),
+        content: Text('Remove "${item.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    await deleteCustomSound(item.id);
+    if (_selectedId == item.id) _selectedId = 'default';
+    if (_playingId == item.id) {
+      await _player.stop();
+      _playingId = null;
+    }
+    await _loadCustomSounds();
+  }
+
+  /// Preview a sound — toggle play/stop. Handles both preset and custom sources.
   Future<void> _previewSound(String id) async {
     if (_playingId == id) {
       await _player.stop();
@@ -32,7 +95,13 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
     }
     setState(() => _playingId = id);
     try {
-      await _player.play(AssetSource('sounds/$id.mp3'));
+      if (isCustomSound(id)) {
+        final item = _customSounds.firstWhere((s) => s.id == id);
+        final path = await customSoundFilePath(item.fileName);
+        await _player.play(DeviceFileSource(path));
+      } else {
+        await _player.play(AssetSource('sounds/$id.mp3'));
+      }
       _player.onPlayerComplete.listen((_) {
         if (mounted) setState(() => _playingId = null);
       });
@@ -90,29 +159,121 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                   const SizedBox(height: 20),
                   // Your Sounds section
                   _SectionHeader(title: l10n.soundPickerYourSounds),
-                  Container(
-                    margin: const EdgeInsets.only(top: 8, bottom: 4),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: c.card,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.add,
-                            size: 18, color: c.textSecondary),
-                        const SizedBox(width: 12),
-                        Text(
-                          l10n.soundPickerUpload,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: c.textPrimary,
+                  GestureDetector(
+                    onTap: _uploadSound,
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 8, bottom: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: c.card,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.add,
+                              size: 18, color: c.textSecondary),
+                          const SizedBox(width: 12),
+                          Text(
+                            l10n.soundPickerUpload,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: c.textPrimary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+                  // Custom sound rows
+                  if (_customSounds.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: c.card,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Column(
+                        children: _customSounds.asMap().entries.map((entry) {
+                          final i = entry.key;
+                          final sound = entry.value;
+                          final isFirst = i == 0;
+                          final isLast = i == _customSounds.length - 1;
+                          final isSelected = _selectedId == sound.id;
+                          final isPlaying = _playingId == sound.id;
+                          return GestureDetector(
+                            onTap: () =>
+                                setState(() => _selectedId = sound.id),
+                            onLongPress: () => _confirmDelete(sound),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 14),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: isFirst
+                                      ? const Radius.circular(14)
+                                      : Radius.zero,
+                                  topRight: isFirst
+                                      ? const Radius.circular(14)
+                                      : Radius.zero,
+                                  bottomLeft: isLast
+                                      ? const Radius.circular(14)
+                                      : Radius.zero,
+                                  bottomRight: isLast
+                                      ? const Radius.circular(14)
+                                      : Radius.zero,
+                                ),
+                                border: isSelected
+                                    ? Border.all(
+                                        color: AppColors.green,
+                                        width: 2,
+                                      )
+                                    : null,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.green.withValues(alpha: 0.3),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.music_note,
+                                        size: 18, color: AppColors.green),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Text(
+                                      sound.name,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: c.textPrimary,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => _previewSound(sound.id),
+                                    child: Icon(
+                                      isPlaying
+                                          ? Icons.equalizer
+                                          : Icons.play_circle_outline,
+                                      color: isPlaying
+                                          ? AppColors.orange
+                                          : c.textSecondary,
+                                      size: 22,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   ...soundCategories.map((cat) {
                     final catSounds =
@@ -218,9 +379,18 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: ElevatedButton(
                 onPressed: () {
-                  final sound =
-                      alarmSounds.firstWhere((s) => s.id == _selectedId);
-                  Navigator.pop(context, {'id': sound.id, 'name': sound.name});
+                  // Handle both preset and custom sounds
+                  if (isCustomSound(_selectedId)) {
+                    final sound =
+                        _customSounds.firstWhere((s) => s.id == _selectedId);
+                    Navigator.pop(
+                        context, {'id': sound.id, 'name': sound.name});
+                  } else {
+                    final sound =
+                        alarmSounds.firstWhere((s) => s.id == _selectedId);
+                    Navigator.pop(
+                        context, {'id': sound.id, 'name': sound.name});
+                  }
                 },
                 child: Text(l10n.soundPickerSelect),
               ),
@@ -256,57 +426,6 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _NewBadge extends StatelessWidget {
-  const _NewBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: Colors.white24,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        l10n.soundPickerNew,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
-
-class _CreditBadge extends StatelessWidget {
-  const _CreditBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white24,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('✨', style: TextStyle(fontSize: 12)),
-          const SizedBox(width: 4),
-          Text(
-            l10n.soundPickerCredit,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AlarmSoundItem {
   final String id;
@@ -113,3 +118,118 @@ const soundCategoryIcons = {
   'Aggressive': '⚡',
   'Peaceful': '🌿',
 };
+
+// ── Custom (user-uploaded) sounds ──────────────────────────────────────
+
+const _customSoundsKey = 'custom_sounds';
+const _customSoundsDir = 'custom_sounds';
+const maxCustomSoundBytes = 10 * 1024 * 1024; // 10 MB
+
+class CustomSoundItem {
+  final String id;
+  final String name;
+  final String fileName;
+
+  const CustomSoundItem({
+    required this.id,
+    required this.name,
+    required this.fileName,
+  });
+
+  factory CustomSoundItem.fromJson(Map<String, dynamic> json) =>
+      CustomSoundItem(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        fileName: json['fileName'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'fileName': fileName,
+      };
+}
+
+/// Returns true when [id] refers to a user-uploaded sound.
+bool isCustomSound(String id) => id.startsWith('custom_');
+
+/// Absolute path to [fileName] inside the custom sounds directory.
+Future<String> customSoundFilePath(String fileName) async {
+  final dir = await getApplicationDocumentsDirectory();
+  return '${dir.path}/$_customSoundsDir/$fileName';
+}
+
+/// Load persisted custom sounds from SharedPreferences.
+Future<List<CustomSoundItem>> loadCustomSounds() async {
+  final prefs = await SharedPreferences.getInstance();
+  final raw = prefs.getStringList(_customSoundsKey);
+  if (raw == null) return [];
+  return raw.map((e) => CustomSoundItem.fromJson(jsonDecode(e) as Map<String, dynamic>)).toList();
+}
+
+/// Persist [sounds] to SharedPreferences.
+Future<void> saveCustomSounds(List<CustomSoundItem> sounds) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setStringList(
+    _customSoundsKey,
+    sounds.map((s) => jsonEncode(s.toJson())).toList(),
+  );
+}
+
+/// Pick a source file, copy it into the app documents dir, and persist metadata.
+/// Returns the new item, or null if the file exceeds the size limit.
+Future<CustomSoundItem?> addCustomSound(String sourceFilePath, String originalFileName) async {
+  final sourceFile = File(sourceFilePath);
+
+  // Size guard
+  if (await sourceFile.length() > maxCustomSoundBytes) return null;
+
+  final id = 'custom_${DateTime.now().millisecondsSinceEpoch}';
+  final ext = originalFileName.contains('.') ? originalFileName.substring(originalFileName.lastIndexOf('.')) : '.mp3';
+  final storedName = '$id$ext';
+
+  // Copy to app documents
+  final destPath = await customSoundFilePath(storedName);
+  final destDir = Directory(destPath).parent;
+  if (!destDir.existsSync()) destDir.createSync(recursive: true);
+  await sourceFile.copy(destPath);
+
+  // Derive display name from original file name
+  final displayName = _displayNameFrom(originalFileName);
+
+  final item = CustomSoundItem(id: id, name: displayName, fileName: storedName);
+  final list = await loadCustomSounds();
+  list.add(item);
+  await saveCustomSounds(list);
+  return item;
+}
+
+/// Remove a custom sound file and its metadata entry.
+Future<void> deleteCustomSound(String id) async {
+  final list = await loadCustomSounds();
+  final item = list.where((s) => s.id == id).firstOrNull;
+  if (item != null) {
+    try {
+      final path = await customSoundFilePath(item.fileName);
+      final file = File(path);
+      if (file.existsSync()) await file.delete();
+    } catch (e) {
+      debugPrint('[sounds] failed to delete file: $e');
+    }
+  }
+  list.removeWhere((s) => s.id == id);
+  await saveCustomSounds(list);
+}
+
+/// Convert a file name like "my_alarm-sound.mp3" → "My Alarm Sound".
+String _displayNameFrom(String fileName) {
+  var name = fileName;
+  final dotIdx = name.lastIndexOf('.');
+  if (dotIdx > 0) name = name.substring(0, dotIdx);
+  return name
+      .replaceAll(RegExp(r'[_\-]'), ' ')
+      .trim()
+      .split(RegExp(r'\s+'))
+      .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}')
+      .join(' ');
+}

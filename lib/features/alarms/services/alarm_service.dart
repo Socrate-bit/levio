@@ -34,15 +34,18 @@ class AlarmService {
         debugPrint('[AlarmService] stream event: $event');
 
         if (eventType == 'ring') {
+          if (_dismissScreenActive) return;
+
           final nativeAlarmId = event['id'] as String?;
           if (nativeAlarmId == null) return;
           final firestoreEntry = await _resolveEntry(nativeAlarmId);
           if (firestoreEntry == null) {
-            debugPrint('[AlarmService] ring: alarm $nativeAlarmId not found');
+            debugPrint('[AlarmService] ring: alarm $nativeAlarmId not found — stopping');
+            AlarmChannel.stop(nativeAlarmId).ignore();
             return;
           }
+          _dismissScreenActive = true;
 
-          if (_dismissScreenActive) return;
           final firstMission = firestoreEntry.missions.isNotEmpty
               ? firestoreEntry.missions.first
               : null;
@@ -118,7 +121,8 @@ class AlarmService {
   static Future<Map<String, String>?> _toNavArgs(String id) async {
     final entry = await _resolveEntry(id);
     if (entry == null) {
-      debugPrint('[AlarmService] → alarm $id not found in Firestore');
+      debugPrint('[AlarmService] → alarm $id not found in Firestore — stopping');
+      AlarmChannel.stop(id).ignore();
       return null;
     }
     return _argsFrom(id, entry);
