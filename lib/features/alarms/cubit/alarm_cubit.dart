@@ -43,19 +43,17 @@ class AlarmCubit extends Cubit<AlarmState> {
 
       // Alarm is enabled but missing from native — reschedule it.
       final isRecurrent = !alarm.isOneTime && alarm.repeatDays.any((d) => d);
-      var scheduled = alarm.dateTime;
-      final isPast = scheduled.isBefore(now);
+      final isPast = alarm.dateTime.isBefore(now);
 
-      if (isPast && !isRecurrent) {
-        // Unique alarm missed — ring now.
-        scheduled = now.add(const Duration(seconds: 5));
-      }
-      // Recurrent: scheduleRepeating uses hour/minute as-is, no time shift needed.
+      // One-shot missed → ring now; recurrent uses hour/minute as-is.
+      final toSchedule = (isPast && !isRecurrent)
+          ? alarm.copyWith(dateTime: now.add(const Duration(seconds: 5)))
+          : alarm;
 
       try {
-        final newId = await _scheduleNative(alarm, scheduled);
+        final newId = await _scheduleNative(toSchedule);
         await AlarmFirestoreService.deleteAlarm(alarm.id);
-        final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled);
+        final rescheduled = toSchedule.copyWith(id: newId);
         await AlarmFirestoreService.saveAlarm(rescheduled);
         resolved.add(rescheduled);
       } catch (e) {
@@ -116,9 +114,16 @@ class AlarmCubit extends Cubit<AlarmState> {
       for (final alarm in alarms) {
         if (!alarm.isEnabled) continue;
 
+        // Don't look back further than the alarm's creation date.
+        final lookbackStart = alarm.createdAt.isAfter(sevenDaysAgo)
+            ? DateTime(alarm.createdAt.year, alarm.createdAt.month,
+                alarm.createdAt.day)
+            : sevenDaysAgo;
+
         // One-time alarm in the past with no session → missed.
         if (alarm.isOneTime) {
           if (!alarm.dateTime.isBefore(now)) continue;
+          if (alarm.dateTime.isBefore(lookbackStart)) continue;
           final hasSession = recentSessions.any((s) => s.alarmId == alarm.id);
           if (!hasSession) {
             await HistoryService.createMissedSession(
@@ -132,7 +137,7 @@ class AlarmCubit extends Cubit<AlarmState> {
           continue;
         }
 
-        // Recurrent alarm — check each expected fire in the past 7 days.
+        // Recurrent alarm — check each expected fire since lookbackStart.
         final isRecurrent = alarm.repeatDays.any((d) => d);
         if (!isRecurrent) continue;
 
@@ -141,7 +146,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         final hour = alarm.dateTime.hour;
         final minute = alarm.dateTime.minute;
 
-        for (var day = sevenDaysAgo;
+        for (var day = lookbackStart;
             day.isBefore(now);
             day = day.add(const Duration(days: 1))) {
           // Convert Dart weekday (1=Mon..7=Sun) to repeatDays index (0=Sun..6=Sat).
@@ -185,12 +190,14 @@ class AlarmCubit extends Cubit<AlarmState> {
   }
 
   Future<void> addAlarm(AppAlarmEntry entry) async {
-    var scheduled = kDebugMode
-        ? DateTime.now().add(const Duration(seconds: 5))
-        : _nextFutureDay(entry.dateTime);
+    final toSchedule = entry.copyWith(
+      dateTime: kDebugMode
+          ? DateTime.now().add(const Duration(seconds: 10))
+          : _nextFutureDay(entry.dateTime),
+    );
 
-    final id = await _scheduleNative(entry, scheduled);
-    final saved = entry.copyWith(id: id, dateTime: scheduled);
+    final id = await _scheduleNative(toSchedule);
+    final saved = toSchedule.copyWith(id: id);
 
     // Optimistic: show in UI immediately
     emit(state.copyWith(alarms: [...state.alarms, saved]));
@@ -237,13 +244,14 @@ class AlarmCubit extends Cubit<AlarmState> {
       }
  
     } else {
-      final scheduled = _nextFutureDay(alarm.dateTime);
-      final newId = await _scheduleNative(alarm, scheduled);
-      final rescheduled = alarm.copyWith(
-        id: newId,
-        dateTime: scheduled,
+      final now = DateTime.now();
+      final toSchedule = alarm.copyWith(
+        dateTime: _nextFutureDay(alarm.dateTime),
         isEnabled: true,
+        createdAt: now,
       );
+      final newId = await _scheduleNative(toSchedule);
+      final rescheduled = toSchedule.copyWith(id: newId);
 
       // Optimistic
       emit(
@@ -272,12 +280,14 @@ class AlarmCubit extends Cubit<AlarmState> {
     await AlarmChannel.cancel(old.id);
     await AlarmChannel.cleanupConfig(old.id);
 
-    final scheduled = kDebugMode
-        ? DateTime.now().add(const Duration(seconds: 5))
-        : _nextFutureDay(updated.dateTime);
+    final toSchedule = updated.copyWith(
+      dateTime: kDebugMode
+          ? DateTime.now().add(const Duration(seconds: 5))
+          : _nextFutureDay(updated.dateTime),
+    );
 
-    final newId = await _scheduleNative(updated, scheduled);
-    final saved = updated.copyWith(id: newId, dateTime: scheduled);
+    final newId = await _scheduleNative(toSchedule);
+    final saved = toSchedule.copyWith(id: newId);
 
     // Optimistic
     emit(
@@ -293,7 +303,7 @@ class AlarmCubit extends Cubit<AlarmState> {
       // Rollback: cancel new native, re-schedule old, restore UI
       await AlarmChannel.cancel(newId);
       try {
-        await _scheduleNative(old, old.dateTime);
+        await _scheduleNative(old);
       } catch (_) {}
       emit(state.copyWith(alarms: previousAlarms));
       rethrow;
@@ -326,9 +336,8 @@ class AlarmCubit extends Cubit<AlarmState> {
   }
 
   /// Schedules a native alarm, choosing one-shot or recurrent based on the
-  /// entry's [repeatDays] and [isOneTime]. Pass [forceOneShot] to override
-  /// (e.g. in debug mode).
-  Future<String> _scheduleNative(AppAlarmEntry entry, DateTime scheduled) {
+  /// entry's [repeatDays] and [isOneTime]. Uses entry.dateTime directly.
+  Future<String> _scheduleNative(AppAlarmEntry entry) {
     final info = missionInfoFor(entry.missionType);
     final title = entry.name.isNotEmpty ? entry.name : 'Levio';
     final sfSymbol = _systemImageFor(entry.missionType);
@@ -343,8 +352,8 @@ class AlarmCubit extends Cubit<AlarmState> {
     if (isRecurrent) {
       return AlarmChannel.scheduleRepeating(
         weekdayMask: AlarmChannel.toWeekdayMask(entry.repeatDays),
-        hour: scheduled.hour,
-        minute: scheduled.minute,
+        hour: entry.dateTime.hour,
+        minute: entry.dateTime.minute,
         title: title,
         sfSymbol: sfSymbol,
         secondaryLabel: secondaryLabel,
@@ -352,7 +361,7 @@ class AlarmCubit extends Cubit<AlarmState> {
       );
     } else {
       return AlarmChannel.scheduleOneShot(
-        timestampMs: scheduled.millisecondsSinceEpoch,
+        timestampMs: entry.dateTime.millisecondsSinceEpoch,
         title: title,
         sfSymbol: sfSymbol,
         secondaryLabel: secondaryLabel,

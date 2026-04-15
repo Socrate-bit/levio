@@ -19,8 +19,9 @@ class AppAlarmEntry extends Equatable {
   final bool isOneTime;
   final MathDifficulty mathDifficulty;
   final String? customObject; // used only for objectHunt
+  final DateTime createdAt;
 
-  const AppAlarmEntry({
+  AppAlarmEntry({
     required this.id,
     required this.dateTime,
     this.missionType = MissionType.none,
@@ -31,7 +32,8 @@ class AppAlarmEntry extends Equatable {
     this.isOneTime = false,
     this.mathDifficulty = MathDifficulty.easy,
     this.customObject,
-  });
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   AppAlarmEntry copyWith({
     String? id,
@@ -45,6 +47,7 @@ class AppAlarmEntry extends Equatable {
     MathDifficulty? mathDifficulty,
     String? customObject,
     bool clearCustomObject = false,
+    DateTime? createdAt,
   }) =>
       AppAlarmEntry(
         id: id ?? this.id,
@@ -57,6 +60,7 @@ class AppAlarmEntry extends Equatable {
         isOneTime: isOneTime ?? this.isOneTime,
         mathDifficulty: mathDifficulty ?? this.mathDifficulty,
         customObject: clearCustomObject ? null : customObject ?? this.customObject,
+        createdAt: createdAt ?? this.createdAt,
       );
 
   @override
@@ -71,6 +75,7 @@ class AppAlarmEntry extends Equatable {
         isOneTime,
         mathDifficulty,
         customObject,
+        createdAt,
       ];
 }
 

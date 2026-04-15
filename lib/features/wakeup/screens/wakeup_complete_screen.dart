@@ -105,10 +105,10 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
           child: Column(
             children: [
               const Spacer(),
-              const Text('🌞', style: TextStyle(fontSize: 80)),
+              Image.asset('assets/icon.png', width: 80, height: 80),
               const SizedBox(height: 24),
               Text(
-                'Alarm turned off!',
+                'Congratulations.',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -117,7 +117,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'You joined 23 922 others waking up today',
+                'Thanks to Levio, you woke up today.',
                 style: TextStyle(fontSize: 14, color: c.textSecondary),
                 textAlign: TextAlign.center,
               ),
