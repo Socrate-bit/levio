@@ -99,18 +99,16 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   /// Creates missed sessions for enabled alarms that should have fired but
   /// have no session in Firebase. Handles both one-time and recurrent alarms.
-  /// For recurrent alarms, checks each expected fire in the current week.
+  /// For recurrent alarms, checks each expected fire in the past 7 days.
   Future<void> _markMissedAlarms() async {
     try {
       final now = DateTime.now();
       final alarms = state.alarms;
-      // Start of current week (Monday).
-      final daysFromMonday = now.weekday - 1; // Mon=1 → 0, Sun=7 → 6
-      final startOfWeek = DateTime(now.year, now.month, now.day - daysFromMonday);
+      final sevenDaysAgo = DateTime(now.year, now.month, now.day - 7);
 
       final recentSessions = await HistoryService.getSessions(
         limit: 500,
-        since: startOfWeek,
+        since: sevenDaysAgo,
         includeIncomplete: true,
       );
 
@@ -133,7 +131,7 @@ class AlarmCubit extends Cubit<AlarmState> {
           continue;
         }
 
-        // Recurrent alarm — check each expected fire this week.
+        // Recurrent alarm — check each expected fire in the past 7 days.
         final isRecurrent = alarm.repeatDays.any((d) => d);
         if (!isRecurrent) continue;
 
@@ -142,7 +140,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         final hour = alarm.dateTime.hour;
         final minute = alarm.dateTime.minute;
 
-        for (var day = startOfWeek;
+        for (var day = sevenDaysAgo;
             day.isBefore(now);
             day = day.add(const Duration(days: 1))) {
           // Convert Dart weekday (1=Mon..7=Sun) to repeatDays index (0=Sun..6=Sat).
