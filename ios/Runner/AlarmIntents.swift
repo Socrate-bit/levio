@@ -42,8 +42,8 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         // If alarmID is itself a snooze, follow the link; otherwise alarmID IS the original.
         let originalId = defaults.string(forKey: "levio_snooze_\(alarmID)") ?? alarmID
 
-        // Read stored config so we can rebuild the snooze alarm.
-        guard let data = defaults.data(forKey: "levio_config_\(alarmID)"),
+        // Read config from the original alarm (don't copy for snoozes).
+        guard let data = defaults.data(forKey: "levio_config_\(originalId)"),
               let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
             try? AlarmManager.shared.stop(id: oldUUID)
@@ -92,10 +92,6 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         )
 
         try? await AlarmManager.shared.schedule(id: newId, configuration: newConfig)
-
-        // Carry display config to the new snooze UUID.
-        defaults.set(data, forKey: "levio_config_\(newId.uuidString)")
-        defaults.removeObject(forKey: "levio_config_\(alarmID)")
 
         // Link new snooze → original so getRingingAlarm can look up mission info.
         defaults.set(originalId, forKey: "levio_snooze_\(newId.uuidString)")
