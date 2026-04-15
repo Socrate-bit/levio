@@ -9,7 +9,6 @@ import 'alarm_firestore_service.dart';
 class AlarmService {
   static StreamSubscription? _subscription;
   static AppLifecycleListener? _lifecycleListener;
-  static bool _dismissScreenActive = false;
 
   // ---------------------------------------------------------------------------
   // Public API
@@ -34,21 +33,15 @@ class AlarmService {
         debugPrint('[AlarmService] stream event: $event');
 
         if (eventType == 'ring') {
-          if (_dismissScreenActive) return;
           final nativeAlarmId = event['id'] as String?;
           if (nativeAlarmId == null) return;
-
-          // Claim early to prevent races during async resolve.
-          _dismissScreenActive = true;
 
           final firestoreEntry = await _resolveEntry(nativeAlarmId);
           if (firestoreEntry == null) {
             debugPrint('[AlarmService] ring: alarm $nativeAlarmId not found');
-            _dismissScreenActive = false;
             return;
           }
 
-          if (_dismissScreenActive) return;
           final firstMission = firestoreEntry.missions.isNotEmpty
               ? firestoreEntry.missions.first
               : null;
@@ -73,13 +66,8 @@ class AlarmService {
     _lifecycleListener = AppLifecycleListener(
       onResume: () async {
         debugPrint('[AlarmService] lifecycle: onResume');
-        if (_dismissScreenActive) return;
-        _dismissScreenActive = true;
         final ringing = await getRingingAlarm();
-        if (ringing == null) {
-          _dismissScreenActive = false;
-          return;
-        }
+        if (ringing == null) return;
         _pushDismiss(navigatorKey, ringing);
       },
       onHide: () => debugPrint('[AlarmService] lifecycle: onHide'),
@@ -139,14 +127,10 @@ class AlarmService {
     GlobalKey<NavigatorState> navigatorKey,
     Map<String, String> args,
   ) {
-    _dismissScreenActive = true;
-    navigatorKey.currentState
-        ?.pushNamedAndRemoveUntil(
-          '/alarm-dismiss',
-          (route) => route.isFirst,
-          arguments: args,
-        )
-        .then((_) => _dismissScreenActive = false)
-        .catchError((_) => _dismissScreenActive = false);
+    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/alarm-dismiss',
+      (route) => route.isFirst,
+      arguments: args,
+    );
   }
 }
