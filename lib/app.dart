@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/features/onboarding/screens/onboarding_screen.dart';
 
+import 'features/auth/cubit/auth_cubit.dart';
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_service.dart';
@@ -52,6 +53,7 @@ class _LevioAppState extends State<LevioApp> {
       providers: [
         BlocProvider(create: (_) => AlarmCubit()),
         BlocProvider(create: (_) => SettingsCubit()),
+        BlocProvider(create: (_) => AuthCubit()..loadUserType()),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settings) => MaterialApp(

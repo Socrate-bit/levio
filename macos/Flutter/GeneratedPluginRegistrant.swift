@@ -7,6 +7,7 @@ import Foundation
 
 import audioplayers_darwin
 import cloud_firestore
+import cloud_functions
 import firebase_ai
 import firebase_app_check
 import firebase_auth
@@ -21,6 +22,7 @@ import url_launcher_macos
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   AudioplayersDarwinPlugin.register(with: registry.registrar(forPlugin: "AudioplayersDarwinPlugin"))
   FLTFirebaseFirestorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseFirestorePlugin"))
+  FirebaseFunctionsPlugin.register(with: registry.registrar(forPlugin: "FirebaseFunctionsPlugin"))
   FirebaseAIPlugin.register(with: registry.registrar(forPlugin: "FirebaseAIPlugin"))
   FLTFirebaseAppCheckPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseAppCheckPlugin"))
   FLTFirebaseAuthPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseAuthPlugin"))

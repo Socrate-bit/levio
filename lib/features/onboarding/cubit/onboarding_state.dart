@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../missions/models/mission.dart';
 
-enum ReferralStatus { none, checking, valid, invalid }
+enum ReferralStatus { none, checking, valid, invalid, exhausted }
 
 class OnboardingState extends Equatable {
   final int currentPage;

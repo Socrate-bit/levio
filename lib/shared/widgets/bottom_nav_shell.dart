@@ -1,6 +1,8 @@
 import 'package:adaptive_platform_ui/adaptive_platform_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/features/auth/cubit/auth_cubit.dart';
 import 'package:levio/services/superwall_service.dart';
 
 import '../../features/alarms/screens/alarms_screen.dart';
@@ -41,7 +43,10 @@ class BottomNavShellState extends State<BottomNavShell> {
 
   @override
   Widget build(BuildContext context) {
-    // SuperwallService.registerAppStart();
+    final authState = context.watch<AuthCubit>().state;
+    if (authState.isLoaded) {
+      SuperwallService.registerAppStart(skipPaywall: authState.skipsPaywall);
+    }
     final bool isIOS26 = PlatformInfo.isIOS26OrHigher();
     final bool isIOS = PlatformInfo.isIOS;
 
