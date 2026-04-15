@@ -1,15 +1,25 @@
 import '../../wakeup/models/wakeup_session.dart';
 
+enum DayStatus { none, done, frozen }
+
 class HomeState {
   final int currentStreak;
-  final List<bool> weekDays; // Sun–Sat, true = woken up
+  final List<DayStatus> weekDays; // Sun–Sat
   final WakeupSession? lastSession;
   final int totalWakeups;
   final bool loading;
 
   const HomeState({
     this.currentStreak = 0,
-    this.weekDays = const [false, false, false, false, false, false, false],
+    this.weekDays = const [
+      DayStatus.none,
+      DayStatus.none,
+      DayStatus.none,
+      DayStatus.none,
+      DayStatus.none,
+      DayStatus.none,
+      DayStatus.none,
+    ],
     this.lastSession,
     this.totalWakeups = 0,
     this.loading = true,
@@ -17,7 +27,7 @@ class HomeState {
 
   HomeState copyWith({
     int? currentStreak,
-    List<bool>? weekDays,
+    List<DayStatus>? weekDays,
     WakeupSession? lastSession,
     bool clearLastSession = false,
     int? totalWakeups,

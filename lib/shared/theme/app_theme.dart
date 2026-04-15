@@ -5,6 +5,7 @@ class AppColors {
   static const orange = Color(0xFFFF6B00);
   static const orangeLight = Color(0xFFFFF0E6);
   static const green = Color(0xFF34C759);
+  static const blue = Color(0xFF007AFF);
 
   // Instance properties (theme-sensitive)
   final Color background;
