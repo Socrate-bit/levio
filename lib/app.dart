@@ -69,6 +69,7 @@ class _LevioAppState extends State<LevioApp> {
             if (settings.name == '/alarm-dismiss') {
               final args = settings.arguments as Map<String, String>;
               final alarmId = args['alarmId']!;
+              final nativeAlarmId = args['nativeAlarmId'] ?? alarmId;
               final challengeStr = args['challenge'] ?? 'pushUps';
               final label = args['label'] ?? 'Alarm #1';
               final mathDiffStr = args['mathDifficulty'] ?? 'easy';
@@ -101,18 +102,23 @@ class _LevioAppState extends State<LevioApp> {
                   return MaterialPageRoute(
                     builder: (_) => SimpleDismissScreen(
                       alarmId: alarmId,
+                      nativeAlarmId: nativeAlarmId,
                       alarmLabel: label,
                     ),
                   );
                 case MissionType.shakePhone:
                   return MaterialPageRoute(
-                    builder: (_) =>
-                        ShakeDismissScreen(alarmId: alarmId, alarmLabel: label),
+                    builder: (_) => ShakeDismissScreen(
+                      alarmId: alarmId,
+                      nativeAlarmId: nativeAlarmId,
+                      alarmLabel: label,
+                    ),
                   );
                 case MissionType.math:
                   return MaterialPageRoute(
                     builder: (_) => MathDismissScreen(
                       alarmId: alarmId,
+                      nativeAlarmId: nativeAlarmId,
                       alarmLabel: label,
                       difficulty: mathDiff,
                     ),
@@ -126,6 +132,7 @@ class _LevioAppState extends State<LevioApp> {
                   return MaterialPageRoute(
                     builder: (_) => PhotoDismissScreen(
                       alarmId: alarmId,
+                      nativeAlarmId: nativeAlarmId,
                       missionType: mission,
                       alarmLabel: label,
                       customObject: customObj?.isNotEmpty == true
@@ -138,21 +145,28 @@ class _LevioAppState extends State<LevioApp> {
                   return MaterialPageRoute(
                     builder: (_) => SpeechDismissScreen(
                       alarmId: alarmId,
+                      nativeAlarmId: nativeAlarmId,
                       missionType: mission,
                       alarmLabel: label,
                     ),
                   );
                 case MissionType.squats:
                   return MaterialPageRoute(
-                    builder: (_) =>
-                        SquatDismissScreen(alarmId: alarmId, alarmLabel: label),
+                    builder: (_) => SquatDismissScreen(
+                      alarmId: alarmId,
+                      nativeAlarmId: nativeAlarmId,
+                      alarmLabel: label,
+                    ),
                   );
 
                 case MissionType.pushUps:
                 default:
                   return MaterialPageRoute(
-                    builder: (_) =>
-                        AlarmDismissScreen(alarmId: alarmId, alarmLabel: label),
+                    builder: (_) => AlarmDismissScreen(
+                      alarmId: alarmId,
+                      nativeAlarmId: nativeAlarmId,
+                      alarmLabel: label,
+                    ),
                   );
               }
             }

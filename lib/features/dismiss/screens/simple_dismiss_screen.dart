@@ -9,11 +9,13 @@ import '../../../shared/theme/app_theme.dart';
 
 class SimpleDismissScreen extends StatefulWidget {
   final String alarmId;
+  final String nativeAlarmId;
   final String alarmLabel;
 
   const SimpleDismissScreen({
     super.key,
     required this.alarmId,
+    required this.nativeAlarmId,
     this.alarmLabel = 'Alarm #1',
   });
 
@@ -36,11 +38,13 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
     super.dispose();
   }
 
+  // Intentionally skips streak/badge calculation (no WakeupCompleteScreen).
+  // Simple dismiss just records the session and returns home.
   Future<void> _dismiss() async {
     HapticFeedback.mediumImpact();
     final prefs = await SharedPreferences.getInstance();
     final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
+    await AlarmChannel.dismissAlarm(widget.nativeAlarmId, keepRinging: keepRinging);
     if (keepRinging) await AlarmChannel.stopRinging();
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
 

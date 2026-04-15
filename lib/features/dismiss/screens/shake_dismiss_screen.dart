@@ -10,11 +10,13 @@ import '../../../shared/theme/app_theme.dart';
 
 class ShakeDismissScreen extends StatefulWidget {
   final String alarmId;
+  final String nativeAlarmId;
   final String alarmLabel;
 
   const ShakeDismissScreen({
     super.key,
     required this.alarmId,
+    required this.nativeAlarmId,
     this.alarmLabel = 'Alarm #1',
   });
 
@@ -53,7 +55,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
     _detector.stopListening();
     final prefs = await SharedPreferences.getInstance();
     final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
+    await AlarmChannel.dismissAlarm(widget.nativeAlarmId, keepRinging: keepRinging);
     if (keepRinging) await AlarmChannel.stopRinging();
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
@@ -61,6 +63,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
         MaterialPageRoute(
           builder: (_) => WakeupCompleteScreen(
             alarmId: widget.alarmId,
+            nativeAlarmId: widget.nativeAlarmId,
             timeTakenSeconds: elapsed,
             missionType: MissionType.shakePhone,
           ),

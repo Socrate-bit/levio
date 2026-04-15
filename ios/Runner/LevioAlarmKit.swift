@@ -18,18 +18,9 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
     private var previousAlertingIds: Set<UUID> = []
     private var eventSink: FlutterEventSink?
 
-    private static let alarmTappedName = Notification.Name("levio.alarmNotificationTapped")
-
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         LevioAlarmStreamHandler.shared = self
         self.eventSink = events
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleAlarmTapped(_:)),
-            name: LevioAlarmStreamHandler.alarmTappedName,
-            object: nil
-        )
 
         streamTask = Task {
             for await alarms in AlarmManager.shared.alarmUpdates {
@@ -47,7 +38,6 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
     }
 
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        NotificationCenter.default.removeObserver(self, name: LevioAlarmStreamHandler.alarmTappedName, object: nil)
         streamTask?.cancel()
         streamTask = nil
         eventSink = nil
@@ -72,11 +62,6 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
         }
     }
 
-    // AppDelegate posts this notification when a notification action or banner is tapped.
-    @objc private func handleAlarmTapped(_ notification: Notification) {
-        let alarmId = notification.userInfo?["alarmId"] as? String ?? ""
-        emit(["event": "intentFired", "id": alarmId])
-    }
 }
 
 // MARK: - Plugin
@@ -409,6 +394,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         defaults.removeObject(forKey: "levio_config_\(idString)")
         defaults.removeObject(forKey: "levio_completed_\(idString)")
         defaults.removeObject(forKey: "levio_snooze_\(idString)")
+        // Remove orphaned snooze links where this alarm was the original.
+        for key in defaults.dictionaryRepresentation().keys {
+            if key.hasPrefix("levio_snooze_"),
+               defaults.string(forKey: key) == idString {
+                defaults.removeObject(forKey: key)
+            }
+        }
         var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
         ids.removeAll { $0 == idString }
         defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)
