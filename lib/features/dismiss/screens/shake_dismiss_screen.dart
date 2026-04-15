@@ -10,11 +10,13 @@ import '../../../shared/theme/app_theme.dart';
 
 class ShakeDismissScreen extends StatefulWidget {
   final String alarmId;
+  final String nativeAlarmId;
   final String alarmLabel;
 
   const ShakeDismissScreen({
     super.key,
     required this.alarmId,
+    required this.nativeAlarmId,
     this.alarmLabel = 'Alarm #1',
   });
 
@@ -27,6 +29,8 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
   int _shakeCount = 0;
   late final ShakeDetector _detector;
   final _startTime = DateTime.now();
+  String? _missionSnoozeId;
+  bool _keepRinging = false;
 
   @override
   void initState() {
@@ -38,6 +42,19 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
       minimumShakeCount: 1,
       onPhoneShake: (_) => _onShake(),
     );
+    _initAlarm();
+  }
+
+  Future<void> _initAlarm() async {
+    final prefs = await SharedPreferences.getInstance();
+    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+    if (!_keepRinging) {
+      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
+        nativeAlarmId: widget.nativeAlarmId,
+        originalAlarmId: widget.alarmId,
+      );
+    }
   }
 
   void _onShake() {
@@ -51,16 +68,16 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
 
   Future<void> _dismiss() async {
     _detector.stopListening();
-    final prefs = await SharedPreferences.getInstance();
-    final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
-    if (keepRinging) await AlarmChannel.stopRinging();
+    if (_keepRinging) await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+    await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
+    await AlarmChannel.stopRinging();
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => WakeupCompleteScreen(
             alarmId: widget.alarmId,
+            nativeAlarmId: widget.nativeAlarmId,
             timeTakenSeconds: elapsed,
             missionType: MissionType.shakePhone,
           ),

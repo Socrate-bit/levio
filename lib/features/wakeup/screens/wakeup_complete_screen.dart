@@ -12,12 +12,14 @@ import 'daily_quote_screen.dart';
 
 class WakeupCompleteScreen extends StatefulWidget {
   final String alarmId;
+  final String nativeAlarmId;
   final int timeTakenSeconds;
   final MissionType? missionType;
 
   const WakeupCompleteScreen({
     super.key,
     required this.alarmId,
+    required this.nativeAlarmId,
     required this.timeTakenSeconds,
     this.missionType,
   });

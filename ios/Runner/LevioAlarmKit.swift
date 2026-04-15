@@ -18,18 +18,9 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
     private var previousAlertingIds: Set<UUID> = []
     private var eventSink: FlutterEventSink?
 
-    private static let alarmTappedName = Notification.Name("levio.alarmNotificationTapped")
-
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         LevioAlarmStreamHandler.shared = self
         self.eventSink = events
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleAlarmTapped(_:)),
-            name: LevioAlarmStreamHandler.alarmTappedName,
-            object: nil
-        )
 
         streamTask = Task {
             for await alarms in AlarmManager.shared.alarmUpdates {
@@ -47,7 +38,6 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
     }
 
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        NotificationCenter.default.removeObserver(self, name: LevioAlarmStreamHandler.alarmTappedName, object: nil)
         streamTask?.cancel()
         streamTask = nil
         eventSink = nil
@@ -72,11 +62,6 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
         }
     }
 
-    // AppDelegate posts this notification when a notification action or banner is tapped.
-    @objc private func handleAlarmTapped(_ notification: Notification) {
-        let alarmId = notification.userInfo?["alarmId"] as? String ?? ""
-        emit(["event": "intentFired", "id": alarmId])
-    }
 }
 
 // MARK: - Plugin
@@ -145,6 +130,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             Task { await getRingingId(result: result) }
         case "getSnoozeMap":
             getSnoozeMap(result: result)
+        case "scheduleMissionSnooze":
+            Task { await scheduleMissionSnooze(call: call, result: result) }
         case "cleanupConfig":
             cleanupConfig(call: call, result: result)
         default:
@@ -397,6 +384,59 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         result(map)
     }
 
+    // MARK: - Schedule Mission Snooze
+    // Schedules a one-shot snooze alarm using the config of an existing alarm.
+    // Links the snooze to the original via UserDefaults so _resolveEntry works.
+
+    private func scheduleMissionSnooze(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+        guard let args = call.arguments as? [String: Any],
+              let nativeId = args["nativeAlarmId"] as? String,
+              let originalId = args["originalAlarmId"] as? String,
+              let delaySeconds = args["delaySeconds"] as? Int else {
+            result(FlutterError(code: "BAD_ARGS", message: "Missing nativeAlarmId/originalAlarmId/delaySeconds", details: nil))
+            return
+        }
+
+        let defaults = UserDefaults.standard
+
+        // Read config from the currently ringing alarm (or original).
+        let configKey = defaults.data(forKey: "levio_config_\(nativeId)") != nil
+            ? "levio_config_\(nativeId)"
+            : "levio_config_\(originalId)"
+        guard let data = defaults.data(forKey: configKey),
+              let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            result(FlutterError(code: "BAD_ARGS", message: "No config found for alarm", details: nil))
+            return
+        }
+
+        let title = config["title"] as? String ?? "Alarm"
+        let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
+        let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
+
+        let newId = UUID()
+        let fireDate = Date().addingTimeInterval(Double(delaySeconds))
+
+        let alarmConfig = makeAlarmConfig(
+            id: newId,
+            title: title,
+            sfSymbol: sfSymbol,
+            secondaryLabel: secondaryLabel,
+            schedule: .fixed(fireDate)
+        )
+
+        do {
+            try await AlarmManager.shared.schedule(id: newId, configuration: alarmConfig)
+            removeStoppedId(newId.uuidString)
+            saveConfig(id: newId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
+                       isOneShot: true, timestampMs: fireDate.timeIntervalSince1970 * 1000)
+            // Link snooze → original so _resolveEntry can look up mission info.
+            defaults.set(originalId, forKey: "levio_snooze_\(newId.uuidString)")
+            result(newId.uuidString)
+        } catch {
+            result(FlutterError(code: "SCHEDULE_ERROR", message: error.localizedDescription, details: nil))
+        }
+    }
+
     // MARK: - Cleanup Config (removes UserDefaults entries for a dismissed alarm)
 
     private func cleanupConfig(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -409,6 +449,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         defaults.removeObject(forKey: "levio_config_\(idString)")
         defaults.removeObject(forKey: "levio_completed_\(idString)")
         defaults.removeObject(forKey: "levio_snooze_\(idString)")
+        // Remove orphaned snooze links where this alarm was the original.
+        for key in defaults.dictionaryRepresentation().keys {
+            if key.hasPrefix("levio_snooze_"),
+               defaults.string(forKey: key) == idString {
+                defaults.removeObject(forKey: key)
+            }
+        }
         var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
         ids.removeAll { $0 == idString }
         defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)

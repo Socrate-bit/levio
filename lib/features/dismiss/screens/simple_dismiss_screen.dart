@@ -9,11 +9,13 @@ import '../../../shared/theme/app_theme.dart';
 
 class SimpleDismissScreen extends StatefulWidget {
   final String alarmId;
+  final String nativeAlarmId;
   final String alarmLabel;
 
   const SimpleDismissScreen({
     super.key,
     required this.alarmId,
+    required this.nativeAlarmId,
     this.alarmLabel = 'Alarm #1',
   });
 
@@ -23,11 +25,26 @@ class SimpleDismissScreen extends StatefulWidget {
 
 class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
   final _startTime = DateTime.now();
+  String? _missionSnoozeId;
+  bool _keepRinging = false;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    _initAlarm();
+  }
+
+  Future<void> _initAlarm() async {
+    final prefs = await SharedPreferences.getInstance();
+    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+    if (!_keepRinging) {
+      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
+        nativeAlarmId: widget.nativeAlarmId,
+        originalAlarmId: widget.alarmId,
+      );
+    }
   }
 
   @override
@@ -36,12 +53,18 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
     super.dispose();
   }
 
+  // Intentionally skips streak/badge calculation (no WakeupCompleteScreen).
+  // Simple dismiss just records the session and returns home.
   Future<void> _dismiss() async {
     HapticFeedback.mediumImpact();
-    final prefs = await SharedPreferences.getInstance();
-    final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
-    if (keepRinging) await AlarmChannel.stopRinging();
+
+    if (_keepRinging) {
+      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+    }
+    await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
+    // Stop any alarm that may still be ringing (e.g. snooze fired during mission).
+    await AlarmChannel.stopRinging();
+
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
 
     // Disable one-time alarms so they don't get rescheduled.

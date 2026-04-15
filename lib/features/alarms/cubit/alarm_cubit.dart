@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../missions/models/mission.dart';
+import '../../wakeup/services/history_service.dart';
 import '../services/alarm_channel.dart';
 import '../services/alarm_firestore_service.dart';
 import 'alarm_state.dart';
@@ -14,6 +15,7 @@ class AlarmCubit extends Cubit<AlarmState> {
   Future<void> _init() async {
     await AlarmChannel.requestAuthorization();
     await _syncAlarms();
+    await _markMissedAlarms();
   }
 
   /// Restores alarms from Firestore (source of truth) and reschedules any
@@ -55,11 +57,6 @@ class AlarmCubit extends Cubit<AlarmState> {
         final rescheduled = alarm.copyWith(id: newId, dateTime: scheduled);
         await AlarmFirestoreService.saveAlarm(rescheduled);
         resolved.add(rescheduled);
-
-        // Recurrent alarm was missed — also fire an immediate one-shot ring.
-        if (isPast && isRecurrent) {
-          await _scheduleImmediateRing(alarm, now);
-        }
       } catch (e) {
         debugPrint(
           '[AlarmCubit] _syncAlarms reschedule failed for ${alarm.id}: $e',
@@ -98,6 +95,84 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
 
     emit(state.copyWith(alarms: resolved));
+  }
+
+  /// Creates missed sessions for enabled alarms that should have fired but
+  /// have no session in Firebase. Handles both one-time and recurrent alarms.
+  /// For recurrent alarms, checks each expected fire in the past 7 days.
+  Future<void> _markMissedAlarms() async {
+    try {
+      final now = DateTime.now();
+      final alarms = state.alarms;
+      final sevenDaysAgo = DateTime(now.year, now.month, now.day - 7);
+
+      final recentSessions = await HistoryService.getSessions(
+        limit: 500,
+        since: sevenDaysAgo,
+        includeIncomplete: true,
+      );
+
+      for (final alarm in alarms) {
+        if (!alarm.isEnabled) continue;
+
+        // One-time alarm in the past with no session → missed.
+        if (alarm.isOneTime) {
+          if (!alarm.dateTime.isBefore(now)) continue;
+          final hasSession = recentSessions.any((s) => s.alarmId == alarm.id);
+          if (!hasSession) {
+            await HistoryService.createMissedSession(
+              alarmId: alarm.id,
+              missionType: alarm.missionType,
+              soundId: alarm.soundId,
+              timestamp: alarm.dateTime,
+            );
+            debugPrint('[AlarmCubit] marked missed (one-time): ${alarm.id}');
+          }
+          continue;
+        }
+
+        // Recurrent alarm — check each expected fire in the past 7 days.
+        final isRecurrent = alarm.repeatDays.any((d) => d);
+        if (!isRecurrent) continue;
+
+        // repeatDays: index 0=Sun, 1=Mon, 2=Tue, ..., 6=Sat
+        // Dart weekday: 1=Mon, 2=Tue, ..., 7=Sun
+        final hour = alarm.dateTime.hour;
+        final minute = alarm.dateTime.minute;
+
+        for (var day = sevenDaysAgo;
+            day.isBefore(now);
+            day = day.add(const Duration(days: 1))) {
+          // Convert Dart weekday (1=Mon..7=Sun) to repeatDays index (0=Sun..6=Sat).
+          final repeatIndex = day.weekday == 7 ? 0 : day.weekday;
+          if (!alarm.repeatDays[repeatIndex]) continue;
+
+          final expectedFire = DateTime(day.year, day.month, day.day, hour, minute);
+          if (!expectedFire.isBefore(now)) continue;
+
+          // Check if any session exists for this alarm on this day.
+          final dayStart = DateTime(day.year, day.month, day.day);
+          final dayEnd = dayStart.add(const Duration(days: 1));
+          final hasSession = recentSessions.any((s) =>
+              s.alarmId == alarm.id &&
+              s.timestamp.isAfter(dayStart) &&
+              s.timestamp.isBefore(dayEnd));
+          if (hasSession) continue;
+
+          await HistoryService.createMissedSession(
+            alarmId: alarm.id,
+            missionType: alarm.missionType,
+            soundId: alarm.soundId,
+            timestamp: expectedFire,
+          );
+          debugPrint(
+            '[AlarmCubit] marked missed (recurrent): ${alarm.id} on ${expectedFire.toIso8601String()}',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('[AlarmCubit] _markMissedAlarms failed: $e');
+    }
   }
 
   /// Returns [dt] unchanged if it's in the future, otherwise advances it by
@@ -245,28 +320,6 @@ class AlarmCubit extends Cubit<AlarmState> {
       await AlarmChannel.cleanupConfig(id);
     } catch (e) {
       debugPrint('Error cancelling/cleaning up alarm with id $id: $e');
-    }
-  }
-
-  /// Fires an immediate one-shot ring for a missed recurrent alarm.
-  /// Native-only (no Firestore entry) — treated like a snooze alarm.
-  Future<void> _scheduleImmediateRing(AppAlarmEntry alarm, DateTime now) async {
-    try {
-      final info = missionInfoFor(alarm.missionType);
-      final title = alarm.name.isNotEmpty ? alarm.name : 'Levio';
-      final sfSymbol = _systemImageFor(alarm.missionType);
-      final soundPath = alarm.soundId != 'default'
-          ? 'assets/sounds/${alarm.soundId}.mp3'
-          : null;
-      await AlarmChannel.scheduleOneShot(
-        timestampMs: now.add(const Duration(seconds: 5)).millisecondsSinceEpoch,
-        title: title,
-        sfSymbol: sfSymbol,
-        secondaryLabel: info.name,
-        soundPath: soundPath,
-      );
-    } catch (e) {
-      debugPrint('[AlarmCubit] immediate ring failed for ${alarm.id}: $e');
     }
   }
 

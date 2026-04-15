@@ -7,11 +7,13 @@ import 'rep_exercise_dismiss_view.dart';
 
 class AlarmDismissScreen extends StatelessWidget {
   final String alarmId;
+  final String nativeAlarmId;
   final String alarmLabel;
 
   const AlarmDismissScreen({
     super.key,
     required this.alarmId,
+    required this.nativeAlarmId,
     this.alarmLabel = 'Alarm #1',
   });
 
@@ -21,6 +23,7 @@ class AlarmDismissScreen extends StatelessWidget {
       create: (_) => PushUpCubit(targetReps: 10)..startSession(),
       child: RepExerciseDismissView<PushUpCubit>(
         alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
         target: 10,
         missionType: MissionType.pushUps,
