@@ -34,24 +34,24 @@ class AlarmService {
         debugPrint('[AlarmService] stream event: $event');
 
         if (eventType == 'ring') {
-          final alarmId = event['id'] as String?;
-          if (alarmId == null) return;
-          final entry = await _resolveEntry(alarmId);
-          if (entry == null) {
-            debugPrint('[AlarmService] ring: alarm $alarmId not found');
+          final nativeAlarmId = event['id'] as String?;
+          if (nativeAlarmId == null) return;
+          final firestoreEntry = await _resolveEntry(nativeAlarmId);
+          if (firestoreEntry == null) {
+            debugPrint('[AlarmService] ring: alarm $nativeAlarmId not found');
             return;
           }
 
           if (_dismissScreenActive) return;
           HistoryService.createPendingSession(
-            alarmId: entry.id,
-            missionType: entry.missionType,
-            soundId: entry.soundId,
+            alarmId: firestoreEntry.id,
+            missionType: firestoreEntry.missionType,
+            soundId: firestoreEntry.soundId,
           ).ignore();
           debugPrint(
-            '[AlarmService] ring → pushing dismiss  alarmId=$alarmId  challenge=${entry.missionType.name}',
+            '[AlarmService] ring → pushing dismiss  nativeAlarmId=$nativeAlarmId originalAlarmId=${firestoreEntry.id}  challenge=${firestoreEntry.missionType.name}',
           );
-          _pushDismiss(navigatorKey, _argsFrom(alarmId, entry));
+          _pushDismiss(navigatorKey, _argsFrom(nativeAlarmId, firestoreEntry));
           return;
         }
       },
@@ -102,7 +102,10 @@ class AlarmService {
 
   /// [nativeAlarmId] is the raw ID from the ring event (may be a snooze UUID).
   /// [entry.id] is the resolved original alarm ID in Firestore.
-  static Map<String, String> _argsFrom(String nativeAlarmId, AppAlarmEntry entry) => {
+  static Map<String, String> _argsFrom(
+    String nativeAlarmId,
+    AppAlarmEntry entry,
+  ) => {
     'alarmId': entry.id,
     'nativeAlarmId': nativeAlarmId,
     'challenge': entry.missionType.name,

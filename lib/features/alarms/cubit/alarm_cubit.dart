@@ -33,6 +33,7 @@ class AlarmCubit extends Cubit<AlarmState> {
     final now = DateTime.now();
     final resolved = <AppAlarmEntry>[];
 
+    // Check firestore alarms are planned
     for (final alarm in firestoreAlarms) {
       // Disabled or already scheduled natively — no action needed.
       if (!alarm.isEnabled || nativeIds.contains(alarm.id)) {

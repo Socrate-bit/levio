@@ -7,7 +7,7 @@ import SwiftUI
 @available(iOS 26.0, *)
 public struct OpenAlarmAppIntent: LiveActivityIntent {
     public static var title: LocalizedStringResource = "Open App"
-    public static var description = IntentDescription("Opens the app on the challenge page")
+    public static var description = IntentDescription("Opens the app")
     public static var openAppWhenRun = true
 
     @Parameter(title: "alarmID")
@@ -74,7 +74,7 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
         // Clean up the current snooze link (if this was a snooze).
         defaults.removeObject(forKey: "levio_snooze_\(alarmID)")
 
-        // Schedule a new one-shot snooze alarm 5 minutes from now.
+        // Schedule a new one-shot snooze alarm 1 second from now.
         let newId = UUID()
         let fireDate = Date().addingTimeInterval(1)
 
