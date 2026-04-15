@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 class PaywallStep extends StatelessWidget {
   final VoidCallback onContinue;
@@ -156,7 +157,7 @@ class PaywallStep extends StatelessWidget {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: onContinue,
+              onPressed: withHaptic(onContinue),
               style: ElevatedButton.styleFrom(
                 backgroundColor: c.textPrimary,
                 foregroundColor: c.card,

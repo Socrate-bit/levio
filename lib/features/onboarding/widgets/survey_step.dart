@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 class SurveyStep extends StatelessWidget {
   final String question;
@@ -44,7 +45,7 @@ class SurveyStep extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: GestureDetector(
-                onTap: () => onSelected(option),
+                onTap: withHaptic(() => onSelected(option)),
                 child: Container(
                   width: double.infinity,
                   padding:

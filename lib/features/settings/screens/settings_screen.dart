@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
@@ -388,7 +389,7 @@ class _ToggleRow extends StatelessWidget {
           Switch(
             value: value,
             activeThumbColor: AppColors.green,
-            onChanged: onChanged,
+            onChanged: withHapticValue(onChanged),
           ),
         ],
       ),
@@ -413,7 +414,7 @@ class _LinkRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return GestureDetector(
-      onTap: onTap,
+      onTap: withHaptic(onTap),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
@@ -470,7 +471,7 @@ class _ActionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: withHaptic(onTap),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(

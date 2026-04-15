@@ -4,6 +4,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../../shared/widgets/hexagon_badge.dart';
 import '../cubit/milestones_cubit.dart';
 import '../cubit/milestones_state.dart';
@@ -41,7 +42,7 @@ class _MilestonesView extends StatelessWidget {
                   child: Row(
                     children: [
                       GestureDetector(
-                        onTap: () => Navigator.pop(ctx),
+                        onTap: withHaptic(() => Navigator.pop(ctx)),
                         child: Container(
                           width: 36,
                           height: 36,
@@ -360,7 +361,7 @@ class _HowStreaksWork extends StatelessWidget {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: onDismiss,
+                onTap: withHaptic(onDismiss),
                 child: Icon(Icons.close,
                     size: 18, color: c.textSecondary),
               ),
@@ -414,12 +415,12 @@ class _BadgeCell extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: badge.earned
-          ? () => Navigator.push(
+          ? withHaptic(() => Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => BadgeUnlockScreen(badge: badge),
                 ),
-              )
+              ))
           : null,
       child: Column(
         mainAxisSize: MainAxisSize.min,

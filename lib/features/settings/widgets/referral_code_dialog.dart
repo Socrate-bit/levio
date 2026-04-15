@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
 
@@ -98,18 +99,18 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
             TextButton(
               onPressed: isSubmitting
                   ? null
-                  : () {
+                  : withHaptic(() {
                       context.read<AuthCubit>().clearRedeemStatus();
                       Navigator.of(context).pop();
-                    },
+                    }),
               child: Text(l10n.referralCancel, style: TextStyle(color: c.textSecondary)),
             ),
             TextButton(
               onPressed: isSubmitting
                   ? null
-                  : () => context
+                  : withHaptic(() => context
                       .read<AuthCubit>()
-                      .redeemReferralCode(_controller.text),
+                      .redeemReferralCode(_controller.text)),
               child: isSubmitting
                   ? const SizedBox(
                       width: 18,

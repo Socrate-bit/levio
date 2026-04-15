@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -177,7 +178,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         children: [
                           if (_currentPage > 0 && _currentPage != 31)
                             GestureDetector(
-                              onTap: _back,
+                              onTap: withHaptic(_back),
                               child: Container(
                                 width: 32,
                                 height: 32,
@@ -653,13 +654,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           height: 56,
                           child: ElevatedButton(
                             onPressed: _canContinue(state)
-                                ? () {
+                                ? withHaptic(() {
                                     // Special: rating step triggers in_app_review
                                     if (_currentPage == 28) {
                                       InAppReview.instance.requestReview();
                                     }
                                     _next();
-                                  }
+                                  })
                                 : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: c.textPrimary,
@@ -739,7 +740,7 @@ class _StandaloneSignInScreen extends StatelessWidget {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: withHaptic(() => Navigator.of(context).pop()),
                     child: Container(
                       width: 32,
                       height: 32,

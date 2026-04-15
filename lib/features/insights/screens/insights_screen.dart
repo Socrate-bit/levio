@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/hexagon_badge.dart';
@@ -183,7 +184,7 @@ class _RangeToggle extends StatelessWidget {
           final isSelected = selected == r;
           return Expanded(
             child: GestureDetector(
-              onTap: () => onChanged(r),
+              onTap: withHaptic(() => onChanged(r)),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -227,7 +228,7 @@ class _StreakCard extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
-      onTap: onTap,
+      onTap: withHaptic(onTap),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -278,7 +279,7 @@ class _BadgesCard extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
-      onTap: onTap,
+      onTap: withHaptic(onTap),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -405,7 +406,7 @@ class _ConsistencyCard extends StatelessWidget {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () => _showInfo(context),
+                onTap: withHaptic(() => _showInfo(context)),
                 child: Icon(Icons.help_outline,
                     size: 18, color: c.textSecondary),
               ),
@@ -509,7 +510,7 @@ class _ConsistencyCard extends StatelessWidget {
         content: Text(l10n.insightsConsistencyScoreBody),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: withHaptic(() => Navigator.pop(context)),
             child: Text(l10n.insightsOk),
           ),
         ],

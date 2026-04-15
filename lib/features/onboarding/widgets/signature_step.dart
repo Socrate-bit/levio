@@ -3,6 +3,7 @@ import 'package:signature/signature.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 class SignatureStep extends StatefulWidget {
   final String alarmTimeText;
@@ -83,7 +84,7 @@ class _SignatureStepState extends State<SignatureStep> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: _controller.isNotEmpty ? widget.onCommit : null,
+              onPressed: _controller.isNotEmpty ? withHaptic(widget.onCommit) : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: c.textPrimary,
                 foregroundColor: c.card,

@@ -13,6 +13,7 @@ import '../widgets/skeleton_painter.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../../shared/widgets/levio_brand_header.dart';
 
 /// Shared dismiss-screen UI for rep-based exercises (push-ups, squats, …).
@@ -174,7 +175,7 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: withHaptic(() => Navigator.of(context).pop()),
                       child: Container(
                         width: 36,
                         height: 36,

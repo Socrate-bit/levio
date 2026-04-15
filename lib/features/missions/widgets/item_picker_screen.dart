@@ -3,6 +3,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 /// Data for the item picker grid.
 class ItemPickerData {
@@ -198,7 +199,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
                       width: 36,
                       height: 36,
@@ -237,8 +238,8 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                   ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () => _toggleAll(
-                        _selected.length < _allItems.length),
+                    onTap: withHaptic(() => _toggleAll(
+                        _selected.length < _allItems.length)),
                     child: Text(
                       _selected.length < _allItems.length
                           ? l10n.itemPickerSelectAll
@@ -313,7 +314,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                         ),
                         const SizedBox(width: 8),
                         GestureDetector(
-                          onTap: _addCustom,
+                          onTap: withHaptic(_addCustom),
                           child: Container(
                             width: 44,
                             height: 44,
@@ -337,8 +338,8 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: ElevatedButton(
-                onPressed: () =>
-                    Navigator.pop(context, _selected.toList()),
+                onPressed: withHaptic(() =>
+                    Navigator.pop(context, _selected.toList())),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: c.textPrimary,
                   foregroundColor: c.background,
@@ -376,7 +377,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
         final item = items[i];
         final selected = _selected.contains(item.label);
         return GestureDetector(
-          onTap: () {
+          onTap: withHaptic(() {
             setState(() {
               if (selected) {
                 _selected.remove(item.label);
@@ -384,7 +385,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                 _selected.add(item.label);
               }
             });
-          },
+          }),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             decoration: BoxDecoration(

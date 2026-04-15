@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../alarms/data/sounds.dart';
 
 class SoundPickerStep extends StatefulWidget {
@@ -99,8 +100,8 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: GestureDetector(
-                        onTap: () =>
-                            widget.onSelected(sound.id, sound.name),
+                        onTap: withHaptic(() =>
+                            widget.onSelected(sound.id, sound.name)),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 14),
@@ -136,7 +137,7 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                               ),
                               GestureDetector(
                                 behavior: HitTestBehavior.opaque,
-                                onTap: () => _previewSound(sound.id),
+                                onTap: withHaptic(() => _previewSound(sound.id)),
                                 child: Padding(
                                   padding: const EdgeInsets.all(4),
                                   child: Icon(

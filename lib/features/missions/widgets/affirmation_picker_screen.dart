@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../dismiss/data/affirmations.dart';
 
 /// Full-screen picker for selecting affirmations.
@@ -62,7 +63,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
                       width: 36,
                       height: 36,
@@ -101,7 +102,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                   ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {
+                    onTap: withHaptic(() {
                       setState(() {
                         if (_selected.length < _allItems.length) {
                           _selected = _allItems.toSet();
@@ -109,7 +110,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                           _selected.clear();
                         }
                       });
-                    },
+                    }),
                     child: Text(
                       _selected.length < _allItems.length
                           ? l10n.affirmationPickerSelectAll
@@ -136,7 +137,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                   final item = _allItems[i];
                   final selected = _selected.contains(item);
                   return GestureDetector(
-                    onTap: () {
+                    onTap: withHaptic(() {
                       setState(() {
                         if (selected) {
                           _selected.remove(item);
@@ -144,7 +145,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                           _selected.add(item);
                         }
                       });
-                    },
+                    }),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 12),
@@ -212,7 +213,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
-                    onTap: _addCustom,
+                    onTap: withHaptic(_addCustom),
                     child: Container(
                       width: 44,
                       height: 44,
@@ -232,8 +233,8 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: ElevatedButton(
-                onPressed: () =>
-                    Navigator.pop(context, _selected.toList()),
+                onPressed: withHaptic(() =>
+                    Navigator.pop(context, _selected.toList())),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: c.textPrimary,
                   foregroundColor: c.background,

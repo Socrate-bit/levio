@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
+import '../../../shared/utils/haptic_utils.dart';
 import '../../missions/models/mission.dart';
 
 /// Interstitial screen shown before each mission in a multi-mission sequence.
@@ -50,7 +51,7 @@ class MissionStartScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: ElevatedButton(
-                onPressed: onStart,
+                onPressed: withHaptic(onStart),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,

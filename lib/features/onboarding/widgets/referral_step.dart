@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../cubit/onboarding_state.dart';
 
 class ReferralStep extends StatelessWidget {
@@ -77,7 +78,7 @@ class ReferralStep extends StatelessWidget {
                       onPressed: code.trim().isEmpty ||
                               status == ReferralStatus.checking
                           ? null
-                          : onSubmit,
+                          : withHaptic(onSubmit),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: c.textSecondary,
                         foregroundColor: c.card,
