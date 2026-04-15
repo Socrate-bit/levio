@@ -51,9 +51,7 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
     }
 
     // AlarmKit uses @unknown default for the alerting state in iOS 26.
-    // Exclude alarms we already stopped/cancelled to prevent spurious ring events on restart.
     private func isAlerting(_ alarm: Alarm) -> Bool {
-        if LevioAlarmKit.stoppedIds().contains(alarm.id.uuidString) { return false }
         switch alarm.state {
         case .scheduled:
             return false
@@ -69,27 +67,6 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
 @available(iOS 26.0, *)
 public class LevioAlarmKit: NSObject, FlutterPlugin {
     private static var registrar: FlutterPluginRegistrar?
-    private static let stoppedIdsKey = "levio_stopped_ids"
-
-    // MARK: - Stopped-IDs helpers (shared with stream handler)
-
-    static func stoppedIds() -> Set<String> {
-        Set(UserDefaults.standard.stringArray(forKey: stoppedIdsKey) ?? [])
-    }
-
-    private func addStoppedId(_ id: String) {
-        let defaults = UserDefaults.standard
-        var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
-        if !ids.contains(id) { ids.append(id) }
-        defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)
-    }
-
-    private func removeStoppedId(_ id: String) {
-        let defaults = UserDefaults.standard
-        var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
-        ids.removeAll { $0 == id }
-        defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)
-    }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
@@ -173,7 +150,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         do {
             let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
-            removeStoppedId(alarm.id.uuidString)
             saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
                        isOneShot: true, timestampMs: timestampMs)
             result(alarm.id.uuidString)
@@ -212,7 +188,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         do {
             let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
-            removeStoppedId(alarm.id.uuidString)
             saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
                        isOneShot: false, weekdayMask: mask, hour: hour, minute: minute)
             result(alarm.id.uuidString)
@@ -258,11 +233,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 NSLog("[LevioAlarmKit] stopAlarm: id=%@ — alarm not found in AlarmManager", idString)
             }
             try AlarmManager.shared.stop(id: uuid)
-            // Only track snooze IDs as stopped; recurring alarms will fire again.
-            let isSnooze = UserDefaults.standard.string(forKey: "levio_snooze_\(idString)") != nil
-            if isSnooze {
-                addStoppedId(idString)
-            }
             result(nil)
         } catch {
             NSLog("[LevioAlarmKit] stopAlarm FAILED: id=%@ error=%@", idString, "\(error)")
@@ -280,11 +250,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         do {
             let alarms = try AlarmManager.shared.alarms
             let nativeIds = Set(alarms.map { $0.id.uuidString })
-            // Prune stopped-IDs set to only contain IDs still in native system
-            let defaults = UserDefaults.standard
-            let stopped = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
-            let pruned = stopped.filter { nativeIds.contains($0) }
-            defaults.set(pruned, forKey: LevioAlarmKit.stoppedIdsKey)
             result(Array(nativeIds))
         } catch {
             result([String]())
@@ -342,9 +307,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     private func getRingingId(result: @escaping FlutterResult) async {
         do {
             let alarms = try AlarmManager.shared.alarms
-            let stopped = LevioAlarmKit.stoppedIds()
             let ringing = alarms.first { alarm in
-                if stopped.contains(alarm.id.uuidString) { return false }
                 switch alarm.state {
                 case .scheduled: return false
                 @unknown default: return true
@@ -443,9 +406,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 defaults.removeObject(forKey: key)
             }
         }
-        var ids = defaults.stringArray(forKey: LevioAlarmKit.stoppedIdsKey) ?? []
-        ids.removeAll { $0 == idString }
-        defaults.set(ids, forKey: LevioAlarmKit.stoppedIdsKey)
         result(nil)
     }
 
