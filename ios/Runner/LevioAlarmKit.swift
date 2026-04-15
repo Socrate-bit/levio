@@ -377,10 +377,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         do {
             try await AlarmManager.shared.schedule(id: newId, configuration: alarmConfig)
-            removeStoppedId(newId.uuidString)
-            saveConfig(id: newId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
-                       isOneShot: true, timestampMs: fireDate.timeIntervalSince1970 * 1000)
             // Link snooze → original so _resolveEntry can look up mission info.
+            // Don't save config for snoozes; they use the original's config.
             defaults.set(originalId, forKey: "levio_snooze_\(newId.uuidString)")
             result(newId.uuidString)
         } catch {
