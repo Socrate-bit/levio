@@ -418,7 +418,15 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             return
         }
         let defaults = UserDefaults.standard
+        // Remove snooze link for this ID (if it's a snooze).
         defaults.removeObject(forKey: "levio_snooze_\(idString)")
+        // Remove snooze links where this ID is the original alarm.
+        for key in defaults.dictionaryRepresentation().keys {
+            if key.hasPrefix("levio_snooze_"),
+               defaults.string(forKey: key) == idString {
+                defaults.removeObject(forKey: key)
+            }
+        }
         result(nil)
     }
 
