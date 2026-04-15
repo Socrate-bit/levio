@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
 
@@ -112,6 +114,18 @@ final natureHuntPickerData = ItemPickerData(
   ],
 );
 
+/// Returns the localized section name for item picker sections.
+String _localizedSectionName(AppLocalizations l10n, String name) {
+  switch (name) {
+    case 'Household Items':
+      return l10n.itemPickerHouseholdItems;
+    case 'Fun Items':
+      return l10n.itemPickerFunItems;
+    default:
+      return name;
+  }
+}
+
 /// Full-screen multi-select picker with emoji grid.
 class ItemPickerScreen extends StatefulWidget {
   final String title;
@@ -172,6 +186,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -217,7 +232,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
               child: Row(
                 children: [
                   Text(
-                    '${_selected.length} selected',
+                    l10n.itemPickerSelected(_selected.length),
                     style: TextStyle(fontSize: 14, color: c.textSecondary),
                   ),
                   const Spacer(),
@@ -226,8 +241,8 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                         _selected.length < _allItems.length),
                     child: Text(
                       _selected.length < _allItems.length
-                          ? 'Select All'
-                          : 'Deselect All',
+                          ? l10n.itemPickerSelectAll
+                          : l10n.itemPickerDeselectAll,
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.green,
@@ -260,7 +275,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                     if (section.name.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
-                        section.name,
+                        _localizedSectionName(l10n, section.name),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -269,7 +284,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                       ),
                       const SizedBox(height: 8),
                     ],
-                    _buildGrid(section.items, c),
+                    _buildGrid(section.items, c, l10n),
                     const SizedBox(height: 8),
                   ],
                   // Add your own
@@ -282,7 +297,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                             controller: _customCtrl,
                             style: TextStyle(fontSize: 15, color: c.textPrimary),
                             decoration: InputDecoration(
-                              hintText: 'Add your own item',
+                              hintText: l10n.itemPickerAddOwn,
                               hintStyle: TextStyle(color: c.textSecondary),
                               filled: true,
                               fillColor: c.card,
@@ -333,9 +348,9 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(
+                child: Text(
+                  l10n.itemPickerDone,
+                  style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -346,7 +361,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
     );
   }
 
-  Widget _buildGrid(List<ItemPickerItem> items, AppColors c) {
+  Widget _buildGrid(List<ItemPickerItem> items, AppColors c, AppLocalizations l10n) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -389,7 +404,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  item.label,
+                  localizedItemName(l10n, item.label),
                   style: TextStyle(
                     fontSize: 12,
                     color: c.textPrimary,

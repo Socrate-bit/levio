@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../cubit/onboarding_state.dart';
 
@@ -20,6 +21,7 @@ class ReferralStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return LayoutBuilder(
       builder: (context, constraints) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -28,7 +30,7 @@ class ReferralStep extends StatelessWidget {
           children: [
             const SizedBox(height: 16),
             Text(
-              'Enter referral code\n(optional)',
+              l10n.onboardingReferralTitle,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -38,7 +40,7 @@ class ReferralStep extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'You can skip this step',
+              l10n.onboardingReferralSubtitle,
               style: TextStyle(fontSize: 16, color: c.textSecondary),
             ),
             const Spacer(),
@@ -50,7 +52,7 @@ class ReferralStep extends StatelessWidget {
                     child: TextField(
                       onChanged: onCodeChanged,
                       decoration: InputDecoration(
-                        hintText: 'Referral Code',
+                        hintText: l10n.onboardingReferralLabel,
                         hintStyle: TextStyle(color: c.textSecondary),
                         filled: true,
                         fillColor: c.card,
@@ -93,7 +95,7 @@ class ReferralStep extends StatelessWidget {
                               ),
                             )
                           : Text(
-                              'Submit',
+                              l10n.onboardingReferralSubmit,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -112,7 +114,7 @@ class ReferralStep extends StatelessWidget {
                   const Icon(Icons.check_circle, color: Colors.green, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'Referral code applied!',
+                    l10n.onboardingReferralApplied,
                     style: TextStyle(
                         fontSize: 14, color: Colors.green.shade700),
                   ),
@@ -126,7 +128,7 @@ class ReferralStep extends StatelessWidget {
                   const Icon(Icons.error_outline, color: Colors.red, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'Invalid referral code',
+                    l10n.onboardingReferralInvalid,
                     style:
                         TextStyle(fontSize: 14, color: Colors.red.shade700),
                   ),
@@ -140,7 +142,7 @@ class ReferralStep extends StatelessWidget {
                   const Icon(Icons.block, color: Colors.orange, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'This code has reached its usage limit',
+                    l10n.onboardingReferralLimit,
                     style:
                         TextStyle(fontSize: 14, color: Colors.orange.shade700),
                   ),

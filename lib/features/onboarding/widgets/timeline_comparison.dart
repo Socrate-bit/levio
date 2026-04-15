@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class TimelineComparison extends StatelessWidget {
@@ -8,6 +9,7 @@ class TimelineComparison extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -16,7 +18,7 @@ class TimelineComparison extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'TYPICAL MORNING',
+                l10n.onboardingTimelineTypical,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -35,7 +37,7 @@ class TimelineComparison extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'LEVIO MORNING',
+                l10n.onboardingTimelineLevio,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -59,6 +61,7 @@ class _TypicalTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         _TimelineNode(
@@ -66,7 +69,7 @@ class _TypicalTimeline extends StatelessWidget {
           iconColor: const Color(0xFFFFC107),
           bgColor: const Color(0xFFFFF8E1),
           time: '7:00',
-          label: 'Alarm',
+          label: l10n.onboardingTimelineAlarm,
           lineColor: const Color(0xFFFFC107),
         ),
         _ZigzagLine(color: const Color(0xFFFFC107)),
@@ -75,7 +78,7 @@ class _TypicalTimeline extends StatelessWidget {
           iconColor: const Color(0xFFFF9800),
           bgColor: const Color(0xFFFFF3E0),
           time: '7:09',
-          label: 'Snooze',
+          label: l10n.onboardingTimelineSnooze,
           lineColor: const Color(0xFFFF6B6B),
         ),
         _ZigzagLine(color: const Color(0xFFFF6B6B)),
@@ -84,7 +87,7 @@ class _TypicalTimeline extends StatelessWidget {
           iconColor: const Color(0xFFFF6B6B),
           bgColor: const Color(0xFFFFEBEE),
           time: '7:18',
-          label: 'Snooze',
+          label: l10n.onboardingTimelineSnooze,
           lineColor: const Color(0xFFFF6B6B),
         ),
         _ZigzagLine(color: const Color(0xFFFF6B6B)),
@@ -93,7 +96,7 @@ class _TypicalTimeline extends StatelessWidget {
           iconColor: const Color(0xFFFF5252),
           bgColor: const Color(0xFFFFEBEE),
           time: '7:27',
-          label: 'Panic',
+          label: l10n.onboardingTimelinePanic,
         ),
       ],
     );
@@ -106,6 +109,7 @@ class _LevioTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         _TimelineNode(
@@ -113,7 +117,7 @@ class _LevioTimeline extends StatelessWidget {
           iconColor: AppColors.green,
           bgColor: const Color(0xFFE8F5E9),
           time: '7:00',
-          label: 'Alarm',
+          label: l10n.onboardingTimelineAlarm,
           lineColor: AppColors.green,
         ),
         _StraightLine(color: AppColors.green),
@@ -122,7 +126,7 @@ class _LevioTimeline extends StatelessWidget {
           iconColor: AppColors.green,
           bgColor: const Color(0xFFE8F5E9),
           time: '7:01',
-          label: 'Mission',
+          label: l10n.onboardingTimelineMission,
           lineColor: AppColors.green,
         ),
         _StraightLine(color: AppColors.green),
@@ -131,7 +135,7 @@ class _LevioTimeline extends StatelessWidget {
           iconColor: AppColors.green,
           bgColor: const Color(0xFFE8F5E9),
           time: '7:02',
-          label: 'Started',
+          label: l10n.onboardingTimelineStarted,
         ),
         const SizedBox(height: 12),
         Container(
@@ -143,7 +147,7 @@ class _LevioTimeline extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                '25 MINS',
+                l10n.onboardingTimelineMins,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -151,7 +155,7 @@ class _LevioTimeline extends StatelessWidget {
                 ),
               ),
               Text(
-                'GAINED',
+                l10n.onboardingTimelineGained,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

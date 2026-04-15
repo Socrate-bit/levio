@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
 
@@ -36,7 +37,7 @@ class _SignInStepState extends State<SignInStep> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Google sign-in failed. Please try again.'),
+            content: Text(AppLocalizations.of(context).onboardingGoogleFailed),
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.only(
@@ -62,7 +63,7 @@ class _SignInStepState extends State<SignInStep> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Apple sign-in failed. Please try again.'),
+            content: Text(AppLocalizations.of(context).onboardingAppleFailed),
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.only(
@@ -81,6 +82,7 @@ class _SignInStepState extends State<SignInStep> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -108,7 +110,7 @@ class _SignInStepState extends State<SignInStep> {
               onPressed: _loading ? null : _handleAppleSignIn,
               icon: Icon(Icons.apple, size: 24, color: c.card),
               label: Text(
-                'Sign in with Apple',
+                l10n.onboardingSignInApple,
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
@@ -137,7 +139,7 @@ class _SignInStepState extends State<SignInStep> {
                 ),
               ),
               child: Text(
-                'Continue with Google',
+                l10n.onboardingSignInGoogle,
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
@@ -164,7 +166,7 @@ class _SignInStepState extends State<SignInStep> {
                 }
               },
               child: Text(
-                'Skip for now',
+                l10n.onboardingSkipForNow,
                 style: TextStyle(
                   fontSize: 16,
                   color: c.textSecondary,

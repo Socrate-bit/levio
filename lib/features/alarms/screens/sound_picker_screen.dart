@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../data/sounds.dart';
 
@@ -42,6 +44,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -64,11 +67,11 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                           size: 18, color: c.textPrimary),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        'Alarm Sound',
-                        style: TextStyle(
+                        l10n.soundPickerTitle,
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -86,7 +89,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                 children: [
                   const SizedBox(height: 20),
                   // Your Sounds section
-                  _SectionHeader(title: 'Your Sounds'),
+                  _SectionHeader(title: l10n.soundPickerYourSounds),
                   Container(
                     margin: const EdgeInsets.only(top: 8, bottom: 4),
                     padding: const EdgeInsets.symmetric(
@@ -101,7 +104,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                             size: 18, color: c.textSecondary),
                         const SizedBox(width: 12),
                         Text(
-                          'Upload Sound',
+                          l10n.soundPickerUpload,
                           style: TextStyle(
                             fontSize: 15,
                             color: c.textPrimary,
@@ -118,7 +121,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _SectionHeader(
-                          title: cat,
+                          title: localizedSoundCategory(l10n, cat),
                           icon: soundCategoryIcons[cat],
                         ),
                         const SizedBox(height: 8),
@@ -177,7 +180,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                       ),
                                       const SizedBox(width: 14),
                                       Text(
-                                        sound.name,
+                                        localizedSoundName(l10n, sound.id),
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: c.textPrimary,
@@ -219,7 +222,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                       alarmSounds.firstWhere((s) => s.id == _selectedId);
                   Navigator.pop(context, {'id': sound.id, 'name': sound.name});
                 },
-                child: const Text('Select Sound'),
+                child: Text(l10n.soundPickerSelect),
               ),
             ),
           ],
@@ -262,15 +265,16 @@ class _NewBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: Colors.white24,
         borderRadius: BorderRadius.circular(6),
       ),
-      child: const Text(
-        'NEW',
-        style: TextStyle(
+      child: Text(
+        l10n.soundPickerNew,
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 10,
           fontWeight: FontWeight.bold,
@@ -285,20 +289,21 @@ class _CreditBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white24,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('✨', style: TextStyle(fontSize: 12)),
-          SizedBox(width: 4),
+          const Text('✨', style: TextStyle(fontSize: 12)),
+          const SizedBox(width: 4),
           Text(
-            '1 credit',
-            style: TextStyle(color: Colors.white, fontSize: 12),
+            l10n.soundPickerCredit,
+            style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
         ],
       ),

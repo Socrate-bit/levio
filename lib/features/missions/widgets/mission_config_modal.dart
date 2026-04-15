@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../app.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -79,14 +81,23 @@ Future<MissionConfig?> _showItemPickerForMission(
   MissionInfo info,
   MissionConfig? existing,
 ) async {
+  final l10n = AppLocalizations.of(context);
   final ItemPickerData data;
+  final String title;
+  final String subtitle;
   switch (info.type) {
     case MissionType.objectHunt:
       data = objectHuntPickerData;
+      title = l10n.itemPickerSelectItems;
+      subtitle = l10n.itemPickerRandomItem;
     case MissionType.petHunt:
       data = petHuntPickerData;
+      title = l10n.itemPickerSelectPets;
+      subtitle = l10n.itemPickerPetsSubtitle;
     case MissionType.natureHunt:
       data = natureHuntPickerData;
+      title = l10n.itemPickerSelectNature;
+      subtitle = l10n.itemPickerNatureSubtitle;
     default:
       return null;
   }
@@ -95,8 +106,8 @@ Future<MissionConfig?> _showItemPickerForMission(
     context,
     MaterialPageRoute(
       builder: (_) => ItemPickerScreen(
-        title: data.title,
-        subtitle: data.subtitle,
+        title: title,
+        subtitle: subtitle,
         sections: data.sections,
         preselected: existing?.selectedItems,
         showAddCustom: info.type == MissionType.objectHunt,
@@ -162,6 +173,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
   }
 
   void _preview() {
+    final l10n = AppLocalizations.of(context);
     final config = _buildConfig();
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -169,7 +181,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
           config: config,
           alarmId: 'preview',
           nativeAlarmId: 'preview',
-          alarmLabel: 'Preview',
+          alarmLabel: l10n.missionPickerPreview,
           isPreview: true,
           manageAlarm: false,
         ),
@@ -180,6 +192,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final isMath = widget.info.type == MissionType.math;
     final isRep = widget.info.type == MissionType.pushUps ||
         widget.info.type == MissionType.squats ||
@@ -204,7 +217,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
           ),
           const SizedBox(height: 12),
           Text(
-            widget.info.name,
+            localizedMissionName(l10n, widget.info.type),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -213,7 +226,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            widget.info.description,
+            localizedMissionDesc(l10n, widget.info.type),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: c.textSecondary),
           ),
@@ -223,8 +236,8 @@ class _ConfigSheetState extends State<_ConfigSheet> {
           if (isRep) ...[
             Text(
               widget.info.type == MissionType.shakePhone
-                  ? 'Number of shakes'
-                  : 'Number of reps',
+                  ? l10n.missionConfigNumberOfShakes
+                  : l10n.missionConfigNumberOfReps,
               style: TextStyle(fontSize: 14, color: c.textSecondary),
             ),
             const SizedBox(height: 12),
@@ -240,7 +253,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
           // Math config
           if (isMath) ...[
             Text(
-              'Number of problems',
+              l10n.missionConfigNumberOfProblems,
               style: TextStyle(fontSize: 14, color: c.textSecondary),
             ),
             const SizedBox(height: 12),
@@ -252,7 +265,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Difficulty',
+              l10n.missionConfigDifficulty,
               style: TextStyle(fontSize: 14, color: c.textSecondary),
             ),
             const SizedBox(height: 12),
@@ -260,9 +273,9 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               children: MathDifficulty.values.map((d) {
                 final selected = _mathDifficulty == d;
                 final label = switch (d) {
-                  MathDifficulty.easy => 'Easy',
-                  MathDifficulty.medium => 'Medium',
-                  MathDifficulty.hard => 'Hard',
+                  MathDifficulty.easy => l10n.missionConfigEasy,
+                  MathDifficulty.medium => l10n.missionConfigMedium,
+                  MathDifficulty.hard => l10n.missionConfigHard,
                 };
                 return Expanded(
                   child: GestureDetector(
@@ -308,7 +321,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                     side: BorderSide(color: c.separator),
                   ),
                   child: Text(
-                    'Preview',
+                    l10n.missionPickerPreview,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -331,9 +344,9 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Choose This Mission',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.missionConfigChoose,
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),

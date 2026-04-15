@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
@@ -42,6 +44,7 @@ class _HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         return Scaffold(
@@ -76,7 +79,7 @@ class _HomeView extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Next Wake Up',
+                                    l10n.homeNextWakeUp,
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -98,7 +101,7 @@ class _HomeView extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "Today's Wakeup",
+                                  l10n.homeTodaysWakeup,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -114,7 +117,7 @@ class _HomeView extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    'See All',
+                                    l10n.homeSeeAll,
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: c.textSecondary,
@@ -150,12 +153,13 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Image.asset('assets/icon.png', width: 28, height: 28),
         const SizedBox(width: 6),
         Text(
-          'Levio',
+          l10n.appTitle,
           style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,
@@ -200,11 +204,11 @@ class _WeekRow extends StatelessWidget {
   final List<DayStatus> weekDays;
   const _WeekRow({required this.weekDays});
 
-  static const _labels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final labels = [l10n.daySingleS, l10n.daySingleM, l10n.daySingleT, l10n.daySingleW, l10n.daySingleT, l10n.daySingleF, l10n.daySingleS];
     final todayIndex = DateTime.now().weekday % 7; // 0=Sun
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -214,7 +218,7 @@ class _WeekRow extends StatelessWidget {
         return Column(
           children: [
             Text(
-              _labels[i],
+              labels[i],
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
@@ -251,6 +255,7 @@ class _NoAlarmCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -296,7 +301,7 @@ class _NoAlarmCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'No active alarm',
+                    l10n.homeNoActiveAlarm,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -305,7 +310,7 @@ class _NoAlarmCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Tap to create one with a mission',
+                    l10n.homeNoActiveAlarmHint,
                     style: TextStyle(fontSize: 13, color: c.textSecondary),
                   ),
                 ],
@@ -360,6 +365,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final alarm = widget.alarm;
     final now = DateTime.now();
     final diff = alarm.dateTime.difference(now);
@@ -399,10 +405,10 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
           children: [
             Text(
               diff.isNegative
-                  ? 'Today'
+                  ? l10n.homeToday
                   : diff.inHours < 24
-                  ? 'Today'
-                  : 'Tomorrow',
+                  ? l10n.homeToday
+                  : l10n.homeTomorrow,
               style: TextStyle(fontSize: 14, color: c.textSecondary),
             ),
             const SizedBox(height: 4),
@@ -443,8 +449,8 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                 const SizedBox(width: 4),
                 Text(
                   diff.isNegative
-                      ? 'Past alarm'
-                      : 'Rings in ${hoursLeft}h ${minsLeft}m',
+                      ? l10n.homePastAlarm
+                      : l10n.homeRingsIn(hoursLeft, minsLeft),
                   style: TextStyle(fontSize: 13, color: c.textSecondary),
                 ),
               ],
@@ -455,18 +461,18 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                 _MiniInfoCard(
                   icon: firstMission.icon,
                   iconColor: firstMission.iconColor,
-                  label: 'Mission',
+                  label: l10n.homeMission,
                   value: alarm.missions.length > 1
                       ? '${alarm.missions.length} Missions'
-                      : firstMission.name,
+                      : localizedMissionName(l10n, alarm.missions.isNotEmpty ? alarm.missions.first.type : MissionType.none),
                   onTap: _pickMission,
                 ),
                 const SizedBox(width: 10),
                 _MiniInfoCard(
                   icon: Icons.music_note,
                   iconColor: const Color(0xFFFFCC00),
-                  label: 'Sound',
-                  value: alarm.soundId == 'default' ? 'Default' : alarm.soundId,
+                  label: l10n.homeSound,
+                  value: alarm.soundId == 'default' ? l10n.generalDefault : localizedSoundName(l10n, alarm.soundId),
                   onTap: _pickSound,
                 ),
               ],
@@ -538,15 +544,16 @@ class _WakeupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final ts = session.timestamp as DateTime;
     final hour = ts.hour > 12 ? ts.hour - 12 : ts.hour;
     final isPM = ts.hour >= 12;
     final timeStr =
         '$hour:${ts.minute.toString().padLeft(2, '0')} ${isPM ? 'pm' : 'am'}';
-    final dateStr = '${_monthName(ts.month)} ${ts.day}';
+    final dateStr = '${localizedMonth(l10n, ts.month)} ${ts.day}';
     final missionType = session.missionType;
     final label = missionType != null
-        ? missionInfoFor(missionType as MissionType).name
+        ? localizedMissionName(l10n, missionType as MissionType)
         : 'Alarm';
 
     return ClipRRect(
@@ -648,31 +655,13 @@ class _WakeupCard extends StatelessWidget {
     );
   }
 
-  String _monthName(int month) {
-
-    const names = [
-      '',
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return names[month];
-  }
 }
 
 class _EmptyWakeupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
@@ -685,7 +674,7 @@ class _EmptyWakeupCard extends StatelessWidget {
             const Text('🌅', style: TextStyle(fontSize: 48)),
             const SizedBox(height: 12),
             Text(
-              'No wakeups yet',
+              l10n.homeNoWakeupsYet,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -694,7 +683,7 @@ class _EmptyWakeupCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Set an alarm to get started',
+              l10n.homeSetAlarmToStart,
               style: TextStyle(fontSize: 14, color: c.textSecondary),
             ),
           ],

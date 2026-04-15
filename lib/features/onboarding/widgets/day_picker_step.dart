@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class DayPickerStep extends StatelessWidget {
@@ -15,19 +17,11 @@ class DayPickerStep extends StatelessWidget {
   // repeatDays index: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
   // Display order: Mon-Sun
   static const _displayOrder = [1, 2, 3, 4, 5, 6, 0];
-  static const _dayNames = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ];
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -35,7 +29,7 @@ class DayPickerStep extends StatelessWidget {
         children: [
           const SizedBox(height: 16),
           Text(
-            'Which days should Levio ring?',
+            l10n.onboardingDayPickerTitle,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -45,7 +39,7 @@ class DayPickerStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Pick the days you want to lock in.',
+            l10n.onboardingDayPickerSubtitle,
             style: TextStyle(fontSize: 16, color: c.textSecondary),
           ),
           const SizedBox(height: 32),
@@ -70,7 +64,7 @@ class DayPickerStep extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        _dayNames[dayIndex],
+                        localizedDayFull(l10n, dayIndex),
                         style: TextStyle(
                           fontSize: 16,
                           color: c.textPrimary,

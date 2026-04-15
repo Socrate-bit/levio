@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../milestones/services/streak_service.dart';
-import '../../missions/models/mission.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/services/history_service.dart';
 import 'insights_state.dart';
@@ -149,19 +148,21 @@ class InsightsCubit extends Cubit<InsightsState> {
     return '${avgSec}s';
   }
 
+  /// Returns the raw MissionType.name (e.g. 'pushUps') or '--' if none.
   String _computeFavoriteMission(List<WakeupSession> sessions) {
     if (sessions.isEmpty) return '--';
     final counts = <String, int>{};
     for (final s in sessions) {
       if (s.missionType != null) {
-        final name = missionInfoFor(s.missionType!).name;
-        counts[name] = (counts[name] ?? 0) + 1;
+        final key = s.missionType!.name;
+        counts[key] = (counts[key] ?? 0) + 1;
       }
     }
     if (counts.isEmpty) return '--';
     return counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
   }
 
+  /// Returns the raw sound ID (e.g. 'default') or '--' if none.
   String _computeFavoriteSound(List<WakeupSession> sessions) {
     if (sessions.isEmpty) return '--';
     final counts = <String, int>{};
@@ -169,9 +170,7 @@ class InsightsCubit extends Cubit<InsightsState> {
       counts[s.soundId] = (counts[s.soundId] ?? 0) + 1;
     }
     if (counts.isEmpty) return '--';
-    final topId =
-        counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-    return _soundDisplayName(topId);
+    return counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
   }
 
   double _computeConsistency(
@@ -204,11 +203,4 @@ class InsightsCubit extends Cubit<InsightsState> {
     return DateTime(date.year, date.month, date.day - daysFromSunday);
   }
 
-  String _soundDisplayName(String id) {
-    return id
-        .replaceAll('_', ' ')
-        .split(' ')
-        .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}')
-        .join(' ');
-  }
 }

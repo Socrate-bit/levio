@@ -1,70 +1,62 @@
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../missions/models/mission.dart';
 
-const missionExplanations = <MissionType, Map<String, String>>{
+/// Returns localized mission explanation strings keyed by title/subtitle/body.
+Map<MissionType, Map<String, String>> getMissionExplanations(
+    AppLocalizations l10n) => {
   MissionType.pushUps: {
-    'title': 'Why doing push ups wakes you up',
-    'subtitle': 'Gets your blood pumping right away',
-    'body':
-        'Short bursts of effort spike cortisol and adrenaline, raising heart rate and body temperature so you feel awake fast.',
+    'title': l10n.missionExplPushUpsTitle,
+    'subtitle': l10n.missionExplPushUpsSubtitle,
+    'body': l10n.missionExplPushUpsBody,
   },
   MissionType.squats: {
-    'title': 'Why doing squats wakes you up',
-    'subtitle': 'Activates your largest muscles',
-    'body':
-        'Squats engage your glutes and quads, driving blood flow to your brain and clearing morning fog in seconds.',
+    'title': l10n.missionExplSquatsTitle,
+    'subtitle': l10n.missionExplSquatsSubtitle,
+    'body': l10n.missionExplSquatsBody,
   },
   MissionType.shakePhone: {
-    'title': 'Why shaking your phone wakes you up',
-    'subtitle': 'Forces you to move',
-    'body':
-        'The physical act of shaking gets your arms moving and your brain engaged, making it impossible to drift back to sleep.',
+    'title': l10n.missionExplShakeTitle,
+    'subtitle': l10n.missionExplShakeSubtitle,
+    'body': l10n.missionExplShakeBody,
   },
   MissionType.math: {
-    'title': 'Why solving math wakes you up',
-    'subtitle': 'Wakes up your brain',
-    'body':
-        'Solving problems forces your prefrontal cortex online, cutting through sleep inertia with pure cognitive effort.',
+    'title': l10n.missionExplMathTitle,
+    'subtitle': l10n.missionExplMathSubtitle,
+    'body': l10n.missionExplMathBody,
   },
   MissionType.skyPhoto: {
-    'title': 'Why taking a sky photo wakes you up',
-    'subtitle': 'Gets you to the window',
-    'body':
-        'Walking to see the sky exposes you to natural light, the most powerful signal to your circadian clock that it\'s time to wake.',
+    'title': l10n.missionExplSkyPhotoTitle,
+    'subtitle': l10n.missionExplSkyPhotoSubtitle,
+    'body': l10n.missionExplSkyPhotoBody,
   },
   MissionType.makeBed: {
-    'title': 'Why making your bed wakes you up',
-    'subtitle': 'Starts your day with a win',
-    'body':
-        'Completing one small task creates momentum. A made bed means you\'ve already accomplished something before your day begins.',
+    'title': l10n.missionExplMakeBedTitle,
+    'subtitle': l10n.missionExplMakeBedSubtitle,
+    'body': l10n.missionExplMakeBedBody,
   },
   MissionType.objectHunt: {
-    'title': 'Why an object hunt wakes you up',
-    'subtitle': 'Gets you out of bed',
-    'body':
-        'Searching for an object forces you to stand, walk, and engage your surroundings — the ultimate anti-snooze strategy.',
+    'title': l10n.missionExplObjectHuntTitle,
+    'subtitle': l10n.missionExplObjectHuntSubtitle,
+    'body': l10n.missionExplObjectHuntBody,
   },
   MissionType.petHunt: {
-    'title': 'Why finding your pet wakes you up',
-    'subtitle': 'Morning bonding time',
-    'body':
-        'Finding your pet gets you moving and starts your day with a moment of connection and joy.',
+    'title': l10n.missionExplPetHuntTitle,
+    'subtitle': l10n.missionExplPetHuntSubtitle,
+    'body': l10n.missionExplPetHuntBody,
   },
   MissionType.natureHunt: {
-    'title': 'Why a nature hunt wakes you up',
-    'subtitle': 'Connects you to the outdoors',
-    'body':
-        'Stepping outside to photograph nature floods your senses with fresh air and light, resetting your internal clock.',
+    'title': l10n.missionExplNatureHuntTitle,
+    'subtitle': l10n.missionExplNatureHuntSubtitle,
+    'body': l10n.missionExplNatureHuntBody,
   },
   MissionType.touchGrass: {
-    'title': 'Why touching grass wakes you up',
-    'subtitle': 'Ground yourself in the morning',
-    'body':
-        'Going outside to touch grass exposes you to sunlight and fresh air, two of the strongest wake-up signals for your body.',
+    'title': l10n.missionExplTouchGrassTitle,
+    'subtitle': l10n.missionExplTouchGrassSubtitle,
+    'body': l10n.missionExplTouchGrassBody,
   },
   MissionType.affirmation: {
-    'title': 'Why affirmations wake you up',
-    'subtitle': 'Sets your mindset for the day',
-    'body':
-        'Reading affirmations aloud activates your voice and focus, replacing grogginess with intention and clarity.',
+    'title': l10n.missionExplAffirmationTitle,
+    'subtitle': l10n.missionExplAffirmationSubtitle,
+    'body': l10n.missionExplAffirmationBody,
   },
 };

@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -103,6 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -112,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Settings',
+                l10n.settingsTitle,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -147,7 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Anonymous User',
+                            l10n.settingsAnonymousUser,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -156,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Account type: ${authState.userType.name}',
+                            l10n.settingsAccountType(authState.userType.name),
                             style: TextStyle(
                               fontSize: 13,
                               color: c.textSecondary,
@@ -170,19 +173,19 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
               const SizedBox(height: 24),
               // Account section
-              _SectionTitle(title: 'Account'),
+              _SectionTitle(title: l10n.settingsAccount),
               BlocBuilder<AuthCubit, AuthState>(
                 builder: (context, authState) => _SettingsCard(children: [
                   _LinkRow(
                     icon: Icons.card_membership_outlined,
-                    label: 'User Type',
+                    label: l10n.settingsUserType,
                     value: authState.userType.name,
                     onTap: () {},
                   ),
                   const _Divider(),
                   _LinkRow(
                     icon: Icons.redeem_outlined,
-                    label: 'Enter Referral Code',
+                    label: l10n.settingsEnterReferralCode,
                     onTap: () => showDialog(
                       context: context,
                       builder: (_) => BlocProvider.value(
@@ -194,19 +197,19 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ]),
               ),
               const SizedBox(height: 16),
-              _SectionTitle(title: 'App'),
+              _SectionTitle(title: l10n.settingsApp),
               BlocBuilder<SettingsCubit, SettingsState>(
                 builder: (context, settings) => _SettingsCard(children: [
                   _ToggleRow(
                     icon: Icons.notifications_outlined,
-                    label: 'Notifications',
+                    label: l10n.settingsNotifications,
                     value: _notifications,
                     onChanged: (v) => setState(() => _notifications = v),
                   ),
                   const _Divider(),
                   _ToggleRow(
                     icon: Icons.dark_mode_outlined,
-                    label: 'Dark Mode',
+                    label: l10n.settingsDarkMode,
                     value: settings.themeMode == ThemeMode.dark,
                     onChanged: (_) =>
                         context.read<SettingsCubit>().toggleTheme(),
@@ -214,7 +217,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   const _Divider(),
                   _ToggleRow(
                     icon: Icons.music_note_outlined,
-                    label: 'Alarm During Mission',
+                    label: l10n.settingsAlarmDuringMission,
                     value: settings.keepAlarmDuringMission,
                     onChanged: (_) =>
                         context.read<SettingsCubit>().toggleKeepAlarmDuringMission(),
@@ -222,8 +225,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                   const _Divider(),
                   _LinkRow(
                     icon: Icons.notifications_outlined,
-                    label: 'Default Sound',
-                    value: settings.defaultSoundName,
+                    label: l10n.settingsDefaultSound,
+                    value: localizedSoundName(l10n, settings.defaultSoundId),
                     onTap: () async {
                       final result =
                           await Navigator.push<Map<String, String>>(
@@ -243,10 +246,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                   const _Divider(),
                   _LinkRow(
                     icon: Icons.flag_outlined,
-                    label: 'Default Mission',
-                    value: settings.defaultMission == MissionType.none
-                        ? 'None'
-                        : missionInfoFor(settings.defaultMission).name,
+                    label: l10n.settingsDefaultMission,
+                    value: localizedMissionName(l10n, settings.defaultMission),
                     onTap: () async {
                       final picked = await Navigator.push<MissionType>(
                         context,
@@ -262,42 +263,42 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ]),
               ),
               const SizedBox(height: 16),
-              _SectionTitle(title: 'About'),
+              _SectionTitle(title: l10n.settingsAbout),
               _SettingsCard(children: [
                 _LinkRow(
                   icon: Icons.privacy_tip_outlined,
-                  label: 'Privacy Policy',
+                  label: l10n.settingsPrivacyPolicy,
                   onTap: () {},
                 ),
                 const _Divider(),
                 _LinkRow(
                   icon: Icons.description_outlined,
-                  label: 'Terms of Service',
+                  label: l10n.settingsTermsOfService,
                   onTap: () {},
                 ),
               ]),
               const SizedBox(height: 16),
               if (kDebugMode) ...[
                 const SizedBox(height: 16),
-                _SectionTitle(title: 'Admin (debug only)'),
+                _SectionTitle(title: l10n.settingsAdmin),
                 _SettingsCard(children: [
                   _ActionRow(
                     icon: Icons.bug_report_outlined,
-                    label: 'Print All Alarms',
+                    label: l10n.settingsPrintAllAlarms,
                     color: AppColors.orange,
                     onTap: () => _printAllAlarms(context),
                   ),
                   const _Divider(),
                   _ActionRow(
                     icon: Icons.storage_outlined,
-                    label: 'Print SharedPreferences',
+                    label: l10n.settingsPrintSharedPreferences,
                     color: AppColors.orange,
                     onTap: _printSharedPrefs,
                   ),
                   const _Divider(),
                   _ActionRow(
                     icon: Icons.delete_sweep_outlined,
-                    label: 'Delete All Alarms',
+                    label: l10n.settingsDeleteAllAlarms,
                     color: Colors.red,
                     onTap: () => _deleteAllAlarms(context),
                   ),
@@ -306,7 +307,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               ],
               Center(
                 child: Text(
-                  'Levio v0.1.0',
+                  l10n.settingsVersion,
                   style: TextStyle(
                     fontSize: 13,
                     color: c.textSecondary,

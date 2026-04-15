@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class RatingStep extends StatelessWidget {
@@ -8,6 +9,7 @@ class RatingStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -21,7 +23,7 @@ class RatingStep extends StatelessWidget {
                 style: TextStyle(fontSize: 28)),
           ),
           Text(
-            'Give us a rating',
+            l10n.onboardingRatingTitle,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -30,7 +32,7 @@ class RatingStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Levio was made for\npeople like you',
+            l10n.onboardingRatingSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 22,
@@ -40,23 +42,20 @@ class RatingStep extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           _TestimonialCard(
-            name: 'Marc L.',
-            review:
-                "I used to set 5 alarms every morning. Now I wake up on the first one and actually feel good about it.",
+            name: l10n.onboardingRatingMarc,
+            review: l10n.onboardingRatingMarcReview,
             colors: c,
           ),
           const SizedBox(height: 12),
           _TestimonialCard(
-            name: 'Sophie D.',
-            review:
-                "The mission feature is brilliant. Doing push-ups at 6am sounds crazy, but it genuinely wakes me up faster than coffee.",
+            name: l10n.onboardingRatingSophie,
+            review: l10n.onboardingRatingSophieReview,
             colors: c,
           ),
           const SizedBox(height: 12),
           _TestimonialCard(
-            name: 'Alex T.',
-            review:
-                "Finally an alarm app that actually works. I've tried everything and Levio is the only one that gets me out of bed.",
+            name: l10n.onboardingRatingAlex,
+            review: l10n.onboardingRatingAlexReview,
             colors: c,
           ),
           const SizedBox(height: 24),

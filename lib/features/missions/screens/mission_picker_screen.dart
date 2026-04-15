@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../app.dart' show buildDismissScreen;
@@ -24,6 +26,7 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -46,11 +49,11 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                           size: 18, color: c.textPrimary),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        'Choose Mission',
-                        style: TextStyle(
+                        l10n.missionPickerTitle,
+                        style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -68,10 +71,10 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: MissionCategory.values.map((cat) {
                   final label = switch (cat) {
-                    MissionCategory.all => 'All',
-                    MissionCategory.trending => 'Trending',
-                    MissionCategory.hunts => 'Hunts',
-                    MissionCategory.physical => 'Physical',
+                    MissionCategory.all => l10n.missionPickerAll,
+                    MissionCategory.trending => l10n.missionPickerTrending,
+                    MissionCategory.hunts => l10n.missionPickerHunts,
+                    MissionCategory.physical => l10n.missionPickerPhysical,
                   };
                   final icon = switch (cat) {
                     MissionCategory.all => '\u26a1',
@@ -143,6 +146,7 @@ class _MissionCard extends StatelessWidget {
   }
 
   void _preview(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final config = MissionConfig(type: info.type);
     Navigator.push(
       context,
@@ -151,7 +155,7 @@ class _MissionCard extends StatelessWidget {
           config: config,
           alarmId: '',
           nativeAlarmId: '',
-          alarmLabel: 'Preview',
+          alarmLabel: l10n.missionPickerPreview,
           isPreview: true,
         ),
       ),
@@ -161,6 +165,7 @@ class _MissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: () => _onTap(context),
       child: Container(
@@ -183,7 +188,7 @@ class _MissionCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              info.name,
+              localizedMissionName(l10n, info.type),
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -192,7 +197,7 @@ class _MissionCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              info.description,
+              localizedMissionDesc(l10n, info.type),
               style: TextStyle(
                 fontSize: 12,
                 color: c.textSecondary,
@@ -217,7 +222,7 @@ class _MissionCard extends StatelessWidget {
                         size: 14, color: c.textSecondary),
                     const SizedBox(width: 2),
                     Text(
-                      'Preview',
+                      l10n.missionPickerPreview,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,

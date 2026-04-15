@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../models/mission.dart';
@@ -31,6 +33,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -53,11 +56,11 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                       child: Icon(Icons.close, size: 18, color: c.textPrimary),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        'Random Pool',
-                        style: TextStyle(
+                        l10n.randomPoolTitle,
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -73,7 +76,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Select missions to include in random rotation',
+                l10n.randomPoolSubtitle,
                 style: TextStyle(fontSize: 13, color: c.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -86,7 +89,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
               child: Row(
                 children: [
                   Text(
-                    '${_selected.length} selected',
+                    l10n.randomPoolSelected(_selected.length),
                     style: TextStyle(fontSize: 14, color: c.textSecondary),
                   ),
                   const Spacer(),
@@ -103,8 +106,8 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                     },
                     child: Text(
                       _selected.length < _available.length
-                          ? 'Select All'
-                          : 'Deselect All',
+                          ? l10n.randomPoolSelectAll
+                          : l10n.randomPoolDeselectAll,
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.green,
@@ -168,7 +171,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            info.name,
+                            localizedMissionName(l10n, info.type),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -200,9 +203,9 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(
+                child: Text(
+                  l10n.randomPoolDone,
+                  style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
