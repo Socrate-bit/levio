@@ -35,6 +35,12 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
               content: Text(
                   'Referral code applied! You are now: ${state.userType.name}'),
               backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height - 150,
+                left: 16,
+                right: 16,
+              ),
             ),
           );
           context.read<AuthCubit>().clearRedeemStatus();

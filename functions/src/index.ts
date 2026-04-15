@@ -57,7 +57,7 @@ export const redeemReferralCode = onCall(async (request) => {
     // Atomic updates
     tx.update(codeRef, {
       num_use: FieldValue.increment(1),
-      usedBy: FieldValue.arrayUnion([uid]),
+      usedBy: FieldValue.arrayUnion(uid),
     });
     tx.set(userRef, {user_type: type}, {merge: true});
 

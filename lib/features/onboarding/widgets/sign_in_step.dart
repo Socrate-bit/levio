@@ -35,9 +35,15 @@ class _SignInStepState extends State<SignInStep> {
       debugPrint('[SignInStep] Google sign-in failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Google sign-in failed. Please try again.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: const Text('Google sign-in failed. Please try again.'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height - 150,
+              left: 16,
+              right: 16,
+            ),
           ),
         );
       }
@@ -55,9 +61,15 @@ class _SignInStepState extends State<SignInStep> {
       debugPrint('[SignInStep] Apple sign-in failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Apple sign-in failed. Please try again.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: const Text('Apple sign-in failed. Please try again.'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height - 150,
+              left: 16,
+              right: 16,
+            ),
           ),
         );
       }
