@@ -13,6 +13,7 @@ import '../../wakeup/screens/daily_quote_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/levio_brand_header.dart';
 
 class SpeechDismissScreen extends StatefulWidget {
   final String alarmId;
@@ -176,6 +177,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            const LevioBrandHeader(),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
