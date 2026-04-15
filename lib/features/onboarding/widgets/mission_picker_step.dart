@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../missions/models/mission.dart';
 
@@ -20,6 +22,7 @@ class MissionPickerStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -29,7 +32,7 @@ class MissionPickerStep extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Choose your wake up mission',
+                l10n.onboardingMissionPickerTitle,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -39,7 +42,7 @@ class MissionPickerStep extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "You'll do this to turn off your alarm.",
+                l10n.onboardingMissionPickerSubtitle,
                 style: TextStyle(fontSize: 16, color: c.textSecondary),
               ),
             ],
@@ -85,7 +88,7 @@ class MissionPickerStep extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              mission.name,
+                              localizedMissionName(l10n, mission.type),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -93,7 +96,7 @@ class MissionPickerStep extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              mission.description,
+                              localizedMissionDesc(l10n, mission.type),
                               style: TextStyle(
                                   fontSize: 13, color: c.textSecondary),
                             ),

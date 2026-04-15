@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/services/alarm_channel.dart';
 
@@ -11,6 +12,7 @@ class NotificationStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -27,7 +29,7 @@ class NotificationStep extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           Text(
-            'Stay on track with reminders',
+            l10n.onboardingNotificationTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,
@@ -37,7 +39,7 @@ class NotificationStep extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            "We'll send a gentle nudge so you never miss your wake-up time.",
+            l10n.onboardingNotificationSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: c.textSecondary),
           ),
@@ -58,7 +60,7 @@ class NotificationStep extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Enable',
+                l10n.onboardingNotificationEnable,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -71,7 +73,7 @@ class NotificationStep extends StatelessWidget {
           GestureDetector(
             onTap: onNext,
             child: Text(
-              'Not now',
+              l10n.onboardingNotificationNotNow,
               style: TextStyle(
                 fontSize: 16,
                 color: c.textSecondary,

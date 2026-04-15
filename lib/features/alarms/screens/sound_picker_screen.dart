@@ -2,6 +2,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../data/sounds.dart';
 
@@ -111,6 +113,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -133,11 +136,11 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                           size: 18, color: c.textPrimary),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        'Alarm Sound',
-                        style: TextStyle(
+                        l10n.soundPickerTitle,
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -155,7 +158,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                 children: [
                   const SizedBox(height: 20),
                   // Your Sounds section
-                  _SectionHeader(title: 'Your Sounds'),
+                  _SectionHeader(title: l10n.soundPickerYourSounds),
                   GestureDetector(
                     onTap: _uploadSound,
                     child: Container(
@@ -172,7 +175,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                               size: 18, color: c.textSecondary),
                           const SizedBox(width: 12),
                           Text(
-                            'Upload Sound',
+                            l10n.soundPickerUpload,
                             style: TextStyle(
                               fontSize: 15,
                               color: c.textPrimary,
@@ -279,7 +282,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _SectionHeader(
-                          title: cat,
+                          title: localizedSoundCategory(l10n, cat),
                           icon: soundCategoryIcons[cat],
                         ),
                         const SizedBox(height: 8),
@@ -338,7 +341,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                       ),
                                       const SizedBox(width: 14),
                                       Text(
-                                        sound.name,
+                                        localizedSoundName(l10n, sound.id),
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: c.textPrimary,
@@ -389,7 +392,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                         context, {'id': sound.id, 'name': sound.name});
                   }
                 },
-                child: const Text('Select Sound'),
+                child: Text(l10n.soundPickerSelect),
               ),
             ),
           ],

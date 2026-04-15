@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../features/missions/models/mission.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -38,6 +40,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -58,7 +61,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
 
                     Expanded(
                       child: Text(
-                        'All Wakeups',
+                        l10n.sessionsTitle,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 22,
@@ -78,7 +81,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                   : _sessions!.isEmpty
                   ? Center(
                       child: Text(
-                        'No wakeups yet',
+                        l10n.sessionsNoWakeups,
                         style: TextStyle(fontSize: 15, color: c.textSecondary),
                       ),
                     )
@@ -119,15 +122,16 @@ class _SessionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     final ts = session.timestamp;
     final h = ts.hour > 12 ? ts.hour - 12 : (ts.hour == 0 ? 12 : ts.hour);
     final isPM = ts.hour >= 12;
     final timeStr =
         '$h:${ts.minute.toString().padLeft(2, '0')} ${isPM ? 'pm' : 'am'}';
-    final dateStr = '${_monthName(ts.month)} ${ts.day}';
+    final dateStr = '${localizedMonth(l10n, ts.month)} ${ts.day}';
     final missionLabel = session.missionType != null
-        ? missionInfoFor(session.missionType!).name
-        : 'Wake Up';
+        ? localizedMissionName(l10n, session.missionType!)
+        : l10n.wakeupWakeUp;
     final missionIcon = session.missionType != null
         ? missionInfoFor(session.missionType!).icon
         : Icons.wb_sunny;
@@ -185,7 +189,7 @@ class _SessionTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      missed ? 'Missed' : missionLabel,
+                      missed ? l10n.sessionsMissed : missionLabel,
                       style: TextStyle(fontSize: 13, color: c.textSecondary),
                     ),
                   ],
@@ -219,22 +223,4 @@ class _SessionTile extends StatelessWidget {
     );
   }
 
-  String _monthName(int month) {
-    const names = [
-      '',
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return names[month];
-  }
 }

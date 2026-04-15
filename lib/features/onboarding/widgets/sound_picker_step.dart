@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/data/sounds.dart';
 
@@ -48,13 +50,14 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           child: Text(
-            'Pick your alarm sound',
+            l10n.onboardingSoundPickerTitle,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -79,7 +82,7 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                           style: const TextStyle(fontSize: 16)),
                       const SizedBox(width: 6),
                       Text(
-                        cat.toUpperCase(),
+                        localizedSoundCategory(l10n, cat).toUpperCase(),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -124,7 +127,7 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                               const SizedBox(width: 14),
                               Expanded(
                                 child: Text(
-                                  sound.name,
+                                  localizedSoundName(l10n, sound.id),
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: c.textPrimary,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class EnergyChart extends StatelessWidget {
@@ -8,6 +9,7 @@ class EnergyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       height: 240,
@@ -21,7 +23,7 @@ class EnergyChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Morning Energy Levels',
+            l10n.onboardingEnergyTitle,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -34,6 +36,9 @@ class EnergyChart extends StatelessWidget {
               size: Size.infinite,
               painter: _EnergyChartPainter(
                 textColor: c.textSecondary,
+                levioLabel: l10n.onboardingEnergyLevio,
+                snoozeLabel: l10n.onboardingEnergySnoozeCycle,
+                groggyLabel: l10n.onboardingEnergyGroggyZone,
               ),
             ),
           ),
@@ -45,8 +50,16 @@ class EnergyChart extends StatelessWidget {
 
 class _EnergyChartPainter extends CustomPainter {
   final Color textColor;
+  final String levioLabel;
+  final String snoozeLabel;
+  final String groggyLabel;
 
-  _EnergyChartPainter({required this.textColor});
+  _EnergyChartPainter({
+    required this.textColor,
+    required this.levioLabel,
+    required this.snoozeLabel,
+    required this.groggyLabel,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -110,12 +123,12 @@ class _EnergyChartPainter extends CustomPainter {
     );
 
     // "Levio Protocol" pill label
-    _drawPill(canvas, Offset(w * 0.18, h * 0.42), 'Levio Protocol', Colors.black);
+    _drawPill(canvas, Offset(w * 0.18, h * 0.42), levioLabel, Colors.black);
 
     // "Snooze Cycle" label
     _drawText(
       canvas,
-      'Snooze Cycle',
+      snoozeLabel,
       Offset(w * 0.15, h * 0.78),
       labelStyle.copyWith(color: const Color(0xFFFF6B6B)),
     );
@@ -123,7 +136,7 @@ class _EnergyChartPainter extends CustomPainter {
     // "GROGGY ZONE" label
     _drawText(
       canvas,
-      'GROGGY ZONE',
+      groggyLabel,
       Offset(w * 0.68, h * 0.68),
       labelStyle.copyWith(
         color: const Color(0xFFFF6B6B).withValues(alpha: 0.6),

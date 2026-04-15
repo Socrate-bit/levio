@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../missions/models/mission.dart';
 
 class MorningPlanStep extends StatelessWidget {
   final TimeOfDay alarmTime;
   final MissionType mission;
-  final String soundName;
+  final String soundId;
   final List<bool> repeatDays;
 
   const MorningPlanStep({
     super.key,
     required this.alarmTime,
     required this.mission,
-    required this.soundName,
+    required this.soundId,
     required this.repeatDays,
   });
 
@@ -23,7 +25,8 @@ class MorningPlanStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    final missionName = missionInfoFor(mission).name;
+    final l10n = AppLocalizations.of(context);
+    final missionName = localizedMissionName(l10n, mission);
     final timeStr = _fmt(alarmTime);
 
     return SingleChildScrollView(
@@ -35,7 +38,7 @@ class MorningPlanStep extends StatelessWidget {
           const Text('🏅⭐⭐⭐⭐⭐🏅', style: TextStyle(fontSize: 22)),
           const SizedBox(height: 12),
           Text(
-            'Your Morning Plan',
+            l10n.onboardingMorningPlanTitle,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -44,7 +47,7 @@ class MorningPlanStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "Here's what tomorrow looks like at $timeStr",
+            l10n.onboardingMorningPlanSubtitle(timeStr),
             style: TextStyle(fontSize: 16, color: c.textSecondary),
           ),
           const SizedBox(height: 16),
@@ -60,17 +63,16 @@ class MorningPlanStep extends StatelessWidget {
             final h = diff.inHours;
             final m = diff.inMinutes % 60;
             final countdown = '${h}h ${m}m';
-            final weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            final dayLabel = weekdays[alarmDt.weekday % 7];
+            final dayLabel = localizedDayShort(l10n, alarmDt.weekday % 7);
             return Wrap(
               spacing: 8,
               runSpacing: 8,
               alignment: WrapAlignment.center,
               children: [
-                _Pill(icon: Icons.timer, label: 'Starts in $countdown', colors: c),
+                _Pill(icon: Icons.timer, label: l10n.onboardingStartsIn(countdown), colors: c),
                 _Pill(icon: Icons.access_time, label: '$dayLabel, $timeStr', colors: c),
                 _Pill(icon: Icons.fitness_center, label: missionName, colors: c),
-                _Pill(icon: Icons.notifications, label: soundName, colors: c),
+                _Pill(icon: Icons.notifications, label: localizedSoundName(l10n, soundId), colors: c),
               ],
             );
           }),
@@ -87,8 +89,8 @@ class MorningPlanStep extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("HERE'S TOMORROW",
-                    style: TextStyle(
+                Text(l10n.onboardingHeresTomorrow,
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1,
@@ -97,25 +99,25 @@ class MorningPlanStep extends StatelessWidget {
                 const SizedBox(height: 16),
                 _TimelineItem(
                   icon: Icons.notifications,
-                  label: '$timeStr — Alarm rings',
+                  label: l10n.onboardingAlarmRings(timeStr),
                   colors: c,
                 ),
                 _TimelineLine(colors: c),
                 _TimelineItem(
                   icon: Icons.fitness_center,
-                  label: 'Complete $missionName',
+                  label: l10n.onboardingCompleteMission(missionName),
                   colors: c,
                 ),
                 _TimelineLine(colors: c),
                 _TimelineItem(
                   icon: Icons.check_circle,
-                  label: "You're up. Day started.",
+                  label: l10n.onboardingYoureUp,
                   colors: c,
                   isLast: true,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'No snooze loops. One action, then your day starts with momentum.',
+                  l10n.onboardingNoSnooze,
                   style: TextStyle(
                       fontSize: 14, color: c.textSecondary, height: 1.4),
                 ),
@@ -133,7 +135,7 @@ class MorningPlanStep extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'Wake Receipt\n(Image placeholder)',
+                l10n.onboardingWakeReceipt,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: c.textSecondary),
               ),
@@ -142,7 +144,7 @@ class MorningPlanStep extends StatelessWidget {
           const SizedBox(height: 24),
           // Rise and repeat
           Text(
-            'Rise and repeat.',
+            l10n.onboardingRiseAndRepeat,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -151,22 +153,16 @@ class MorningPlanStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Your alarm fires ${repeatDays.where((d) => d).length}x a week. Build the streak.',
+            l10n.onboardingAlarmFrequency(repeatDays.where((d) => d).length),
             style: TextStyle(fontSize: 15, color: c.textSecondary),
           ),
           const SizedBox(height: 16),
           // Day circles
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _DayCircle('S', repeatDays[0], c),
-              _DayCircle('M', repeatDays[1], c),
-              _DayCircle('T', repeatDays[2], c),
-              _DayCircle('W', repeatDays[3], c),
-              _DayCircle('T', repeatDays[4], c),
-              _DayCircle('F', repeatDays[5], c),
-              _DayCircle('S', repeatDays[6], c),
-            ],
+            children: List.generate(7, (i) =>
+              _DayCircle(localizedDayShort(l10n, i)[0], repeatDays[i], c),
+            ),
           ),
           const SizedBox(height: 32),
         ],

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -155,6 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         builder: (context, state) {
           final cubit = context.read<OnboardingCubit>();
           final c = AppColors.of(context);
+          final l10n = AppLocalizations.of(context);
 
           return Scaffold(
             backgroundColor: c.background,
@@ -228,14 +230,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       children: [
                         // 1-5: Survey questions
                         SurveyStep(
-                          question: 'Do you feel like a morning person?',
-                          options: const ['Yes', 'Not yet'],
+                          question: l10n.onboardingMorningPerson,
+                          options: [l10n.onboardingYes, l10n.onboardingNotYet],
                           selectedOption: state.surveyAnswers['morningPerson'],
                           onSelected: (v) =>
                               cubit.answerSurvey('morningPerson', v),
                         ),
                         SurveyStep(
-                          question: "What's your age range?",
+                          question: l10n.onboardingAgeRange,
                           options: const [
                             '13-17',
                             '18-24',
@@ -249,33 +251,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               cubit.answerSurvey('ageRange', v),
                         ),
                         SurveyStep(
-                          question: 'What best describes you?',
-                          options: const ['Male', 'Female', 'Other'],
+                          question: l10n.onboardingDescribesYou,
+                          options: [l10n.onboardingMale, l10n.onboardingFemale, l10n.onboardingOther],
                           selectedOption: state.surveyAnswers['gender'],
                           onSelected: (v) =>
                               cubit.answerSurvey('gender', v),
                         ),
                         SurveyStep(
-                          question:
-                              'What keeps you in bed after the alarm?',
-                          options: const [
-                            'Phone scrolling',
-                            'Snooze loop',
-                            'Sleep through alarms',
-                            'I wake up but stay in bed',
+                          question: l10n.onboardingKeepsInBed,
+                          options: [
+                            l10n.onboardingPhoneScrolling,
+                            l10n.onboardingSnoozeLoop,
+                            l10n.onboardingSleepThrough,
+                            l10n.onboardingStayInBed,
                           ],
                           selectedOption: state.surveyAnswers['bedProblem'],
                           onSelected: (v) =>
                               cubit.answerSurvey('bedProblem', v),
                         ),
                         SurveyStep(
-                          question:
-                              'First thought when the alarm goes off?',
-                          options: const [
-                            "I'm up",
-                            'Just 5 more minutes',
-                            "I'll set another alarm",
-                            'Why did I do this?',
+                          question: l10n.onboardingFirstThought,
+                          options: [
+                            l10n.onboardingImUp,
+                            l10n.onboardingFiveMore,
+                            l10n.onboardingSetAnother,
+                            l10n.onboardingWhyDidI,
                           ],
                           selectedOption:
                               state.surveyAnswers['firstThought'],
@@ -284,36 +284,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         // 6: Info - Energy levels
                         InfoStep(
-                          title: 'Levio gets you out of bed',
+                          title: l10n.onboardingGetsYouOut,
                           imagePlaceholder: const EnergyChart(),
-                          bodyText:
-                              "Avoid the 'groggy zone'. Levio launches you straight into alertness.",
+                          bodyText: l10n.onboardingAvoidGroggy,
                         ),
                         // 7-9: More surveys
                         SurveyStep(
-                          question: 'How many alarms do you set?',
-                          options: const ['One', '2-3', '4+'],
+                          question: l10n.onboardingHowManyAlarms,
+                          options: [l10n.onboardingOne, l10n.onboardingTwoThree, l10n.onboardingFourPlus],
                           selectedOption: state.surveyAnswers['alarmCount'],
                           onSelected: (v) =>
                               cubit.answerSurvey('alarmCount', v),
                         ),
                         SurveyStep(
-                          question:
-                              'If you set one alarm, would you wake up?',
-                          options: const ['Yes', 'Sometimes', 'No'],
+                          question: l10n.onboardingOneAlarmWakeUp,
+                          options: [l10n.onboardingYes, l10n.onboardingSometimes, l10n.onboardingNo],
                           selectedOption:
                               state.surveyAnswers['oneAlarmWakeUp'],
                           onSelected: (v) =>
                               cubit.answerSurvey('oneAlarmWakeUp', v),
                         ),
                         SurveyStep(
-                          question:
-                              'Do you ever turn off the alarm and go back to sleep?',
-                          options: const [
-                            'Often',
-                            'Sometimes',
-                            'Rarely',
-                            'Never'
+                          question: l10n.onboardingTurnOffGoBack,
+                          options: [
+                            l10n.onboardingOften,
+                            l10n.onboardingSometimes,
+                            l10n.onboardingRarely,
+                            l10n.onboardingNever,
                           ],
                           selectedOption:
                               state.surveyAnswers['turnOffSleep'],
@@ -322,18 +319,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         // 10: Info - One alarm one mission
                         InfoStep(
-                          title: 'One alarm. One mission.',
+                          title: l10n.onboardingOneAlarmOneMission,
                           imagePlaceholder: const TimelineComparison(),
                         ),
                         // 11-13: More surveys
                         SurveyStep(
-                          question:
-                              'How do you feel setting your alarm at night?',
-                          options: const [
-                            'Motivated',
-                            'Anxious about sleep',
-                            'Defeated',
-                            'Neutral',
+                          question: l10n.onboardingFeelSettingAlarm,
+                          options: [
+                            l10n.onboardingMotivated,
+                            l10n.onboardingAnxiousSleep,
+                            l10n.onboardingDefeated,
+                            l10n.onboardingNeutral,
                           ],
                           selectedOption:
                               state.surveyAnswers['feelSettingAlarm'],
@@ -341,13 +337,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               cubit.answerSurvey('feelSettingAlarm', v),
                         ),
                         SurveyStep(
-                          question:
-                              'How do you feel right after waking up?',
-                          options: const [
-                            'Ready to go',
-                            'Groggy',
-                            'Anxious or stressed',
-                            'Neutral',
+                          question: l10n.onboardingFeelAfterWaking,
+                          options: [
+                            l10n.onboardingReadyToGo,
+                            l10n.onboardingGroggy,
+                            l10n.onboardingAnxiousStressed,
+                            l10n.onboardingNeutral,
                           ],
                           selectedOption:
                               state.surveyAnswers['feelAfterWaking'],
@@ -355,12 +350,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               cubit.answerSurvey('feelAfterWaking', v),
                         ),
                         SurveyStep(
-                          question:
-                              'How long until you feel fully awake?',
-                          options: const [
-                            'Instantly',
-                            '10-15 minutes',
-                            '30 minutes or more',
+                          question: l10n.onboardingHowLongAwake,
+                          options: [
+                            l10n.onboardingInstantly,
+                            l10n.onboardingTenFifteen,
+                            l10n.onboardingThirtyPlus,
                           ],
                           selectedOption:
                               state.surveyAnswers['timeToAwake'],
@@ -368,20 +362,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               cubit.answerSurvey('timeToAwake', v),
                         ),
                         // 14: Info - Biology not laziness
-                        const InfoStep(
-                          title: 'Biology, Not Laziness',
+                        InfoStep(
+                          title: l10n.onboardingBiologyTitle,
                           centerTitle: true,
-                          imagePlaceholder: Text(
+                          imagePlaceholder: const Text(
                             '🧬',
                             style: TextStyle(fontSize: 80),
                           ),
-                          bodyText:
-                              "When the alarm rings, your prefrontal cortex is still asleep. This is 'Sleep Inertia.' You can't think your way out of bed when your brain is offline.",
+                          bodyText: l10n.onboardingBiologyBody,
                         ),
                         // 15: Info - Speedometer
                         InfoStep(
-                          title:
-                              'Get out of bed 5x faster with Levio vs on your own',
+                          title: l10n.onboarding5xFaster,
                           imagePlaceholder: const SpeedometerChart(),
                         ),
                         // 16: Time picker - usual wake time
@@ -490,9 +482,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Builder(builder: (context) {
                           final mission =
                               state.selectedMission ?? MissionType.pushUps;
+                          final explanations = getMissionExplanations(l10n);
                           final explanation =
-                              missionExplanations[mission] ??
-                                  missionExplanations[MissionType.pushUps]!;
+                              explanations[mission] ??
+                                  explanations[MissionType.pushUps]!;
                           return InfoStep(
                             title: explanation['title']!,
                             imagePlaceholder: Container(
@@ -538,11 +531,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         // 25: Alarm during mission
                         SurveyStep(
-                          question:
-                              'Play your alarm during the mission?',
-                          options: const [
-                            'Keep alarm ringing while completing the mission.',
-                            'Stop alarm ringing unless I leave the app during the mission.',
+                          question: l10n.onboardingAlarmDuringMission,
+                          options: [
+                            l10n.onboardingAlarmKeepRinging,
+                            l10n.onboardingAlarmStopRinging,
                           ],
                           selectedOption:
                               state.surveyAnswers['alarmDuringMission'],
@@ -551,15 +543,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         // 26: Where heard about us
                         SurveyStep(
-                          question: 'Where did you hear about us?',
-                          options: const [
-                            'YouTube',
-                            'Facebook',
-                            'Twitter',
-                            'Reddit',
-                            'App Store',
-                            'Friend or family',
-                            'Other',
+                          question: l10n.onboardingWhereHeard,
+                          options: [
+                            l10n.onboardingYouTube,
+                            l10n.onboardingFacebook,
+                            l10n.onboardingTwitter,
+                            l10n.onboardingReddit,
+                            l10n.onboardingAppStore,
+                            l10n.onboardingFriendFamily,
+                            l10n.onboardingOther,
                           ],
                           icons: const [
                             Icons.play_circle_filled,
@@ -602,7 +594,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               state.alarmTime ?? state.targetTime,
                           mission: state.selectedMission ??
                               MissionType.pushUps,
-                          soundName: state.soundName,
+                          soundId: state.soundId,
                           repeatDays: state.repeatDays,
                         ),
                         // 33: Sign in — completes onboarding
@@ -680,8 +672,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ),
                             child: Text(
                               _currentPage == 22
-                                  ? 'Set alarm for ${_formatTime(state.alarmTime ?? state.targetTime)}'
-                                  : 'Continue',
+                                  ? l10n.onboardingSetAlarmFor(_formatTime(state.alarmTime ?? state.targetTime))
+                                  : l10n.onboardingContinue,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,

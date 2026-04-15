@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class PaywallStep extends StatelessWidget {
@@ -10,13 +11,14 @@ class PaywallStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
           const Spacer(flex: 1),
           Text(
-            'We want you to\ntry Levio for free.',
+            l10n.onboardingPaywallTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,
@@ -85,7 +87,7 @@ class PaywallStep extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'seconds remaining',
+                              l10n.onboardingPaywallSecondsRemaining,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: c.textSecondary,
@@ -116,7 +118,7 @@ class PaywallStep extends StatelessWidget {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            'Keep going! Do your push ups',
+                            l10n.onboardingPaywallKeepGoing,
                             style: TextStyle(
                               fontSize: 8,
                               color: c.textSecondary,
@@ -139,7 +141,7 @@ class PaywallStep extends StatelessWidget {
               Icon(Icons.check, size: 20, color: c.textPrimary),
               const SizedBox(width: 6),
               Text(
-                'No Payment Due Now',
+                l10n.onboardingPaywallNoPayment,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
@@ -163,7 +165,7 @@ class PaywallStep extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Try For \$0.00',
+                l10n.onboardingPaywallTryFree,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -174,7 +176,7 @@ class PaywallStep extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'No commitment, cancel anytime.',
+            l10n.onboardingPaywallNoCommitment,
             style: TextStyle(fontSize: 14, color: c.textSecondary),
           ),
           const SizedBox(height: 12),
@@ -183,7 +185,7 @@ class PaywallStep extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Privacy Policy',
+                l10n.onboardingPaywallPrivacy,
                 style: TextStyle(
                   fontSize: 12,
                   color: c.textSecondary,
@@ -193,7 +195,7 @@ class PaywallStep extends StatelessWidget {
               Text('  \u2022  ',
                   style: TextStyle(fontSize: 12, color: c.textSecondary)),
               Text(
-                'Restore Purchase',
+                l10n.onboardingPaywallRestore,
                 style: TextStyle(
                   fontSize: 12,
                   color: c.textSecondary,
@@ -203,7 +205,7 @@ class PaywallStep extends StatelessWidget {
               Text('  \u2022  ',
                   style: TextStyle(fontSize: 12, color: c.textSecondary)),
               Text(
-                'Terms of Use',
+                l10n.onboardingPaywallTerms,
                 style: TextStyle(
                   fontSize: 12,
                   color: c.textSecondary,

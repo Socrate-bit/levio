@@ -3,6 +3,8 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../../alarms/services/alarm_channel.dart';
 
 import '../../missions/models/mission.dart';
@@ -43,10 +45,13 @@ class PhotoDismissScreen extends StatefulWidget {
   State<PhotoDismissScreen> createState() => _PhotoDismissScreenState();
 }
 
+enum _PhotoError { none, notDetected, other }
+
 class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   CameraController? _controller;
   bool _isValidating = false;
-  String? _errorMessage;
+  _PhotoError _errorType = _PhotoError.none;
+  String? _rawError;
   final _startTime = DateTime.now();
   late final String _targetObject;
   String? _missionSnoozeId;
@@ -91,7 +96,10 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   Future<void> _initCamera() async {
     final cameras = await availableCameras();
     if (cameras.isEmpty) {
-      setState(() => _errorMessage = 'No camera available');
+      setState(() {
+        _errorType = _PhotoError.other;
+        _rawError = 'No camera available';
+      });
       return;
     }
     final controller = CameraController(
@@ -111,7 +119,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
 
     setState(() {
       _isValidating = true;
-      _errorMessage = null;
+      _errorType = _PhotoError.none;
+      _rawError = null;
     });
 
     try {
@@ -139,12 +148,13 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       if (answer.contains('YES')) {
         await _dismiss();
       } else {
-        final info = missionInfoFor(widget.missionType);
-        setState(() =>
-            _errorMessage = 'No ${info.name.toLowerCase()} detected \u2014 try again');
+        setState(() => _errorType = _PhotoError.notDetected);
       }
     } catch (e) {
-      setState(() => _errorMessage = 'Error: ${e.toString()}');
+      setState(() {
+        _errorType = _PhotoError.other;
+        _rawError = e.toString();
+      });
     } finally {
       if (mounted) setState(() => _isValidating = false);
     }
@@ -189,11 +199,26 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     super.dispose();
   }
 
+  String? _resolveError(AppLocalizations l10n) {
+    switch (_errorType) {
+      case _PhotoError.none:
+        return null;
+      case _PhotoError.notDetected:
+        return l10n.dismissPhotoNotDetected(
+          localizedMissionName(l10n, widget.missionType).toLowerCase(),
+        );
+      case _PhotoError.other:
+        return _rawError != null ? l10n.dismissPhotoError(_rawError!) : null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = _controller;
+    final l10n = AppLocalizations.of(context);
     final info = missionInfoFor(widget.missionType);
-    final targetLabel = _targetObject.isNotEmpty ? _targetObject : info.name;
+    final targetLabel = _targetObject.isNotEmpty ? _targetObject : localizedMissionName(l10n, widget.missionType);
+    final errorMessage = _resolveError(l10n);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -207,7 +232,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                   child: Text(
-                    'Take a photo of $targetLabel to stop the alarm',
+                    l10n.dismissPhotoPrompt(targetLabel),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.white,
@@ -245,7 +270,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                   ),
                                 ),
 
-                                if (_errorMessage != null)
+                                if (errorMessage != null)
                                   Positioned(
                                     top: 14,
                                     left: 16,
@@ -260,7 +285,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        _errorMessage!,
+                                        errorMessage,
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
                                           color: Colors.white,
@@ -284,7 +309,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                           ),
                                           const SizedBox(height: 16),
                                           Text(
-                                            'Checking for ${info.name.toLowerCase()}\u2026',
+                                            l10n.dismissPhotoChecking(localizedMissionName(l10n, widget.missionType).toLowerCase()),
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 14,
@@ -297,19 +322,19 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                   ),
                               ],
                             )
-                          : const ColoredBox(
-                              color: Color(0xFF1A1A1A),
+                          : ColoredBox(
+                              color: const Color(0xFF1A1A1A),
                               child: Center(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    CircularProgressIndicator(
+                                    const CircularProgressIndicator(
                                       color: AppColors.orange,
                                       strokeWidth: 2.5,
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     Text(
-                                      'Starting camera\u2026',
+                                      l10n.dismissPhotoStarting,
                                       style: TextStyle(
                                         color: Colors.white54,
                                         fontSize: 14,
@@ -349,9 +374,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
-                            'TAKE A PHOTO OF',
-                            style: TextStyle(
+                          Text(
+                            l10n.dismissPhotoTakePhoto,
+                            style: const TextStyle(
                               color: Colors.white54,
                               fontSize: 10,
                               letterSpacing: 1.5,

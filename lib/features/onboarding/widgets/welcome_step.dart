@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class WelcomeStep extends StatelessWidget {
@@ -15,6 +16,7 @@ class WelcomeStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -23,7 +25,7 @@ class WelcomeStep extends StatelessWidget {
           children: [
             const Spacer(flex: 2),
             Text(
-              'Stop hitting snooze.\nStart winning mornings.',
+              l10n.onboardingWelcomeTitle,
               style: TextStyle(
                 fontSize: 34,
                 fontWeight: FontWeight.bold,
@@ -34,7 +36,7 @@ class WelcomeStep extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "One alarm. One mission. You're up.",
+              l10n.onboardingWelcomeSubtitle,
               style: TextStyle(fontSize: 17, color: c.textSecondary),
             ),
             const SizedBox(height: 32),
@@ -64,7 +66,7 @@ class WelcomeStep extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Build my plan',
+                      l10n.onboardingBuildPlan,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -80,7 +82,7 @@ class WelcomeStep extends StatelessWidget {
             const SizedBox(height: 16),
             Center(
               child: Text(
-                'Join 500k+ people waking up with Levio',
+                l10n.onboardingJoin500k,
                 style: TextStyle(fontSize: 13, color: c.textSecondary),
               ),
             ),
@@ -92,9 +94,9 @@ class WelcomeStep extends StatelessWidget {
                   text: TextSpan(
                     style: TextStyle(fontSize: 14, color: c.textSecondary),
                     children: [
-                      const TextSpan(text: 'Already have an account? '),
+                      TextSpan(text: l10n.onboardingAlreadyAccount),
                       TextSpan(
-                        text: 'Sign in',
+                        text: l10n.onboardingSignIn,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: c.textPrimary,

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../alarms/services/alarm_channel.dart';
 
 import '../../../shared/theme/app_theme.dart';
@@ -44,7 +45,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   late String _problemText;
   final _ctrl = TextEditingController();
   int _solved = 0;
-  String? _errorMsg;
+  bool _showError = false;
   final _startTime = DateTime.now();
   String? _missionSnoozeId;
   bool _keepRinging = false;
@@ -109,7 +110,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
       _op = opA;
       _problemText = '($x $opA $y) $opB $z = ?';
       _ctrl.clear();
-      _errorMsg = null;
+      _showError = false;
       return;
     }
 
@@ -135,7 +136,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
     }
     _problemText = '$_a $_op $_b = ?';
     _ctrl.clear();
-    _errorMsg = null;
+    _showError = false;
   }
 
   void _check() {
@@ -153,7 +154,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
       }
     } else {
       HapticFeedback.mediumImpact();
-      setState(() => _errorMsg = 'Wrong \u2014 try again!');
+      setState(() => _showError = true);
       _ctrl.clear();
     }
   }
@@ -199,6 +200,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -215,7 +217,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                       children: [
                         // Progress
                         Text(
-                          '${_solved + 1} / ${widget.problemCount}',
+                          l10n.dismissMathProgress(_solved + 1, widget.problemCount),
                           style: TextStyle(
                             fontSize: 14,
                             color: c.textSecondary,
@@ -266,7 +268,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide.none,
                             ),
-                            errorText: _errorMsg,
+                            errorText: _showError ? l10n.dismissMathWrong : null,
                           ),
                           onSubmitted: (_) => _check(),
                         ),
@@ -282,9 +284,9 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                             ),
                             elevation: 0,
                           ),
-                          child: const Text(
-                            'Confirm',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.dismissMathConfirm,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),

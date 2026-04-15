@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../alarms/services/alarm_channel.dart';
 import '../../wakeup/services/history_service.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -92,6 +93,7 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -130,9 +132,9 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Stop Alarm',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                child: Text(
+                  l10n.dismissStopAlarm,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

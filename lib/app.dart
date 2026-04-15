@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/features/onboarding/screens/onboarding_screen.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 
 import 'features/auth/cubit/auth_cubit.dart';
 import 'features/alarms/cubit/alarm_cubit.dart';
@@ -64,6 +65,8 @@ class _LevioAppState extends State<LevioApp> {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: settings.themeMode,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           navigatorKey: widget.navigatorKey,
           initialRoute: '/',
           routes: {

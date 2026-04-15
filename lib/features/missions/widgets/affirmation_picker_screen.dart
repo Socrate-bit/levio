@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../dismiss/data/affirmations.dart';
@@ -49,6 +50,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -71,11 +73,11 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                       child: Icon(Icons.close, size: 18, color: c.textPrimary),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        'Select Affirmations',
-                        style: TextStyle(
+                        l10n.affirmationPickerTitle,
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -94,7 +96,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
               child: Row(
                 children: [
                   Text(
-                    '${_selected.length} selected',
+                    l10n.affirmationPickerSelected(_selected.length),
                     style: TextStyle(fontSize: 14, color: c.textSecondary),
                   ),
                   const Spacer(),
@@ -110,8 +112,8 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                     },
                     child: Text(
                       _selected.length < _allItems.length
-                          ? 'Select All'
-                          : 'Deselect All',
+                          ? l10n.affirmationPickerSelectAll
+                          : l10n.affirmationPickerDeselectAll,
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.green,
@@ -194,7 +196,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                       controller: _customCtrl,
                       style: TextStyle(fontSize: 15, color: c.textPrimary),
                       decoration: InputDecoration(
-                        hintText: 'Add your own affirmation',
+                        hintText: l10n.affirmationPickerAddOwn,
                         hintStyle: TextStyle(color: c.textSecondary),
                         filled: true,
                         fillColor: c.card,
@@ -241,9 +243,9 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(
+                child: Text(
+                  l10n.affirmationPickerDone,
+                  style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),

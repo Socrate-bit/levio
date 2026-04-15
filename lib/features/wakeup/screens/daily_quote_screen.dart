@@ -1,35 +1,24 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
-const dailyQuotes = [
-  ('In the middle of every difficulty lies opportunity.', 'Albert Einstein'),
-  ('The secret of getting ahead is getting started.', 'Mark Twain'),
-  (
-    'It does not matter how slowly you go as long as you do not stop.',
-    'Confucius'
-  ),
-  ('Success is not final, failure is not fatal.', 'Winston Churchill'),
-  (
-    'Believe you can and you\'re halfway there.',
-    'Theodore Roosevelt'
-  ),
-  (
-    'The only way to do great work is to love what you do.',
-    'Steve Jobs'
-  ),
-  ('Wake up with determination, go to bed with satisfaction.', 'Unknown'),
-  (
-    'Every morning we are born again. What we do today matters most.',
-    'Buddha'
-  ),
-];
+import 'package:levio/l10n/generated/app_localizations.dart';
 
 class DailyQuoteScreen extends StatelessWidget {
   const DailyQuoteScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final dailyQuotes = [
+      (l10n.quoteEinstein, l10n.quoteEinsteinAuthor),
+      (l10n.quoteTwain, l10n.quoteTwainAuthor),
+      (l10n.quoteConfucius, l10n.quoteConfuciusAuthor),
+      (l10n.quoteChurchill, l10n.quoteChurchillAuthor),
+      (l10n.quoteRoosevelt, l10n.quoteRooseveltAuthor),
+      (l10n.quoteJobs, l10n.quoteJobsAuthor),
+      (l10n.quoteUnknown, l10n.quoteUnknownAuthor),
+      (l10n.quoteBuddha, l10n.quoteBuddhaAuthor),
+    ];
     final (quote, author) = dailyQuotes[Random().nextInt(dailyQuotes.length)];
 
     return Scaffold(
