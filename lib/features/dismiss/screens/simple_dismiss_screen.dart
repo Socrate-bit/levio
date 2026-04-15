@@ -58,12 +58,10 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
   Future<void> _dismiss() async {
     HapticFeedback.mediumImpact();
 
-    if (_keepRinging) {
-      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
-    }
     await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
     // Stop any alarm that may still be ringing (e.g. snooze fired during mission).
     await AlarmChannel.stopRinging();
+
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
 

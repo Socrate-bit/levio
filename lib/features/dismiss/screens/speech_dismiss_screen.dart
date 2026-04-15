@@ -137,9 +137,9 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   }
 
   Future<void> _dismiss() async {
-    if (_keepRinging) await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
     await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
     await AlarmChannel.stopRinging();
+
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
       Navigator.of(context).pushReplacement(

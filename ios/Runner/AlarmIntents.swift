@@ -45,14 +45,9 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
             defaults.set(ids, forKey: stoppedIdsKey)
         }
 
-        // If challenge was already completed via the app, just stop — don't snooze.
-        let completedKey = "levio_completed_\(alarmID)"
-        if defaults.bool(forKey: completedKey) {
-            defaults.removeObject(forKey: completedKey)
-            try? AlarmManager.shared.stop(id: oldUUID)
-            markStopped(alarmID)
-            return .result()
-        }
+        // Resolve the original alarm ID.
+        // If alarmID is itself a snooze, follow the link; otherwise alarmID IS the original.
+        let originalId = defaults.string(forKey: "levio_snooze_\(alarmID)") ?? alarmID
 
         // Read stored config so we can rebuild the snooze alarm.
         guard let data = defaults.data(forKey: "levio_config_\(alarmID)"),
@@ -62,10 +57,6 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
             markStopped(alarmID)
             return .result()
         }
-
-        // Resolve the original alarm ID.
-        // If alarmID is itself a snooze, follow the link; otherwise alarmID IS the original.
-        let originalId = defaults.string(forKey: "levio_snooze_\(alarmID)") ?? alarmID
 
         // Stop the current ringing alarm (recurring original stays scheduled for future occurrences).
         try? AlarmManager.shared.stop(id: oldUUID)

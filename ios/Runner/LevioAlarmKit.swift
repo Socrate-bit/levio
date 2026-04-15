@@ -120,8 +120,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             Task { await cancelAlarm(call: call, result: result) }
         case "stop":
             Task { await stopAlarm(call: call, result: result) }
-        case "markCompleted":
-            markCompleted(call: call, result: result)
         case "getAlarmIds":
             Task { await getAlarmIds(result: result) }
         case "getAlarms":
@@ -261,8 +259,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             }
             try AlarmManager.shared.stop(id: uuid)
             addStoppedId(idString)
-            // Clear completed flag so recurring alarms don't carry stale state to next occurrence
-            UserDefaults.standard.removeObject(forKey: "levio_completed_\(idString)")
             result(nil)
         } catch {
             NSLog("[LevioAlarmKit] stopAlarm FAILED: id=%@ error=%@", idString, "\(error)")
@@ -272,18 +268,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 details: "\(error)"
             ))
         }
-    }
-
-    // MARK: - Mark Completed (prevents StopAndRescheduleIntent from rescheduling)
-
-    private func markCompleted(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments as? [String: Any],
-              let idString = args["id"] as? String else {
-            result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
-            return
-        }
-        UserDefaults.standard.set(true, forKey: "levio_completed_\(idString)")
-        result(nil)
     }
 
     // MARK: - Get Alarm IDs
@@ -447,7 +431,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         }
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "levio_config_\(idString)")
-        defaults.removeObject(forKey: "levio_completed_\(idString)")
         defaults.removeObject(forKey: "levio_snooze_\(idString)")
         // Remove orphaned snooze links where this alarm was the original.
         for key in defaults.dictionaryRepresentation().keys {

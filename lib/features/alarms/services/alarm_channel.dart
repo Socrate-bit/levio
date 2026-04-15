@@ -68,31 +68,18 @@ class AlarmChannel {
     }
   }
 
-  static Future<void> markCompleted(String id) async {
-    await _method.invokeMethod('markCompleted', {'id': id});
-  }
-
-  /// Cleans up UserDefaults entries (config, completed flag, stopped set)
+  /// Cleans up UserDefaults entries (config, stopped set)
   /// for a fully dismissed or removed alarm.
   static Future<void> cleanupConfig(String id) async {
     await _method.invokeMethod('cleanupConfig', {'id': id});
   }
 
-  /// Stops the alarm and marks it completed. If [keepRinging] is true,
-  /// only marks completed without stopping the audio — used when the user
-  /// chose to keep the alarm playing during the mission.
-  static Future<void> dismissAlarm(String id, {bool keepRinging = false}) async {
-    await markCompleted(id);
-    if (keepRinging) return;
-    // Stop whatever is currently ringing — may differ from `id` when a snooze
-    // or a different alarm fires while the screen is still open.
-    final ringingId = await getRingingId() ?? id;
+  /// Stops the native ringing alarm.
+  static Future<void> dismissAlarm(String nativeAlarmId) async {
+    final ringingId = await getRingingId() ?? nativeAlarmId;
     try {
       await stop(ringingId);
     } on PlatformException catch (e) {
-      // The alarm may already be stopped by the system (race condition when the
-      // user taps the native stop button before the challenge completes).
-      // AlarmError 0 = alarm not in a stoppable state. Log and continue.
       debugPrint('[AlarmChannel] dismissAlarm: stop failed (code=${e.code}) — ${e.message} | details: ${e.details}');
     }
   }
