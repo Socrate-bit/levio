@@ -69,7 +69,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
   Future<void> _dismiss() async {
     _detector.stopListening();
     await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-    await AlarmChannel.cleanupConfig(widget.nativeAlarmId);
+    await AlarmChannel.cleanupSnoozeLink(widget.nativeAlarmId);
     await AlarmChannel.stopRinging();
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;

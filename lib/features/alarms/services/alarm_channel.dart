@@ -76,6 +76,11 @@ class AlarmChannel {
     await _method.invokeMethod('cleanupConfig', {'id': id});
   }
 
+  /// Removes the snooze link for an alarm ID.
+  static Future<void> cleanupSnoozeLink(String id) async {
+    await _method.invokeMethod('cleanupSnoozeLink', {'id': id});
+  }
+
   /// Stops the native ringing alarm.
   static Future<void> dismissAlarm(String nativeAlarmId) async {
     final ringingId = await getRingingId() ?? nativeAlarmId;

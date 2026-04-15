@@ -109,6 +109,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             Task { await scheduleMissionSnooze(call: call, result: result) }
         case "cleanupConfig":
             cleanupConfig(call: call, result: result)
+        case "cleanupSnoozeLink":
+            cleanupSnoozeLink(call: call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -404,6 +406,17 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 defaults.removeObject(forKey: key)
             }
         }
+        result(nil)
+    }
+
+    private func cleanupSnoozeLink(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let idString = args["id"] as? String else {
+            result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
+            return
+        }
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "levio_snooze_\(idString)")
         result(nil)
     }
 
