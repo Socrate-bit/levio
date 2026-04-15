@@ -47,8 +47,6 @@ class AlarmService {
             _dismissScreenActive = false;
             return;
           }
-
-          if (_dismissScreenActive) return;
           final firstMission = firestoreEntry.missions.isNotEmpty
               ? firestoreEntry.missions.first
               : null;
