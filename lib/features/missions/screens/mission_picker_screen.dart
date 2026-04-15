@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../app.dart' show buildDismissScreen;
 import '../models/mission.dart';
 import '../models/mission_config.dart';
 import '../widgets/mission_config_modal.dart';
@@ -141,6 +142,22 @@ class _MissionCard extends StatelessWidget {
     }
   }
 
+  void _preview(BuildContext context) {
+    final config = MissionConfig(type: info.type);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => buildDismissScreen(
+          config: config,
+          alarmId: '',
+          nativeAlarmId: '',
+          alarmLabel: 'Preview',
+          isPreview: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -182,6 +199,34 @@ class _MissionCard extends StatelessWidget {
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => _preview(context),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: c.background,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.play_arrow,
+                        size: 14, color: c.textSecondary),
+                    const SizedBox(width: 2),
+                    Text(
+                      'Preview',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: c.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

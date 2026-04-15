@@ -32,10 +32,6 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   late List<MissionConfig> _missions;
   late String _soundId;
   late String _soundName;
-  bool _timeExpanded = false;
-
-  late FixedExtentScrollController _hourCtrl;
-  late FixedExtentScrollController _minuteCtrl;
 
   bool get _isEditing => widget.alarm != null;
 
@@ -69,15 +65,11 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _soundId = settings.defaultSoundId;
       _soundName = settings.defaultSoundName;
     }
-    _hourCtrl = FixedExtentScrollController(initialItem: _time.hour);
-    _minuteCtrl = FixedExtentScrollController(initialItem: _time.minute);
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _hourCtrl.dispose();
-    _minuteCtrl.dispose();
     super.dispose();
   }
 
@@ -142,6 +134,105 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     if (config != null && mounted) {
       setState(() => _missions[index] = config);
     }
+  }
+
+  void _showTimePicker(AppColors c) {
+    var hour = _time.hour;
+    var minute = _time.minute;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: c.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                children: [
+                  Text('Set Time',
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: c.textPrimary)),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() =>
+                          _time = TimeOfDay(hour: hour, minute: minute));
+                      Navigator.pop(ctx);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.orange,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text('Done',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 200,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CupertinoPicker(
+                      scrollController:
+                          FixedExtentScrollController(initialItem: hour),
+                      itemExtent: 40,
+                      onSelectedItemChanged: (i) => hour = i,
+                      children: List.generate(
+                        24,
+                        (i) => Center(
+                          child: Text(
+                            i.toString().padLeft(2, '0'),
+                            style: TextStyle(
+                                fontSize: 22, color: c.textPrimary),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Text(':',
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: c.textPrimary)),
+                  Expanded(
+                    child: CupertinoPicker(
+                      scrollController:
+                          FixedExtentScrollController(initialItem: minute),
+                      itemExtent: 40,
+                      onSelectedItemChanged: (i) => minute = i,
+                      children: List.generate(
+                        60,
+                        (i) => Center(
+                          child: Text(
+                            i.toString().padLeft(2, '0'),
+                            style: TextStyle(
+                                fontSize: 22, color: c.textPrimary),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -216,102 +307,28 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    // Alarm time — inline CupertinoPicker
+                    // Alarm time — opens CupertinoPicker modal
                     _FormCard(
-                      onTap: () => setState(() => _timeExpanded = !_timeExpanded),
-                      child: Column(
+                      onTap: () => _showTimePicker(c),
+                      child: Row(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Alarm Time',
-                                style: TextStyle(
-                                    fontSize: 16, color: c.textPrimary),
-                              ),
-                              const Spacer(),
-                              Text(
-                                _time.format(context),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: c.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                _timeExpanded
-                                    ? Icons.keyboard_arrow_up
-                                    : Icons.keyboard_arrow_down,
-                                size: 20,
-                                color: c.textSecondary,
-                              ),
-                            ],
+                          Text(
+                            'Alarm Time',
+                            style: TextStyle(
+                                fontSize: 16, color: c.textPrimary),
                           ),
-                          if (_timeExpanded) ...[
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              height: 180,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: CupertinoPicker(
-                                      scrollController: _hourCtrl,
-                                      itemExtent: 40,
-                                      onSelectedItemChanged: (i) {
-                                        setState(() {
-                                          _time = TimeOfDay(
-                                              hour: i,
-                                              minute: _time.minute);
-                                        });
-                                      },
-                                      children: List.generate(
-                                        24,
-                                        (i) => Center(
-                                          child: Text(
-                                            i.toString().padLeft(2, '0'),
-                                            style: TextStyle(
-                                                fontSize: 22,
-                                                color: c.textPrimary),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    ':',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: c.textPrimary,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: CupertinoPicker(
-                                      scrollController: _minuteCtrl,
-                                      itemExtent: 40,
-                                      onSelectedItemChanged: (i) {
-                                        setState(() {
-                                          _time = TimeOfDay(
-                                              hour: _time.hour, minute: i);
-                                        });
-                                      },
-                                      children: List.generate(
-                                        60,
-                                        (i) => Center(
-                                          child: Text(
-                                            i.toString().padLeft(2, '0'),
-                                            style: TextStyle(
-                                                fontSize: 22,
-                                                color: c.textPrimary),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          const Spacer(),
+                          Text(
+                            _time.format(context),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: c.textPrimary,
                             ),
-                          ],
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(Icons.chevron_right,
+                              size: 20, color: c.textSecondary),
                         ],
                       ),
                     ),
