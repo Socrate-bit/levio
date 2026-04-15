@@ -258,7 +258,11 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 NSLog("[LevioAlarmKit] stopAlarm: id=%@ — alarm not found in AlarmManager", idString)
             }
             try AlarmManager.shared.stop(id: uuid)
-            addStoppedId(idString)
+            // Only track snooze IDs as stopped; recurring alarms will fire again.
+            let isSnooze = UserDefaults.standard.string(forKey: "levio_snooze_\(idString)") != nil
+            if isSnooze {
+                addStoppedId(idString)
+            }
             result(nil)
         } catch {
             NSLog("[LevioAlarmKit] stopAlarm FAILED: id=%@ error=%@", idString, "\(error)")

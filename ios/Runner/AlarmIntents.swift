@@ -54,13 +54,22 @@ public struct StopAndRescheduleIntent: LiveActivityIntent {
               let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
             try? AlarmManager.shared.stop(id: oldUUID)
-            markStopped(alarmID)
+            // Only track snooze IDs as stopped; recurring alarms will fire again.
+            let isSnooze = defaults.string(forKey: "levio_snooze_\(alarmID)") != nil
+            if isSnooze {
+                markStopped(alarmID)
+            }
             return .result()
         }
 
         // Stop the current ringing alarm (recurring original stays scheduled for future occurrences).
         try? AlarmManager.shared.stop(id: oldUUID)
-        markStopped(alarmID)
+        // Only track stopped IDs for non-snooze alarms (snoozes are one-shot and don't repeat).
+        // For recurring alarms, don't track as stopped since they'll fire again tomorrow.
+        let isSnooze = defaults.string(forKey: "levio_snooze_\(alarmID)") != nil
+        if isSnooze {
+            markStopped(alarmID)
+        }
 
         // Clean up the current snooze link (if this was a snooze).
         defaults.removeObject(forKey: "levio_snooze_\(alarmID)")
