@@ -6,6 +6,7 @@ import '../../../services/auth_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
 import 'onboarding_state.dart';
 
 class OnboardingCubit extends Cubit<OnboardingState> {
@@ -78,10 +79,11 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
+    final selectedMission = state.selectedMission ?? MissionType.pushUps;
     final entry = AppAlarmEntry(
       id: '',
       dateTime: scheduled,
-      missionType: state.selectedMission ?? MissionType.pushUps,
+      missions: [MissionConfig(type: selectedMission)],
       name: 'Levio',
       soundId: state.soundId,
       repeatDays: state.repeatDays,

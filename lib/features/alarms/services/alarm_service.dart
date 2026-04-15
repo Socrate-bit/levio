@@ -43,13 +43,16 @@ class AlarmService {
           }
 
           if (_dismissScreenActive) return;
+          final firstMission = firestoreEntry.missions.isNotEmpty
+              ? firestoreEntry.missions.first
+              : null;
           HistoryService.createPendingSession(
             alarmId: firestoreEntry.id,
-            missionType: firestoreEntry.missionType,
+            missionType: firstMission?.type,
             soundId: firestoreEntry.soundId,
           ).ignore();
           debugPrint(
-            '[AlarmService] ring → pushing dismiss  nativeAlarmId=$nativeAlarmId originalAlarmId=${firestoreEntry.id}  challenge=${firestoreEntry.missionType.name}',
+            '[AlarmService] ring → pushing dismiss  nativeAlarmId=$nativeAlarmId originalAlarmId=${firestoreEntry.id}',
           );
           _pushDismiss(navigatorKey, _argsFrom(nativeAlarmId, firestoreEntry));
           return;
@@ -100,17 +103,15 @@ class AlarmService {
     return entry;
   }
 
-  /// [nativeAlarmId] is the raw ID from the ring event (may be a snooze UUID).
-  /// [entry.id] is the resolved original alarm ID in Firestore.
+  /// Only passes identifiers — mission config is fetched from Firestore at
+  /// dismiss time.
   static Map<String, String> _argsFrom(
     String nativeAlarmId,
     AppAlarmEntry entry,
   ) => {
     'alarmId': entry.id,
     'nativeAlarmId': nativeAlarmId,
-    'challenge': entry.missionType.name,
-    'mathDifficulty': entry.mathDifficulty.name,
-    'customObject': entry.customObject ?? '',
+    'label': entry.name,
   };
 
   /// Resolves [id] to nav args, returning null if the alarm can't be found.

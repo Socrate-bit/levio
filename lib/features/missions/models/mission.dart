@@ -12,7 +12,6 @@ enum MissionType {
   petHunt,
   natureHunt,
   touchGrass,
-  bibleVerse,
   affirmation,
   random,
 }
@@ -61,7 +60,7 @@ const allMissions = <MissionInfo>[
   MissionInfo(
     type: MissionType.shakePhone,
     name: 'Shake Phone',
-    description: 'Shake your phone 30 times',
+    description: 'Shake your phone to wake up',
     iconColor: Color(0xFF5B8DEF),
     iconBg: Color(0xFFEAF0FD),
     icon: Icons.vibration,
@@ -131,15 +130,6 @@ const allMissions = <MissionInfo>[
     category: MissionCategory.hunts,
   ),
   MissionInfo(
-    type: MissionType.bibleVerse,
-    name: 'Bible Verse',
-    description: 'Read a bible verse out loud',
-    iconColor: Color(0xFFCC8B3A),
-    iconBg: Color(0xFFFDF5E7),
-    icon: Icons.menu_book,
-    category: MissionCategory.trending,
-  ),
-  MissionInfo(
     type: MissionType.affirmation,
     name: 'Affirmation',
     description: 'Read an affirmation out loud',
@@ -174,7 +164,6 @@ MissionInfo missionInfoFor(MissionType type) =>
         ? _noneInfo
         : allMissions.firstWhere((m) => m.type == type);
 
-/// Maps old ChallengeType string names (backward compat) + new MissionType names
 MissionType missionTypeFromString(String s) {
   switch (s) {
     case 'none':
@@ -217,4 +206,3 @@ String geminiPromptFor(MissionType type) {
       return 'Does this image show the required subject? Reply with only YES or NO.';
   }
 }
-

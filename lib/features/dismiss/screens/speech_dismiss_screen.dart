@@ -8,7 +8,6 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../data/affirmations.dart';
-import '../data/bible_verses.dart';
 import '../../wakeup/screens/daily_quote_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
@@ -19,6 +18,10 @@ class SpeechDismissScreen extends StatefulWidget {
   final String nativeAlarmId;
   final MissionType missionType;
   final String alarmLabel;
+  final List<String>? selectedAffirmations;
+  final VoidCallback? onComplete;
+  final bool manageAlarm;
+  final bool isPreview;
 
   const SpeechDismissScreen({
     super.key,
@@ -26,6 +29,10 @@ class SpeechDismissScreen extends StatefulWidget {
     required this.nativeAlarmId,
     this.missionType = MissionType.affirmation,
     this.alarmLabel = 'Alarm #1',
+    this.selectedAffirmations,
+    this.onComplete,
+    this.manageAlarm = true,
+    this.isPreview = false,
   });
 
   @override
@@ -45,26 +52,23 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   String? _missionSnoozeId;
   bool _keepRinging = false;
 
-  static String _randomPhrase(MissionType type) {
+  String _randomPhrase() {
     final rng = Random();
-    switch (type) {
-      case MissionType.bibleVerse:
-        return bibleVerses[rng.nextInt(bibleVerses.length)];
-      case MissionType.affirmation:
-        return affirmations[rng.nextInt(affirmations.length)];
-      default:
-        final (quote, author) = dailyQuotes[rng.nextInt(dailyQuotes.length)];
-        return '"$quote" – $author';
-    }
+    // Use selected affirmations if provided, otherwise all
+    final pool = (widget.selectedAffirmations != null &&
+            widget.selectedAffirmations!.isNotEmpty)
+        ? widget.selectedAffirmations!
+        : affirmations;
+    return pool[rng.nextInt(pool.length)];
   }
 
   @override
   void initState() {
     super.initState();
-    _targetText = _randomPhrase(widget.missionType);
+    _targetText = _randomPhrase();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _initSpeech();
-    _initAlarm();
+    if (widget.manageAlarm && !widget.isPreview) _initAlarm();
   }
 
   Future<void> _initAlarm() async {
@@ -85,11 +89,8 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   }
 
   static String _normalize(String text) {
-    // Remove attribution: everything from " –" / " —" / " -" followed by a
-    // capitalised word (e.g. "– Psalm 23:1" or "— Luke 1:37").
     final withoutAttribution =
         text.replaceAll(RegExp(r'\s[–—-]\s+\S.*$'), '');
-    // Strip punctuation (quotes, commas, periods, colons, semi-colons…)
     return withoutAttribution.replaceAll(RegExp(r'[^\w\s]'), '').toLowerCase();
   }
 
@@ -137,9 +138,21 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   }
 
   Future<void> _dismiss() async {
-    await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-    await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-    await AlarmChannel.stopRinging();
+    if (widget.isPreview) {
+      if (mounted) Navigator.of(context).pop();
+      return;
+    }
+
+    if (widget.onComplete != null) {
+      widget.onComplete!();
+      return;
+    }
+
+    if (widget.manageAlarm) {
+      await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
+      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
+      await AlarmChannel.stopRinging();
+    }
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
@@ -168,115 +181,134 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
     final c = AppColors.of(context);
     final score = _lastScore;
     final scoreText =
-        score != null ? '${(score * 100).round()}% — try again' : null;
+        score != null ? '${(score * 100).round()}% \u2014 try again' : null;
     final info = missionInfoFor(widget.missionType);
 
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Mission icon
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: info.iconBg,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(info.icon,
-                          color: info.iconColor, size: 30),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Say:',
-                      style: TextStyle(
-                          fontSize: 16, color: c.textSecondary),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '"$_targetText"',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: c.textPrimary,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 44),
-                    // Mic button
-                    GestureDetector(
-                      onTap: _isListening ? null : _startListening,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _isListening
-                              ? AppColors.orange
-                              : c.separator,
+            Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: info.iconBg,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(info.icon,
+                              color: info.iconColor, size: 30),
                         ),
-                        child: Icon(
-                          _isListening ? Icons.mic : Icons.mic_none,
-                          color: _isListening
-                              ? Colors.white
-                              : c.textSecondary,
-                          size: 36,
+                        const SizedBox(height: 20),
+                        Text(
+                          'Say:',
+                          style: TextStyle(
+                              fontSize: 16, color: c.textSecondary),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _isListening ? 'Listening…' : 'Tap to speak',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: c.textSecondary,
-                      ),
-                    ),
-                    if (_transcription.isNotEmpty) ...[
-                      const SizedBox(height: 20),
-                      Text(
-                        _transcription,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: c.textPrimary,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                    if (scoreText != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Text(
-                          scoreText,
-                          style: const TextStyle(
-                            color: AppColors.orange,
-                            fontSize: 15,
+                        const SizedBox(height: 10),
+                        Text(
+                          '"$_targetText"',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: c.textPrimary,
+                            height: 1.4,
                           ),
                         ),
-                      ),
-                    if (!_initialized)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 12),
-                        child: Text(
-                          'Microphone unavailable',
-                          style: TextStyle(
-                              color: Colors.red, fontSize: 14),
+                        const SizedBox(height: 44),
+                        GestureDetector(
+                          onTap: _isListening ? null : _startListening,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _isListening
+                                  ? AppColors.orange
+                                  : c.separator,
+                            ),
+                            child: Icon(
+                              _isListening ? Icons.mic : Icons.mic_none,
+                              color: _isListening
+                                  ? Colors.white
+                                  : c.textSecondary,
+                              size: 36,
+                            ),
+                          ),
                         ),
-                      ),
-                  ],
+                        const SizedBox(height: 16),
+                        Text(
+                          _isListening ? 'Listening\u2026' : 'Tap to speak',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: c.textSecondary,
+                          ),
+                        ),
+                        if (_transcription.isNotEmpty) ...[
+                          const SizedBox(height: 20),
+                          Text(
+                            _transcription,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: c.textPrimary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                        if (scoreText != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: Text(
+                              scoreText,
+                              style: const TextStyle(
+                                color: AppColors.orange,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        if (!_initialized)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 12),
+                            child: Text(
+                              'Microphone unavailable',
+                              style: TextStyle(
+                                  color: Colors.red, fontSize: 14),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (widget.isPreview)
+              Positioned(
+                top: 16,
+                right: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: c.card,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.close, size: 18, color: c.textPrimary),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

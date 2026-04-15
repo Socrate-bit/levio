@@ -7,6 +7,7 @@ import '../../alarms/screens/alarm_form_screen.dart';
 import '../../alarms/screens/sound_picker_screen.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/bottom_nav_shell.dart';
 import '../../wakeup/screens/sessions_list_screen.dart';
@@ -324,14 +325,21 @@ class _NextAlarmCard extends StatefulWidget {
 
 class _NextAlarmCardState extends State<_NextAlarmCard> {
   Future<void> _pickMission() async {
-    final picked = await Navigator.push<MissionType>(
+    final config = await Navigator.push<MissionConfig>(
       context,
       MaterialPageRoute(builder: (_) => const MissionPickerScreen()),
     );
-    if (picked == null || !mounted) return;
+    if (config == null || !mounted) return;
+    // Replace or add mission at index 0
+    final updated = List<MissionConfig>.from(widget.alarm.missions);
+    if (updated.isEmpty) {
+      updated.add(config);
+    } else {
+      updated[0] = config;
+    }
     context
         .read<AlarmCubit>()
-        .editAlarm(widget.alarm, widget.alarm.copyWith(missionType: picked));
+        .editAlarm(widget.alarm, widget.alarm.copyWith(missions: updated));
   }
 
   Future<void> _pickSound() async {
@@ -355,7 +363,9 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     final minsLeft = diff.inMinutes % 60;
     final timeStr = _formatTime(alarm.dateTime);
     final isPM = alarm.dateTime.hour >= 12;
-    final missionInfo = missionInfoFor(alarm.missionType);
+    final firstMission = alarm.missions.isNotEmpty
+        ? missionInfoFor(alarm.missions.first.type)
+        : missionInfoFor(MissionType.none);
 
     return GestureDetector(
       onTap: () => Navigator.push(
@@ -439,10 +449,12 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
             Row(
               children: [
                 _MiniInfoCard(
-                  icon: missionInfo.icon,
-                  iconColor: missionInfo.iconColor,
+                  icon: firstMission.icon,
+                  iconColor: firstMission.iconColor,
                   label: 'Mission',
-                  value: missionInfo.name,
+                  value: alarm.missions.length > 1
+                      ? '${alarm.missions.length} Missions'
+                      : firstMission.name,
                   onTap: _pickMission,
                 ),
                 const SizedBox(width: 10),

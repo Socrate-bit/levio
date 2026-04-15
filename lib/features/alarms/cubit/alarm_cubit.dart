@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
 import '../../wakeup/services/history_service.dart';
 import '../services/alarm_channel.dart';
 import '../services/alarm_firestore_service.dart';
@@ -50,7 +51,6 @@ class AlarmCubit extends Cubit<AlarmState> {
         // Unique alarm missed — ring now.
         scheduled = now.add(const Duration(seconds: 5));
       }
-      // Recurrent: scheduleRepeating uses hour/minute as-is, no time shift needed.
 
       try {
         final newId = await _scheduleNative(alarm, scheduled);
@@ -67,8 +67,6 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
 
     // Cancel orphaned native alarms not referenced by any Firestore entry.
-    // Snooze alarms are intentionally native-only — skip them unless their
-    // original alarm has been disabled, in which case cancel the snooze too.
     final resolvedIds = resolved.map((a) => a.id).toSet();
     for (final nativeId in nativeIds) {
       if (resolvedIds.contains(nativeId)) continue;
@@ -78,8 +76,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         final originalEnabled = resolved.any(
           (a) => a.id == originalId && a.isEnabled,
         );
-        if (originalEnabled) continue; // valid active snooze — leave it alone
-        // Original was disabled — cancel the orphaned snooze too
+        if (originalEnabled) continue;
         debugPrint(
           '[AlarmCubit] cancelling snooze $nativeId (original $originalId disabled)',
         );
@@ -99,8 +96,7 @@ class AlarmCubit extends Cubit<AlarmState> {
   }
 
   /// Creates missed sessions for enabled alarms that should have fired but
-  /// have no session in Firebase. Handles both one-time and recurrent alarms.
-  /// For recurrent alarms, checks each expected fire in the past 7 days.
+  /// have no session in Firebase.
   Future<void> _markMissedAlarms() async {
     try {
       final now = DateTime.now();
@@ -115,6 +111,9 @@ class AlarmCubit extends Cubit<AlarmState> {
 
       for (final alarm in alarms) {
         if (!alarm.isEnabled) continue;
+        final missionType = alarm.missions.isNotEmpty
+            ? alarm.missions.first.type
+            : null;
 
         // One-time alarm in the past with no session → missed.
         if (alarm.isOneTime) {
@@ -123,7 +122,7 @@ class AlarmCubit extends Cubit<AlarmState> {
           if (!hasSession) {
             await HistoryService.createMissedSession(
               alarmId: alarm.id,
-              missionType: alarm.missionType,
+              missionType: missionType,
               soundId: alarm.soundId,
               timestamp: alarm.dateTime,
             );
@@ -136,22 +135,18 @@ class AlarmCubit extends Cubit<AlarmState> {
         final isRecurrent = alarm.repeatDays.any((d) => d);
         if (!isRecurrent) continue;
 
-        // repeatDays: index 0=Sun, 1=Mon, 2=Tue, ..., 6=Sat
-        // Dart weekday: 1=Mon, 2=Tue, ..., 7=Sun
         final hour = alarm.dateTime.hour;
         final minute = alarm.dateTime.minute;
 
         for (var day = sevenDaysAgo;
             day.isBefore(now);
             day = day.add(const Duration(days: 1))) {
-          // Convert Dart weekday (1=Mon..7=Sun) to repeatDays index (0=Sun..6=Sat).
           final repeatIndex = day.weekday == 7 ? 0 : day.weekday;
           if (!alarm.repeatDays[repeatIndex]) continue;
 
           final expectedFire = DateTime(day.year, day.month, day.day, hour, minute);
           if (!expectedFire.isBefore(now)) continue;
 
-          // Check if any session exists for this alarm on this day.
           final dayStart = DateTime(day.year, day.month, day.day);
           final dayEnd = dayStart.add(const Duration(days: 1));
           final hasSession = recentSessions.any((s) =>
@@ -162,7 +157,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
           await HistoryService.createMissedSession(
             alarmId: alarm.id,
-            missionType: alarm.missionType,
+            missionType: missionType,
             soundId: alarm.soundId,
             timestamp: expectedFire,
           );
@@ -176,8 +171,6 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
   }
 
-  /// Returns [dt] unchanged if it's in the future, otherwise advances it by
-  /// whole days until it lands tomorrow (same time of day) or later.
   DateTime _nextFutureDay(DateTime dt) {
     final now = DateTime.now();
     if (!dt.isBefore(now)) return dt;
@@ -198,7 +191,6 @@ class AlarmCubit extends Cubit<AlarmState> {
     try {
       await AlarmFirestoreService.saveAlarm(saved);
     } catch (e) {
-      // Rollback: remove from UI and cancel native
       emit(
         state.copyWith(alarms: state.alarms.where((a) => a.id != id).toList()),
       );
@@ -214,7 +206,6 @@ class AlarmCubit extends Cubit<AlarmState> {
     if (!enabled) {
       final disabledAlarm = alarm.copyWith(isEnabled: false);
 
-      // Optimistic
       emit(
         state.copyWith(
           alarms: state.alarms
@@ -226,7 +217,6 @@ class AlarmCubit extends Cubit<AlarmState> {
       try {
         await AlarmFirestoreService.saveAlarm(disabledAlarm);
       } catch (e) {
-        // Rollback: re-schedule native and restore UI
         emit(state.copyWith(alarms: previousAlarms));
         rethrow;
       }
@@ -235,7 +225,6 @@ class AlarmCubit extends Cubit<AlarmState> {
       } catch (e, stack) {
         debugPrint('[AlarmCubit] Failed to cancel alarm $id: $e\n$stack');
       }
- 
     } else {
       final scheduled = _nextFutureDay(alarm.dateTime);
       final newId = await _scheduleNative(alarm, scheduled);
@@ -245,7 +234,6 @@ class AlarmCubit extends Cubit<AlarmState> {
         isEnabled: true,
       );
 
-      // Optimistic
       emit(
         state.copyWith(
           alarms: state.alarms
@@ -258,7 +246,6 @@ class AlarmCubit extends Cubit<AlarmState> {
         await AlarmFirestoreService.deleteAlarm(id);
         await AlarmFirestoreService.saveAlarm(rescheduled);
       } catch (e) {
-        // Rollback
         await AlarmChannel.cancel(newId);
         emit(state.copyWith(alarms: previousAlarms));
         rethrow;
@@ -279,7 +266,6 @@ class AlarmCubit extends Cubit<AlarmState> {
     final newId = await _scheduleNative(updated, scheduled);
     final saved = updated.copyWith(id: newId, dateTime: scheduled);
 
-    // Optimistic
     emit(
       state.copyWith(
         alarms: state.alarms.map((a) => a.id == old.id ? saved : a).toList(),
@@ -290,7 +276,6 @@ class AlarmCubit extends Cubit<AlarmState> {
       await AlarmFirestoreService.deleteAlarm(old.id);
       await AlarmFirestoreService.saveAlarm(saved);
     } catch (e) {
-      // Rollback: cancel new native, re-schedule old, restore UI
       await AlarmChannel.cancel(newId);
       try {
         await _scheduleNative(old, old.dateTime);
@@ -303,7 +288,6 @@ class AlarmCubit extends Cubit<AlarmState> {
   Future<void> removeAlarm(String id) async {
     final previousAlarms = state.alarms;
 
-    // Optimistic
     emit(
       state.copyWith(alarms: state.alarms.where((a) => a.id != id).toList()),
     );
@@ -325,15 +309,23 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
   }
 
-  /// Schedules a native alarm, choosing one-shot or recurrent based on the
-  /// entry's [repeatDays] and [isOneTime]. Pass [forceOneShot] to override
-  /// (e.g. in debug mode).
+  /// Schedules a native alarm with the appropriate icon derived from missions.
   Future<String> _scheduleNative(AppAlarmEntry entry, DateTime scheduled) {
-    final info = missionInfoFor(entry.missionType);
     final title = entry.name.isNotEmpty ? entry.name : 'Levio';
-    final sfSymbol = _systemImageFor(entry.missionType);
-    final secondaryLabel = info.name;
-    // soundId is the filename (without .mp3) under assets/sounds/
+    final firstType = entry.missions.isNotEmpty
+        ? entry.missions.first.type
+        : MissionType.none;
+    final sfSymbol = _systemImageFor(firstType);
+
+    final String secondaryLabel;
+    if (entry.missions.isEmpty) {
+      secondaryLabel = 'Alarm';
+    } else if (entry.missions.length == 1) {
+      secondaryLabel = missionInfoFor(firstType).name;
+    } else {
+      secondaryLabel = '${entry.missions.length} Missions';
+    }
+
     final soundPath = entry.soundId != 'default'
         ? 'assets/sounds/${entry.soundId}.mp3'
         : null;
@@ -377,7 +369,6 @@ class AlarmCubit extends Cubit<AlarmState> {
       case MissionType.natureHunt:
       case MissionType.touchGrass:
         return 'camera.fill';
-      case MissionType.bibleVerse:
       case MissionType.affirmation:
         return 'mic.fill';
       case MissionType.math:
