@@ -1496,6 +1496,12 @@ PODS:
     - CwlCatchException
     - Flutter
     - FlutterMacOS
+  - Superscript (1.0.13)
+  - SuperwallKit (4.14.1):
+    - Superscript (= 1.0.13)
+  - superwallkit_flutter (0.0.1):
+    - Flutter
+    - SuperwallKit (= 4.14.1)
   - url_launcher_ios (0.0.1):
     - Flutter
 
@@ -1518,6 +1524,7 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - speech_to_text (from `.symlinks/plugins/speech_to_text/darwin`)
+  - superwallkit_flutter (from `.symlinks/plugins/superwallkit_flutter/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
@@ -1559,6 +1566,8 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - RecaptchaInterop
+    - Superscript
+    - SuperwallKit
 
 EXTERNAL SOURCES:
   adaptive_platform_ui:
@@ -1597,6 +1606,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
   speech_to_text:
     :path: ".symlinks/plugins/speech_to_text/darwin"
+  superwallkit_flutter:
+    :path: ".symlinks/plugins/superwallkit_flutter/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
@@ -1656,6 +1667,9 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
   speech_to_text: 87bf9298952e8d9073be1b6aade6d5758db5170c
+  Superscript: bcb4099b41bed108ab7e88cfc56af0ed1170b582
+  SuperwallKit: 841ee108a1a152d83e4c4db8497208dfe1bc61ed
+  superwallkit_flutter: 5279f60943bf51a4bb1b8c75b88f8c4a404ffc2f
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
 
 PODFILE CHECKSUM: 6a3b3c2796e9bc2e1e249c9b1d8da858ff97c0c7

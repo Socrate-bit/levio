@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../services/auth_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
@@ -20,9 +19,10 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
   void setUsualWakeTime(TimeOfDay time) {
     emit(state.copyWith(usualWakeTime: time));
-    // Auto-set alarm time to target (wake time - 30 min)
-    final target = state.copyWith(usualWakeTime: time).targetTime;
-    emit(state.copyWith(usualWakeTime: time, alarmTime: target));
+  }
+
+  void setIdealWakeTime(TimeOfDay time) {
+    emit(state.copyWith(idealWakeTime: time, alarmTime: time));
   }
 
   void setAlarmTime(TimeOfDay time) {
@@ -95,37 +95,36 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       debugPrint('[OnboardingCubit] alarm creation failed: $e');
     }
 
-    // Store preferences
-    final prefs = await SharedPreferences.getInstance();
-    final keepRinging = state.surveyAnswers['alarmDuringMission'] ==
-        'Keep alarm ringing while completing the mission.';
-    await prefs.setBool('keep_alarm_during_mission', keepRinging);
-
-    // Save survey data to Firestore
-    try {
-      final data = {
-        ...state.surveyAnswers,
-        'alarmTime': '${alarmTime.hour}:${alarmTime.minute}',
-        'mission': (state.selectedMission ?? MissionType.pushUps).name,
-        'soundId': state.soundId,
-        'repeatDays': state.repeatDays,
-        'completedAt': FieldValue.serverTimestamp(),
-      };
-      if (state.referralCode.trim().isNotEmpty) {
-        data['referralCode'] = state.referralCode.trim();
+    // Save survey data + onboarding complete flag to Firestore (only if logged in)
+    final uid = AuthService.uidOrNull;
+    if (uid != null) {
+      try {
+        final keepRinging = state.surveyAnswers['alarmDuringMission'] ==
+            'Keep alarm ringing while completing the mission.';
+        final data = {
+          ...state.surveyAnswers,
+          'alarmTime': '${alarmTime.hour}:${alarmTime.minute}',
+          'mission': (state.selectedMission ?? MissionType.pushUps).name,
+          'soundId': state.soundId,
+          'repeatDays': state.repeatDays,
+          'keepAlarmDuringMission': keepRinging,
+          'onboardingComplete': true,
+          'completedAt': FieldValue.serverTimestamp(),
+        };
+        if (state.referralCode.trim().isNotEmpty) {
+          data['referralCode'] = state.referralCode.trim();
+        }
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection('meta')
+            .doc('onboarding')
+            .set(data);
+      } catch (e) {
+        debugPrint('[OnboardingCubit] survey save failed: $e');
       }
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(AuthService.uid)
-          .collection('meta')
-          .doc('onboarding')
-          .set(data);
-    } catch (e) {
-      debugPrint('[OnboardingCubit] survey save failed: $e');
     }
 
-    // Mark onboarding complete
-    await prefs.setBool('onboarding_complete', true);
     emit(state.copyWith(isComplete: true));
   }
 }

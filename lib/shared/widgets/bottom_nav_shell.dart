@@ -1,6 +1,7 @@
 import 'package:adaptive_platform_ui/adaptive_platform_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:levio/services/superwall_service.dart';
 
 import '../../features/alarms/screens/alarms_screen.dart';
 import '../../features/home/screens/home_screen.dart';
@@ -40,6 +41,7 @@ class BottomNavShellState extends State<BottomNavShell> {
 
   @override
   Widget build(BuildContext context) {
+    SuperwallService.registerAppStart();
     final bool isIOS26 = PlatformInfo.isIOS26OrHigher();
     final bool isIOS = PlatformInfo.isIOS;
 
@@ -103,10 +105,7 @@ class BottomNavShellState extends State<BottomNavShell> {
           ),
         ],
       ),
-      body: IndexedStack(
-        index: _index,
-        children: _tabs,
-      ),
+      body: IndexedStack(index: _index, children: _tabs),
     );
   }
 }
