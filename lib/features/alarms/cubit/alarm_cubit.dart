@@ -317,6 +317,7 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
 
     try {
+      await AlarmChannel.cancelSnoozesForAlarm(id);
       await AlarmChannel.cancel(id);
       await AlarmChannel.cleanupConfig(id);
     } catch (e) {
