@@ -84,11 +84,12 @@ Firebase project: `levio-ef67e`
 
 ### Development Standards
 
-* **Simplicity & Clean Code:** Keep logic as simple as possible, don't 
-* Clean code: Maintain strict separation of concerns.
+* **Simplicity:** Keep logic as simple as possible
+* **Clean code:** Maintain strict separation of concerns.
 * **Dry Principle:** Reuse existing functions. Minimize boilerplate and do not write speculative code (no unused or "future-proof" functions).
 * **Error Handling:** Use `debugPrint` only for errors. Do not log successful operations.
 * **Logging Format:** All `debugPrint` statements must include a class tag for easier filtering (e.g., `[AlarmService]`, `[AlarmCubit]`).
+* **Comments:** Use comments to succinctly explain functions / object / steps etc.
 
 
 
