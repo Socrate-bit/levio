@@ -48,6 +48,8 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   int _lastRepCount = 0;
+  String? _missionSnoozeId;
+  bool _keepRinging = false;
 
   @override
   void initState() {
@@ -61,6 +63,19 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
       begin: 1.0,
       end: 1.08,
     ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeOut));
+    _initAlarm();
+  }
+
+  Future<void> _initAlarm() async {
+    final prefs = await SharedPreferences.getInstance();
+    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+    if (!_keepRinging) {
+      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
+        nativeAlarmId: widget.nativeAlarmId,
+        originalAlarmId: widget.alarmId,
+      );
+    }
   }
 
   @override
@@ -82,10 +97,9 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
     return BlocConsumer<C, PushUpState>(
       listener: (context, state) async {
         if (state is SessionGoalReached) {
-          final prefs = await SharedPreferences.getInstance();
-          final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-          await AlarmChannel.dismissAlarm(widget.nativeAlarmId, keepRinging: keepRinging);
-          if (keepRinging) await AlarmChannel.stopRinging();
+          if (_keepRinging) await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+          await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
+          await AlarmChannel.stopRinging();
           final elapsed = DateTime.now().difference(_startTime).inSeconds;
           if (context.mounted) {
             Navigator.of(context).pushReplacement(

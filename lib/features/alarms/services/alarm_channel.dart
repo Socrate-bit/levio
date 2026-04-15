@@ -97,6 +97,34 @@ class AlarmChannel {
     }
   }
 
+  /// Schedules a mission snooze alarm that re-rings after [delaySeconds] if
+  /// the mission is not completed in time. Returns the snooze UUID.
+  static Future<String> scheduleMissionSnooze({
+    required String nativeAlarmId,
+    required String originalAlarmId,
+    int delaySeconds = 120,
+  }) async {
+    final id = await _method.invokeMethod<String>('scheduleMissionSnooze', {
+      'nativeAlarmId': nativeAlarmId,
+      'originalAlarmId': originalAlarmId,
+      'delaySeconds': delaySeconds,
+    });
+    return id!;
+  }
+
+  /// Cancels a mission snooze and cleans up its config/snooze link.
+  static Future<void> cancelMissionSnooze(String? snoozeId) async {
+    if (snoozeId == null) return;
+    try {
+      await cancel(snoozeId);
+    } on PlatformException catch (_) {
+      // Snooze may have already fired or been cancelled.
+    }
+    try {
+      await cleanupConfig(snoozeId);
+    } catch (_) {}
+  }
+
   /// Stops the currently ringing alarm audio. Called when a mission completes
   /// and the alarm was kept ringing during the mission.
   static Future<void> stopRinging() async {

@@ -97,34 +97,79 @@ class AlarmCubit extends Cubit<AlarmState> {
     emit(state.copyWith(alarms: resolved));
   }
 
-  /// Creates missed sessions for enabled alarms whose scheduled time has passed
-  /// but no session exists in Firebase. Called once on startup after sync.
+  /// Creates missed sessions for enabled alarms that should have fired but
+  /// have no session in Firebase. Handles both one-time and recurrent alarms.
+  /// For recurrent alarms, checks each expected fire in the current week.
   Future<void> _markMissedAlarms() async {
     try {
       final now = DateTime.now();
       final alarms = state.alarms;
-      // Get recent sessions to check which alarms already have one.
+      // Start of current week (Monday).
+      final daysFromMonday = now.weekday - 1; // Mon=1 → 0, Sun=7 → 6
+      final startOfWeek = DateTime(now.year, now.month, now.day - daysFromMonday);
+
       final recentSessions = await HistoryService.getSessions(
-        limit: 200,
-        since: now.subtract(const Duration(days: 7)),
+        limit: 500,
+        since: startOfWeek,
         includeIncomplete: true,
       );
-      final sessionAlarmIds = recentSessions.map((s) => s.alarmId).toSet();
 
       for (final alarm in alarms) {
         if (!alarm.isEnabled) continue;
-        if (!alarm.dateTime.isBefore(now)) continue;
-        if (sessionAlarmIds.contains(alarm.id)) continue;
 
         // One-time alarm in the past with no session → missed.
         if (alarm.isOneTime) {
+          if (!alarm.dateTime.isBefore(now)) continue;
+          final hasSession = recentSessions.any((s) => s.alarmId == alarm.id);
+          if (!hasSession) {
+            await HistoryService.createMissedSession(
+              alarmId: alarm.id,
+              missionType: alarm.missionType,
+              soundId: alarm.soundId,
+              timestamp: alarm.dateTime,
+            );
+            debugPrint('[AlarmCubit] marked missed (one-time): ${alarm.id}');
+          }
+          continue;
+        }
+
+        // Recurrent alarm — check each expected fire this week.
+        final isRecurrent = alarm.repeatDays.any((d) => d);
+        if (!isRecurrent) continue;
+
+        // repeatDays: index 0=Sun, 1=Mon, 2=Tue, ..., 6=Sat
+        // Dart weekday: 1=Mon, 2=Tue, ..., 7=Sun
+        final hour = alarm.dateTime.hour;
+        final minute = alarm.dateTime.minute;
+
+        for (var day = startOfWeek;
+            day.isBefore(now);
+            day = day.add(const Duration(days: 1))) {
+          // Convert Dart weekday (1=Mon..7=Sun) to repeatDays index (0=Sun..6=Sat).
+          final repeatIndex = day.weekday == 7 ? 0 : day.weekday;
+          if (!alarm.repeatDays[repeatIndex]) continue;
+
+          final expectedFire = DateTime(day.year, day.month, day.day, hour, minute);
+          if (!expectedFire.isBefore(now)) continue;
+
+          // Check if any session exists for this alarm on this day.
+          final dayStart = DateTime(day.year, day.month, day.day);
+          final dayEnd = dayStart.add(const Duration(days: 1));
+          final hasSession = recentSessions.any((s) =>
+              s.alarmId == alarm.id &&
+              s.timestamp.isAfter(dayStart) &&
+              s.timestamp.isBefore(dayEnd));
+          if (hasSession) continue;
+
           await HistoryService.createMissedSession(
             alarmId: alarm.id,
             missionType: alarm.missionType,
             soundId: alarm.soundId,
-            timestamp: alarm.dateTime,
+            timestamp: expectedFire,
           );
-          debugPrint('[AlarmCubit] marked missed: ${alarm.id}');
+          debugPrint(
+            '[AlarmCubit] marked missed (recurrent): ${alarm.id} on ${expectedFire.toIso8601String()}',
+          );
         }
       }
     } catch (e) {

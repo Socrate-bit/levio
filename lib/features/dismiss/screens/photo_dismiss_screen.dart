@@ -42,6 +42,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   String? _errorMessage;
   final _startTime = DateTime.now();
   late final String _targetObject;
+  String? _missionSnoozeId;
+  bool _keepRinging = false;
 
   @override
   void initState() {
@@ -55,6 +57,19 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       _targetObject = '';
     }
     _initCamera();
+    _initAlarm();
+  }
+
+  Future<void> _initAlarm() async {
+    final prefs = await SharedPreferences.getInstance();
+    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+    if (!_keepRinging) {
+      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
+        nativeAlarmId: widget.nativeAlarmId,
+        originalAlarmId: widget.alarmId,
+      );
+    }
   }
 
   Future<void> _initCamera() async {
@@ -115,10 +130,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   }
 
   Future<void> _dismiss() async {
-    final prefs = await SharedPreferences.getInstance();
-    final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    await AlarmChannel.dismissAlarm(widget.nativeAlarmId, keepRinging: keepRinging);
-    if (keepRinging) await AlarmChannel.stopRinging();
+    if (_keepRinging) await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+    await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
+    await AlarmChannel.stopRinging();
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
       Navigator.of(context).pushReplacement(

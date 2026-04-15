@@ -39,12 +39,27 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   int _solved = 0;
   String? _errorMsg;
   final _startTime = DateTime.now();
+  String? _missionSnoozeId;
+  bool _keepRinging = false;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _nextProblem();
+    _initAlarm();
+  }
+
+  Future<void> _initAlarm() async {
+    final prefs = await SharedPreferences.getInstance();
+    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
+    if (!_keepRinging) {
+      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
+        nativeAlarmId: widget.nativeAlarmId,
+        originalAlarmId: widget.alarmId,
+      );
+    }
   }
 
   void _nextProblem() {
@@ -130,10 +145,9 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   }
 
   Future<void> _dismiss() async {
-    final prefs = await SharedPreferences.getInstance();
-    final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    await AlarmChannel.dismissAlarm(widget.nativeAlarmId, keepRinging: keepRinging);
-    if (keepRinging) await AlarmChannel.stopRinging();
+    if (_keepRinging) await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+    await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
+    await AlarmChannel.stopRinging();
     final elapsed =
         DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
