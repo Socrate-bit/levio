@@ -133,6 +133,20 @@ class ReferralStep extends StatelessWidget {
                 ],
               ),
             ],
+            if (status == ReferralStatus.exhausted) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.block, color: Colors.orange, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'This code has reached its usage limit',
+                    style:
+                        TextStyle(fontSize: 14, color: Colors.orange.shade700),
+                  ),
+                ],
+              ),
+            ],
             const Spacer(),
           ],
         ),

@@ -14,8 +14,9 @@ class AppAlarmEntry extends Equatable {
   final List<bool> repeatDays; // Sun=0 … Sat=6
   final bool isEnabled;
   final bool isOneTime;
+  final DateTime createdAt;
 
-  const AppAlarmEntry({
+  AppAlarmEntry({
     required this.id,
     required this.dateTime,
     this.missions = const [],
@@ -24,7 +25,8 @@ class AppAlarmEntry extends Equatable {
     this.repeatDays = const [false, true, true, true, true, true, false],
     this.isEnabled = true,
     this.isOneTime = false,
-  });
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   AppAlarmEntry copyWith({
     String? id,
@@ -35,6 +37,7 @@ class AppAlarmEntry extends Equatable {
     List<bool>? repeatDays,
     bool? isEnabled,
     bool? isOneTime,
+    DateTime? createdAt,
   }) =>
       AppAlarmEntry(
         id: id ?? this.id,
@@ -45,6 +48,7 @@ class AppAlarmEntry extends Equatable {
         repeatDays: repeatDays ?? this.repeatDays,
         isEnabled: isEnabled ?? this.isEnabled,
         isOneTime: isOneTime ?? this.isOneTime,
+        createdAt: createdAt ?? this.createdAt,
       );
 
   @override
@@ -57,6 +61,7 @@ class AppAlarmEntry extends Equatable {
         repeatDays,
         isEnabled,
         isOneTime,
+        createdAt,
       ];
 }
 

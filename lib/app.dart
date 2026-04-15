@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/features/onboarding/screens/onboarding_screen.dart';
 
-import '../services/superwall_service.dart';
+import 'features/auth/cubit/auth_cubit.dart';
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_firestore_service.dart';
 import 'features/alarms/services/alarm_service.dart';
+import 'features/settings/cubit/settings_cubit.dart';
+import 'features/settings/cubit/settings_state.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
 import 'features/dismiss/screens/mission_sequence_screen.dart';
@@ -17,7 +19,6 @@ import 'features/dismiss/screens/speech_dismiss_screen.dart';
 import 'features/dismiss/screens/squat_dismiss_screen.dart';
 import 'features/missions/models/mission.dart';
 import 'features/missions/models/mission_config.dart';
-import 'features/settings/cubit/theme_cubit.dart';
 import 'shared/theme/app_theme.dart';
 import 'shared/widgets/bottom_nav_shell.dart';
 
@@ -53,15 +54,16 @@ class _LevioAppState extends State<LevioApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => AlarmCubit()),
-        BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(create: (_) => SettingsCubit()),
+        BlocProvider(create: (_) => AuthCubit()..loadUserType()),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeMode>(
-        builder: (context, themeMode) => MaterialApp(
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settings) => MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Levio',
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
-          themeMode: themeMode,
+          themeMode: settings.themeMode,
           navigatorKey: widget.navigatorKey,
           initialRoute: '/',
           routes: {

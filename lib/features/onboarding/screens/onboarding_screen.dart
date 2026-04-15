@@ -7,6 +7,7 @@ import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/bottom_nav_shell.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
+import '../../auth/cubit/auth_cubit.dart';
 import '../../missions/models/mission.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
@@ -609,15 +610,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           onSkip: () async {
                             final alarmCubit =
                                 context.read<AlarmCubit>();
-                            await cubit
-                                .completeOnboarding(alarmCubit);
+                            final authCubit =
+                                context.read<AuthCubit>();
+                            await cubit.completeOnboarding(
+                                alarmCubit, authCubit);
                             if (mounted) _next();
                           },
                           onSignInComplete: () async {
                             final alarmCubit =
                                 context.read<AlarmCubit>();
-                            await cubit
-                                .completeOnboarding(alarmCubit);
+                            final authCubit =
+                                context.read<AuthCubit>();
+                            await cubit.completeOnboarding(
+                                alarmCubit, authCubit);
                             if (mounted) _next();
                           },
                         ),

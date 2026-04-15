@@ -6,6 +6,7 @@ import '../cubit/alarm_cubit.dart';
 import '../cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
+import '../../settings/cubit/settings_cubit.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/widgets/mission_config_modal.dart';
@@ -55,14 +56,18 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _soundId = a.soundId;
       _soundName = _soundIdToName(a.soundId);
     } else {
+      // Create mode: use saved defaults from settings
       final alarmCount = context.read<AlarmCubit>().state.alarms.length;
+      final settings = context.read<SettingsCubit>().state;
       _nameCtrl = TextEditingController(text: 'Alarm #${alarmCount + 1}');
       _time = const TimeOfDay(hour: 8, minute: 0);
       _isScheduled = true;
       _repeatDays = [false, true, true, true, true, true, false];
-      _missions = [];
-      _soundId = 'default';
-      _soundName = 'Default';
+      _missions = settings.defaultMission != MissionType.none
+          ? [MissionConfig(type: settings.defaultMission)]
+          : [];
+      _soundId = settings.defaultSoundId;
+      _soundName = settings.defaultSoundName;
     }
     _hourCtrl = FixedExtentScrollController(initialItem: _time.hour);
     _minuteCtrl = FixedExtentScrollController(initialItem: _time.minute);

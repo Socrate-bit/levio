@@ -6,8 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
+import '../../alarms/screens/sound_picker_screen.dart';
 import '../../alarms/services/alarm_channel.dart';
-import '../cubit/theme_cubit.dart';
+import '../../auth/cubit/auth_cubit.dart';
+import '../../auth/cubit/auth_state.dart';
+import '../../missions/models/mission.dart';
+import '../../missions/screens/mission_picker_screen.dart';
+import '../cubit/settings_cubit.dart';
+import '../cubit/settings_state.dart';
+import '../widgets/referral_code_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -115,54 +122,81 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
               const SizedBox(height: 24),
               // Profile card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: c.card,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: AppColors.orange.withAlpha(30),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Text('🌟', style: TextStyle(fontSize: 28)),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Anonymous User',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: c.textPrimary,
-                          ),
+              BlocBuilder<AuthCubit, AuthState>(
+                builder: (context, authState) => Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: c.card,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: AppColors.orange.withAlpha(30),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Signed in anonymously',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: c.textSecondary,
-                          ),
+                        child: const Center(
+                          child: Text('🌟', style: TextStyle(fontSize: 28)),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Anonymous User',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: c.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Account type: ${authState.userType.name}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: c.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
+              // Account section
+              _SectionTitle(title: 'Account'),
+              BlocBuilder<AuthCubit, AuthState>(
+                builder: (context, authState) => _SettingsCard(children: [
+                  _LinkRow(
+                    icon: Icons.card_membership_outlined,
+                    label: 'User Type',
+                    value: authState.userType.name,
+                    onTap: () {},
+                  ),
+                  const _Divider(),
+                  _LinkRow(
+                    icon: Icons.redeem_outlined,
+                    label: 'Enter Referral Code',
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<AuthCubit>(),
+                        child: const ReferralCodeDialog(),
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+              const SizedBox(height: 16),
               _SectionTitle(title: 'App'),
-              BlocBuilder<ThemeCubit, ThemeMode>(
-                builder: (context, themeMode) => _SettingsCard(children: [
+              BlocBuilder<SettingsCubit, SettingsState>(
+                builder: (context, settings) => _SettingsCard(children: [
                   _ToggleRow(
                     icon: Icons.notifications_outlined,
                     label: 'Notifications',
@@ -173,34 +207,63 @@ class _SettingsScreenState extends State<SettingsScreen>
                   _ToggleRow(
                     icon: Icons.dark_mode_outlined,
                     label: 'Dark Mode',
-                    value: themeMode == ThemeMode.dark,
+                    value: settings.themeMode == ThemeMode.dark,
                     onChanged: (_) =>
-                        context.read<ThemeCubit>().toggle(),
+                        context.read<SettingsCubit>().toggleTheme(),
+                  ),
+                  const _Divider(),
+                  _ToggleRow(
+                    icon: Icons.music_note_outlined,
+                    label: 'Alarm During Mission',
+                    value: settings.keepAlarmDuringMission,
+                    onChanged: (_) =>
+                        context.read<SettingsCubit>().toggleKeepAlarmDuringMission(),
                   ),
                   const _Divider(),
                   _LinkRow(
-                    icon: Icons.wb_sunny_outlined,
+                    icon: Icons.notifications_outlined,
                     label: 'Default Sound',
-                    value: 'Default',
-                    onTap: () {},
+                    value: settings.defaultSoundName,
+                    onTap: () async {
+                      final result =
+                          await Navigator.push<Map<String, String>>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SoundPickerScreen(),
+                        ),
+                      );
+                      if (result != null && context.mounted) {
+                        context.read<SettingsCubit>().setDefaultSound(
+                              result['id']!,
+                              result['name']!,
+                            );
+                      }
+                    },
+                  ),
+                  const _Divider(),
+                  _LinkRow(
+                    icon: Icons.flag_outlined,
+                    label: 'Default Mission',
+                    value: settings.defaultMission == MissionType.none
+                        ? 'None'
+                        : missionInfoFor(settings.defaultMission).name,
+                    onTap: () async {
+                      final picked = await Navigator.push<MissionType>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MissionPickerScreen(),
+                        ),
+                      );
+                      if (picked != null && context.mounted) {
+                        context.read<SettingsCubit>().setDefaultMission(picked);
+                      }
+                    },
                   ),
                 ]),
               ),
               const SizedBox(height: 16),
               _SectionTitle(title: 'About'),
               _SettingsCard(children: [
-                _LinkRow(
-                  icon: Icons.star_outline,
-                  label: 'Rate Levio',
-                  onTap: () {},
-                ),
-                const _Divider(),
-                _LinkRow(
-                  icon: Icons.share_outlined,
-                  label: 'Share with Friends',
-                  onTap: () {},
-                ),
-                const _Divider(),
                 _LinkRow(
                   icon: Icons.privacy_tip_outlined,
                   label: 'Privacy Policy',

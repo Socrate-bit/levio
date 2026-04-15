@@ -11,6 +11,7 @@ import '../widgets/skeleton_painter.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/levio_brand_header.dart';
 
 /// Shared dismiss-screen UI for rep-based exercises (push-ups, squats, …).
 ///
@@ -251,6 +252,7 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            const LevioBrandHeader(textColor: Colors.white),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(

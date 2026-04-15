@@ -19,6 +19,7 @@ class AlarmFirestoreService {
         'repeatDays': entry.repeatDays,
         'isEnabled': entry.isEnabled,
         'isOneTime': entry.isOneTime,
+        'createdAtMs': entry.createdAt.millisecondsSinceEpoch,
       });
 
   static Future<void> deleteAlarm(String id) => _col().doc(id).delete();
@@ -49,6 +50,9 @@ class AlarmFirestoreService {
           d['repeatDays'] as List? ?? [false, true, true, true, true, true, false]),
       isEnabled: d['isEnabled'] as bool? ?? true,
       isOneTime: d['isOneTime'] as bool? ?? false,
+      createdAt: d['createdAtMs'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(d['createdAtMs'] as int)
+          : null,
     );
   }
 }

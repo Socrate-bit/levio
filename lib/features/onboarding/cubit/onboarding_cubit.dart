@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../services/auth_service.dart';
+import '../../../services/referral_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
+import '../../auth/cubit/auth_cubit.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
 import 'onboarding_state.dart';
@@ -48,24 +50,30 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     emit(state.copyWith(referralCode: code, referralStatus: ReferralStatus.none));
   }
 
+  /// Client-side validation only — redemption happens in completeOnboarding.
   Future<void> submitReferralCode() async {
     if (state.referralCode.trim().isEmpty) return;
     emit(state.copyWith(referralStatus: ReferralStatus.checking));
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('referralCodes')
-          .doc(state.referralCode.trim())
-          .get();
-      emit(state.copyWith(
-        referralStatus: doc.exists ? ReferralStatus.valid : ReferralStatus.invalid,
-      ));
+      final result =
+          await ReferralService.validateCode(state.referralCode.trim());
+      if (result == null) {
+        emit(state.copyWith(referralStatus: ReferralStatus.invalid));
+      } else if (result == 'exhausted') {
+        emit(state.copyWith(referralStatus: ReferralStatus.exhausted));
+      } else {
+        emit(state.copyWith(referralStatus: ReferralStatus.valid));
+      }
     } catch (e) {
       debugPrint('[OnboardingCubit] referral check failed: $e');
       emit(state.copyWith(referralStatus: ReferralStatus.invalid));
     }
   }
 
-  Future<void> completeOnboarding(AlarmCubit alarmCubit) async {
+  Future<void> completeOnboarding(
+    AlarmCubit alarmCubit,
+    AuthCubit authCubit,
+  ) async {
     final alarmTime = state.alarmTime ?? state.targetTime;
     final now = DateTime.now();
     var scheduled = DateTime(
@@ -126,6 +134,17 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         debugPrint('[OnboardingCubit] survey save failed: $e');
       }
     }
+
+    // Redeem referral code if validated, then refresh user type
+    if (state.referralStatus == ReferralStatus.valid &&
+        state.referralCode.trim().isNotEmpty) {
+      try {
+        await ReferralService.redeemCode(state.referralCode.trim());
+      } catch (e) {
+        debugPrint('[OnboardingCubit] referral redeem failed: $e');
+      }
+    }
+    await authCubit.loadUserType();
 
     emit(state.copyWith(isComplete: true));
   }

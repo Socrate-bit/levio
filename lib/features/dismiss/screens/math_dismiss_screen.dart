@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../alarms/services/alarm_channel.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/levio_brand_header.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 
@@ -205,6 +206,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
           children: [
             Column(
               children: [
+                const LevioBrandHeader(),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
