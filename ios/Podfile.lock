@@ -1212,65 +1212,72 @@ PODS:
   - camera_avfoundation (0.0.1):
     - Flutter
   - cloud_firestore (6.2.0):
-    - Firebase/Firestore (= 12.9.0)
+    - Firebase/Firestore (= 12.12.0)
+    - firebase_core
+    - Flutter
+  - cloud_functions (6.2.0):
+    - Firebase/Functions (= 12.12.0)
     - firebase_core
     - Flutter
   - CwlCatchException (2.2.1):
     - CwlCatchExceptionSupport (~> 2.2.1)
   - CwlCatchExceptionSupport (2.2.1)
-  - Firebase/Auth (12.9.0):
+  - Firebase/Auth (12.12.0):
     - Firebase/CoreOnly
-    - FirebaseAuth (~> 12.9.0)
-  - Firebase/CoreOnly (12.9.0):
-    - FirebaseCore (~> 12.9.0)
-  - Firebase/Firestore (12.9.0):
+    - FirebaseAuth (~> 12.12.0)
+  - Firebase/CoreOnly (12.12.0):
+    - FirebaseCore (~> 12.12.0)
+  - Firebase/Firestore (12.12.0):
     - Firebase/CoreOnly
-    - FirebaseFirestore (~> 12.9.0)
+    - FirebaseFirestore (~> 12.12.0)
+  - Firebase/Functions (12.12.0):
+    - Firebase/CoreOnly
+    - FirebaseFunctions (~> 12.12.0)
   - firebase_ai (3.10.0):
     - Flutter
   - firebase_app_check (0.4.2):
-    - Firebase/CoreOnly (~> 12.9.0)
+    - Firebase/CoreOnly (~> 12.12.0)
     - firebase_core
-    - FirebaseAppCheck (~> 12.9.0)
+    - FirebaseAppCheck (~> 12.12.0)
     - Flutter
   - firebase_auth (6.3.0):
-    - Firebase/Auth (= 12.9.0)
+    - Firebase/Auth (= 12.12.0)
     - firebase_core
     - Flutter
-  - firebase_core (4.6.0):
-    - Firebase/CoreOnly (= 12.9.0)
+  - firebase_core (4.7.0):
+    - Firebase/CoreOnly (= 12.12.0)
     - Flutter
-  - FirebaseAppCheck (12.9.0):
+  - FirebaseAppCheck (12.12.0):
     - AppCheckCore (~> 11.0)
-    - FirebaseAppCheckInterop (~> 12.9.0)
-    - FirebaseCore (~> 12.9.0)
+    - FirebaseAppCheckInterop (~> 12.12.0)
+    - FirebaseCore (~> 12.12.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/UserDefaults (~> 8.1)
-  - FirebaseAppCheckInterop (12.9.0)
-  - FirebaseAuth (12.9.0):
-    - FirebaseAppCheckInterop (~> 12.9.0)
-    - FirebaseAuthInterop (~> 12.9.0)
-    - FirebaseCore (~> 12.9.0)
-    - FirebaseCoreExtension (~> 12.9.0)
+  - FirebaseAppCheckInterop (12.12.0)
+  - FirebaseAuth (12.12.0):
+    - FirebaseAppCheckInterop (~> 12.12.0)
+    - FirebaseAuthInterop (~> 12.12.0)
+    - FirebaseCore (~> 12.12.0)
+    - FirebaseCoreExtension (~> 12.12.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/Environment (~> 8.1)
     - GTMSessionFetcher/Core (< 6.0, >= 3.4)
     - RecaptchaInterop (~> 101.0)
-  - FirebaseAuthInterop (12.9.0)
-  - FirebaseCore (12.9.0):
-    - FirebaseCoreInternal (~> 12.9.0)
+  - FirebaseAuthInterop (12.12.0)
+  - FirebaseCore (12.12.0):
+    - FirebaseCoreInternal (~> 12.12.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
-  - FirebaseCoreExtension (12.9.0):
-    - FirebaseCore (~> 12.9.0)
-  - FirebaseCoreInternal (12.9.0):
+  - FirebaseCoreExtension (12.12.0):
+    - FirebaseCore (~> 12.12.0)
+  - FirebaseCoreInternal (12.12.0):
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
-  - FirebaseFirestore (12.9.0):
-    - FirebaseCore (~> 12.9.0)
-    - FirebaseCoreExtension (~> 12.9.0)
-    - FirebaseFirestoreInternal (~> 12.9.0)
-    - FirebaseSharedSwift (~> 12.9.0)
-  - FirebaseFirestoreInternal (12.9.0):
+  - FirebaseFirestore (12.12.0):
+    - FirebaseCore (~> 12.12.0)
+    - FirebaseCoreExtension (~> 12.12.0)
+    - FirebaseFirestoreInternal (~> 12.12.0)
+    - FirebaseSharedSwift (~> 12.12.0)
+  - FirebaseFirestoreInternal (12.12.0):
     - abseil/algorithm (~> 1.20240722.0)
     - abseil/base (~> 1.20240722.0)
     - abseil/container/flat_hash_map (~> 1.20240722.0)
@@ -1279,13 +1286,22 @@ PODS:
     - abseil/strings/strings (~> 1.20240722.0)
     - abseil/time (~> 1.20240722.0)
     - abseil/types (~> 1.20240722.0)
-    - FirebaseAppCheckInterop (~> 12.9.0)
-    - FirebaseCore (~> 12.9.0)
+    - FirebaseAppCheckInterop (~> 12.12.0)
+    - FirebaseCore (~> 12.12.0)
     - "gRPC-C++ (~> 1.69.0)"
     - gRPC-Core (~> 1.69.0)
     - leveldb-library (~> 1.22)
     - nanopb (~> 3.30910.0)
-  - FirebaseSharedSwift (12.9.0)
+  - FirebaseFunctions (12.12.0):
+    - FirebaseAppCheckInterop (~> 12.12.0)
+    - FirebaseAuthInterop (~> 12.12.0)
+    - FirebaseCore (~> 12.12.0)
+    - FirebaseCoreExtension (~> 12.12.0)
+    - FirebaseMessagingInterop (~> 12.12.0)
+    - FirebaseSharedSwift (~> 12.12.0)
+    - GTMSessionFetcher/Core (< 6.0, >= 3.4)
+  - FirebaseMessagingInterop (12.12.0)
+  - FirebaseSharedSwift (12.12.0)
   - Flutter (1.0.0)
   - flutter_native_splash (2.4.3):
     - Flutter
@@ -1510,6 +1526,7 @@ DEPENDENCIES:
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/darwin`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
+  - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
   - firebase_ai (from `.symlinks/plugins/firebase_ai/ios`)
   - firebase_app_check (from `.symlinks/plugins/firebase_app_check/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
@@ -1545,6 +1562,8 @@ SPEC REPOS:
     - FirebaseCoreInternal
     - FirebaseFirestore
     - FirebaseFirestoreInternal
+    - FirebaseFunctions
+    - FirebaseMessagingInterop
     - FirebaseSharedSwift
     - GoogleDataTransport
     - GoogleMLKit
@@ -1578,6 +1597,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
+  cloud_functions:
+    :path: ".symlinks/plugins/cloud_functions/ios"
   firebase_ai:
     :path: ".symlinks/plugins/firebase_ai/ios"
   firebase_app_check:
@@ -1619,24 +1640,27 @@ SPEC CHECKSUMS:
   audioplayers_darwin: f15e209a3e856d1a7edcf98dc029f484fead2242
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   camera_avfoundation: 769d252259fa21e39ada7399c9dc9c0921af8165
-  cloud_firestore: 565f7b324f6c98153b723191a4dc4f166a3c8019
+  cloud_firestore: 2341347085735ea970e2da1f7c1df9a0843f4bc1
+  cloud_functions: 845bcf3e3081df6aa4c86b778d60956b5b97500f
   CwlCatchException: 7acc161b299a6de7f0a46a6ed741eae2c8b4d75a
   CwlCatchExceptionSupport: 54ccab8d8c78907b57f99717fb19d4cc3bce02dc
-  Firebase: 065f2bb395062046623036d8e6dc857bc2521d56
+  Firebase: aa154fee4e9b8eac17aa42344988865b3e857d33
   firebase_ai: d9f87adff7a18ef3cef174ed6f755b83a34eec33
-  firebase_app_check: 7022bc02b1c72fc7667297879d0228fc870756db
-  firebase_auth: e136983e095c69e84f3091f50d75cb0ffd95af3c
-  firebase_core: 98bcc1bd1a097bcb8b1ed6e091de3039802527c4
-  FirebaseAppCheck: 94dae4d9bb682bdef85a778b0c1024a4613f1e89
-  FirebaseAppCheckInterop: 4bade10286cc977e516f75d2d8312cbdfa534789
-  FirebaseAuth: 3a39f6436c21ebfd7919b698228b4f89ff94c23b
-  FirebaseAuthInterop: f8f6ff72dc24621906497fbe5cf3c42ee815e59c
-  FirebaseCore: 428912f751178b06bef0a1793effeb4a5e09a9b8
-  FirebaseCoreExtension: e911052d59cd0da237a45d706fc0f81654f035c1
-  FirebaseCoreInternal: b321eafae5362113bc182956fafc9922cfc77b72
-  FirebaseFirestore: d8b76ca1feb4ca0b0f078c45f7d1bd8014a49ef1
-  FirebaseFirestoreInternal: 02341a9ba87f6309227b04685022a5e16307bbf7
-  FirebaseSharedSwift: 9d2fa84a46676302b89dbd5e6e62bce2fe376909
+  firebase_app_check: 4ab8996674350f0c9da0957749297391f4dc611e
+  firebase_auth: b9885b61a2b5fd59aca4c9212752cc02d4fca964
+  firebase_core: 40bc9f4c0ee3a28fbfb1e00e2ddaed744bb86388
+  FirebaseAppCheck: 0194af00329809d8ce918b5244edc18edbd5b4e0
+  FirebaseAppCheckInterop: c63ae0d003274f145174849c545ab861593beaf9
+  FirebaseAuth: bcfebbc0ca055a6335f2252a90e57363d7ea5e65
+  FirebaseAuthInterop: 917aa3a17ecf144d5f1823b51ef372da06909a4b
+  FirebaseCore: f28af0427998cd53f8d4826bce17260e33224053
+  FirebaseCoreExtension: ff6fd42eb5287e71d3e160450de6509733d9ead7
+  FirebaseCoreInternal: 7c12fc3011d889085e765e317d7b9fd1cef97af9
+  FirebaseFirestore: 01e964d312cf17e56925c955b19798848775a7fd
+  FirebaseFirestoreInternal: 9d9fd7eadbe0f19310fd7df06470a04baeaf3f36
+  FirebaseFunctions: 63768746c276d799807347fdb8f0b057898a5792
+  FirebaseMessagingInterop: bcf56f6a07054150163621d62676e34edab5d5eb
+  FirebaseSharedSwift: bccaff90721d14bafc14be34f28b77fdd7c91dc9
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_native_splash: df59bb2e1421aa0282cb2e95618af4dcb0c56c29
   google_mlkit_commons: 1e6ef6605d7281f35baf2b355e6049b9984fd624
@@ -1672,6 +1696,6 @@ SPEC CHECKSUMS:
   superwallkit_flutter: 5279f60943bf51a4bb1b8c75b88f8c4a404ffc2f
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
 
-PODFILE CHECKSUM: 6a3b3c2796e9bc2e1e249c9b1d8da858ff97c0c7
+PODFILE CHECKSUM: 41820da14bd6789b92da78171f6aafaede5e7ad7
 
 COCOAPODS: 1.16.2
