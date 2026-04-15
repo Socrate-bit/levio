@@ -131,7 +131,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
 
   Future<void> _dismiss() async {
     await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-    await AlarmChannel.cleanupSnoozeLink(widget.nativeAlarmId);
     await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
     await AlarmChannel.stopRinging();
 

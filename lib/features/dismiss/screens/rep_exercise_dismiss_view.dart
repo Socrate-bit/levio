@@ -98,7 +98,6 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
       listener: (context, state) async {
         if (state is SessionGoalReached) {
           await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-          await AlarmChannel.cleanupSnoozeLink(widget.nativeAlarmId);
           await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
           await AlarmChannel.stopRinging();
 
