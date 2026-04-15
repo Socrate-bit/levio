@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../shared/theme/app_theme.dart';
+import '../../shared/utils/haptic_utils.dart';
 
 class HexagonBadge extends StatelessWidget {
   final String label;
@@ -23,7 +24,7 @@ class HexagonBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: withHaptic(onTap),
       child: SizedBox(
         width: size,
         height: size,

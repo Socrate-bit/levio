@@ -3,6 +3,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../models/mission.dart';
 
 /// Full-screen picker for selecting which missions to include in the random pool.
@@ -45,7 +46,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
                       width: 36,
                       height: 36,
@@ -94,7 +95,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                   ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {
+                    onTap: withHaptic(() {
                       setState(() {
                         if (_selected.length < _available.length) {
                           _selected =
@@ -103,7 +104,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                           _selected.clear();
                         }
                       });
-                    },
+                    }),
                     child: Text(
                       _selected.length < _available.length
                           ? l10n.randomPoolSelectAll
@@ -136,7 +137,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                   final info = _available[i];
                   final selected = _selected.contains(info.type);
                   return GestureDetector(
-                    onTap: () {
+                    onTap: withHaptic(() {
                       setState(() {
                         if (selected) {
                           _selected.remove(info.type);
@@ -144,7 +145,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                           _selected.add(info.type);
                         }
                       });
-                    },
+                    }),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
                       decoration: BoxDecoration(
@@ -192,8 +193,8 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: ElevatedButton(
-                onPressed: () =>
-                    Navigator.pop(context, _selected.toList()),
+                onPressed: withHaptic(() =>
+                    Navigator.pop(context, _selected.toList())),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: c.textPrimary,
                   foregroundColor: c.background,

@@ -13,6 +13,7 @@ import '../../wakeup/screens/daily_quote_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../../shared/widgets/levio_brand_header.dart';
 
 class SpeechDismissScreen extends StatefulWidget {
@@ -230,7 +231,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                         ),
                         const SizedBox(height: 44),
                         GestureDetector(
-                          onTap: _isListening ? null : _startListening,
+                          onTap: _isListening ? null : withHaptic(_startListening),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             width: 80,
@@ -301,7 +302,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                 top: 16,
                 right: 16,
                 child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: withHaptic(() => Navigator.of(context).pop()),
                   child: Container(
                     width: 36,
                     height: 36,

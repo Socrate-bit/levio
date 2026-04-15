@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -65,11 +66,11 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
         content: Text('Remove "${item.name}"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
+            onPressed: withHaptic(() => Navigator.pop(ctx, false)),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
+            onPressed: withHaptic(() => Navigator.pop(ctx, true)),
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
@@ -124,7 +125,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
                       width: 36,
                       height: 36,
@@ -160,7 +161,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                   // Your Sounds section
                   _SectionHeader(title: l10n.soundPickerYourSounds),
                   GestureDetector(
-                    onTap: _uploadSound,
+                    onTap: withHaptic(_uploadSound),
                     child: Container(
                       margin: const EdgeInsets.only(top: 8, bottom: 4),
                       padding: const EdgeInsets.symmetric(
@@ -202,8 +203,8 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                           final isSelected = _selectedId == sound.id;
                           final isPlaying = _playingId == sound.id;
                           return GestureDetector(
-                            onTap: () =>
-                                setState(() => _selectedId = sound.id),
+                            onTap: withHaptic(() =>
+                                setState(() => _selectedId = sound.id)),
                             onLongPress: () => _confirmDelete(sound),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -255,7 +256,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                   ),
                                   GestureDetector(
                                     behavior: HitTestBehavior.opaque,
-                                    onTap: () => _previewSound(sound.id),
+                                    onTap: withHaptic(() => _previewSound(sound.id)),
                                     child: Icon(
                                       isPlaying
                                           ? Icons.equalizer
@@ -302,8 +303,8 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                   _selectedId == sound.id;
                               final isPlaying = _playingId == sound.id;
                               return GestureDetector(
-                                onTap: () => setState(
-                                    () => _selectedId = sound.id),
+                                onTap: withHaptic(() => setState(
+                                    () => _selectedId = sound.id)),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 14),
@@ -350,7 +351,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                       const Spacer(),
                                       GestureDetector(
                                         behavior: HitTestBehavior.opaque,
-                                        onTap: () => _previewSound(sound.id),
+                                        onTap: withHaptic(() => _previewSound(sound.id)),
                                         child: Icon(
                                           isPlaying
                                               ? Icons.equalizer
@@ -378,7 +379,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: withHaptic(() {
                   // Handle both preset and custom sounds
                   if (isCustomSound(_selectedId)) {
                     final sound =
@@ -391,7 +392,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                     Navigator.pop(
                         context, {'id': sound.id, 'name': sound.name});
                   }
-                },
+                }),
                 child: Text(l10n.soundPickerSelect),
               ),
             ),

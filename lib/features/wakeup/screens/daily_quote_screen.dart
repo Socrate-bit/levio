@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
+import '../../../shared/utils/haptic_utils.dart';
+
 class DailyQuoteScreen extends StatelessWidget {
   const DailyQuoteScreen({super.key});
 
@@ -46,7 +48,7 @@ class DailyQuoteScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
                       width: 36,
                       height: 36,

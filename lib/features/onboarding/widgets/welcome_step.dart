@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 class WelcomeStep extends StatelessWidget {
   final VoidCallback onBuildPlan;
@@ -54,7 +55,7 @@ class WelcomeStep extends StatelessWidget {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: onBuildPlan,
+                onPressed: withHaptic(onBuildPlan),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: c.textPrimary,
                   foregroundColor: c.card,
@@ -89,7 +90,7 @@ class WelcomeStep extends StatelessWidget {
             const SizedBox(height: 8),
             Center(
               child: GestureDetector(
-                onTap: onSignIn,
+                onTap: withHaptic(onSignIn),
                 child: RichText(
                   text: TextSpan(
                     style: TextStyle(fontSize: 14, color: c.textSecondary),

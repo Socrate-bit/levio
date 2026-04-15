@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 class SignInStep extends StatefulWidget {
   final VoidCallback onSkip;
@@ -107,7 +108,7 @@ class _SignInStepState extends State<SignInStep> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton.icon(
-              onPressed: _loading ? null : _handleAppleSignIn,
+              onPressed: _loading ? null : withHaptic(_handleAppleSignIn),
               icon: Icon(Icons.apple, size: 24, color: c.card),
               label: Text(
                 l10n.onboardingSignInApple,
@@ -131,7 +132,7 @@ class _SignInStepState extends State<SignInStep> {
             width: double.infinity,
             height: 56,
             child: OutlinedButton(
-              onPressed: _loading ? null : _handleGoogleSignIn,
+              onPressed: _loading ? null : withHaptic(_handleGoogleSignIn),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: c.separator, width: 1.5),
                 shape: RoundedRectangleBorder(
@@ -153,7 +154,7 @@ class _SignInStepState extends State<SignInStep> {
             const CircularProgressIndicator()
           else if (widget.showSkip)
             GestureDetector(
-              onTap: () async {
+              onTap: withHaptic(() async {
                 setState(() => _loading = true);
                 try {
                   await AuthService.signInAnonymously();
@@ -164,7 +165,7 @@ class _SignInStepState extends State<SignInStep> {
                   setState(() => _loading = false);
                   widget.onSkip();
                 }
-              },
+              }),
               child: Text(
                 l10n.onboardingSkipForNow,
                 style: TextStyle(
