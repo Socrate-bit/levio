@@ -16,12 +16,14 @@ import '../../../shared/theme/app_theme.dart';
 
 class SpeechDismissScreen extends StatefulWidget {
   final String alarmId;
+  final String nativeAlarmId;
   final MissionType missionType;
   final String alarmLabel;
 
   const SpeechDismissScreen({
     super.key,
     required this.alarmId,
+    required this.nativeAlarmId,
     this.missionType = MissionType.affirmation,
     this.alarmLabel = 'Alarm #1',
   });
@@ -122,7 +124,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   Future<void> _dismiss() async {
     final prefs = await SharedPreferences.getInstance();
     final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    await AlarmChannel.dismissAlarm(widget.alarmId, keepRinging: keepRinging);
+    await AlarmChannel.dismissAlarm(widget.nativeAlarmId, keepRinging: keepRinging);
     if (keepRinging) await AlarmChannel.stopRinging();
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
@@ -130,6 +132,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
         MaterialPageRoute(
           builder: (_) => WakeupCompleteScreen(
             alarmId: widget.alarmId,
+            nativeAlarmId: widget.nativeAlarmId,
             timeTakenSeconds: elapsed,
             missionType: widget.missionType,
           ),

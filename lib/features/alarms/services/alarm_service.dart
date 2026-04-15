@@ -51,7 +51,7 @@ class AlarmService {
           debugPrint(
             '[AlarmService] ring → pushing dismiss  alarmId=$alarmId  challenge=${entry.missionType.name}',
           );
-          _pushDismiss(navigatorKey, _argsFrom(entry.id, entry));
+          _pushDismiss(navigatorKey, _argsFrom(alarmId, entry));
           return;
         }
       },
@@ -100,8 +100,11 @@ class AlarmService {
     return entry;
   }
 
-  static Map<String, String> _argsFrom(String alarmId, AppAlarmEntry entry) => {
-    'alarmId': alarmId,
+  /// [nativeAlarmId] is the raw ID from the ring event (may be a snooze UUID).
+  /// [entry.id] is the resolved original alarm ID in Firestore.
+  static Map<String, String> _argsFrom(String nativeAlarmId, AppAlarmEntry entry) => {
+    'alarmId': entry.id,
+    'nativeAlarmId': nativeAlarmId,
     'challenge': entry.missionType.name,
     'mathDifficulty': entry.mathDifficulty.name,
     'customObject': entry.customObject ?? '',
@@ -128,6 +131,7 @@ class AlarmService {
           (route) => route.isFirst,
           arguments: args,
         )
-        .then((_) => _dismissScreenActive = false);
+        .then((_) => _dismissScreenActive = false)
+        .catchError((_) => _dismissScreenActive = false);
   }
 }

@@ -50,6 +50,27 @@ class HistoryService {
     );
   }
 
+  /// Creates a missed session (completed: false) for an alarm that was never dismissed.
+  static Future<String> createMissedSession({
+    required String alarmId,
+    MissionType? missionType,
+    String soundId = 'default',
+    required DateTime timestamp,
+  }) async {
+    final session = WakeupSession(
+      id: '',
+      alarmId: alarmId,
+      timestamp: timestamp,
+      timeTakenSeconds: 0,
+      missionType: missionType,
+      soundId: soundId,
+      completed: false,
+    );
+    final docId = timestamp.millisecondsSinceEpoch.toString();
+    await _sessions.doc(docId).set(session.toFirestore());
+    return docId;
+  }
+
   /// Returns up to [limit] sessions ordered newest-first.
   /// By default only returns completed sessions. Pass [includeIncomplete: true]
   /// to include pending/missed sessions.
