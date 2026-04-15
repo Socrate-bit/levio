@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../features/alarms/services/alarm_firestore_service.dart';
 import '../../../features/missions/models/mission.dart';
 import '../../../services/auth_service.dart';
 import '../../../features/wakeup/models/wakeup_session.dart';
@@ -211,13 +212,20 @@ class StreakService {
   /// Computes current streak by walking backward through days from today.
   /// Each day without a completed session is a "miss". The week (Mon–Sun)
   /// tolerates up to 2 misses. Exceeding the tolerance breaks the streak.
+  /// Days before [firstAlarmDate] are ignored (user hadn't started yet).
   ///
   /// Pass [sessions] to avoid an extra Firestore fetch; omit to fetch internally.
-  static Future<int> computeCurrentStreak([List<WakeupSession>? sessions]) async {
-    return _computeCurrentStreak(sessions);
+  static Future<int> computeCurrentStreak([
+    List<WakeupSession>? sessions,
+    DateTime? firstAlarmDate,
+  ]) async {
+    return _computeCurrentStreak(sessions, firstAlarmDate);
   }
 
-  static Future<int> _computeCurrentStreak([List<WakeupSession>? sessions]) async {
+  static Future<int> _computeCurrentStreak([
+    List<WakeupSession>? sessions,
+    DateTime? firstAlarmDate,
+  ]) async {
     // Fetch completed sessions for the last year (enough for any streak)
     sessions ??= await HistoryService.getSessions(
       limit: 400,
@@ -225,6 +233,9 @@ class StreakService {
     );
 
     if (sessions.isEmpty) return 0;
+
+    // If no firstAlarmDate provided, fetch from Firestore
+    firstAlarmDate ??= await _getFirstAlarmCreatedDate();
 
     // Build a set of 'yyyy-MM-dd' strings with at least one completed session
     final completedDates = <String>{};
@@ -239,6 +250,14 @@ class StreakService {
 
     for (int i = 0; i <= 365; i++) {
       final day = today.subtract(Duration(days: i));
+
+      // Stop before the first alarm was created — no misses before that
+      if (firstAlarmDate != null && day.isBefore(
+        DateTime(firstAlarmDate.year, firstAlarmDate.month, firstAlarmDate.day),
+      )) {
+        break;
+      }
+
       final weekMonday = _getMondayOfWeek(day);
 
       if (currentWeekMonday == null) {
@@ -259,6 +278,17 @@ class StreakService {
 
     return streak;
   }
+
+  /// Returns the earliest createdAt date across all alarms, or null if none.
+  static Future<DateTime?> _getFirstAlarmCreatedDate() async {
+    final alarms = await AlarmFirestoreService.getAlarms();
+    if (alarms.isEmpty) return null;
+    alarms.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return alarms.first.createdAt;
+  }
+
+  /// Public accessor for the first alarm creation date.
+  static Future<DateTime?> getFirstAlarmCreatedDate() => _getFirstAlarmCreatedDate();
 
   // ---------------------------------------------------------------------------
   // Private helpers
