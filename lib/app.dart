@@ -5,7 +5,8 @@ import 'package:levio/features/onboarding/screens/onboarding_screen.dart';
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_service.dart';
-import 'features/settings/cubit/theme_cubit.dart';
+import 'features/settings/cubit/settings_cubit.dart';
+import 'features/settings/cubit/settings_state.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
 import 'features/dismiss/screens/photo_dismiss_screen.dart';
@@ -50,15 +51,15 @@ class _LevioAppState extends State<LevioApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => AlarmCubit()),
-        BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(create: (_) => SettingsCubit()),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeMode>(
-        builder: (context, themeMode) => MaterialApp(
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settings) => MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Levio',
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
-          themeMode: themeMode,
+          themeMode: settings.themeMode,
           navigatorKey: widget.navigatorKey,
           initialRoute: '/',
           routes: {

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/alarm_cubit.dart';
 import '../cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
+import '../../settings/cubit/settings_cubit.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import 'sound_picker_screen.dart';
@@ -54,16 +55,19 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _mathDifficulty = a.mathDifficulty;
       _customObjectCtrl = TextEditingController(text: a.customObject ?? '');
     } else {
-      // Create mode: defaults + auto-increment name
+      // Create mode: use saved defaults from settings
       final alarmCount =
           context.read<AlarmCubit>().state.alarms.length;
+      final settings = context.read<SettingsCubit>().state;
       _nameCtrl = TextEditingController(text: 'Alarm #${alarmCount + 1}');
       _time = const TimeOfDay(hour: 8, minute: 0);
       _isScheduled = true;
       _repeatDays = [false, true, true, true, true, true, false];
-      _mission = null;
-      _soundId = 'default';
-      _soundName = 'Default';
+      _mission = settings.defaultMission == MissionType.none
+          ? null
+          : settings.defaultMission;
+      _soundId = settings.defaultSoundId;
+      _soundName = settings.defaultSoundName;
       _mathDifficulty = MathDifficulty.easy;
       _customObjectCtrl = TextEditingController();
     }
