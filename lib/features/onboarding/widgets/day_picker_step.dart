@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 class DayPickerStep extends StatelessWidget {
   final List<bool> repeatDays;
@@ -48,7 +49,7 @@ class DayPickerStep extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: GestureDetector(
-                onTap: () => onToggle(dayIndex),
+                onTap: withHaptic(() => onToggle(dayIndex)),
                 child: Container(
                   width: double.infinity,
                   padding:

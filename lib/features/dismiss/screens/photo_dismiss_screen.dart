@@ -10,6 +10,7 @@ import '../../alarms/services/alarm_channel.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../../shared/widgets/levio_brand_header.dart';
 
 var _houseObjects = [
@@ -401,7 +402,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 const SizedBox(height: 20),
 
                 GestureDetector(
-                  onTap: _isValidating ? null : _captureAndValidate,
+                  onTap: _isValidating ? null : withHaptic(_captureAndValidate),
                   child: Container(
                     width: 72,
                     height: 72,
@@ -429,7 +430,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 top: 16,
                 right: 16,
                 child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: withHaptic(() => Navigator.of(context).pop()),
                   child: Container(
                     width: 36,
                     height: 36,

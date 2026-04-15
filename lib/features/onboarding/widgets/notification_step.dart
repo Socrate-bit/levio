@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../alarms/services/alarm_channel.dart';
 
 class NotificationStep extends StatelessWidget {
@@ -48,10 +49,10 @@ class NotificationStep extends StatelessWidget {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: () async {
+              onPressed: withHaptic(() async {
                 await AlarmChannel.requestAuthorization();
                 onNext();
-              },
+              }),
               style: ElevatedButton.styleFrom(
                 backgroundColor: c.textPrimary,
                 foregroundColor: c.card,
@@ -71,7 +72,7 @@ class NotificationStep extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: onNext,
+            onTap: withHaptic(onNext),
             child: Text(
               l10n.onboardingNotificationNotNow,
               style: TextStyle(

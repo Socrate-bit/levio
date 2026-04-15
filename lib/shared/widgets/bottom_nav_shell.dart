@@ -2,6 +2,7 @@ import 'package:adaptive_platform_ui/adaptive_platform_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../utils/haptic_utils.dart';
 import 'package:levio/features/auth/cubit/auth_cubit.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/services/superwall_service.dart';
@@ -56,7 +57,7 @@ class BottomNavShellState extends State<BottomNavShell> {
       bottomNavigationBar: AdaptiveBottomNavigationBar(
         useNativeBottomBar: true,
         selectedIndex: _index,
-        onTap: (i) => setState(() => _index = i),
+        onTap: withHapticValue((i) => setState(() => _index = i)),
         items: [
           AdaptiveNavigationDestination(
             icon: isIOS26

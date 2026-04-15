@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -161,11 +162,11 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           color: c.textPrimary)),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {
+                    onTap: withHaptic(() {
                       setState(() =>
                           _time = TimeOfDay(hour: hour, minute: minute));
                       Navigator.pop(ctx);
-                    },
+                    }),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 8),
@@ -255,7 +256,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
                       width: 36,
                       height: 36,
@@ -379,12 +380,12 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                               children: List.generate(7, (i) {
                                 final selected = _repeatDays[i];
                                 return GestureDetector(
-                                  onTap: () {
+                                  onTap: withHaptic(() {
                                     setState(() {
                                       _repeatDays = List.from(_repeatDays)
                                         ..[i] = !selected;
                                     });
-                                  },
+                                  }),
                                   child: AnimatedContainer(
                                     duration:
                                         const Duration(milliseconds: 150),
@@ -522,7 +523,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: ElevatedButton(
-                onPressed: _canSave ? () => _save(context) : null,
+                onPressed: _canSave ? withHaptic(() => _save(context)) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       _canSave ? c.textPrimary : c.separator,
@@ -599,7 +600,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () => setState(() => _missions.removeAt(index)),
+            onTap: withHaptic(() => setState(() => _missions.removeAt(index))),
             child: Container(
               width: 28,
               height: 28,
@@ -659,7 +660,7 @@ class _FormCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return GestureDetector(
-      onTap: onTap,
+      onTap: withHaptic(onTap),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding:
@@ -698,7 +699,7 @@ class _TogglePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return GestureDetector(
-      onTap: onTap,
+      onTap: withHaptic(onTap),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

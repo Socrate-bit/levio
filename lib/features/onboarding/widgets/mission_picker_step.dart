@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../missions/models/mission.dart';
 
 class MissionPickerStep extends StatelessWidget {
@@ -58,7 +59,7 @@ class MissionPickerStep extends StatelessWidget {
               final mission = _missions[index];
               final isSelected = selectedMission == mission.type;
               return GestureDetector(
-                onTap: () => onSelected(mission.type),
+                onTap: withHaptic(() => onSelected(mission.type)),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

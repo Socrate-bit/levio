@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
@@ -109,13 +110,13 @@ class _HomeView extends StatelessWidget {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () => Navigator.push(
+                                  onTap: withHaptic(() => Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) =>
                                           const SessionsListScreen(),
                                     ),
-                                  ),
+                                  )),
                                   child: Text(
                                     l10n.homeSeeAll,
                                     style: TextStyle(
@@ -169,7 +170,7 @@ class _TopBar extends StatelessWidget {
         ),
         const Spacer(),
         GestureDetector(
-          onTap: () => BottomNavShell.of(context)?.navigateTo(2),
+          onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(2)),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -257,7 +258,7 @@ class _NoAlarmCard extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
-      onTap: () => Navigator.push(
+      onTap: withHaptic(() => Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => BlocProvider.value(
@@ -265,7 +266,7 @@ class _NoAlarmCard extends StatelessWidget {
             child: const AlarmFormScreen(),
           ),
         ),
-      ),
+      )),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -378,7 +379,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
         : missionInfoFor(MissionType.none);
 
     return GestureDetector(
-      onTap: () => Navigator.push(
+      onTap: withHaptic(() => Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => BlocProvider.value(
@@ -386,7 +387,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
             child: AlarmFormScreen(alarm: alarm),
           ),
         ),
-      ),
+      )),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -510,7 +511,7 @@ class _MiniInfoCard extends StatelessWidget {
     final c = AppColors.of(context);
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
+        onTap: withHaptic(onTap),
         child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(

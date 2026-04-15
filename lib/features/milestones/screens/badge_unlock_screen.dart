@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/utils/haptic_utils.dart';
 import '../../../shared/widgets/hexagon_badge.dart';
 import '../models/badge_model.dart';
 
@@ -35,7 +36,7 @@ class BadgeUnlockScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
                       width: 36,
                       height: 36,

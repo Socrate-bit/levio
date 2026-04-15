@@ -4,6 +4,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../features/missions/models/mission.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../models/wakeup_session.dart';
 import '../services/history_service.dart';
 import 'today_wakeup_screen.dart';
@@ -50,7 +51,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: withHaptic(() => Navigator.pop(context)),
                 child: Row(
                   children: [
                     Icon(

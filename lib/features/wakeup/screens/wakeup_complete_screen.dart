@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../milestones/models/badge_model.dart';
 import '../../milestones/screens/badge_unlock_screen.dart';
@@ -150,13 +151,13 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                 ),
               const Spacer(),
               GestureDetector(
-                onTap: () => Navigator.push(
+                onTap: withHaptic(() => Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const DailyQuoteScreen(),
                     fullscreenDialog: true,
                   ),
-                ),
+                )),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -171,8 +172,8 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () =>
-                    Navigator.of(context).popUntil((route) => route.isFirst),
+                onPressed: withHaptic(() =>
+                    Navigator.of(context).popUntil((route) => route.isFirst)),
                 child: Text(l10n.wakeupContinue),
               ),
               const SizedBox(height: 16),

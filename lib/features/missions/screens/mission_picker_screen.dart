@@ -3,6 +3,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../../app.dart' show buildDismissScreen;
 import '../models/mission.dart';
 import '../models/mission_config.dart';
@@ -37,7 +38,7 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
                       width: 36,
                       height: 36,
@@ -86,7 +87,7 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: GestureDetector(
-                      onTap: () => setState(() => _filter = cat),
+                      onTap: withHaptic(() => setState(() => _filter = cat)),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
                         padding: const EdgeInsets.symmetric(
@@ -167,7 +168,7 @@ class _MissionCard extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
-      onTap: () => _onTap(context),
+      onTap: withHaptic(() => _onTap(context)),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -207,7 +208,7 @@ class _MissionCard extends StatelessWidget {
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () => _preview(context),
+              onTap: withHaptic(() => _preview(context)),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 6),

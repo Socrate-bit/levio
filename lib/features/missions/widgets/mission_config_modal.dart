@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 import '../../../app.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -279,7 +280,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                 };
                 return Expanded(
                   child: GestureDetector(
-                    onTap: () => setState(() => _mathDifficulty = d),
+                    onTap: withHaptic(() => setState(() => _mathDifficulty = d)),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
                       margin: EdgeInsets.only(
@@ -312,7 +313,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: _preview,
+                  onPressed: withHaptic(_preview),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 50),
                     shape: RoundedRectangleBorder(
@@ -334,7 +335,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               Expanded(
                 flex: 2,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context, _buildConfig()),
+                  onPressed: withHaptic(() => Navigator.pop(context, _buildConfig())),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.orange,
                     foregroundColor: Colors.white,
@@ -414,7 +415,7 @@ class _Stepper extends StatelessWidget {
     required AppColors c,
   }) {
     return GestureDetector(
-      onTap: enabled ? onTap : null,
+      onTap: enabled ? withHaptic(onTap) : null,
       child: Container(
         width: 44,
         height: 44,

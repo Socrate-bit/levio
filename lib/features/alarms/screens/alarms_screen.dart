@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../shared/utils/haptic_utils.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -179,7 +180,7 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
         FloatingActionButton(
           backgroundColor: AppColors.orange,
           foregroundColor: Colors.white,
-          onPressed: _toggle,
+          onPressed: withHaptic(_toggle),
           child: RotationTransition(
             turns: _rotate,
             child: Icon(_open ? Icons.close : Icons.add),
@@ -205,7 +206,7 @@ class _PopupOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return GestureDetector(
-      onTap: onTap,
+      onTap: withHaptic(onTap),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
@@ -260,7 +261,7 @@ class _AlarmCard extends StatelessWidget {
     final dayStr = alarm.isOneTime ? l10n.alarmsOneTime : _daysLabel(l10n, alarm.repeatDays);
 
     return GestureDetector(
-      onTap: () => Navigator.push(
+      onTap: withHaptic(() => Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => BlocProvider.value(
@@ -268,7 +269,7 @@ class _AlarmCard extends StatelessWidget {
             child: AlarmFormScreen(alarm: alarm),
           ),
         ),
-      ),
+      )),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -316,8 +317,8 @@ class _AlarmCard extends StatelessWidget {
                 Switch(
                   value: alarm.isEnabled,
                   activeThumbColor: AppColors.green,
-                  onChanged: (val) =>
-                      context.read<AlarmCubit>().toggleAlarm(alarm.id, val),
+                  onChanged: withHapticValue((val) =>
+                      context.read<AlarmCubit>().toggleAlarm(alarm.id, val)),
                 ),
               ],
             ),
@@ -340,8 +341,8 @@ class _AlarmCard extends StatelessWidget {
                 ],
                 const Spacer(),
                 GestureDetector(
-                  onTap: () =>
-                      context.read<AlarmCubit>().removeAlarm(alarm.id),
+                  onTap: withHaptic(() =>
+                      context.read<AlarmCubit>().removeAlarm(alarm.id)),
                   child: Icon(Icons.delete_outline,
                       size: 18, color: c.textSecondary),
                 ),

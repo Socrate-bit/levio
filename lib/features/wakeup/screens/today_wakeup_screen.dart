@@ -3,6 +3,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../models/wakeup_session.dart';
 
 class TodayWakeupScreen extends StatelessWidget {
@@ -188,7 +189,7 @@ class TodayWakeupScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
               child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: withHaptic(() => Navigator.pop(context)),
                 child: Text(l10n.wakeupStartMyDay),
               ),
             ),
