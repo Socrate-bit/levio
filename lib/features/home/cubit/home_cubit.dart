@@ -56,10 +56,24 @@ class HomeCubit extends Cubit<HomeState> {
 
     final now = DateTime.now();
     final startOfWeek = _startOfWeek(now);
-    final weekDays = List<bool>.filled(7, false);
+    final todayIndex = now.weekday % 7; // 0=Sun
+    final weekDays = List<DayStatus>.filled(7, DayStatus.none);
     for (final s in _allSessions) {
       if (s.timestamp.isAfter(startOfWeek)) {
-        weekDays[s.timestamp.weekday % 7] = true;
+        weekDays[s.timestamp.weekday % 7] = DayStatus.done;
+      }
+    }
+
+    // Count missed past days this week (skip future days)
+    int missedCount = 0;
+    for (int i = 0; i <= todayIndex; i++) {
+      if (weekDays[i] == DayStatus.none) missedCount++;
+    }
+
+    // If ≤2 misses, mark them as frozen (streak held)
+    if (missedCount <= 2) {
+      for (int i = 0; i <= todayIndex; i++) {
+        if (weekDays[i] == DayStatus.none) weekDays[i] = DayStatus.frozen;
       }
     }
 
