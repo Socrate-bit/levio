@@ -9,6 +9,7 @@ import 'alarm_firestore_service.dart';
 class AlarmService {
   static StreamSubscription? _subscription;
   static AppLifecycleListener? _lifecycleListener;
+  static bool _dismissScreenActive = false;
 
   // ---------------------------------------------------------------------------
   // Public API
@@ -35,13 +36,13 @@ class AlarmService {
         if (eventType == 'ring') {
           final nativeAlarmId = event['id'] as String?;
           if (nativeAlarmId == null) return;
-
           final firestoreEntry = await _resolveEntry(nativeAlarmId);
           if (firestoreEntry == null) {
             debugPrint('[AlarmService] ring: alarm $nativeAlarmId not found');
             return;
           }
 
+          if (_dismissScreenActive) return;
           final firstMission = firestoreEntry.missions.isNotEmpty
               ? firestoreEntry.missions.first
               : null;
@@ -66,9 +67,9 @@ class AlarmService {
     _lifecycleListener = AppLifecycleListener(
       onResume: () async {
         debugPrint('[AlarmService] lifecycle: onResume');
+        if (_dismissScreenActive) return;
         final ringing = await getRingingAlarm();
-        if (ringing == null) return;
-        _pushDismiss(navigatorKey, ringing);
+        if (ringing != null) _pushDismiss(navigatorKey, ringing);
       },
       onHide: () => debugPrint('[AlarmService] lifecycle: onHide'),
       onShow: () => debugPrint('[AlarmService] lifecycle: onShow'),
@@ -127,10 +128,14 @@ class AlarmService {
     GlobalKey<NavigatorState> navigatorKey,
     Map<String, String> args,
   ) {
-    navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      '/alarm-dismiss',
-      (route) => route.isFirst,
-      arguments: args,
-    );
+    _dismissScreenActive = true;
+    navigatorKey.currentState
+        ?.pushNamedAndRemoveUntil(
+          '/alarm-dismiss',
+          (route) => route.isFirst,
+          arguments: args,
+        )
+        .then((_) => _dismissScreenActive = false)
+        .catchError((_) => _dismissScreenActive = false);
   }
 }
