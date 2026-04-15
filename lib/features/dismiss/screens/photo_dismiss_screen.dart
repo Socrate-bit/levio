@@ -8,6 +8,7 @@ import '../../alarms/services/alarm_channel.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/levio_brand_header.dart';
 
 var _houseObjects = [
   'coffee mug', 'book', 'lamp', 'pillow', 'remote control',
@@ -170,6 +171,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const LevioBrandHeader(textColor: Colors.white),
             // Instruction heading
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),

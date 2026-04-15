@@ -34,15 +34,20 @@ class AlarmService {
         debugPrint('[AlarmService] stream event: $event');
 
         if (eventType == 'ring') {
+          if (_dismissScreenActive) return;
           final nativeAlarmId = event['id'] as String?;
           if (nativeAlarmId == null) return;
+
+          // Claim early to prevent races during async resolve.
+          _dismissScreenActive = true;
+
           final firestoreEntry = await _resolveEntry(nativeAlarmId);
           if (firestoreEntry == null) {
             debugPrint('[AlarmService] ring: alarm $nativeAlarmId not found');
+            _dismissScreenActive = false;
             return;
           }
 
-          if (_dismissScreenActive) return;
           HistoryService.createPendingSession(
             alarmId: firestoreEntry.id,
             missionType: firestoreEntry.missionType,
@@ -65,8 +70,13 @@ class AlarmService {
       onResume: () async {
         debugPrint('[AlarmService] lifecycle: onResume');
         if (_dismissScreenActive) return;
+        _dismissScreenActive = true;
         final ringing = await getRingingAlarm();
-        if (ringing != null) _pushDismiss(navigatorKey, ringing);
+        if (ringing == null) {
+          _dismissScreenActive = false;
+          return;
+        }
+        _pushDismiss(navigatorKey, ringing);
       },
       onHide: () => debugPrint('[AlarmService] lifecycle: onHide'),
       onShow: () => debugPrint('[AlarmService] lifecycle: onShow'),
