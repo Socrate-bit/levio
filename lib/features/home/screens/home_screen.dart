@@ -197,7 +197,7 @@ class _TopBar extends StatelessWidget {
 }
 
 class _WeekRow extends StatelessWidget {
-  final List<bool> weekDays;
+  final List<DayStatus> weekDays;
   const _WeekRow({required this.weekDays});
 
   static const _labels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -210,7 +210,7 @@ class _WeekRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: List.generate(7, (i) {
         final isToday = i == todayIndex;
-        final done = weekDays.length > i && weekDays[i];
+        final status = weekDays.length > i ? weekDays[i] : DayStatus.none;
         return Column(
           children: [
             Text(
@@ -227,14 +227,18 @@ class _WeekRow extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: done ? Colors.transparent : c.separator,
-                border: done
-                    ? Border.all(color: AppColors.orange, width: 2)
-                    : null,
+                color: status == DayStatus.none ? c.separator : Colors.transparent,
+                border: switch (status) {
+                  DayStatus.done => Border.all(color: AppColors.orange, width: 2),
+                  DayStatus.frozen => Border.all(color: AppColors.blue, width: 2),
+                  DayStatus.none => null,
+                },
               ),
-              child: done
-                  ? const Icon(Icons.check, size: 18, color: AppColors.orange)
-                  : null,
+              child: switch (status) {
+                DayStatus.done => const Icon(Icons.check, size: 18, color: AppColors.orange),
+                DayStatus.frozen => const Icon(Icons.ac_unit, size: 16, color: AppColors.blue),
+                DayStatus.none => null,
+              },
             ),
           ],
         );
