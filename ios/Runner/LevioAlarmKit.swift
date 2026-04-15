@@ -210,9 +210,31 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             return
         }
         do {
+            let defaults = UserDefaults.standard
+            let alarms = try AlarmManager.shared.alarms
+
+            // Cancel all snoozes associated with this alarm
+            var snoozeIdsToCancel: [String] = []
+            for (key, value) in defaults.dictionaryRepresentation() {
+                if key.hasPrefix("levio_snooze_"),
+                   let snoozeOriginalId = value as? String,
+                   snoozeOriginalId == idString {
+                    let snoozeId = String(key.dropFirst("levio_snooze_".count))
+                    snoozeIdsToCancel.append(snoozeId)
+                }
+            }
+
+            for snoozeIdString in snoozeIdsToCancel {
+                if let snoozeUUID = UUID(uuidString: snoozeIdString),
+                   alarms.contains(where: { $0.id == snoozeUUID }) {
+                    try AlarmManager.shared.cancel(id: snoozeUUID)
+                    defaults.removeObject(forKey: "levio_snooze_\(snoozeIdString)")
+                }
+            }
+
+            // Cancel the alarm itself
             try AlarmManager.shared.cancel(id: uuid)
-            addStoppedId(idString)
-            UserDefaults.standard.removeObject(forKey: "levio_config_\(idString)")
+            defaults.removeObject(forKey: "levio_config_\(idString)")
             result(nil)
         } catch {
             result(FlutterError(code: "CANCEL_ERROR", message: error.localizedDescription, details: nil))
