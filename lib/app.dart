@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/features/onboarding/screens/onboarding_screen.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 
 import 'features/auth/cubit/auth_cubit.dart';
 import 'features/alarms/cubit/alarm_cubit.dart';
+import 'features/subscription/cubit/subscription_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_firestore_service.dart';
 import 'features/alarms/services/alarm_service.dart';
@@ -57,6 +59,13 @@ class _LevioAppState extends State<LevioApp> {
         BlocProvider(create: (_) => AlarmCubit()),
         BlocProvider(create: (_) => SettingsCubit()),
         BlocProvider(create: (_) => AuthCubit()..loadUserType()),
+        BlocProvider(
+          lazy: false,
+          create: (context) => SubscriptionCubit(
+            alarmCubit: context.read<AlarmCubit>(),
+            authCubit: context.read<AuthCubit>(),
+          ),
+        ),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settings) => MaterialApp(
@@ -68,10 +77,21 @@ class _LevioAppState extends State<LevioApp> {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           navigatorKey: widget.navigatorKey,
-          builder: (context, child) => GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: child,
-          ),
+          builder: (context, child) {
+            final unfocused = GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: child,
+            );
+            final isSubscribed =
+                context.watch<SubscriptionCubit>().state.isActive;
+            if (isSubscribed) return unfocused;
+            return GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () =>
+                  Superwall.shared.registerPlacement('app_start'),
+              child: unfocused,
+            );
+          },
           initialRoute: '/',
           routes: {
             '/': (_) => widget.showOnboarding
