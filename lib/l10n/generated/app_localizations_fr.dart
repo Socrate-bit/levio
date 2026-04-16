@@ -490,6 +490,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionConfigChoose => 'Choisir cette mission';
 
   @override
+  String get missionConfigNumberOfAffirmations => 'Nombre d\'affirmations';
+
+  @override
   String get itemPickerSelectItems => 'Sélectionner les objets';
 
   @override
@@ -532,6 +535,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get itemPickerDone => 'Terminé';
+
+  @override
+  String get itemPickerCustomItems => 'Objets personnalisés';
+
+  @override
+  String get affirmationPickerCustom => 'Personnalisées';
 
   @override
   String get itemToothbrush => 'Brosse à dents';
@@ -1195,6 +1204,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dismissSpeechMicUnavailable => 'Microphone indisponible';
+
+  @override
+  String dismissSpeechProgress(int current, int total) {
+    return '$current/$total';
+  }
 
   @override
   String get dismissRepStarting => 'Démarrage de la caméra…';

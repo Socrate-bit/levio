@@ -53,10 +53,6 @@ class BottomNavShellState extends State<BottomNavShell> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthCubit>().state;
-    if (authState.isLoaded) {
-      SuperwallService.registerAppStart(skipPaywall: authState.skipsPaywall);
-    }
     final l10n = AppLocalizations.of(context);
     final c = AppColors.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;

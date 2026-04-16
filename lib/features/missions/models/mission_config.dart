@@ -22,6 +22,9 @@ class MissionConfig extends Equatable {
   /// Selected affirmations (includes user-added custom ones).
   final List<String>? selectedAffirmations;
 
+  /// Number of affirmations to say (default 1).
+  final int? affirmationCount;
+
   /// Random pool — null/empty = all missions, 1 = that one, 2+ = random from pool.
   final List<MissionType>? randomPool;
 
@@ -32,6 +35,7 @@ class MissionConfig extends Equatable {
     this.mathProblemCount,
     this.selectedItems,
     this.selectedAffirmations,
+    this.affirmationCount,
     this.randomPool,
   });
 
@@ -43,6 +47,7 @@ class MissionConfig extends Equatable {
         if (selectedItems != null) 'selectedItems': selectedItems,
         if (selectedAffirmations != null)
           'selectedAffirmations': selectedAffirmations,
+        if (affirmationCount != null) 'affirmationCount': affirmationCount,
         if (randomPool != null)
           'randomPool': randomPool!.map((t) => t.name).toList(),
       };
@@ -64,6 +69,7 @@ class MissionConfig extends Equatable {
       selectedItems: (m['selectedItems'] as List?)?.cast<String>(),
       selectedAffirmations:
           (m['selectedAffirmations'] as List?)?.cast<String>(),
+      affirmationCount: m['affirmationCount'] as int?,
       randomPool: (m['randomPool'] as List?)
           ?.cast<String>()
           .map((s) => MissionType.values.firstWhere(
@@ -87,6 +93,8 @@ class MissionConfig extends Equatable {
     bool clearSelectedItems = false,
     List<String>? selectedAffirmations,
     bool clearSelectedAffirmations = false,
+    int? affirmationCount,
+    bool clearAffirmationCount = false,
     List<MissionType>? randomPool,
     bool clearRandomPool = false,
   }) =>
@@ -103,6 +111,9 @@ class MissionConfig extends Equatable {
         selectedAffirmations: clearSelectedAffirmations
             ? null
             : selectedAffirmations ?? this.selectedAffirmations,
+        affirmationCount: clearAffirmationCount
+            ? null
+            : affirmationCount ?? this.affirmationCount,
         randomPool: clearRandomPool ? null : randomPool ?? this.randomPool,
       );
 
@@ -114,6 +125,7 @@ class MissionConfig extends Equatable {
         mathProblemCount,
         selectedItems,
         selectedAffirmations,
+        affirmationCount,
         randomPool,
       ];
 }

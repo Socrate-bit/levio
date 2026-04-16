@@ -19,13 +19,13 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
   SubscriptionCubit({
     required AlarmCubit alarmCubit,
     required AuthCubit authCubit,
-  })  : _alarmCubit = alarmCubit,
-        _authCubit = authCubit,
-        super(const SubscriptionState()) {
+  }) : _alarmCubit = alarmCubit,
+       _authCubit = authCubit,
+       super(const SubscriptionState()) {
     _init();
   }
 
-  void _init() {
+  void _init() async {
     // Admin/UGC users bypass Superwall entirely
     if (_authCubit.state.skipsPaywall) {
       emit(state.copyWith(status: SubscriptionGateStatus.active));
@@ -44,8 +44,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
 
     // Listen to Superwall subscription status stream
     try {
-      _superwallSub =
-          Superwall.shared.subscriptionStatus.listen(_handleSuperwall);
+      _superwallSub = Superwall.shared.subscriptionStatus.listen(
+        _handleSuperwall,
+      );
     } catch (e) {
       debugPrint('[SubscriptionCubit] subscriptionStatus listen failed: $e');
     }

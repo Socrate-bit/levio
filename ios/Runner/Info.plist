@@ -48,6 +48,8 @@
 		</dict>
 		<key>NSCameraUsageDescription</key>
 		<string>Levio needs camera access to count your push-ups and take photos to dismiss alarms.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Levio needs photo library access to let you pick a photo to dismiss the alarm.</string>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>Levio needs microphone access to listen to your voice for the speech challenge.</string>
 		<key>NSSpeechRecognitionUsageDescription</key>

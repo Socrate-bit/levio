@@ -8,17 +8,27 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../alarms/services/alarm_channel.dart';
 
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/item_picker_screen.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../../shared/widgets/levio_brand_header.dart';
 
-var _houseObjects = [
-  'coffee mug', 'book', 'lamp', 'pillow', 'remote control',
-  'water bottle', 'shoes', 'plant', 'clock', 'chair',
-  'towel', 'mirror', 'candle', 'bag', 'headphones',
-  'pen', 'cup', 'key', 'hat', 'glasses',
-];
+/// Returns the default item labels for a hunt mission type.
+List<String> _defaultItemsFor(MissionType type) {
+  final ItemPickerData data;
+  switch (type) {
+    case MissionType.objectHunt:
+      data = objectHuntPickerData;
+    case MissionType.petHunt:
+      data = petHuntPickerData;
+    case MissionType.natureHunt:
+      data = natureHuntPickerData;
+    default:
+      return [];
+  }
+  return data.sections.expand((s) => s.items).map((i) => i.label).toList();
+}
 
 class PhotoDismissScreen extends StatefulWidget {
   final String alarmId;
@@ -64,19 +74,12 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
     // Determine target object for hunt missions
-    if (widget.missionType == MissionType.objectHunt ||
-        widget.missionType == MissionType.petHunt ||
-        widget.missionType == MissionType.natureHunt) {
-      if (widget.selectedItems != null && widget.selectedItems!.isNotEmpty) {
-        _targetObject = (List<String>.from(widget.selectedItems!)..shuffle()).first;
-      } else if (widget.missionType == MissionType.objectHunt) {
-        _targetObject = (_houseObjects..shuffle()).first;
-      } else {
-        _targetObject = '';
-      }
-    } else {
-      _targetObject = '';
-    }
+    final items = (widget.selectedItems != null && widget.selectedItems!.isNotEmpty)
+        ? widget.selectedItems!
+        : _defaultItemsFor(widget.missionType);
+    _targetObject = items.isNotEmpty
+        ? (List<String>.from(items)..shuffle()).first
+        : '';
 
     _initCamera();
     if (widget.manageAlarm && !widget.isPreview) _initAlarm();
@@ -206,7 +209,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         return null;
       case _PhotoError.notDetected:
         return l10n.dismissPhotoNotDetected(
-          localizedMissionName(l10n, widget.missionType).toLowerCase(),
+          localizedPhotoTarget(l10n, widget.missionType).toLowerCase(),
         );
       case _PhotoError.other:
         return _rawError != null ? l10n.dismissPhotoError(_rawError!) : null;
@@ -218,7 +221,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final controller = _controller;
     final l10n = AppLocalizations.of(context);
     final info = missionInfoFor(widget.missionType);
-    final targetLabel = _targetObject.isNotEmpty ? _targetObject : localizedPhotoTarget(l10n, widget.missionType);
+    final targetLabel = _targetObject.isNotEmpty ? localizedItemName(l10n, _targetObject) : localizedPhotoTarget(l10n, widget.missionType);
     final errorMessage = _resolveError(l10n);
 
     return Scaffold(
@@ -310,7 +313,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                           ),
                                           const SizedBox(height: 16),
                                           Text(
-                                            l10n.dismissPhotoChecking(localizedMissionName(l10n, widget.missionType).toLowerCase()),
+                                            l10n.dismissPhotoChecking(localizedPhotoTarget(l10n, widget.missionType).toLowerCase()),
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 14,

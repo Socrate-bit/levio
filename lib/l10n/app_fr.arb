@@ -167,6 +167,7 @@
   "missionConfigMedium": "Moyen",
   "missionConfigHard": "Difficile",
   "missionConfigChoose": "Choisir cette mission",
+  "missionConfigNumberOfAffirmations": "Nombre d'affirmations",
 
   "itemPickerSelectItems": "Sélectionner les objets",
   "itemPickerRandomItem": "Un objet aléatoire sera choisi chaque matin",
@@ -181,6 +182,8 @@
   "itemPickerDeselectAll": "Tout désélectionner",
   "itemPickerAddOwn": "Ajoutez votre propre objet",
   "itemPickerDone": "Terminé",
+  "itemPickerCustomItems": "Objets personnalisés",
+  "affirmationPickerCustom": "Personnalisées",
 
   "itemToothbrush": "Brosse à dents",
   "itemRunningFaucet": "Robinet ouvert",
@@ -401,6 +404,7 @@
   "dismissSpeechTapToSpeak": "Appuyez pour parler",
   "dismissSpeechTryAgain": "{score}% — réessayez",
   "dismissSpeechMicUnavailable": "Microphone indisponible",
+  "dismissSpeechProgress": "{current}/{total}",
   "dismissRepStarting": "Démarrage de la caméra…",
   "dismissRepPrompt": "Faites {target} {mission} pour arrêter l'alarme",
   "dismissRepOf": "de {target}",

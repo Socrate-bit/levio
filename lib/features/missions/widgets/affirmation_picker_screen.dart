@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
+import '../../../services/custom_items_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../dismiss/data/affirmations.dart';
 
-/// Full-screen picker for selecting affirmations.
+/// Result returned by [AffirmationPickerScreen].
+class AffirmationPickerResult {
+  final List<String> affirmations;
+  final int count;
+
+  const AffirmationPickerResult({
+    required this.affirmations,
+    required this.count,
+  });
+}
+
+/// Full-screen picker for selecting affirmations and count.
 class AffirmationPickerScreen extends StatefulWidget {
   final List<String>? preselected;
+  final int initialCount;
 
-  const AffirmationPickerScreen({super.key, this.preselected});
+  const AffirmationPickerScreen({
+    super.key,
+    this.preselected,
+    this.initialCount = 1,
+  });
 
   @override
   State<AffirmationPickerScreen> createState() =>
@@ -18,40 +35,77 @@ class AffirmationPickerScreen extends StatefulWidget {
 
 class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
   late Set<String> _selected;
+  late int _count;
   final _customCtrl = TextEditingController();
-
-  /// All items: built-in affirmations + any custom ones from preselected.
-  late List<String> _allItems;
+  List<String> _customAffirmations = [];
+  bool _loading = true;
+  final _scrollCtrl = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _selected = widget.preselected?.toSet() ?? {};
-    // Include custom affirmations that aren't in the built-in list
-    final custom = _selected.where((s) => !affirmations.contains(s)).toList();
-    _allItems = [...affirmations, ...custom];
+    _count = widget.initialCount;
+    _loadCustom();
+  }
+
+  Future<void> _loadCustom() async {
+    final custom = await CustomItemsService.getCustomAffirmations();
+    if (!mounted) return;
+    setState(() {
+      _customAffirmations = custom;
+      _loading = false;
+    });
   }
 
   @override
   void dispose() {
     _customCtrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
   void _addCustom() {
     final text = _customCtrl.text.trim();
     if (text.isEmpty) return;
+    if (_customAffirmations.contains(text) || affirmations.contains(text)) {
+      _customCtrl.clear();
+      return;
+    }
     setState(() {
-      if (!_allItems.contains(text)) _allItems.add(text);
+      _customAffirmations.add(text);
       _selected.add(text);
     });
     _customCtrl.clear();
+    CustomItemsService.addCustomAffirmation(text);
+
+    // Scroll to bottom to reveal the new item
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollCtrl.hasClients) {
+        _scrollCtrl.animateTo(
+          _scrollCtrl.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void _deleteCustom(String text) {
+    setState(() {
+      _customAffirmations.remove(text);
+      _selected.remove(text);
+    });
+    CustomItemsService.removeCustomAffirmation(text);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
+    final allBuiltIn = affirmations;
+    final allItems = [...allBuiltIn, ..._customAffirmations];
+
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -104,15 +158,15 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                   GestureDetector(
                     onTap: withHaptic(() {
                       setState(() {
-                        if (_selected.length < _allItems.length) {
-                          _selected = _allItems.toSet();
+                        if (_selected.length < allItems.length) {
+                          _selected = allItems.toSet();
                         } else {
                           _selected.clear();
                         }
                       });
                     }),
                     child: Text(
-                      _selected.length < _allItems.length
+                      _selected.length < allItems.length
                           ? l10n.affirmationPickerSelectAll
                           : l10n.affirmationPickerDeselectAll,
                       style: TextStyle(
@@ -127,64 +181,146 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
             ),
             const SizedBox(height: 12),
 
-            // List
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _allItems.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 4),
-                itemBuilder: (_, i) {
-                  final item = _allItems[i];
-                  final selected = _selected.contains(item);
-                  return GestureDetector(
-                    onTap: withHaptic(() {
-                      setState(() {
-                        if (selected) {
-                          _selected.remove(item);
-                        } else {
-                          _selected.add(item);
-                        }
-                      });
-                    }),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: c.card,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: selected
-                              ? c.purpleDeep
-                              : Colors.transparent,
-                          width: 1.5,
+            // Affirmation count stepper
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: c.card,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l10n.missionConfigNumberOfAffirmations,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: c.textPrimary,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: c.textPrimary,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            selected
-                                ? Icons.check_circle
-                                : Icons.circle_outlined,
-                            color: selected
-                                ? c.purpleDeep
-                                : c.textSecondary,
-                            size: 22,
-                          ),
-                        ],
+                    ),
+                    GestureDetector(
+                      onTap: _count > 1
+                          ? withHaptic(() => setState(() => _count--))
+                          : null,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: _count > 1
+                              ? AppColors.orange
+                              : c.separator,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.remove,
+                          size: 18,
+                          color: _count > 1
+                              ? Colors.white
+                              : c.textSecondary,
+                        ),
                       ),
                     ),
-                  );
-                },
+                    SizedBox(
+                      width: 40,
+                      child: Center(
+                        child: Text(
+                          '$_count',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: c.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: _count < 10
+                          ? withHaptic(() => setState(() => _count++))
+                          : null,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: _count < 10
+                              ? AppColors.orange
+                              : c.separator,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.add,
+                          size: 18,
+                          color: _count < 10
+                              ? Colors.white
+                              : c.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
+            const SizedBox(height: 12),
+
+            // List
+            Expanded(
+              child: _loading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.orange,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : ListView(
+                      controller: _scrollCtrl,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      children: [
+                        // Built-in affirmations
+                        for (final item in allBuiltIn)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: _buildTile(item, c),
+                          ),
+
+                        // Custom section (at the bottom, animated)
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                          alignment: Alignment.topCenter,
+                          child: _customAffirmations.isNotEmpty
+                              ? Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      l10n.affirmationPickerCustom,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: c.textPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    for (final item
+                                        in _customAffirmations)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 4),
+                                        child: _buildTile(item, c,
+                                            isCustom: true),
+                                      ),
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                        const SizedBox(height: 80),
+                      ],
+                    ),
             ),
 
             // Add your own
@@ -233,8 +369,12 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: ElevatedButton(
-                onPressed: withHaptic(() =>
-                    Navigator.pop(context, _selected.toList())),
+                onPressed: withHaptic(() => Navigator.pop(
+                    context,
+                    AffirmationPickerResult(
+                      affirmations: _selected.toList(),
+                      count: _count,
+                    ))),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: c.textPrimary,
                   foregroundColor: c.background,
@@ -250,6 +390,57 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTile(String item, AppColors c,
+      {bool isCustom = false}) {
+    final selected = _selected.contains(item);
+    return GestureDetector(
+      onTap: withHaptic(() {
+        setState(() {
+          if (selected) {
+            _selected.remove(item);
+          } else {
+            _selected.add(item);
+          }
+        });
+      }),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? c.purpleDeep : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                item,
+                style: TextStyle(fontSize: 14, color: c.textPrimary),
+              ),
+            ),
+            if (isCustom)
+              GestureDetector(
+                onTap: withHaptic(() => _deleteCustom(item)),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Icon(Icons.delete_outline,
+                      size: 20, color: c.textSecondary),
+                ),
+              ),
+            Icon(
+              selected ? Icons.check_circle : Icons.circle_outlined,
+              color: selected ? c.purpleDeep : c.textSecondary,
+              size: 22,
             ),
           ],
         ),

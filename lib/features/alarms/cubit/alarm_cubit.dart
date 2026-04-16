@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,14 +12,20 @@ import '../services/alarm_firestore_service.dart';
 import 'alarm_state.dart';
 
 class AlarmCubit extends Cubit<AlarmState> {
+  final Completer<void> _ready = Completer<void>();
+
   AlarmCubit() : super(const AlarmState()) {
     _init();
   }
 
   Future<void> _init() async {
-    await AlarmChannel.requestAuthorization();
-    await _syncAlarms();
-    await _markMissedAlarms();
+    try {
+      await AlarmChannel.requestAuthorization();
+      await _syncAlarms();
+      await _markMissedAlarms();
+    } finally {
+      _ready.complete();
+    }
   }
 
   /// Restores alarms from Firestore (source of truth) and reschedules any
@@ -380,6 +388,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   /// Disables all enabled alarms because the user lost their subscription.
   Future<void> disableAllForSubscription() async {
+    await _ready.future;
     final enabledAlarms = state.alarms.where((a) => a.isEnabled).toList();
     if (enabledAlarms.isEmpty) return;
 
@@ -410,6 +419,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   /// Re-enables alarms that were auto-disabled by a subscription lapse.
   Future<void> restoreSubscriptionDisabled() async {
+    await _ready.future;
     final toRestore =
         state.alarms.where((a) => a.disabledBySubscription).toList();
     if (toRestore.isEmpty) return;

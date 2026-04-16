@@ -185,6 +185,7 @@
   "missionConfigMedium": "Medium",
   "missionConfigHard": "Hard",
   "missionConfigChoose": "Choose This Mission",
+  "missionConfigNumberOfAffirmations": "Number of affirmations",
 
   "itemPickerSelectItems": "Select Items",
   "itemPickerRandomItem": "A random item will be chosen each morning",
@@ -202,6 +203,8 @@
   "itemPickerDeselectAll": "Deselect All",
   "itemPickerAddOwn": "Add your own item",
   "itemPickerDone": "Done",
+  "itemPickerCustomItems": "Custom Items",
+  "affirmationPickerCustom": "Custom",
 
   "itemToothbrush": "Toothbrush",
   "itemRunningFaucet": "Running Faucet",
@@ -464,6 +467,13 @@
     "placeholders": { "score": { "type": "int" } }
   },
   "dismissSpeechMicUnavailable": "Microphone unavailable",
+  "dismissSpeechProgress": "{current}/{total}",
+  "@dismissSpeechProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
   "dismissRepStarting": "Starting camera…",
   "dismissRepPrompt": "Do {target} {mission} to stop the alarm",
   "@dismissRepPrompt": {

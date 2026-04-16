@@ -27,18 +27,21 @@ Future<MissionConfig?> showMissionConfigModal(
   }
 
   if (info.type == MissionType.affirmation) {
-    final selected = await Navigator.push<List<String>>(
+    final result = await Navigator.push<AffirmationPickerResult>(
       context,
       MaterialPageRoute(
         builder: (_) => AffirmationPickerScreen(
           preselected: existing?.selectedAffirmations,
+          initialCount: existing?.affirmationCount ?? 1,
         ),
       ),
     );
-    if (selected == null) return null;
+    if (result == null) return null;
     return MissionConfig(
       type: info.type,
-      selectedAffirmations: selected.isEmpty ? null : selected,
+      selectedAffirmations:
+          result.affirmations.isEmpty ? null : result.affirmations,
+      affirmationCount: result.count,
     );
   }
 

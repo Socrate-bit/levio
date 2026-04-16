@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
+import '../../../services/custom_items_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
@@ -122,6 +123,8 @@ String _localizedSectionName(AppLocalizations l10n, String name) {
       return l10n.itemPickerHouseholdItems;
     case 'Fun Items':
       return l10n.itemPickerFunItems;
+    case 'Custom Items':
+      return l10n.itemPickerCustomItems;
     default:
       return name;
   }
@@ -151,26 +154,51 @@ class ItemPickerScreen extends StatefulWidget {
 class _ItemPickerScreenState extends State<ItemPickerScreen> {
   late Set<String> _selected;
   final _customCtrl = TextEditingController();
+  final _scrollCtrl = ScrollController();
+  List<String> _customObjects = [];
+  bool _loading = true;
 
-  List<ItemPickerItem> get _allItems =>
-      widget.sections.expand((s) => s.items).toList();
+  /// All built-in items across sections.
+  Set<String> get _builtInLabels =>
+      widget.sections.expand((s) => s.items).map((i) => i.label).toSet();
+
+  /// All selectable labels (built-in + custom).
+  List<String> get _allLabels => [
+        ..._builtInLabels,
+        ..._customObjects,
+      ];
 
   @override
   void initState() {
     super.initState();
     _selected = widget.preselected?.toSet() ?? {};
+    if (widget.showAddCustom) {
+      _loadCustom();
+    } else {
+      _loading = false;
+    }
+  }
+
+  Future<void> _loadCustom() async {
+    final custom = await CustomItemsService.getCustomObjects();
+    if (!mounted) return;
+    setState(() {
+      _customObjects = custom;
+      _loading = false;
+    });
   }
 
   @override
   void dispose() {
     _customCtrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
   void _toggleAll(bool selectAll) {
     setState(() {
       if (selectAll) {
-        _selected = _allItems.map((i) => i.label).toSet();
+        _selected = _allLabels.toSet();
       } else {
         _selected.clear();
       }
@@ -180,8 +208,35 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
   void _addCustom() {
     final text = _customCtrl.text.trim();
     if (text.isEmpty) return;
-    setState(() => _selected.add(text));
+    if (_customObjects.contains(text) || _builtInLabels.contains(text)) {
+      _customCtrl.clear();
+      return;
+    }
+    setState(() {
+      _customObjects.add(text);
+      _selected.add(text);
+    });
     _customCtrl.clear();
+    CustomItemsService.addCustomObject(text);
+
+    // Scroll to bottom to reveal the new item
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollCtrl.hasClients) {
+        _scrollCtrl.animateTo(
+          _scrollCtrl.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void _deleteCustom(String label) {
+    setState(() {
+      _customObjects.remove(label);
+      _selected.remove(label);
+    });
+    CustomItemsService.removeCustomObject(label);
   }
 
   @override
@@ -239,9 +294,9 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                   const Spacer(),
                   GestureDetector(
                     onTap: withHaptic(() => _toggleAll(
-                        _selected.length < _allItems.length)),
+                        _selected.length < _allLabels.length)),
                     child: Text(
-                      _selected.length < _allItems.length
+                      _selected.length < _allLabels.length
                           ? l10n.itemPickerSelectAll
                           : l10n.itemPickerDeselectAll,
                       style: TextStyle(
@@ -269,69 +324,111 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
 
             // Grid
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  for (final section in widget.sections) ...[
-                    if (section.name.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        _localizedSectionName(l10n, section.name),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: c.textPrimary,
-                        ),
+              child: _loading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.orange,
+                        strokeWidth: 2.5,
                       ),
-                      const SizedBox(height: 8),
-                    ],
-                    _buildGrid(section.items, c, l10n),
-                    const SizedBox(height: 8),
-                  ],
-                  // Add your own
-                  if (widget.showAddCustom) ...[
-                    const SizedBox(height: 8),
-                    Row(
+                    )
+                  : ListView(
+                      controller: _scrollCtrl,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _customCtrl,
-                            style: TextStyle(fontSize: 15, color: c.textPrimary),
-                            decoration: InputDecoration(
-                              hintText: l10n.itemPickerAddOwn,
-                              hintStyle: TextStyle(color: c.textSecondary),
-                              filled: true,
-                              fillColor: c.card,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                        // Built-in sections
+                        for (final section in widget.sections) ...[
+                          if (section.name.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              _localizedSectionName(l10n, section.name),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: c.textPrimary,
                               ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
                             ),
-                            onSubmitted: (_) => _addCustom(),
+                            const SizedBox(height: 8),
+                          ],
+                          _buildGrid(section.items, c, l10n),
+                          const SizedBox(height: 8),
+                        ],
+
+                        // Custom objects section (at the bottom)
+                        if (widget.showAddCustom) ...[
+                          // Section header + grid (animated)
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                            alignment: Alignment.topCenter,
+                            child: _customObjects.isNotEmpty
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        _localizedSectionName(
+                                            l10n, 'Custom Items'),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: c.textPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      _buildCustomGrid(c, l10n),
+                                      const SizedBox(height: 8),
+                                    ],
+                                  )
+                                : const SizedBox.shrink(),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: withHaptic(_addCustom),
-                          child: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: AppColors.orange,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(Icons.add,
-                                color: Colors.white, size: 22),
+
+                          // Add your own
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _customCtrl,
+                                  style: TextStyle(
+                                      fontSize: 15, color: c.textPrimary),
+                                  decoration: InputDecoration(
+                                    hintText: l10n.itemPickerAddOwn,
+                                    hintStyle:
+                                        TextStyle(color: c.textSecondary),
+                                    filled: true,
+                                    fillColor: c.card,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 12),
+                                  ),
+                                  onSubmitted: (_) => _addCustom(),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: withHaptic(_addCustom),
+                                child: Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.orange,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(Icons.add,
+                                      color: Colors.white, size: 22),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                        ],
+                        const SizedBox(height: 80),
                       ],
                     ),
-                  ],
-                  const SizedBox(height: 80),
-                ],
-              ),
             ),
 
             // Done button
@@ -362,7 +459,96 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
     );
   }
 
-  Widget _buildGrid(List<ItemPickerItem> items, AppColors c, AppLocalizations l10n) {
+  /// Grid for custom objects — each card has a delete icon.
+  Widget _buildCustomGrid(AppColors c, AppLocalizations l10n) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 0.9,
+      ),
+      itemCount: _customObjects.length,
+      itemBuilder: (_, i) {
+        final label = _customObjects[i];
+        final selected = _selected.contains(label);
+        return GestureDetector(
+          onTap: withHaptic(() {
+            setState(() {
+              if (selected) {
+                _selected.remove(label);
+              } else {
+                _selected.add(label);
+              }
+            });
+          }),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            decoration: BoxDecoration(
+              color: c.card,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: selected ? c.purpleDeep : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            child: Stack(
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('\u{2b50}',
+                            style: TextStyle(fontSize: 36)),
+                        const SizedBox(height: 6),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: c.textPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Delete button
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: GestureDetector(
+                    onTap: withHaptic(() => _deleteCustom(label)),
+                    child: Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: c.separator,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.close,
+                          size: 14, color: c.textSecondary),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Grid for built-in items.
+  Widget _buildGrid(
+      List<ItemPickerItem> items, AppColors c, AppLocalizations l10n) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),

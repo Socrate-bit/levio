@@ -85,8 +85,8 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
       MathDifficulty.hard => ['+', '-', '\u00d7', '\u00f7'],
     };
 
-    // Hard mode: 50% chance of chained 3-operand problem
-    if (diff == MathDifficulty.hard && rng.nextBool()) {
+    // Hard mode: always use chained 3-operand problems
+    if (diff == MathDifficulty.hard) {
       final opA = ops[rng.nextInt(ops.length)];
       final opB = ops[rng.nextInt(ops.length)];
 

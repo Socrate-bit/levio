@@ -1028,6 +1028,12 @@ abstract class AppLocalizations {
   /// **'Choose This Mission'**
   String get missionConfigChoose;
 
+  /// No description provided for @missionConfigNumberOfAffirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of affirmations'**
+  String get missionConfigNumberOfAffirmations;
+
   /// No description provided for @itemPickerSelectItems.
   ///
   /// In en, this message translates to:
@@ -1105,6 +1111,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get itemPickerDone;
+
+  /// No description provided for @itemPickerCustomItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Items'**
+  String get itemPickerCustomItems;
+
+  /// No description provided for @affirmationPickerCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get affirmationPickerCustom;
 
   /// No description provided for @itemToothbrush.
   ///
@@ -2341,6 +2359,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Microphone unavailable'**
   String get dismissSpeechMicUnavailable;
+
+  /// No description provided for @dismissSpeechProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{current}/{total}'**
+  String dismissSpeechProgress(int current, int total);
 
   /// No description provided for @dismissRepStarting.
   ///

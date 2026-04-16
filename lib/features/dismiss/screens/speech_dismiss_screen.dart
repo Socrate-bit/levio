@@ -22,6 +22,7 @@ class SpeechDismissScreen extends StatefulWidget {
   final MissionType missionType;
   final String alarmLabel;
   final List<String>? selectedAffirmations;
+  final int affirmationCount;
   final VoidCallback? onComplete;
   final bool manageAlarm;
   final bool isPreview;
@@ -33,6 +34,7 @@ class SpeechDismissScreen extends StatefulWidget {
     this.missionType = MissionType.affirmation,
     this.alarmLabel = 'Alarm #1',
     this.selectedAffirmations,
+    this.affirmationCount = 1,
     this.onComplete,
     this.manageAlarm = true,
     this.isPreview = false,
@@ -51,13 +53,15 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   double? _lastScore;
   bool _initialized = false;
   final _startTime = DateTime.now();
-  late final String _targetText;
+  late String _targetText;
+  int _completedCount = 0;
   String? _missionSnoozeId;
   bool _keepRinging = false;
 
+  int get _totalCount => widget.affirmationCount;
+
   String _randomPhrase() {
     final rng = Random();
-    // Use selected affirmations if provided, otherwise all
     final pool = (widget.selectedAffirmations != null &&
             widget.selectedAffirmations!.isNotEmpty)
         ? widget.selectedAffirmations!
@@ -131,7 +135,18 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
     final score = _similarity(result.recognizedWords, _targetText);
     _stt.stop();
     if (score >= _threshold) {
-      _dismiss();
+      _completedCount++;
+      if (_completedCount >= _totalCount) {
+        _dismiss();
+      } else {
+        // Advance to next affirmation
+        setState(() {
+          _targetText = _randomPhrase();
+          _isListening = false;
+          _transcription = '';
+          _lastScore = null;
+        });
+      }
     } else {
       setState(() {
         _isListening = false;
@@ -213,6 +228,18 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                               color: info.iconColor, size: 30),
                         ),
                         const SizedBox(height: 20),
+                        if (_totalCount > 1) ...[
+                          Text(
+                            l10n.dismissSpeechProgress(
+                                _completedCount + 1, _totalCount),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.orange,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
                         Text(
                           l10n.dismissSpeechSay,
                           style: TextStyle(

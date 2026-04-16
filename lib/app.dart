@@ -85,11 +85,17 @@ class _LevioAppState extends State<LevioApp> {
             final isSubscribed =
                 context.watch<SubscriptionCubit>().state.isActive;
             if (isSubscribed) return unfocused;
-            return GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () =>
-                  Superwall.shared.registerPlacement('app_start'),
-              child: unfocused,
+            return Stack(
+              children: [
+                unfocused,
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () =>
+                        Superwall.shared.registerPlacement('app_start'),
+                  ),
+                ),
+              ],
             );
           },
           initialRoute: '/',
@@ -251,6 +257,7 @@ Widget buildDismissScreen({
         missionType: missionType,
         alarmLabel: alarmLabel,
         selectedAffirmations: config.selectedAffirmations,
+        affirmationCount: config.affirmationCount ?? 1,
         onComplete: onComplete,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
