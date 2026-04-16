@@ -7,9 +7,9 @@ import '../../../shared/utils/haptic_utils.dart';
 
 import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
-import '../../../shared/widgets/bottom_nav_shell.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../auth/cubit/auth_cubit.dart';
+import '../../main/main_app_gate.dart';
 import '../../missions/models/mission.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
@@ -37,7 +37,9 @@ import '../widgets/welcome_step.dart';
 const _totalPages = 36;
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const OnboardingScreen({super.key, required this.navigatorKey});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -229,7 +231,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) =>
-                                      const _StandaloneSignInScreen(),
+                                      _StandaloneSignInScreen(navigatorKey: widget.navigatorKey),
                                 ),
                               );
                             },
@@ -662,7 +664,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   Navigator.of(context).pushReplacement(
                                     PageRouteBuilder(
                                       pageBuilder: (_, _, _) =>
-                                          const BottomNavShell(),
+                                          MainAppGate(navigatorKey: widget.navigatorKey),
                                       transitionsBuilder:
                                           (_, animation, _, child) =>
                                               FadeTransition(
@@ -741,7 +743,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class _StandaloneSignInScreen extends StatelessWidget {
-  const _StandaloneSignInScreen();
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const _StandaloneSignInScreen({required this.navigatorKey});
 
   Future<void> _onSignInComplete(BuildContext context) async {
     // Check if returning user already completed onboarding
@@ -756,7 +760,8 @@ class _StandaloneSignInScreen extends StatelessWidget {
         if (context.mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             PageRouteBuilder(
-              pageBuilder: (_, _, _) => const BottomNavShell(),
+              pageBuilder: (_, _, _) =>
+                  MainAppGate(navigatorKey: navigatorKey),
               transitionsBuilder: (_, animation, _, child) =>
                   FadeTransition(opacity: animation, child: child),
               transitionDuration: const Duration(milliseconds: 400),
