@@ -192,64 +192,91 @@ class AppLocalizationsEn extends AppLocalizations {
   String get soundDefault => 'Default';
 
   @override
-  String get soundAlarmClock => 'Alarm Clock';
+  String get soundClock2 => 'Clock 2';
 
   @override
-  String get soundReveille => 'Reveille';
+  String get soundClock3 => 'Clock 3';
 
   @override
-  String get soundSparkles => 'Sparkles';
+  String get soundClock4 => 'Clock 4';
 
   @override
-  String get soundMindfulEarth => 'Mindful Earth';
+  String get soundFunny => 'Funny';
 
   @override
-  String get soundEpicBrass => 'Epic Brass';
+  String get soundCelestial => 'Celestial';
 
   @override
-  String get soundNeon => 'Neon';
+  String get soundChiptune => 'Chiptune';
 
   @override
-  String get soundRiseAndShine => 'Rise And Shine';
+  String get soundDreamscape => 'Dreamscape';
 
   @override
-  String get soundAirRaid => 'Air Raid';
+  String get soundGame => 'Game';
 
   @override
-  String get soundMeltdown => 'Meltdown';
+  String get soundGame2 => 'Game 2';
 
   @override
-  String get soundRave => 'Rave';
+  String get soundOversimplified => 'Oversimplified';
 
   @override
-  String get soundPopStar => 'Pop Star';
+  String get soundSmooth => 'Smooth';
 
   @override
-  String get soundPartyTime => 'Party Time';
+  String get soundAcoustic => 'Acoustic';
 
   @override
-  String get soundSunray => 'Sunray';
+  String get soundComing => 'Coming';
 
   @override
-  String get soundJollyDay => 'Jolly Day';
+  String get soundCyber => 'Cyber';
 
   @override
-  String get soundLondonTown => 'London Town';
+  String get soundDetermination => 'Determination';
 
   @override
-  String get soundFirstSnow => 'First Snow';
+  String get soundDubstep => 'Dubstep';
 
   @override
-  String get soundCategoryClassic => 'Classic';
+  String get soundHiphop => 'Hiphop';
 
   @override
-  String get soundCategoryViral => 'Viral';
+  String get soundPiano => 'Piano';
 
   @override
-  String get soundCategoryAggressive => 'Aggressive';
+  String get soundTropical => 'Tropical';
 
   @override
-  String get soundCategoryPeaceful => 'Peaceful';
+  String get soundRingstone1 => 'Ringstone 1';
+
+  @override
+  String get soundRingstone2 => 'Ringstone 2';
+
+  @override
+  String get soundRingstone3 => 'Ringstone 3';
+
+  @override
+  String get soundAlarm => 'Alarm';
+
+  @override
+  String get soundHardcore => 'Hardcore';
+
+  @override
+  String get soundCategoryClock => 'Clock';
+
+  @override
+  String get soundCategoryGentle => 'Gentle';
+
+  @override
+  String get soundCategoryMusical => 'Musical';
+
+  @override
+  String get soundCategoryRingstone => 'Ringstone';
+
+  @override
+  String get soundCategoryViolent => 'Violent';
 
   @override
   String get homeNextWakeUp => 'Next Wake Up';

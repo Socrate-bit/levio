@@ -19,7 +19,7 @@ class SuperwallService {
   static Future<void> registerAppStart({bool skipPaywall = false}) async {
     if (skipPaywall) return;
     try {
-      // await Superwall.shared.registerPlacement('app_start');star
+      await Superwall.shared.registerPlacement('app_start');
     } catch (e) {
       debugPrint('[SuperwallService] registerPlacement failed: $e');
     }

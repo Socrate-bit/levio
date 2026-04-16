@@ -9,6 +9,15 @@ VoidCallback? withHaptic(VoidCallback? callback) {
   };
 }
 
+/// Wraps a [VoidCallback] to fire medium haptic feedback before executing.
+VoidCallback? withMediumHaptic(VoidCallback? callback) {
+  if (callback == null) return null;
+  return () {
+    HapticFeedback.heavyImpact();
+    callback();
+  };
+}
+
 /// Wraps a [ValueChanged<T>] to fire light haptic feedback before executing.
 ValueChanged<T>? withHapticValue<T>(ValueChanged<T>? callback) {
   if (callback == null) return null;

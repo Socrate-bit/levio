@@ -350,7 +350,8 @@ class AlarmCubit extends Cubit<AlarmState> {
         soundPath = await customSoundFilePath(custom.fileName);
       }
     } else {
-      soundPath = 'assets/sounds/${entry.soundId}.mp3';
+      final resolved = soundAssetPath(entry.soundId);
+      soundPath = resolved != null ? 'assets/$resolved' : null;
     }
 
     final isRecurrent = !entry.isOneTime && entry.repeatDays.any((d) => d);

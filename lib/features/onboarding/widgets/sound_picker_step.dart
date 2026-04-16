@@ -39,7 +39,9 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
     }
     setState(() => _playingId = id);
     try {
-      await _player.play(AssetSource('sounds/$id.mp3'));
+      final path = soundAssetPath(id);
+      if (path == null) return;
+      await _player.play(AssetSource(path));
       _player.onPlayerComplete.listen((_) {
         if (mounted) setState(() => _playingId = null);
       });

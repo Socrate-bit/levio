@@ -115,9 +115,9 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                       _selected.length < _allItems.length
                           ? l10n.affirmationPickerSelectAll
                           : l10n.affirmationPickerDeselectAll,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.green,
+                        color: c.purpleDeep,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -154,7 +154,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: selected
-                              ? AppColors.green
+                              ? c.purpleDeep
                               : Colors.transparent,
                           width: 1.5,
                         ),
@@ -175,7 +175,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                                 ? Icons.check_circle
                                 : Icons.circle_outlined,
                             color: selected
-                                ? AppColors.green
+                                ? c.purpleDeep
                                 : c.textSecondary,
                             size: 22,
                           ),

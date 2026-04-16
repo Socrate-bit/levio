@@ -80,7 +80,7 @@ class _MilestonesView extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: _TopCard(
-                                      emoji: '🔥',
+                                      icon: Image.asset('assets/streaks.png', width: 36, height: 36),
                                       label: l10n.milestonesDayStreak,
                                     ),
                                   ),
@@ -98,7 +98,7 @@ class _MilestonesView extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: _InfoBox(
-                                      icon: '🔥',
+                                      icon: Image.asset('assets/streaks.png', width: 20, height: 20),
                                       value:
                                           l10n.milestonesLongestStreak(state.longestStreak),
                                       label: l10n.milestonesLongestStreakLabel,
@@ -160,10 +160,10 @@ class _MilestonesView extends StatelessWidget {
 }
 
 class _TopCard extends StatelessWidget {
-  final String emoji;
+  final Widget icon;
   final String label;
 
-  const _TopCard({required this.emoji, required this.label});
+  const _TopCard({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +176,7 @@ class _TopCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 36)),
+          icon,
           const SizedBox(height: 6),
           Text(
             label,
@@ -231,7 +231,7 @@ class _BadgeTopCard extends StatelessWidget {
 }
 
 class _InfoBox extends StatelessWidget {
-  final String icon;
+  final Widget icon;
   final String value;
   final String label;
 
@@ -252,7 +252,7 @@ class _InfoBox extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 18)),
+          icon,
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -46,7 +46,7 @@ class WelcomeStep extends StatelessWidget {
               height: 60,
               alignment: Alignment.centerLeft,
               child: Text(
-                '🏅⭐⭐⭐⭐⭐🏅',
+                '⭐⭐⭐⭐⭐',
                 style: const TextStyle(fontSize: 28),
               ),
             ),

@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
-import '../../../shared/theme/app_theme.dart';
+import 'package:levio/shared/theme/app_theme.dart';
 
 class SpeedometerChart extends StatelessWidget {
   const SpeedometerChart({super.key});
@@ -42,7 +42,7 @@ class SpeedometerChart extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFFFF5252),
+                      color: AppColors.error,
                     ),
                   ),
                   Text(
@@ -61,7 +61,7 @@ class SpeedometerChart extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.green,
+                      color: AppColors.success,
                     ),
                   ),
                   Text(
@@ -106,34 +106,62 @@ class _SpeedometerPainter extends CustomPainter {
     final cy = size.height - 10;
     final radius = size.width / 2 - 20;
 
-    // Gauge arc (red → yellow → green)
+    // Gauge arc (red → yellow → green) drawn as small segments
     const startAngle = pi;
     const sweepAngle = pi;
     final arcRect = Rect.fromCircle(center: Offset(cx, cy), radius: radius);
+    const segmentCount = 60;
+    const segSweep = sweepAngle / segmentCount;
+    final gradientColors = [
+      AppColors.error,
+      const Color(0xFFFF9800),
+      const Color(0xFFFFC107),
+      const Color(0xFF8BC34A),
+      AppColors.success,
+    ];
+    const gradientStops = [0.0, 0.25, 0.5, 0.75, 1.0];
 
-    final gaugePaint = Paint()
+    for (var i = 0; i < segmentCount; i++) {
+      final t = i / (segmentCount - 1);
+      final color = _lerpGradient(gradientColors, gradientStops, t);
+      final paint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 22
+        ..strokeCap = StrokeCap.butt
+        ..color = color;
+      canvas.drawArc(
+          arcRect, startAngle + i * segSweep, segSweep + 0.01, false, paint);
+    }
+
+    // Round caps at both ends
+    final capPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 22
       ..strokeCap = StrokeCap.round;
+    capPaint.color = gradientColors.first;
+    canvas.drawArc(arcRect, startAngle, 0.01, false, capPaint);
+    capPaint.color = gradientColors.last;
+    canvas.drawArc(arcRect, startAngle + sweepAngle - 0.01, 0.01, false, capPaint);
 
-    gaugePaint.shader = SweepGradient(
-      center: Alignment.center,
-      startAngle: pi,
-      endAngle: 2 * pi,
-      colors: const [
-        Color(0xFFFF5252),
-        Color(0xFFFF9800),
-        Color(0xFFFFC107),
-        Color(0xFF8BC34A),
-        Color(0xFF4CAF50),
-      ],
-      stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
-    ).createShader(arcRect);
+    // Tick marks
+    const tickCount = 20;
+    for (var i = 0; i <= tickCount; i++) {
+      final angle = pi + (pi * i / tickCount);
+      final outerR = radius + 11;
+      final innerR = radius + 5;
+      final outer = Offset(cx + outerR * cos(angle), cy + outerR * sin(angle));
+      final inner = Offset(cx + innerR * cos(angle), cy + innerR * sin(angle));
+      canvas.drawLine(
+        outer,
+        inner,
+        Paint()
+          ..color = Colors.white
+          ..strokeWidth = 1.5,
+      );
+    }
 
-    canvas.drawArc(arcRect, startAngle, sweepAngle, false, gaugePaint);
-
-    // Needle pointing to ~80% (5x position)
-    const needleAngle = pi + pi * 0.82;
+    // Needle pointing to max (instant)
+    const needleAngle = pi + pi * 0.95;
     final needleLength = radius - 30;
     final needleEnd = Offset(
       cx + needleLength * cos(needleAngle),
@@ -171,7 +199,7 @@ class _SpeedometerPainter extends CustomPainter {
     )..layout();
     textPainter.paint(
       canvas,
-      Offset(cx - textPainter.width / 2 + 8, cy - 70),
+      Offset(cx - textPainter.width / 2, cy - 70),
     );
 
     // "FASTER" text
@@ -189,8 +217,20 @@ class _SpeedometerPainter extends CustomPainter {
     )..layout();
     fasterPainter.paint(
       canvas,
-      Offset(cx - fasterPainter.width / 2 + 8, cy - 30),
+      Offset(cx - fasterPainter.width / 2, cy - 30),
     );
+  }
+
+  /// Linearly interpolate a color from a gradient defined by colors + stops
+  static Color _lerpGradient(
+      List<Color> colors, List<double> stops, double t) {
+    for (var i = 0; i < stops.length - 1; i++) {
+      if (t <= stops[i + 1]) {
+        final localT = (t - stops[i]) / (stops[i + 1] - stops[i]);
+        return Color.lerp(colors[i], colors[i + 1], localT)!;
+      }
+    }
+    return colors.last;
   }
 
   @override

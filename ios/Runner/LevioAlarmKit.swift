@@ -144,18 +144,20 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let alarmId = UUID()
         let date = Date(timeIntervalSince1970: timestampMs / 1000)
 
+        let soundPath = args["soundPath"] as? String
         let config = makeAlarmConfig(
             id: alarmId,
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            schedule: .fixed(date)
+            schedule: .fixed(date),
+            soundPath: soundPath
         )
 
         do {
             let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
             saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
-                       isOneShot: true, timestampMs: timestampMs)
+                       isOneShot: true, timestampMs: timestampMs, soundPath: soundPath)
             result(alarm.id.uuidString)
         } catch {
             result(FlutterError(code: "SCHEDULE_ERROR", message: error.localizedDescription, details: nil))
@@ -182,18 +184,20 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let recurrence = Alarm.Schedule.Relative.Recurrence.weekly(weekdays)
         let schedule = Alarm.Schedule.Relative(time: time, repeats: recurrence)
 
+        let soundPath = args["soundPath"] as? String
         let config = makeAlarmConfig(
             id: alarmId,
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            schedule: .relative(schedule)
+            schedule: .relative(schedule),
+            soundPath: soundPath
         )
 
         do {
             let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
             saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
-                       isOneShot: false, weekdayMask: mask, hour: hour, minute: minute)
+                       isOneShot: false, weekdayMask: mask, hour: hour, minute: minute, soundPath: soundPath)
             result(alarm.id.uuidString)
         } catch {
             result(FlutterError(code: "SCHEDULE_ERROR", message: error.localizedDescription, details: nil))
@@ -370,6 +374,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
+        let soundPath = config["soundPath"] as? String
 
         let newId = UUID()
         let fireDate = Date().addingTimeInterval(Double(delaySeconds))
@@ -379,7 +384,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            schedule: .fixed(fireDate)
+            schedule: .fixed(fireDate),
+            soundPath: soundPath
         )
 
         do {
@@ -477,7 +483,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         title: String,
         sfSymbol: String,
         secondaryLabel: String,
-        schedule: Alarm.Schedule
+        schedule: Alarm.Schedule,
+        soundPath: String? = nil
     ) -> AlarmManager.AlarmConfiguration<LevioAlarmMetadata> {
         let stopButton = AlarmButton(
             text: "Stop",
@@ -499,11 +506,23 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             presentation: AlarmPresentation(alert: alert),
             tintColor: .white
         )
+
+        // Resolve custom sound from Flutter asset path
+        let sound: AlertConfiguration.AlertSound
+        if let soundPath = soundPath,
+           let registrar = LevioAlarmKit.registrar {
+            let key = registrar.lookupKey(forAsset: soundPath)
+            sound = .named(key)
+        } else {
+            sound = .default
+        }
+
         return AlarmManager.AlarmConfiguration.alarm(
             schedule: schedule,
             attributes: attributes,
             stopIntent: StopAndRescheduleIntent(alarmID: id.uuidString),
-            secondaryIntent: OpenAlarmAppIntent(alarmID: id.uuidString)
+            secondaryIntent: OpenAlarmAppIntent(alarmID: id.uuidString),
+            sound: sound
         )
     }
 
@@ -516,7 +535,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         timestampMs: Double = 0,
         weekdayMask: Int = 0,
         hour: Int = 0,
-        minute: Int = 0
+        minute: Int = 0,
+        soundPath: String? = nil
     ) {
         var config: [String: Any] = [
             "title": title,
@@ -530,6 +550,9 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             config["weekdayMask"] = weekdayMask
             config["hour"] = hour
             config["minute"] = minute
+        }
+        if let soundPath = soundPath {
+            config["soundPath"] = soundPath
         }
         if let data = try? JSONSerialization.data(withJSONObject: config) {
             UserDefaults.standard.set(data, forKey: "levio_config_\(id.uuidString)")

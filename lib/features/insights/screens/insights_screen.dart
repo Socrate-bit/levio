@@ -8,6 +8,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/hexagon_badge.dart';
 import '../../milestones/screens/milestones_screen.dart';
 import '../../missions/models/mission.dart';
+import '../../wakeup/models/wakeup_session.dart';
 import '../cubit/insights_cubit.dart';
 import '../cubit/insights_state.dart';
 
@@ -45,13 +46,11 @@ class _InsightsView extends StatelessWidget {
         return Scaffold(
           backgroundColor: c.background,
           body: SafeArea(
+            bottom: false,
             child: state.loading
                 ? const Center(child: CircularProgressIndicator())
-                : RefreshIndicator(
-                    onRefresh: () => ctx.read<InsightsCubit>().load(),
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                : SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -102,7 +101,7 @@ class _InsightsView extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 22),
                           Text(
                             l10n.insightsStats,
                             style: TextStyle(
@@ -147,10 +146,44 @@ class _InsightsView extends StatelessWidget {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 24),
+                          // History section
+                          Text(
+                            l10n.sessionsTitle,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: c.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          if (state.sessions.isEmpty)
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 24),
+                                child: Text(
+                                  l10n.sessionsNoWakeups,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: c.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            ...state.sessions.asMap().entries.map(
+                              (entry) => Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: _SessionTile(
+                                  session: entry.value,
+                                  wakeupNumber:
+                                      state.totalWakeups - entry.key,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                  ),
           ),
         );
       },
@@ -229,34 +262,37 @@ class _StreakCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: withHaptic(onTap),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: c.card,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('🔥', style: TextStyle(fontSize: 32)),
-            const SizedBox(height: 4),
-            Text(
-              '$streak',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: c.textPrimary,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: c.card,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/streaks.png', width: 56, height: 56),
+              const SizedBox(height: 4),
+              Text(
+                '$streak',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: c.textPrimary,
+                ),
               ),
-            ),
-            Text(
-              l10n.insightsDayStreak,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: c.textSecondary,
+              Text(
+                l10n.insightsDayStreak,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: c.textSecondary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -280,41 +316,45 @@ class _BadgesCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: withHaptic(onTap),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: c.card,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            HexagonBadge(
-              label: '$earned',
-              earned: earned > 0,
-              size: 64,
-              earnedColor: const Color(0xFFB8860B),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.insightsBadgesEarned,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: c.textPrimary,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: c.card,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HexagonBadge(
+                label: '$earned',
+                earned: earned > 0,
+                size: 64,
+                earnedColor: const Color(0xFFB8860B),
               ),
-            ),
-            if (earned > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  '$earned/$total',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: c.textSecondary,
-                  ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.insightsBadgesEarned,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: c.textPrimary,
                 ),
               ),
-          ],
+              if (earned > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    '$earned/$total',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: c.textSecondary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -541,6 +581,119 @@ class _LegendDot extends StatelessWidget {
             style: TextStyle(
                 fontSize: 11, color: c.textSecondary)),
       ],
+    );
+  }
+}
+
+class _SessionTile extends StatelessWidget {
+  final WakeupSession session;
+  final int wakeupNumber;
+
+  const _SessionTile({
+    required this.session,
+    required this.wakeupNumber,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final ts = session.timestamp;
+    final h = ts.hour > 12 ? ts.hour - 12 : (ts.hour == 0 ? 12 : ts.hour);
+    final isPM = ts.hour >= 12;
+    final timeStr =
+        '$h:${ts.minute.toString().padLeft(2, '0')} ${isPM ? 'pm' : 'am'}';
+    final dateStr = '${localizedMonth(l10n, ts.month)} ${ts.day}';
+    final missionLabel = session.missionType != null
+        ? localizedMissionName(l10n, session.missionType!)
+        : l10n.wakeupWakeUp;
+    final missionIcon = session.missionType != null
+        ? missionInfoFor(session.missionType!).icon
+        : Icons.wb_sunny;
+    final missionColor = session.missionType != null
+        ? missionInfoFor(session.missionType!).iconColor
+        : AppColors.orange;
+
+    final mins = session.timeTakenSeconds ~/ 60;
+    final secs = session.timeTakenSeconds % 60;
+    final durationStr = mins > 0 ? '${mins}m ${secs}s' : '${secs}s';
+
+    final missed = !session.completed;
+    final iconColor = missed ? c.textSecondary : missionColor;
+    final iconBg = missed
+        ? c.textSecondary.withAlpha(20)
+        : missionColor.withAlpha(25);
+
+    return Opacity(
+      opacity: missed ? 0.6 : 1.0,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                missed ? Icons.alarm_off_outlined : missionIcon,
+                color: iconColor,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    timeStr,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: c.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    missed ? l10n.sessionsMissed : missionLabel,
+                    style: TextStyle(fontSize: 13, color: c.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  dateStr,
+                  style: TextStyle(fontSize: 13, color: c.textSecondary),
+                ),
+                const SizedBox(height: 2),
+                if (!missed)
+                  Row(
+                    children: [
+                      Icon(Icons.timer_outlined,
+                          size: 12, color: c.textSecondary),
+                      const SizedBox(width: 3),
+                      Text(
+                        durationStr,
+                        style:
+                            TextStyle(fontSize: 12, color: c.textSecondary),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

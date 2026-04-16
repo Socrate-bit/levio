@@ -108,7 +108,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
           child: Column(
             children: [
               const Spacer(),
-              Image.asset('assets/icon.png', width: 80, height: 80),
+              Image.asset('assets/icon.png', width: 120, height: 120),
               const SizedBox(height: 24),
               Text(
                 l10n.wakeupCongratulations,
