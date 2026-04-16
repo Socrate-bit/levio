@@ -166,6 +166,10 @@
   "missionNone": "No mission",
   "missionNoneDesc": "Simple alarm with no task",
 
+  "photoTargetSky": "the sky",
+  "photoTargetMadeBed": "your made bed",
+  "photoTargetGrass": "grass",
+
   "missionPickerTitle": "Choose Mission",
   "missionPickerAll": "All",
   "missionPickerTrending": "Trending",

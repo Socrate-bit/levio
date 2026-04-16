@@ -926,6 +926,24 @@ abstract class AppLocalizations {
   /// **'Simple alarm with no task'**
   String get missionNoneDesc;
 
+  /// No description provided for @photoTargetSky.
+  ///
+  /// In en, this message translates to:
+  /// **'the sky'**
+  String get photoTargetSky;
+
+  /// No description provided for @photoTargetMadeBed.
+  ///
+  /// In en, this message translates to:
+  /// **'your made bed'**
+  String get photoTargetMadeBed;
+
+  /// No description provided for @photoTargetGrass.
+  ///
+  /// In en, this message translates to:
+  /// **'grass'**
+  String get photoTargetGrass;
+
   /// No description provided for @missionPickerTitle.
   ///
   /// In en, this message translates to:

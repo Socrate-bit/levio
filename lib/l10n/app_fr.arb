@@ -148,6 +148,10 @@
   "missionNone": "Pas de mission",
   "missionNoneDesc": "Alarme simple sans tâche",
 
+  "photoTargetSky": "le ciel",
+  "photoTargetMadeBed": "votre lit fait",
+  "photoTargetGrass": "l'herbe",
+
   "missionPickerTitle": "Choisir une mission",
   "missionPickerAll": "Tout",
   "missionPickerTrending": "Tendance",

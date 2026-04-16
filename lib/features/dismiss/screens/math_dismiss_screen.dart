@@ -89,22 +89,51 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
     if (diff == MathDifficulty.hard && rng.nextBool()) {
       final opA = ops[rng.nextInt(ops.length)];
       final opB = ops[rng.nextInt(ops.length)];
-      final x = rng.nextInt(maxVal) + 1;
-      final y = rng.nextInt(maxVal) + 1;
-      final z = rng.nextInt(maxVal) + 1;
-      int mid;
+
+      int x, y, z, mid;
+
+      // Build x, y, mid so division is always exact
       switch (opA) {
-        case '+': mid = x + y;
-        case '-': mid = x - y;
-        case '\u00d7': mid = x * y;
-        default: mid = y != 0 ? x ~/ y : x;
+        case '+':
+          x = rng.nextInt(maxVal) + 1;
+          y = rng.nextInt(maxVal) + 1;
+          mid = x + y;
+        case '-':
+          x = rng.nextInt(maxVal) + 2;
+          y = rng.nextInt(x - 1) + 1;
+          mid = x - y;
+        case '\u00d7':
+          x = rng.nextInt(maxVal ~/ 2) + 2;
+          y = rng.nextInt(maxVal ~/ 2) + 2;
+          mid = x * y;
+        default: // ÷
+          y = rng.nextInt(maxVal ~/ 2) + 2;
+          mid = rng.nextInt(maxVal ~/ 2) + 1;
+          x = y * mid;
       }
+
+      // Build z, answer so division is always exact
       switch (opB) {
-        case '+': _answer = mid + z;
-        case '-': _answer = mid - z;
-        case '\u00d7': _answer = mid * z;
-        default: _answer = z != 0 ? mid ~/ z : mid;
+        case '+':
+          z = rng.nextInt(maxVal) + 1;
+          _answer = mid + z;
+        case '-':
+          z = rng.nextInt(maxVal) + 1;
+          _answer = mid - z;
+        case '\u00d7':
+          z = rng.nextInt(maxVal ~/ 2) + 2;
+          _answer = mid * z;
+        default: // ÷
+          final absMid = mid.abs();
+          if (absMid < 2) {
+            z = 1;
+          } else {
+            final factors = [for (var i = 2; i <= absMid; i++) if (absMid % i == 0) i];
+            z = factors[rng.nextInt(factors.length)];
+          }
+          _answer = mid ~/ z;
       }
+
       _a = x;
       _b = y;
       _op = opA;

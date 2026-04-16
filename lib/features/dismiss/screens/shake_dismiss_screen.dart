@@ -132,65 +132,74 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                 const LevioBrandHeader(),
                 Expanded(
                   child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 220,
-                          height: 220,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox.expand(
-                                child: CircularProgressIndicator(
-                                  value: progress,
-                                  strokeWidth: 12,
-                                  backgroundColor: c.separator,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(
-                                    AppColors.orange,
+                    
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 220,
+                            height: 220,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox.expand(
+                                  child: CircularProgressIndicator(
+                                    value: progress,
+                                    strokeWidth: 12,
+                                    backgroundColor: c.separator,
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                          AppColors.orange,
+                                        ),
                                   ),
                                 ),
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.baseline,
-                                    textBaseline: TextBaseline.alphabetic,
-                                    children: [
-                                      Text(
-                                        '$_shakeCount',
-                                        style: TextStyle(
-                                          color: c.textPrimary,
-                                          fontSize: 64,
-                                          fontWeight: FontWeight.bold,
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.baseline,
+                                      textBaseline: TextBaseline.alphabetic,
+                                      children: [
+                                        Text(
+                                          '$_shakeCount',
+                      
+                                          style: TextStyle(
+                                            color: c.textPrimary,
+                                            fontSize: 64,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        '/ ${widget.target}',
-                                        style: TextStyle(
-                                          color: c.textSecondary,
-                                          fontSize: 22,
+                                        Text(
+                                          '/ ${widget.target}',
+                                          style: TextStyle(
+                                            color: c.textSecondary,
+                                            fontSize: 22,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          l10n.dismissShakePrompt,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: c.textSecondary,
+                          const SizedBox(height: 24),
+                          Text(
+                            l10n.dismissShakePrompt,
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              
+                              fontSize: 18,
+                              color: c.textSecondary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -209,7 +218,11 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                       color: Colors.black54,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close, size: 18, color: Colors.white),
+                    child: const Icon(
+                      Icons.close,
+                      size: 18,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

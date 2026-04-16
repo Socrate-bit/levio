@@ -141,6 +141,21 @@ String localizedSoundCategory(AppLocalizations l10n, String category) {
   }
 }
 
+/// Returns the localized photo target label for photo-based missions.
+/// Falls back to the mission name for hunt missions (target comes from selectedItems).
+String localizedPhotoTarget(AppLocalizations l10n, MissionType type) {
+  switch (type) {
+    case MissionType.skyPhoto:
+      return l10n.photoTargetSky;
+    case MissionType.makeBed:
+      return l10n.photoTargetMadeBed;
+    case MissionType.touchGrass:
+      return l10n.photoTargetGrass;
+    default:
+      return localizedMissionName(l10n, type);
+  }
+}
+
 /// Returns the localized badge name by badge ID.
 String localizedBadgeName(AppLocalizations l10n, String badgeId) {
   switch (badgeId) {

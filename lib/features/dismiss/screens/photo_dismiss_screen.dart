@@ -218,7 +218,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final controller = _controller;
     final l10n = AppLocalizations.of(context);
     final info = missionInfoFor(widget.missionType);
-    final targetLabel = _targetObject.isNotEmpty ? _targetObject : localizedMissionName(l10n, widget.missionType);
+    final targetLabel = _targetObject.isNotEmpty ? _targetObject : localizedPhotoTarget(l10n, widget.missionType);
     final errorMessage = _resolveError(l10n);
 
     return Scaffold(

@@ -434,6 +434,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionNoneDesc => 'Simple alarm with no task';
 
   @override
+  String get photoTargetSky => 'the sky';
+
+  @override
+  String get photoTargetMadeBed => 'your made bed';
+
+  @override
+  String get photoTargetGrass => 'grass';
+
+  @override
   String get missionPickerTitle => 'Choose Mission';
 
   @override

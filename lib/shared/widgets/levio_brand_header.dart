@@ -30,6 +30,7 @@ class LevioBrandHeader extends StatelessWidget {
               letterSpacing: -0.5,
             ),
           ),
+          const SizedBox(width: 12),
         ],
       ),
     );
