@@ -78,14 +78,18 @@ class _LevioAppState extends State<LevioApp> {
           supportedLocales: AppLocalizations.supportedLocales,
           navigatorKey: widget.navigatorKey,
           builder: (context, child) {
+            final unfocused = GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: child,
+            );
             final isSubscribed =
                 context.watch<SubscriptionCubit>().state.isActive;
-            if (isSubscribed) return child!;
+            if (isSubscribed) return unfocused;
             return GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () =>
                   Superwall.shared.registerPlacement('app_start'),
-              child: child,
+              child: unfocused,
             );
           },
           initialRoute: '/',

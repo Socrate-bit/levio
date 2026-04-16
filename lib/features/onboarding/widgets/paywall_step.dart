@@ -18,8 +18,9 @@ class PaywallStep extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Spacer(flex: 1),
+          Spacer(flex: 1,),
           Text(
             l10n.onboardingPaywallTitle,
             textAlign: TextAlign.center,
@@ -42,103 +43,112 @@ class PaywallStep extends StatelessWidget {
           ),
           const Spacer(flex: 1),
           // No Payment Due Now
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Column(
+            
             children: [
-              Icon(Icons.check, size: 20, color: c.textPrimary),
-              const SizedBox(width: 6),
-              Text(
-                l10n.onboardingPaywallNoPayment,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: c.textPrimary,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check, size: 20, color: c.textPrimary),
+                  const SizedBox(width: 6),
+                  Text(
+                    l10n.onboardingPaywallNoPayment,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: c.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Try for free button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: withHaptic(onContinue),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: c.textPrimary,
+                    foregroundColor: c.card,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                  child: Text(
+                    l10n.onboardingPaywallTryFree,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: c.card,
+                    ),
+                  ),
                 ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l10n.onboardingPaywallNoCommitment,
+                style: TextStyle(fontSize: 14, color: c.textSecondary),
+              ),
+              const SizedBox(height: 12),
+              // Links
+              Wrap(
+                alignment: WrapAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const PrivacyPolicyScreen(),
+                      ),
+                    ),
+                    child: Text(
+                      l10n.onboardingPaywallPrivacy,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: c.textSecondary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '  \u2022  ',
+                    style: TextStyle(fontSize: 12, color: c.textSecondary),
+                  ),
+                  Text(
+                    l10n.onboardingPaywallRestore,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: c.textSecondary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  Text(
+                    '  \u2022  ',
+                    style: TextStyle(fontSize: 12, color: c.textSecondary),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const TermsConditionsScreen(),
+                      ),
+                    ),
+                    child: Text(
+                      l10n.onboardingPaywallTerms,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: c.textSecondary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          // Try for free button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: withHaptic(onContinue),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: c.textPrimary,
-                foregroundColor: c.card,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
-                ),
-              ),
-              child: Text(
-                l10n.onboardingPaywallTryFree,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: c.card,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            l10n.onboardingPaywallNoCommitment,
-            style: TextStyle(fontSize: 14, color: c.textSecondary),
-          ),
-          const SizedBox(height: 12),
-          // Links
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const PrivacyPolicyScreen(),
-                  ),
-                ),
-                child: Text(
-                  l10n.onboardingPaywallPrivacy,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: c.textSecondary,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-              Text('  \u2022  ',
-                  style: TextStyle(fontSize: 12, color: c.textSecondary)),
-              Text(
-                l10n.onboardingPaywallRestore,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: c.textSecondary,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-              Text('  \u2022  ',
-                  style: TextStyle(fontSize: 12, color: c.textSecondary)),
-              GestureDetector(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const TermsConditionsScreen(),
-                  ),
-                ),
-                child: Text(
-                  l10n.onboardingPaywallTerms,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: c.textSecondary,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ],
-          ),
+
           const SizedBox(height: 24),
         ],
       ),
     );
   }
-
 }

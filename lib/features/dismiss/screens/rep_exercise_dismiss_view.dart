@@ -246,6 +246,28 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
     required this.pulseAnimation,
   });
 
+  String _feedbackText(BuildContext context, FeedbackKey key) {
+    final l10n = AppLocalizations.of(context);
+    switch (key) {
+      case FeedbackKey.moveIntoFrame:
+        return l10n.dismissFeedbackMoveIntoFrame;
+      case FeedbackKey.keepGoing:
+        return l10n.dismissFeedbackKeepGoing;
+      case FeedbackKey.pushupPosition:
+        return l10n.dismissFeedbackPushupPosition;
+      case FeedbackKey.startPushups:
+        return l10n.dismissFeedbackStartPushups;
+      case FeedbackKey.pushupGoDeeper:
+        return l10n.dismissFeedbackPushupGoDeeper;
+      case FeedbackKey.squatPosition:
+        return l10n.dismissFeedbackSquatPosition;
+      case FeedbackKey.startSquats:
+        return l10n.dismissFeedbackStartSquats;
+      case FeedbackKey.squatGoDeeper:
+        return l10n.dismissFeedbackSquatGoDeeper;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -352,7 +374,7 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
-                                      state.feedback!,
+                                      _feedbackText(context, state.feedback!),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         color: Colors.white,

@@ -1212,6 +1212,35 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dismissStartMission => 'Commencer la mission';
 
   @override
+  String get dismissFeedbackMoveIntoFrame =>
+      'Placez tout votre corps dans le cadre';
+
+  @override
+  String get dismissFeedbackKeepGoing => 'Oui, continuez !';
+
+  @override
+  String get dismissFeedbackPushupPosition =>
+      'Allongez-vous en position de pompe';
+
+  @override
+  String get dismissFeedbackStartPushups => 'Commencez vos pompes !';
+
+  @override
+  String get dismissFeedbackPushupGoDeeper =>
+      'Descendez plus bas, votre poitrine doit toucher le sol !';
+
+  @override
+  String get dismissFeedbackSquatPosition =>
+      'Levez-vous pour commencer les squats';
+
+  @override
+  String get dismissFeedbackStartSquats => 'Commencez vos squats !';
+
+  @override
+  String get dismissFeedbackSquatGoDeeper =>
+      'Descendez plus bas, vos cuisses doivent être parallèles au sol !';
+
+  @override
   String get onboardingMorningPerson => 'Vous sentez-vous du matin ?';
 
   @override
@@ -1336,7 +1365,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingReadyToGo => 'Prêt à foncer';
 
   @override
-  String get onboardingGroggy => 'Groggy';
+  String get onboardingGroggy => 'Brouillard';
 
   @override
   String get onboardingAnxiousStressed => 'Anxieux ou stressé';
@@ -1359,7 +1388,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingBiologyBody =>
-      'Votre cerveau met 15 à 30 min à éliminer l\'inertie du sommeil. Le snooze relance le cycle, empirant les choses.\n\nLevio force l\'action immédiate — en sautant la zone de brouillard.';
+      'Votre cerveau met 15 à 30 min à éliminer l\'inertie du sommeil. Le snooze relance le cycle, empirant les choses.\n\nLevio force l\'action immédiate en sautant la zone de brouillard.';
 
   @override
   String get onboarding5xFaster =>
@@ -1540,7 +1569,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingPaywallTitle =>
-      'Nous voulons que vous\nessayiez Levio gratuitement.';
+      'Nous voulons vous faire \nessayer Levio gratuitement.';
 
   @override
   String get onboardingPaywallSecondsRemaining => 'secondes restantes';
@@ -1552,7 +1581,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingPaywallNoPayment => 'Aucun paiement maintenant';
 
   @override
-  String get onboardingPaywallTryFree => 'Essayer pour 0,00 \$';
+  String get onboardingPaywallTryFree => 'Essayer pour 0,00 €';
 
   @override
   String get onboardingPaywallNoCommitment =>
@@ -1630,6 +1659,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingSignatureCommit => 'Je m\'engage';
 
   @override
+  String get onboardingTimePickerTitle => 'Réglez votre première heure Levio';
+
+  @override
+  String onboardingTimePickerSubtitle(String time) {
+    return 'Nous vous réveillerons à $time avec votre mission.';
+  }
+
+  @override
   String get onboardingSoundPickerTitle => 'Choisissez votre son d\'alarme';
 
   @override
@@ -1670,7 +1707,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingTrialContinueFree => 'Continuer gratuitement';
 
   @override
-  String get onboardingTrialPrice => 'Seulement 29,99 \$/an (2,50 \$/mois)';
+  String get onboardingTrialPrice => 'Seulement 29,99 €/an (2,50 €/mois)';
 
   @override
   String get onboardingEnergyTitle => 'Niveaux d\'énergie matinale';
@@ -1688,7 +1725,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingSpeedometerSlow => 'Lent';
 
   @override
-  String get onboardingSpeedometerGroggy => 'Groggy';
+  String get onboardingSpeedometerGroggy => 'Brouillard';
 
   @override
   String get onboardingSpeedometerInstant => 'Instantané';

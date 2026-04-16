@@ -172,7 +172,7 @@ class _EnergyChartPainter extends CustomPainter {
     _drawText(
       canvas,
       groggyLabel,
-      Offset(w * 0.68, h * 0.98),
+      Offset(w * 0.58, h * 0.98),
       labelStyle.copyWith(color: const Color(0xFFFF6B6B)),
     );
   }

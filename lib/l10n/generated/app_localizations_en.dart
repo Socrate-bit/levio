@@ -1200,6 +1200,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dismissStartMission => 'Start Mission';
 
   @override
+  String get dismissFeedbackMoveIntoFrame => 'Move your whole body into frame';
+
+  @override
+  String get dismissFeedbackKeepGoing => 'Yes, keep going!';
+
+  @override
+  String get dismissFeedbackPushupPosition => 'Lie down in push-up position';
+
+  @override
+  String get dismissFeedbackStartPushups => 'Start doing your push-ups!';
+
+  @override
+  String get dismissFeedbackPushupGoDeeper =>
+      'Go deeper, your chest should touch the ground!';
+
+  @override
+  String get dismissFeedbackSquatPosition => 'Stand up to start squats';
+
+  @override
+  String get dismissFeedbackStartSquats => 'Start doing your squats!';
+
+  @override
+  String get dismissFeedbackSquatGoDeeper =>
+      'Go deeper, your thighs should be parallel to the ground!';
+
+  @override
   String get onboardingMorningPerson => 'Do you feel like a morning person?';
 
   @override
@@ -1603,6 +1629,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingSignatureCommit => 'I Commit';
+
+  @override
+  String get onboardingTimePickerTitle => 'Set your first Levio time';
+
+  @override
+  String onboardingTimePickerSubtitle(String time) {
+    return 'We\'ll wake you at $time with your mission.';
+  }
 
   @override
   String get onboardingSoundPickerTitle => 'Pick your alarm sound';

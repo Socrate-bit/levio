@@ -29,7 +29,7 @@ class PushUpCubit extends Cubit<PushUpState> {
   _Phase _phase = _Phase.no;
   int _repCount = 0;
   static const double _armsUpAngle = 175.0;
-  static const double _armsDownAngle = 130.0;
+  static const double _armsDownAngle = 140.0;
   static const double _armsHalfAngle = 170.0;
 
   Future<void> startSession() async {
@@ -101,12 +101,12 @@ class PushUpCubit extends Cubit<PushUpState> {
 
       final poses = await _detector!.processImage(inputImage);
 
-      String? feedback;
+      FeedbackKey? feedback;
       FeedbackType? feedbackType;
       List<DetectedPose> detectedPoses;
 
       if (poses.isEmpty) {
-        feedback = 'Move your whole body into frame';
+        feedback = FeedbackKey.moveIntoFrame;
         feedbackType = FeedbackType.warning;
         detectedPoses = const [];
       } else {
@@ -127,7 +127,7 @@ class PushUpCubit extends Cubit<PushUpState> {
 
         // Check landmark
         if (elbowAngles == null) {
-          feedback = 'Move your whole body into frame';
+          feedback = FeedbackKey.moveIntoFrame;
           _phase = _Phase.no;
           feedbackType = FeedbackType.warning;
           detectedPoses = const [];
@@ -139,13 +139,13 @@ class PushUpCubit extends Cubit<PushUpState> {
           final wristBelowElbow = _isWristsBelowElbows(pose);
           if (!wristBelowElbow) {
             _phase = _Phase.no;
-            feedback = 'Lie down in push-up position';
+            feedback = FeedbackKey.pushupPosition;
             feedbackType = FeedbackType.warning;
           } else if (_phase == _Phase.no &&
               leftAngle >= _armsUpAngle &&
               rightAngle >= _armsUpAngle) {
             _phase = _Phase.up;
-            feedback = 'Start doing your push-ups!';
+            feedback = FeedbackKey.startPushups;
             feedbackType = FeedbackType.positive;
           }
 
@@ -159,12 +159,12 @@ class PushUpCubit extends Cubit<PushUpState> {
             _phase = _Phase.down;
           } else if (leftAngle > _armsUpAngle && rightAngle > _armsUpAngle) {
             if (_phase == _Phase.hdown) {
-              feedback = 'Go deeper, your chest should touch the ground!';
+              feedback = FeedbackKey.pushupGoDeeper;
               feedbackType = FeedbackType.warning;
             } else if (_phase == _Phase.down) {
               _phase = _Phase.up;
               _repCount++;
-              feedback = 'Yes, keep going!';
+              feedback = FeedbackKey.keepGoing;
               feedbackType = FeedbackType.positive;
               unawaited(SoundService.instance.playRepBell());
               if (targetReps != null && _repCount >= targetReps!) {
