@@ -23,7 +23,15 @@ class AlarmService {
     return _toNavArgs(id);
   }
 
-  static void listenForRing(GlobalKey<NavigatorState> navigatorKey) {
+  /// Listens for native ring events and pushes the dismiss screen.
+  ///
+  /// [canDismiss] — synchronous check called before showing dismiss. If it
+  /// returns `false` the alarm is stopped and [onRingBlocked] is called.
+  static void listenForRing(
+    GlobalKey<NavigatorState> navigatorKey, {
+    bool Function()? canDismiss,
+    VoidCallback? onRingBlocked,
+  }) {
     debugPrint(
       '[AlarmService] listenForRing: starting stream + lifecycle listener',
     );
@@ -44,6 +52,16 @@ class AlarmService {
             AlarmChannel.stop(nativeAlarmId).ignore();
             return;
           }
+
+          // Gate: check if dismiss is allowed
+          if (canDismiss != null && !canDismiss()) {
+            debugPrint('[AlarmService] ring blocked — stopping alarm $nativeAlarmId');
+            await AlarmChannel.stop(nativeAlarmId);
+            await AlarmChannel.cancelSnoozesForAlarm(firestoreEntry.id);
+            onRingBlocked?.call();
+            return;
+          }
+
           _dismissScreenActive = true;
 
           final firstMission = firestoreEntry.missions.isNotEmpty
@@ -71,8 +89,22 @@ class AlarmService {
       onResume: () async {
         debugPrint('[AlarmService] lifecycle: onResume');
         if (_dismissScreenActive) return;
+
         final ringing = await getRingingAlarm();
-        if (ringing != null) _pushDismiss(navigatorKey, ringing);
+        if (ringing == null) return;
+
+        // Gate: check if dismiss is allowed on resume
+        if (canDismiss != null && !canDismiss()) {
+          final nativeId = ringing['nativeAlarmId'] ?? ringing['alarmId']!;
+          final alarmId = ringing['alarmId']!;
+          debugPrint('[AlarmService] resume ring blocked — stopping alarm $nativeId');
+          await AlarmChannel.stop(nativeId);
+          await AlarmChannel.cancelSnoozesForAlarm(alarmId);
+          onRingBlocked?.call();
+          return;
+        }
+
+        _pushDismiss(navigatorKey, ringing);
       },
       onHide: () => debugPrint('[AlarmService] lifecycle: onHide'),
       onShow: () => debugPrint('[AlarmService] lifecycle: onShow'),

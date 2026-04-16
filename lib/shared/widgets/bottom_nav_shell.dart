@@ -5,9 +5,7 @@ import '../theme/app_theme.dart';
 import '../utils/haptic_utils.dart';
 import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
 import 'package:levio/features/alarms/screens/alarm_form_screen.dart';
-import 'package:levio/features/auth/cubit/auth_cubit.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
-import 'package:levio/services/superwall_service.dart';
 
 import '../../features/home/screens/home_screen.dart';
 import '../../features/insights/screens/insights_screen.dart';
