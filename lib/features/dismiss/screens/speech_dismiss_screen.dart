@@ -82,7 +82,9 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
     final prefs = await SharedPreferences.getInstance();
     _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
     if (!_keepRinging) {
+      await Future.delayed(const Duration(seconds: 2));
       await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
+      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
       _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
         nativeAlarmId: widget.nativeAlarmId,
         originalAlarmId: widget.alarmId,
