@@ -19,6 +19,7 @@ class AlarmFirestoreService {
         'repeatDays': entry.repeatDays,
         'isEnabled': entry.isEnabled,
         'isOneTime': entry.isOneTime,
+        'disabledBySubscription': entry.disabledBySubscription,
         'createdAtMs': entry.createdAt.millisecondsSinceEpoch,
       });
 
@@ -50,6 +51,7 @@ class AlarmFirestoreService {
           d['repeatDays'] as List? ?? [false, true, true, true, true, true, false]),
       isEnabled: d['isEnabled'] as bool? ?? true,
       isOneTime: d['isOneTime'] as bool? ?? false,
+      disabledBySubscription: d['disabledBySubscription'] as bool? ?? false,
       createdAt: d['createdAtMs'] != null
           ? DateTime.fromMillisecondsSinceEpoch(d['createdAtMs'] as int)
           : null,

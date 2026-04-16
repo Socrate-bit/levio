@@ -15,6 +15,7 @@ class AppAlarmEntry extends Equatable {
   final bool isEnabled;
   final bool isOneTime;
   final DateTime createdAt;
+  final bool disabledBySubscription;
 
   AppAlarmEntry({
     required this.id,
@@ -25,6 +26,7 @@ class AppAlarmEntry extends Equatable {
     this.repeatDays = const [false, true, true, true, true, true, false],
     this.isEnabled = true,
     this.isOneTime = false,
+    this.disabledBySubscription = false,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -37,6 +39,7 @@ class AppAlarmEntry extends Equatable {
     List<bool>? repeatDays,
     bool? isEnabled,
     bool? isOneTime,
+    bool? disabledBySubscription,
     DateTime? createdAt,
   }) =>
       AppAlarmEntry(
@@ -48,6 +51,8 @@ class AppAlarmEntry extends Equatable {
         repeatDays: repeatDays ?? this.repeatDays,
         isEnabled: isEnabled ?? this.isEnabled,
         isOneTime: isOneTime ?? this.isOneTime,
+        disabledBySubscription:
+            disabledBySubscription ?? this.disabledBySubscription,
         createdAt: createdAt ?? this.createdAt,
       );
 
@@ -61,6 +66,7 @@ class AppAlarmEntry extends Equatable {
         repeatDays,
         isEnabled,
         isOneTime,
+        disabledBySubscription,
         createdAt,
       ];
 }

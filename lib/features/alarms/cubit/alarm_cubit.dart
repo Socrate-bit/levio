@@ -242,7 +242,8 @@ class AlarmCubit extends Cubit<AlarmState> {
         createdAt: now,
       );
       final newId = await _scheduleNative(toSchedule);
-      final rescheduled = toSchedule.copyWith(id: newId);
+      final rescheduled =
+          toSchedule.copyWith(id: newId, disabledBySubscription: false);
 
       emit(
         state.copyWith(
@@ -375,6 +376,69 @@ class AlarmCubit extends Cubit<AlarmState> {
         soundPath: soundPath,
       );
     }
+  }
+
+  /// Disables all enabled alarms because the user lost their subscription.
+  Future<void> disableAllForSubscription() async {
+    final enabledAlarms = state.alarms.where((a) => a.isEnabled).toList();
+    if (enabledAlarms.isEmpty) return;
+
+    // Optimistic: mark all as disabled in one emit
+    final updated = state.alarms.map((a) {
+      if (!a.isEnabled) return a;
+      return a.copyWith(isEnabled: false, disabledBySubscription: true);
+    }).toList();
+    emit(state.copyWith(alarms: updated));
+
+    for (final alarm in enabledAlarms) {
+      final disabled =
+          alarm.copyWith(isEnabled: false, disabledBySubscription: true);
+      try {
+        await AlarmFirestoreService.saveAlarm(disabled);
+      } catch (e) {
+        debugPrint(
+            '[AlarmCubit] disableAllForSubscription save failed ${alarm.id}: $e');
+      }
+      try {
+        await AlarmChannel.cancel(alarm.id);
+      } catch (e) {
+        debugPrint(
+            '[AlarmCubit] disableAllForSubscription cancel failed ${alarm.id}: $e');
+      }
+    }
+  }
+
+  /// Re-enables alarms that were auto-disabled by a subscription lapse.
+  Future<void> restoreSubscriptionDisabled() async {
+    final toRestore =
+        state.alarms.where((a) => a.disabledBySubscription).toList();
+    if (toRestore.isEmpty) return;
+
+    final updatedAlarms = List<AppAlarmEntry>.from(state.alarms);
+
+    for (final alarm in toRestore) {
+      try {
+        final toSchedule = alarm.copyWith(
+          dateTime: _nextFutureDay(alarm.dateTime),
+          isEnabled: true,
+          disabledBySubscription: false,
+          createdAt: DateTime.now(),
+        );
+        final newId = await _scheduleNative(toSchedule);
+        final rescheduled = toSchedule.copyWith(id: newId);
+
+        final idx = updatedAlarms.indexWhere((a) => a.id == alarm.id);
+        if (idx != -1) updatedAlarms[idx] = rescheduled;
+
+        await AlarmFirestoreService.deleteAlarm(alarm.id);
+        await AlarmFirestoreService.saveAlarm(rescheduled);
+      } catch (e) {
+        debugPrint(
+            '[AlarmCubit] restoreSubscriptionDisabled failed ${alarm.id}: $e');
+      }
+    }
+
+    emit(state.copyWith(alarms: updatedAlarms));
   }
 
   String _systemImageFor(MissionType type) {
