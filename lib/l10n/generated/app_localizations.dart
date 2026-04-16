@@ -446,125 +446,179 @@ abstract class AppLocalizations {
   /// **'Default'**
   String get soundDefault;
 
-  /// No description provided for @soundAlarmClock.
+  /// No description provided for @soundClock2.
   ///
   /// In en, this message translates to:
-  /// **'Alarm Clock'**
-  String get soundAlarmClock;
+  /// **'Clock 2'**
+  String get soundClock2;
 
-  /// No description provided for @soundReveille.
+  /// No description provided for @soundClock3.
   ///
   /// In en, this message translates to:
-  /// **'Reveille'**
-  String get soundReveille;
+  /// **'Clock 3'**
+  String get soundClock3;
 
-  /// No description provided for @soundSparkles.
+  /// No description provided for @soundClock4.
   ///
   /// In en, this message translates to:
-  /// **'Sparkles'**
-  String get soundSparkles;
+  /// **'Clock 4'**
+  String get soundClock4;
 
-  /// No description provided for @soundMindfulEarth.
+  /// No description provided for @soundFunny.
   ///
   /// In en, this message translates to:
-  /// **'Mindful Earth'**
-  String get soundMindfulEarth;
+  /// **'Funny'**
+  String get soundFunny;
 
-  /// No description provided for @soundEpicBrass.
+  /// No description provided for @soundCelestial.
   ///
   /// In en, this message translates to:
-  /// **'Epic Brass'**
-  String get soundEpicBrass;
+  /// **'Celestial'**
+  String get soundCelestial;
 
-  /// No description provided for @soundNeon.
+  /// No description provided for @soundChiptune.
   ///
   /// In en, this message translates to:
-  /// **'Neon'**
-  String get soundNeon;
+  /// **'Chiptune'**
+  String get soundChiptune;
 
-  /// No description provided for @soundRiseAndShine.
+  /// No description provided for @soundDreamscape.
   ///
   /// In en, this message translates to:
-  /// **'Rise And Shine'**
-  String get soundRiseAndShine;
+  /// **'Dreamscape'**
+  String get soundDreamscape;
 
-  /// No description provided for @soundAirRaid.
+  /// No description provided for @soundGame.
   ///
   /// In en, this message translates to:
-  /// **'Air Raid'**
-  String get soundAirRaid;
+  /// **'Game'**
+  String get soundGame;
 
-  /// No description provided for @soundMeltdown.
+  /// No description provided for @soundGame2.
   ///
   /// In en, this message translates to:
-  /// **'Meltdown'**
-  String get soundMeltdown;
+  /// **'Game 2'**
+  String get soundGame2;
 
-  /// No description provided for @soundRave.
+  /// No description provided for @soundOversimplified.
   ///
   /// In en, this message translates to:
-  /// **'Rave'**
-  String get soundRave;
+  /// **'Oversimplified'**
+  String get soundOversimplified;
 
-  /// No description provided for @soundPopStar.
+  /// No description provided for @soundSmooth.
   ///
   /// In en, this message translates to:
-  /// **'Pop Star'**
-  String get soundPopStar;
+  /// **'Smooth'**
+  String get soundSmooth;
 
-  /// No description provided for @soundPartyTime.
+  /// No description provided for @soundAcoustic.
   ///
   /// In en, this message translates to:
-  /// **'Party Time'**
-  String get soundPartyTime;
+  /// **'Acoustic'**
+  String get soundAcoustic;
 
-  /// No description provided for @soundSunray.
+  /// No description provided for @soundComing.
   ///
   /// In en, this message translates to:
-  /// **'Sunray'**
-  String get soundSunray;
+  /// **'Coming'**
+  String get soundComing;
 
-  /// No description provided for @soundJollyDay.
+  /// No description provided for @soundCyber.
   ///
   /// In en, this message translates to:
-  /// **'Jolly Day'**
-  String get soundJollyDay;
+  /// **'Cyber'**
+  String get soundCyber;
 
-  /// No description provided for @soundLondonTown.
+  /// No description provided for @soundDetermination.
   ///
   /// In en, this message translates to:
-  /// **'London Town'**
-  String get soundLondonTown;
+  /// **'Determination'**
+  String get soundDetermination;
 
-  /// No description provided for @soundFirstSnow.
+  /// No description provided for @soundDubstep.
   ///
   /// In en, this message translates to:
-  /// **'First Snow'**
-  String get soundFirstSnow;
+  /// **'Dubstep'**
+  String get soundDubstep;
 
-  /// No description provided for @soundCategoryClassic.
+  /// No description provided for @soundHiphop.
   ///
   /// In en, this message translates to:
-  /// **'Classic'**
-  String get soundCategoryClassic;
+  /// **'Hiphop'**
+  String get soundHiphop;
 
-  /// No description provided for @soundCategoryViral.
+  /// No description provided for @soundPiano.
   ///
   /// In en, this message translates to:
-  /// **'Viral'**
-  String get soundCategoryViral;
+  /// **'Piano'**
+  String get soundPiano;
 
-  /// No description provided for @soundCategoryAggressive.
+  /// No description provided for @soundTropical.
   ///
   /// In en, this message translates to:
-  /// **'Aggressive'**
-  String get soundCategoryAggressive;
+  /// **'Tropical'**
+  String get soundTropical;
 
-  /// No description provided for @soundCategoryPeaceful.
+  /// No description provided for @soundRingstone1.
   ///
   /// In en, this message translates to:
-  /// **'Peaceful'**
-  String get soundCategoryPeaceful;
+  /// **'Ringstone 1'**
+  String get soundRingstone1;
+
+  /// No description provided for @soundRingstone2.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringstone 2'**
+  String get soundRingstone2;
+
+  /// No description provided for @soundRingstone3.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringstone 3'**
+  String get soundRingstone3;
+
+  /// No description provided for @soundAlarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm'**
+  String get soundAlarm;
+
+  /// No description provided for @soundHardcore.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardcore'**
+  String get soundHardcore;
+
+  /// No description provided for @soundCategoryClock.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock'**
+  String get soundCategoryClock;
+
+  /// No description provided for @soundCategoryGentle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle'**
+  String get soundCategoryGentle;
+
+  /// No description provided for @soundCategoryMusical.
+  ///
+  /// In en, this message translates to:
+  /// **'Musical'**
+  String get soundCategoryMusical;
+
+  /// No description provided for @soundCategoryRingstone.
+  ///
+  /// In en, this message translates to:
+  /// **'Ringstone'**
+  String get soundCategoryRingstone;
+
+  /// No description provided for @soundCategoryViolent.
+  ///
+  /// In en, this message translates to:
+  /// **'Violent'**
+  String get soundCategoryViolent;
 
   /// No description provided for @homeNextWakeUp.
   ///

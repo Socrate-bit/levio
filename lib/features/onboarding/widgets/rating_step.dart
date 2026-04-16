@@ -19,7 +19,7 @@ class RatingStep extends StatelessWidget {
           Container(
             height: 60,
             alignment: Alignment.center,
-            child: const Text('🏅⭐⭐⭐⭐⭐🏅',
+            child: const Text('⭐⭐⭐⭐⭐',
                 style: TextStyle(fontSize: 28)),
           ),
           Text(

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
+import '../../settings/screens/privacy_policy_screen.dart';
+import '../../settings/screens/terms_conditions_screen.dart';
 
 class PaywallStep extends StatelessWidget {
   final VoidCallback onContinue;
@@ -29,109 +31,13 @@ class PaywallStep extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          // Phone mockup placeholder
-          Container(
-            height: 320,
-            width: 180,
-            decoration: BoxDecoration(
-              color: c.card,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: c.separator, width: 2),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(22),
-              child: Column(
-                children: [
-                  // Status bar
-                  Container(
-                    height: 28,
-                    color: c.separator,
-                    child: Center(
-                      child: Text(
-                        '8:00',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: c.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Progress dots
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _dot(AppColors.orange, true),
-                        const SizedBox(width: 4),
-                        _dot(AppColors.orange, true),
-                        const SizedBox(width: 4),
-                        _dot(c.separator, false),
-                      ],
-                    ),
-                  ),
-                  // Counter
-                  Expanded(
-                    child: Container(
-                      color: c.separator,
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '2',
-                              style: TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.orange,
-                              ),
-                            ),
-                            Text(
-                              l10n.onboardingPaywallSecondsRemaining,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: c.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Bottom bar
-                  Container(
-                    height: 36,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    color: c.card,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: AppColors.orange,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.circle,
-                              size: 10, color: Colors.white),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            l10n.onboardingPaywallKeepGoing,
-                            style: TextStyle(
-                              fontSize: 8,
-                              color: c.textSecondary,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+          // App screenshot
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.asset(
+              'assets/exemple.png',
+              height: 320,
+              fit: BoxFit.contain,
             ),
           ),
           const Spacer(flex: 1),
@@ -185,12 +91,19 @@ class PaywallStep extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                l10n.onboardingPaywallPrivacy,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: c.textSecondary,
-                  decoration: TextDecoration.underline,
+              GestureDetector(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const PrivacyPolicyScreen(),
+                  ),
+                ),
+                child: Text(
+                  l10n.onboardingPaywallPrivacy,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: c.textSecondary,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
               Text('  \u2022  ',
@@ -205,12 +118,19 @@ class PaywallStep extends StatelessWidget {
               ),
               Text('  \u2022  ',
                   style: TextStyle(fontSize: 12, color: c.textSecondary)),
-              Text(
-                l10n.onboardingPaywallTerms,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: c.textSecondary,
-                  decoration: TextDecoration.underline,
+              GestureDetector(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const TermsConditionsScreen(),
+                  ),
+                ),
+                child: Text(
+                  l10n.onboardingPaywallTerms,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: c.textSecondary,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ],
@@ -221,15 +141,4 @@ class PaywallStep extends StatelessWidget {
     );
   }
 
-  Widget _dot(Color color, bool filled) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: filled ? color : Colors.transparent,
-        shape: BoxShape.circle,
-        border: Border.all(color: color, width: 1),
-      ),
-    );
-  }
 }

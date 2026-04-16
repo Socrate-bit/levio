@@ -347,10 +347,8 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
                                       color:
                                           state.feedbackType ==
                                               FeedbackType.positive
-                                          ? AppColors.green.withAlpha(200)
-                                          : const Color(
-                                              0xFFE53935,
-                                            ).withAlpha(200),
+                                          ? AppColors.success.withAlpha(200)
+                                          : AppColors.error.withAlpha(200),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(

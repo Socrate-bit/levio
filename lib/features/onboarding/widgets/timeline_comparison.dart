@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
+const _iconSize = 40.0;
+const _lineWidth = 4.0;
+const _nodeSpacing = 48.0;
+
 class TimelineComparison extends StatelessWidget {
   const TimelineComparison({super.key});
 
@@ -42,7 +46,7 @@ class TimelineComparison extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
-                  color: AppColors.green,
+                  color: const Color(0xFF4CAF50),
                 ),
               ),
               const SizedBox(height: 20),
@@ -55,6 +59,24 @@ class TimelineComparison extends StatelessWidget {
   }
 }
 
+/// Data for a single timeline node
+class _NodeData {
+  final IconData icon;
+  final Color iconColor;
+  final Color bgColor;
+  final String time;
+  final String label;
+
+  const _NodeData({
+    required this.icon,
+    required this.iconColor,
+    required this.bgColor,
+    required this.time,
+    required this.label,
+  });
+}
+
+/// Typical morning — zigzag line with gradient from yellow to red
 class _TypicalTimeline extends StatelessWidget {
   final AppColors colors;
   const _TypicalTimeline({required this.colors});
@@ -62,47 +84,78 @@ class _TypicalTimeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Column(
-      children: [
-        _TimelineNode(
-          icon: Icons.notifications_none,
-          iconColor: const Color(0xFFFFC107),
-          bgColor: const Color(0xFFFFF8E1),
-          time: '7:00',
-          label: l10n.onboardingTimelineAlarm,
-          lineColor: const Color(0xFFFFC107),
-        ),
-        _ZigzagLine(color: const Color(0xFFFFC107)),
-        _TimelineNode(
-          icon: Icons.snooze,
-          iconColor: const Color(0xFFFF9800),
-          bgColor: const Color(0xFFFFF3E0),
-          time: '7:09',
-          label: l10n.onboardingTimelineSnooze,
-          lineColor: const Color(0xFFFF6B6B),
-        ),
-        _ZigzagLine(color: const Color(0xFFFF6B6B)),
-        _TimelineNode(
-          icon: Icons.snooze,
-          iconColor: const Color(0xFFFF6B6B),
-          bgColor: const Color(0xFFFFEBEE),
-          time: '7:18',
-          label: l10n.onboardingTimelineSnooze,
-          lineColor: const Color(0xFFFF6B6B),
-        ),
-        _ZigzagLine(color: const Color(0xFFFF6B6B)),
-        _TimelineNode(
-          icon: Icons.warning_rounded,
-          iconColor: const Color(0xFFFF5252),
-          bgColor: const Color(0xFFFFEBEE),
-          time: '7:27',
-          label: l10n.onboardingTimelinePanic,
-        ),
-      ],
+    final nodes = [
+      _NodeData(
+        icon: Icons.notifications_none,
+        iconColor: const Color(0xFFFFC107),
+        bgColor: const Color(0xFFFFF8E1),
+        time: '7:00',
+        label: l10n.onboardingTimelineAlarm,
+      ),
+      _NodeData(
+        icon: Icons.snooze,
+        iconColor: const Color(0xFFFF9800),
+        bgColor: const Color(0xFFFFF3E0),
+        time: '7:09',
+        label: l10n.onboardingTimelineSnooze,
+      ),
+      _NodeData(
+        icon: Icons.snooze,
+        iconColor: const Color(0xFFFF6B6B),
+        bgColor: const Color(0xFFFFEBEE),
+        time: '7:18',
+        label: l10n.onboardingTimelineSnooze,
+      ),
+      _NodeData(
+        icon: Icons.warning_rounded,
+        iconColor: const Color(0xFFFF5252),
+        bgColor: const Color(0xFFFFEBEE),
+        time: '7:27',
+        label: l10n.onboardingTimelinePanic,
+      ),
+    ];
+
+    final totalHeight =
+        nodes.length * _iconSize + (nodes.length - 1) * _nodeSpacing;
+
+    return LayoutBuilder(builder: (context, constraints) {
+    final lineCenter = constraints.maxWidth / 2;
+    final lineOffset = lineCenter - _iconSize / 2 - 20;
+    return SizedBox(
+      height: totalHeight,
+      width: double.infinity,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Continuous zigzag line behind icons
+          Positioned(
+            left: lineOffset + _iconSize / 2 - _lineWidth / 2,
+            top: _iconSize / 2,
+            bottom: _iconSize / 2,
+            width: _lineWidth + 16,
+            child: CustomPaint(
+              size: Size(_lineWidth + 16, totalHeight - _iconSize),
+              painter: _ZigzagLinePainter(
+                startColor: const Color(0xFFFFC107),
+                endColor: const Color(0xFFFF5252),
+              ),
+            ),
+          ),
+          // Nodes on top
+          for (var i = 0; i < nodes.length; i++)
+            Positioned(
+              top: i * (_iconSize + _nodeSpacing),
+              left: lineOffset,
+              child: _TimelineNodeRow(node: nodes[i]),
+            ),
+        ],
+      ),
     );
+    });
   }
 }
 
+/// Levio morning — straight line
 class _LevioTimeline extends StatelessWidget {
   final AppColors colors;
   const _LevioTimeline({required this.colors});
@@ -110,116 +163,139 @@ class _LevioTimeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Column(
-      children: [
-        _TimelineNode(
-          icon: Icons.notifications_none,
-          iconColor: AppColors.green,
-          bgColor: const Color(0xFFE8F5E9),
-          time: '7:00',
-          label: l10n.onboardingTimelineAlarm,
-          lineColor: AppColors.green,
-        ),
-        _StraightLine(color: AppColors.green),
-        _TimelineNode(
-          icon: Icons.check_circle,
-          iconColor: AppColors.green,
-          bgColor: const Color(0xFFE8F5E9),
-          time: '7:01',
-          label: l10n.onboardingTimelineMission,
-          lineColor: AppColors.green,
-        ),
-        _StraightLine(color: AppColors.green),
-        _TimelineNode(
-          icon: Icons.wb_sunny,
-          iconColor: AppColors.green,
-          bgColor: const Color(0xFFE8F5E9),
-          time: '7:02',
-          label: l10n.onboardingTimelineStarted,
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F5E9),
-            borderRadius: BorderRadius.circular(12),
+    final nodes = [
+      _NodeData(
+        icon: Icons.notifications_none,
+        iconColor: const Color(0xFF4CAF50),
+        bgColor: const Color(0xFFE8F5E9),
+        time: '7:00',
+        label: l10n.onboardingTimelineAlarm,
+      ),
+      _NodeData(
+        icon: Icons.check_circle,
+        iconColor: const Color(0xFF4CAF50),
+        bgColor: const Color(0xFFE8F5E9),
+        time: '7:01',
+        label: l10n.onboardingTimelineMission,
+      ),
+      _NodeData(
+        icon: Icons.wb_sunny,
+        iconColor: const Color(0xFF4CAF50),
+        bgColor: const Color(0xFFE8F5E9),
+        time: '7:02',
+        label: l10n.onboardingTimelineStarted,
+      ),
+    ];
+
+    const levioNodeSpacing = 20.0;
+    final nodesHeight =
+        nodes.length * _iconSize + (nodes.length - 1) * levioNodeSpacing;
+    const badgeGap = 24.0;
+    const badgeHeight = 80.0;
+    const tailHeight = 30.0;
+    final totalHeight = nodesHeight + badgeGap + badgeHeight + 8 + tailHeight;
+
+    return LayoutBuilder(builder: (context, constraints) {
+    // Center the drawing: offset so the line sits at horizontal middle
+    final lineCenter = constraints.maxWidth / 2;
+    final lineOffset = lineCenter - _iconSize / 2 - 20;
+    return SizedBox(
+      height: totalHeight,
+      width: double.infinity,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Continuous straight line behind everything
+          Positioned(
+            left: lineOffset + _iconSize / 2 - _lineWidth / 2,
+            top: _iconSize / 2,
+            bottom: 0,
+            child: Container(width: _lineWidth, color: const Color(0xFF4CAF50)),
           ),
-          child: Column(
-            children: [
-              Text(
-                l10n.onboardingTimelineMins,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.green,
+          // Nodes on top — closer together
+          for (var i = 0; i < nodes.length; i++)
+            Positioned(
+              top: i * (_iconSize + levioNodeSpacing),
+              left: lineOffset,
+              child: _TimelineNodeRow(node: nodes[i]),
+            ),
+          // "25 MINS GAINED" badge — centered on the vertical line
+          Positioned(
+            top: nodesHeight + badgeGap,
+            left: lineOffset + _iconSize / 2,
+            child: FractionalTranslation(
+              translation: const Offset(-0.5, 0),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.onboardingTimelineMins,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF4CAF50),
+                      ),
+                    ),
+                    Text(
+                      l10n.onboardingTimelineGained,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1,
+                        color: const Color(0xFF4CAF50),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Text(
-                l10n.onboardingTimelineGained,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                  color: AppColors.green,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: 2,
-          height: 30,
-          color: AppColors.green,
-        ),
-      ],
+        ],
+      ),
     );
+    });
   }
 }
 
-class _TimelineNode extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final Color bgColor;
-  final String time;
-  final String label;
-  final Color? lineColor;
-
-  const _TimelineNode({
-    required this.icon,
-    required this.iconColor,
-    required this.bgColor,
-    required this.time,
-    required this.label,
-    this.lineColor,
-  });
+/// A single node row: icon circle + time/label text
+class _TimelineNodeRow extends StatelessWidget {
+  final _NodeData node;
+  const _TimelineNodeRow({required this.node});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Container(
-          width: 36,
-          height: 36,
+          width: _iconSize,
+          height: _iconSize,
           decoration: BoxDecoration(
-            color: bgColor,
+            color: node.bgColor,
             shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 3),
           ),
-          child: Icon(icon, size: 18, color: iconColor),
+          child: Icon(node.icon, size: 20, color: node.iconColor),
         ),
         const SizedBox(width: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              time,
+              node.time,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              label,
+              node.label,
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.grey[600],
@@ -232,69 +308,43 @@ class _TimelineNode extends StatelessWidget {
   }
 }
 
-class _ZigzagLine extends StatelessWidget {
-  final Color color;
-  const _ZigzagLine({required this.color});
+/// Paints a continuous zigzag line with a color gradient
+class _ZigzagLinePainter extends CustomPainter {
+  final Color startColor;
+  final Color endColor;
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 17),
-      child: SizedBox(
-        width: 2,
-        height: 32,
-        child: CustomPaint(
-          painter: _ZigzagPainter(color: color),
-        ),
-      ),
-    );
-  }
-}
-
-class _ZigzagPainter extends CustomPainter {
-  final Color color;
-  _ZigzagPainter({required this.color});
+  _ZigzagLinePainter({required this.startColor, required this.endColor});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
+    final centerX = _lineWidth / 2;
+    const amplitude = 8.0;
+    const segments = 12;
+    final segH = size.height / segments;
 
     final path = Path();
-    const segments = 4;
-    final segH = size.height / segments;
-    const amplitude = 4.0;
-
-    path.moveTo(size.width / 2, 0);
+    path.moveTo(centerX, 0);
     for (var i = 0; i < segments; i++) {
       final y = i * segH;
       final dir = i.isEven ? 1.0 : -1.0;
-      path.lineTo(size.width / 2 + amplitude * dir, y + segH / 2);
-      path.lineTo(size.width / 2, y + segH);
+      path.lineTo(centerX + amplitude * dir, y + segH / 2);
+      path.lineTo(centerX, y + segH);
     }
+
+    final paint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [startColor, endColor],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..strokeWidth = _lineWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
     canvas.drawPath(path, paint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _StraightLine extends StatelessWidget {
-  final Color color;
-  const _StraightLine({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 17),
-      child: Container(
-        width: 2,
-        height: 32,
-        color: color,
-      ),
-    );
-  }
 }

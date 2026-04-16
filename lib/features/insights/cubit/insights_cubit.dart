@@ -85,6 +85,9 @@ class InsightsCubit extends Cubit<InsightsState> {
 
     if (isClosed) return;
 
+    // Total completed wakeups for numbering
+    final totalWakeups = _allSessions.where((s) => s.completed).length;
+
     emit(state.copyWith(
       currentStreak: currentStreak,
       longestStreak: _profile.longestStreak,
@@ -96,6 +99,8 @@ class InsightsCubit extends Cubit<InsightsState> {
       favoriteMission: _computeFavoriteMission(sessions),
       favoriteSound: _computeFavoriteSound(sessions),
       consistency: _computeConsistency(sessions, range, now),
+      sessions: sessions,
+      totalWakeups: totalWakeups,
       loading: false,
     ));
 

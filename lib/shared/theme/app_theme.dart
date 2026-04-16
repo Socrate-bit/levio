@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Theme-invariant accent colors (same in both themes)
+  // Theme-invariant accent colors
   static const orange = Color(0xFFFF6B00);
   static const orangeLight = Color(0xFFFFF0E6);
-  static const green = Color(0xFF34C759);
   static const blue = Color(0xFF007AFF);
+  static const success = Color(0xFF4CAF50);
+  static const error = Color(0xFFFF5252);
 
   // Instance properties (theme-sensitive)
   final Color background;
@@ -14,6 +15,7 @@ class AppColors {
   final Color textSecondary;
   final Color separator;
   final Color navBackground;
+  final Color purpleDeep;
 
   const AppColors._({
     required this.background,
@@ -22,15 +24,17 @@ class AppColors {
     required this.textSecondary,
     required this.separator,
     required this.navBackground,
+    required this.purpleDeep,
   });
 
   static const _light = AppColors._(
     background: Color(0xFFF2F2F7),
     card: Colors.white,
-    textPrimary: Color(0xFF1C1C1E),
-    textSecondary: Color(0xFF8E8E93),
+    textPrimary: Color.fromARGB(255, 0, 0, 0),
+    textSecondary: Color.fromARGB(255, 102, 102, 105),
     separator: Color(0xFFE5E5EA),
     navBackground: Colors.white,
+    purpleDeep: Color.fromARGB(255, 159, 124, 255),
   );
 
   static const _dark = AppColors._(
@@ -40,6 +44,7 @@ class AppColors {
     textSecondary: Color(0xFF8E8E93),
     separator: Color(0xFF38383A),
     navBackground: Color(0xFF1C1C1E),
+    purpleDeep: Color.fromARGB(255, 159, 124, 255),
   );
 
   static AppColors of(BuildContext context) {
@@ -100,14 +105,13 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
-        bodyMedium: TextStyle(
+        bodyLarge: TextStyle(
           fontSize: 15,
+          fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
-        bodySmall: TextStyle(
-          fontSize: 13,
-          color: textSecondary,
-        ),
+        bodyMedium: TextStyle(fontSize: 15, color: textPrimary),
+        bodySmall: TextStyle(fontSize: 13, color: textSecondary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -118,10 +122,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(14),
           ),
           elevation: 0,
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -179,6 +180,12 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: darkText,
         ),
+        bodyLarge: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: darkText,
+        ),
+
         bodyMedium: TextStyle(fontSize: 15, color: darkText),
         bodySmall: TextStyle(fontSize: 13, color: darkSecondary),
       ),
@@ -191,10 +198,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(14),
           ),
           elevation: 0,
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
     );

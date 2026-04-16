@@ -35,7 +35,7 @@ class MorningPlanStep extends StatelessWidget {
         children: [
           const SizedBox(height: 8),
           // Stars placeholder
-          const Text('🏅⭐⭐⭐⭐⭐🏅', style: TextStyle(fontSize: 22)),
+          const Text('⭐⭐⭐⭐⭐', style: TextStyle(fontSize: 22)),
           const SizedBox(height: 12),
           Text(
             l10n.onboardingMorningPlanTitle,
@@ -124,24 +124,17 @@ class MorningPlanStep extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          // Wake receipt placeholder
-          Container(
-            width: double.infinity,
-            height: 160,
-            decoration: BoxDecoration(
-              color: c.separator,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Text(
-                l10n.onboardingWakeReceipt,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: c.textSecondary),
-              ),
+          const SizedBox(height: 40),
+          // App icon
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.asset(
+              'assets/icon.png',
+              width: 120,
+              height: 120,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           // Rise and repeat
           Text(
             l10n.onboardingRiseAndRepeat,

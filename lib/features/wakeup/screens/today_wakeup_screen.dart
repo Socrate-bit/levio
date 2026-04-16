@@ -103,8 +103,12 @@ class TodayWakeupScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const Center(
-                              child: Text('🌞', style: TextStyle(fontSize: 80)),
+                            Center(
+                              child: Image.asset(
+                                'assets/icon.png',
+                                width: 120,
+                                height: 120,
+                              ),
                             ),
                           ],
                         ),
@@ -124,8 +128,14 @@ class TodayWakeupScreen extends StatelessWidget {
                                     AppColors.orange.withAlpha(25),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(Icons.wb_sunny,
-                                  color: AppColors.orange, size: 22),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.asset(
+                                  'assets/icon.png',
+                                  width: 28,
+                                  height: 28,
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Column(

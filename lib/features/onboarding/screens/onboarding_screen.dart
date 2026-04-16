@@ -45,7 +45,7 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
-  int _currentPage = 27;
+  int _currentPage = 0;
 
   @override
   void dispose() {
@@ -147,7 +147,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // Pages that handle their own navigation (no shared Continue button)
   bool _hasOwnNavigation(int page) =>
-      page == 0 || page == 29 || page == 30 || page == 31 || page == 33 || page == 34 || page == 35;
+      page == 0 ||
+      page == 29 ||
+      page == 30 ||
+      page == 31 ||
+      page == 33 ||
+      page == 34 ||
+      page == 35;
 
   @override
   Widget build(BuildContext context) {
@@ -168,8 +174,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // Progress bar + back — always in tree to keep
                   // PageView height stable; invisible on welcome & last page.
                   Opacity(
-                    opacity: (_currentPage > 0 &&
-                            _currentPage < _totalPages - 1)
+                    opacity:
+                        (_currentPage > 0 && _currentPage < _totalPages - 1)
                         ? 1.0
                         : 0.0,
                     child: Padding(
@@ -186,8 +192,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   color: c.card,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(Icons.chevron_left,
-                                    size: 20, color: c.textPrimary),
+                                child: Icon(
+                                  Icons.chevron_left,
+                                  size: 20,
+                                  color: c.textPrimary,
+                                ),
                               ),
                             )
                           else
@@ -199,9 +208,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               child: LinearProgressIndicator(
                                 value: _currentPage / (_totalPages - 1),
                                 backgroundColor: c.separator,
-                                valueColor:
-                                    const AlwaysStoppedAnimation<Color>(
-                                        AppColors.orange),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  AppColors.orange,
+                                ),
                                 minHeight: 6,
                               ),
                             ),
@@ -226,421 +235,448 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             },
                           )
                         : PageView(
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        // 1-5: Survey questions
-                        SurveyStep(
-                          question: l10n.onboardingMorningPerson,
-                          options: [l10n.onboardingYes, l10n.onboardingNotYet],
-                          selectedOption: state.surveyAnswers['morningPerson'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('morningPerson', v),
-                        ),
-                        SurveyStep(
-                          question: l10n.onboardingAgeRange,
-                          options: const [
-                            '13-17',
-                            '18-24',
-                            '25-34',
-                            '35-44',
-                            '45-54',
-                            '55+'
-                          ],
-                          selectedOption: state.surveyAnswers['ageRange'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('ageRange', v),
-                        ),
-                        SurveyStep(
-                          question: l10n.onboardingDescribesYou,
-                          options: [l10n.onboardingMale, l10n.onboardingFemale, l10n.onboardingOther],
-                          selectedOption: state.surveyAnswers['gender'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('gender', v),
-                        ),
-                        SurveyStep(
-                          question: l10n.onboardingKeepsInBed,
-                          options: [
-                            l10n.onboardingPhoneScrolling,
-                            l10n.onboardingSnoozeLoop,
-                            l10n.onboardingSleepThrough,
-                            l10n.onboardingStayInBed,
-                          ],
-                          selectedOption: state.surveyAnswers['bedProblem'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('bedProblem', v),
-                        ),
-                        SurveyStep(
-                          question: l10n.onboardingFirstThought,
-                          options: [
-                            l10n.onboardingImUp,
-                            l10n.onboardingFiveMore,
-                            l10n.onboardingSetAnother,
-                            l10n.onboardingWhyDidI,
-                          ],
-                          selectedOption:
-                              state.surveyAnswers['firstThought'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('firstThought', v),
-                        ),
-                        // 6: Info - Energy levels
-                        InfoStep(
-                          title: l10n.onboardingGetsYouOut,
-                          imagePlaceholder: const EnergyChart(),
-                          bodyText: l10n.onboardingAvoidGroggy,
-                        ),
-                        // 7-9: More surveys
-                        SurveyStep(
-                          question: l10n.onboardingHowManyAlarms,
-                          options: [l10n.onboardingOne, l10n.onboardingTwoThree, l10n.onboardingFourPlus],
-                          selectedOption: state.surveyAnswers['alarmCount'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('alarmCount', v),
-                        ),
-                        SurveyStep(
-                          question: l10n.onboardingOneAlarmWakeUp,
-                          options: [l10n.onboardingYes, l10n.onboardingSometimes, l10n.onboardingNo],
-                          selectedOption:
-                              state.surveyAnswers['oneAlarmWakeUp'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('oneAlarmWakeUp', v),
-                        ),
-                        SurveyStep(
-                          question: l10n.onboardingTurnOffGoBack,
-                          options: [
-                            l10n.onboardingOften,
-                            l10n.onboardingSometimes,
-                            l10n.onboardingRarely,
-                            l10n.onboardingNever,
-                          ],
-                          selectedOption:
-                              state.surveyAnswers['turnOffSleep'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('turnOffSleep', v),
-                        ),
-                        // 10: Info - One alarm one mission
-                        InfoStep(
-                          title: l10n.onboardingOneAlarmOneMission,
-                          imagePlaceholder: const TimelineComparison(),
-                        ),
-                        // 11-13: More surveys
-                        SurveyStep(
-                          question: l10n.onboardingFeelSettingAlarm,
-                          options: [
-                            l10n.onboardingMotivated,
-                            l10n.onboardingAnxiousSleep,
-                            l10n.onboardingDefeated,
-                            l10n.onboardingNeutral,
-                          ],
-                          selectedOption:
-                              state.surveyAnswers['feelSettingAlarm'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('feelSettingAlarm', v),
-                        ),
-                        SurveyStep(
-                          question: l10n.onboardingFeelAfterWaking,
-                          options: [
-                            l10n.onboardingReadyToGo,
-                            l10n.onboardingGroggy,
-                            l10n.onboardingAnxiousStressed,
-                            l10n.onboardingNeutral,
-                          ],
-                          selectedOption:
-                              state.surveyAnswers['feelAfterWaking'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('feelAfterWaking', v),
-                        ),
-                        SurveyStep(
-                          question: l10n.onboardingHowLongAwake,
-                          options: [
-                            l10n.onboardingInstantly,
-                            l10n.onboardingTenFifteen,
-                            l10n.onboardingThirtyPlus,
-                          ],
-                          selectedOption:
-                              state.surveyAnswers['timeToAwake'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('timeToAwake', v),
-                        ),
-                        // 14: Info - Biology not laziness
-                        InfoStep(
-                          title: l10n.onboardingBiologyTitle,
-                          centerTitle: true,
-                          imagePlaceholder: const Text(
-                            '🧬',
-                            style: TextStyle(fontSize: 80),
-                          ),
-                          bodyText: l10n.onboardingBiologyBody,
-                        ),
-                        // 15: Info - Speedometer
-                        InfoStep(
-                          title: l10n.onboarding5xFaster,
-                          imagePlaceholder: const SpeedometerChart(),
-                        ),
-                        // 16: Time picker - usual wake time
-                        TimePickerStep(
-                          title:
-                              'What time do you usually get out of bed?',
-                          subtitle:
-                              'This helps us set a realistic first target.',
-                          time: state.usualWakeTime,
-                          onTimeChanged: cubit.setUsualWakeTime,
-                        ),
-                        // 17: Time picker - ideal wake time
-                        TimePickerStep(
-                          title:
-                              'What time do you want to\nbe up?',
-                          subtitle:
-                              'Your ideal daily wake up time.',
-                          time: state.idealWakeTime,
-                          onTimeChanged: cubit.setIdealWakeTime,
-                        ),
-                        // 18: Info - Target time with delta
-                        Builder(builder: (context) {
-                          final target = state.targetTime;
-                          final delta = state.wakeTimeDeltaMinutes;
-                          final monthHours = (delta * 30 / 60).round();
-                          return InfoStep(
-                            title: '',
-                            centerTitle: true,
-                            imagePlaceholder: Column(
-                              children: [
-                                Text(
-                                  'Waking up at ${_formatTime(target)} is your target.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: c.textPrimary,
-                                    height: 1.2,
-                                  ),
-                                ),
-                                if (delta > 0) ...[
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    '+$delta minutes every morning',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.orange,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '+$monthHours hours this month',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: c.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          );
-                        }),
-                        // 19: Info - Quote
-                        InfoStep(
-                          title: '',
-                          centerTitle: true,
-                          imagePlaceholder: Column(
+                            controller: _pageController,
+                            physics: const NeverScrollableScrollPhysics(),
                             children: [
-                              Text(
-                                '66',
-                                style: TextStyle(
-                                  fontSize: 48,
-                                  color: c.separator,
-                                  fontFamily: 'Georgia',
+                              SurveyStep(
+                                question: l10n.onboardingMorningPerson,
+                                options: [
+                                  l10n.onboardingYes,
+                                  l10n.onboardingNotYet,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['morningPerson'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('morningPerson', v),
+                              ),
+                              SurveyStep(
+                                question: l10n.onboardingAgeRange,
+                                options: const [
+                                  '13-17',
+                                  '18-24',
+                                  '25-34',
+                                  '35-44',
+                                  '45-54',
+                                  '55+',
+                                ],
+                                selectedOption: state.surveyAnswers['ageRange'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('ageRange', v),
+                              ),
+                              SurveyStep(
+                                question: l10n.onboardingDescribesYou,
+                                options: [
+                                  l10n.onboardingMale,
+                                  l10n.onboardingFemale,
+                                  l10n.onboardingOther,
+                                ],
+                                selectedOption: state.surveyAnswers['gender'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('gender', v),
+                              ),
+                              SurveyStep(
+                                question: l10n.onboardingKeepsInBed,
+                                options: [
+                                  l10n.onboardingPhoneScrolling,
+                                  l10n.onboardingSnoozeLoop,
+                                  l10n.onboardingSleepThrough,
+                                  l10n.onboardingStayInBed,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['bedProblem'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('bedProblem', v),
+                              ),
+                              SurveyStep(
+                                question: l10n.onboardingFirstThought,
+                                options: [
+                                  l10n.onboardingImUp,
+                                  l10n.onboardingFiveMore,
+                                  l10n.onboardingSetAnother,
+                                  l10n.onboardingWhyDidI,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['firstThought'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('firstThought', v),
+                              ),
+                              // 6: Info - Energy levels
+                              InfoStep(
+                                title: l10n.onboardingGetsYouOut,
+                                imagePlaceholder: const EnergyChart(),
+                                bodyText: l10n.onboardingAvoidGroggy,
+                              ),
+                              // 7-9: More surveys
+                              SurveyStep(
+                                question: l10n.onboardingHowManyAlarms,
+                                options: [
+                                  l10n.onboardingOne,
+                                  l10n.onboardingTwoThree,
+                                  l10n.onboardingFourPlus,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['alarmCount'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('alarmCount', v),
+                              ),
+                              SurveyStep(
+                                question: l10n.onboardingOneAlarmWakeUp,
+                                options: [
+                                  l10n.onboardingYes,
+                                  l10n.onboardingSometimes,
+                                  l10n.onboardingNo,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['oneAlarmWakeUp'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('oneAlarmWakeUp', v),
+                              ),
+                              SurveyStep(
+                                question: l10n.onboardingTurnOffGoBack,
+                                options: [
+                                  l10n.onboardingOften,
+                                  l10n.onboardingSometimes,
+                                  l10n.onboardingRarely,
+                                  l10n.onboardingNever,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['turnOffSleep'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('turnOffSleep', v),
+                              ),
+                              // 10: Info - One alarm one mission
+                              InfoStep(
+                                title: l10n.onboardingOneAlarmOneMission,
+                                imagePlaceholder: const TimelineComparison(),
+                              ),
+                              // 11-13: More surveys
+                              SurveyStep(
+                                question: l10n.onboardingFeelSettingAlarm,
+                                options: [
+                                  l10n.onboardingMotivated,
+                                  l10n.onboardingAnxiousSleep,
+                                  l10n.onboardingDefeated,
+                                  l10n.onboardingNeutral,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['feelSettingAlarm'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('feelSettingAlarm', v),
+                              ),
+                              SurveyStep(
+                                question: l10n.onboardingFeelAfterWaking,
+                                options: [
+                                  l10n.onboardingReadyToGo,
+                                  l10n.onboardingGroggy,
+                                  l10n.onboardingAnxiousStressed,
+                                  l10n.onboardingNeutral,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['feelAfterWaking'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('feelAfterWaking', v),
+                              ),
+                              SurveyStep(
+                                question: l10n.onboardingHowLongAwake,
+                                options: [
+                                  l10n.onboardingInstantly,
+                                  l10n.onboardingTenFifteen,
+                                  l10n.onboardingThirtyPlus,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['timeToAwake'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('timeToAwake', v),
+                              ),
+                              // 14: Info - Biology not laziness
+                              InfoStep(
+                                title: l10n.onboardingBiologyTitle,
+                                centerTitle: true,
+                                imagePlaceholder: const Text(
+                                  '🧬',
+                                  style: TextStyle(fontSize: 80),
+                                ),
+                                bodyText: l10n.onboardingBiologyBody,
+                              ),
+                              // 15: Info - Speedometer
+                              InfoStep(
+                                title: l10n.onboarding5xFaster,
+                                imagePlaceholder: const SpeedometerChart(),
+                              ),
+                              // 16: Time picker - usual wake time
+                              TimePickerStep(
+                                title:
+                                    'What time do you usually get out of bed?',
+                                subtitle:
+                                    'This helps us set a realistic first target.',
+                                time: state.usualWakeTime,
+                                onTimeChanged: cubit.setUsualWakeTime,
+                              ),
+                              // 17: Time picker - ideal wake time
+                              TimePickerStep(
+                                title: 'What time do you want to\nbe up?',
+                                subtitle: 'Your ideal daily wake up time.',
+                                time: state.idealWakeTime,
+                                onTimeChanged: cubit.setIdealWakeTime,
+                              ),
+                              // 18: Info - Target time with delta
+                              Builder(
+                                builder: (context) {
+                                  final target = state.targetTime;
+                                  final delta = state.wakeTimeDeltaMinutes;
+                                  final monthHours = (delta * 30 / 60).round();
+                                  return InfoStep(
+                                    title: '',
+                                    centerTitle: true,
+                                    imagePlaceholder: Column(
+                                      children: [
+                                        Text(
+                                          'Waking up at ${_formatTime(target)} is your target.',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: c.textPrimary,
+                                            height: 1.2,
+                                          ),
+                                        ),
+                                        if (delta > 0) ...[
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            '+$delta minutes every morning',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.orange,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            '+$monthHours hours this month',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: c.textSecondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                              // 19: Info - Quote
+                              InfoStep(
+                                title: '',
+                                centerTitle: true,
+                                imagePlaceholder: Column(
+                                  children: [
+                                    Text(
+                                      '66',
+                                      style: TextStyle(
+                                        fontSize: 48,
+                                        color: c.separator,
+                                        fontFamily: 'Georgia',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'If you win\nthe morning,\nyou win the day.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: c.textPrimary,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      '— Tim Ferriss',
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: c.textSecondary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'If you win\nthe morning,\nyou win the day.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: c.textPrimary,
-                                  height: 1.3,
-                                ),
+                              // 20: Mission picker
+                              MissionPickerStep(
+                                selectedMission: state.selectedMission,
+                                onSelected: cubit.setMission,
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                '— Tim Ferriss',
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  color: c.textSecondary,
+                              // 21: Info - Mission explanation
+                              Builder(
+                                builder: (context) {
+                                  final mission =
+                                      state.selectedMission ??
+                                      MissionType.pushUps;
+                                  final info = missionInfoFor(mission);
+                                  final explanations = getMissionExplanations(
+                                    l10n,
+                                  );
+                                  final explanation =
+                                      explanations[mission] ??
+                                      explanations[MissionType.pushUps]!;
+                                  return InfoStep(
+                                    title: explanation['title']!,
+                                    imagePlaceholder: Container(
+                                      width: 120,
+                                      height: 120,
+                                      decoration: BoxDecoration(
+                                        color: info.iconBg,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        info.icon,
+                                        color: info.iconColor,
+                                        size: 56,
+                                      ),
+                                    ),
+                                    subtitle: explanation['subtitle'],
+                                    bodyText: explanation['body'],
+                                  );
+                                },
+                              ),
+                              // 22: Alarm time picker
+                              Builder(
+                                builder: (context) {
+                                  final alarmTime =
+                                      state.alarmTime ?? state.targetTime;
+                                  return TimePickerStep(
+                                    title: 'Set your first Levio time',
+                                    subtitle:
+                                        "We'll wake you at ${_formatTime(alarmTime)} with your mission.",
+                                    time: alarmTime,
+                                    onTimeChanged: cubit.setAlarmTime,
+                                  );
+                                },
+                              ),
+                              // 23: Day picker
+                              DayPickerStep(
+                                repeatDays: state.repeatDays,
+                                onToggle: cubit.toggleDay,
+                              ),
+                              // 24: Sound picker
+                              SoundPickerStep(
+                                selectedId: state.soundId,
+                                onSelected: cubit.setSound,
+                              ),
+                              // 25: Alarm during mission
+                              SurveyStep(
+                                question: l10n.onboardingAlarmDuringMission,
+                                options: [
+                                  l10n.onboardingAlarmKeepRinging,
+                                  l10n.onboardingAlarmStopRinging,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['alarmDuringMission'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('alarmDuringMission', v),
+                              ),
+                              // 26: Where heard about us
+                              SurveyStep(
+                                question: l10n.onboardingWhereHeard,
+                                options: [
+                                  l10n.onboardingYouTube,
+                                  l10n.onboardingFacebook,
+                                  l10n.onboardingTwitter,
+                                  l10n.onboardingReddit,
+                                  l10n.onboardingAppStore,
+                                  l10n.onboardingFriendFamily,
+                                  l10n.onboardingOther,
+                                ],
+                                icons: const [
+                                  Icons.play_circle_filled,
+                                  Icons.facebook,
+                                  Icons.close, // X logo approximation
+                                  Icons.reddit,
+                                  Icons.storefront,
+                                  Icons.people,
+                                  Icons.chat_bubble,
+                                ],
+                                selectedOption:
+                                    state.surveyAnswers['heardFrom'],
+                                onSelected: (v) =>
+                                    cubit.answerSurvey('heardFrom', v),
+                              ),
+                              // 27: Referral code
+                              ReferralStep(
+                                code: state.referralCode,
+                                status: state.referralStatus,
+                                onCodeChanged: cubit.setReferralCode,
+                              ),
+                              // 28: Rating
+                              const RatingStep(),
+                              // 29: Notification permission
+                              NotificationStep(onNext: _next),
+                              // 30: Signature
+                              SignatureStep(
+                                alarmTimeText: _formatTime(
+                                  state.alarmTime ?? state.targetTime,
                                 ),
+                                onCommit: _next,
+                              ),
+                              // 31: Loading
+                              LoadingStep(
+                                onComplete: () {
+                                  if (mounted) _next();
+                                },
+                              ),
+                              // 32: Morning plan summary
+                              MorningPlanStep(
+                                alarmTime: state.alarmTime ?? state.targetTime,
+                                mission:
+                                    state.selectedMission ??
+                                    MissionType.pushUps,
+                                soundId: state.soundId,
+                                repeatDays: state.repeatDays,
+                              ),
+                              // 33: Sign in — completes onboarding
+                              SignInStep(
+                                onSkip: () async {
+                                  final alarmCubit = context.read<AlarmCubit>();
+                                  final authCubit = context.read<AuthCubit>();
+                                  await cubit.completeOnboarding(
+                                    alarmCubit,
+                                    authCubit,
+                                  );
+                                  if (mounted) _next();
+                                },
+                                onSignInComplete: () async {
+                                  final alarmCubit = context.read<AlarmCubit>();
+                                  final authCubit = context.read<AuthCubit>();
+                                  await cubit.completeOnboarding(
+                                    alarmCubit,
+                                    authCubit,
+                                  );
+                                  if (mounted) _next();
+                                },
+                              ),
+                              // 34: Paywall - Try for free
+                              PaywallStep(onContinue: _next),
+                              // 35: Trial reminder — navigates to app
+                              TrialReminderStep(
+                                onContinue: () {
+                                  Navigator.of(context).pushReplacement(
+                                    PageRouteBuilder(
+                                      pageBuilder: (_, _, _) =>
+                                          const BottomNavShell(),
+                                      transitionsBuilder:
+                                          (_, animation, _, child) =>
+                                              FadeTransition(
+                                                opacity: animation,
+                                                child: child,
+                                              ),
+                                      transitionDuration: const Duration(
+                                        milliseconds: 400,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),
-                        ),
-                        // 20: Mission picker
-                        MissionPickerStep(
-                          selectedMission: state.selectedMission,
-                          onSelected: cubit.setMission,
-                        ),
-                        // 21: Info - Mission explanation
-                        Builder(builder: (context) {
-                          final mission =
-                              state.selectedMission ?? MissionType.pushUps;
-                          final explanations = getMissionExplanations(l10n);
-                          final explanation =
-                              explanations[mission] ??
-                                  explanations[MissionType.pushUps]!;
-                          return InfoStep(
-                            title: explanation['title']!,
-                            imagePlaceholder: Container(
-                              height: 160,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: c.separator,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Image placeholder',
-                                  style:
-                                      TextStyle(color: c.textSecondary),
-                                ),
-                              ),
-                            ),
-                            subtitle: explanation['subtitle'],
-                            bodyText: explanation['body'],
-                          );
-                        }),
-                        // 22: Alarm time picker
-                        Builder(builder: (context) {
-                          final alarmTime =
-                              state.alarmTime ?? state.targetTime;
-                          return TimePickerStep(
-                            title: 'Set your first Levio time',
-                            subtitle:
-                                "We'll wake you at ${_formatTime(alarmTime)} with your mission.",
-                            time: alarmTime,
-                            onTimeChanged: cubit.setAlarmTime,
-                          );
-                        }),
-                        // 23: Day picker
-                        DayPickerStep(
-                          repeatDays: state.repeatDays,
-                          onToggle: cubit.toggleDay,
-                        ),
-                        // 24: Sound picker
-                        SoundPickerStep(
-                          selectedId: state.soundId,
-                          onSelected: cubit.setSound,
-                        ),
-                        // 25: Alarm during mission
-                        SurveyStep(
-                          question: l10n.onboardingAlarmDuringMission,
-                          options: [
-                            l10n.onboardingAlarmKeepRinging,
-                            l10n.onboardingAlarmStopRinging,
-                          ],
-                          selectedOption:
-                              state.surveyAnswers['alarmDuringMission'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('alarmDuringMission', v),
-                        ),
-                        // 26: Where heard about us
-                        SurveyStep(
-                          question: l10n.onboardingWhereHeard,
-                          options: [
-                            l10n.onboardingYouTube,
-                            l10n.onboardingFacebook,
-                            l10n.onboardingTwitter,
-                            l10n.onboardingReddit,
-                            l10n.onboardingAppStore,
-                            l10n.onboardingFriendFamily,
-                            l10n.onboardingOther,
-                          ],
-                          icons: const [
-                            Icons.play_circle_filled,
-                            Icons.facebook,
-                            Icons.close, // X logo approximation
-                            Icons.reddit,
-                            Icons.storefront,
-                            Icons.people,
-                            Icons.chat_bubble,
-                          ],
-                          selectedOption:
-                              state.surveyAnswers['heardFrom'],
-                          onSelected: (v) =>
-                              cubit.answerSurvey('heardFrom', v),
-                        ),
-                        // 27: Referral code
-                        ReferralStep(
-                          code: state.referralCode,
-                          status: state.referralStatus,
-                          onCodeChanged: cubit.setReferralCode,
-                          onSubmit: cubit.submitReferralCode,
-                        ),
-                        // 28: Rating
-                        const RatingStep(),
-                        // 29: Notification permission
-                        NotificationStep(onNext: _next),
-                        // 30: Signature
-                        SignatureStep(
-                          alarmTimeText: _formatTime(
-                              state.alarmTime ?? state.targetTime),
-                          onCommit: _next,
-                        ),
-                        // 31: Loading
-                        LoadingStep(onComplete: () {
-                          if (mounted) _next();
-                        }),
-                        // 32: Morning plan summary
-                        MorningPlanStep(
-                          alarmTime:
-                              state.alarmTime ?? state.targetTime,
-                          mission: state.selectedMission ??
-                              MissionType.pushUps,
-                          soundId: state.soundId,
-                          repeatDays: state.repeatDays,
-                        ),
-                        // 33: Sign in — completes onboarding
-                        SignInStep(
-                          onSkip: () async {
-                            final alarmCubit =
-                                context.read<AlarmCubit>();
-                            final authCubit =
-                                context.read<AuthCubit>();
-                            await cubit.completeOnboarding(
-                                alarmCubit, authCubit);
-                            if (mounted) _next();
-                          },
-                          onSignInComplete: () async {
-                            final alarmCubit =
-                                context.read<AlarmCubit>();
-                            final authCubit =
-                                context.read<AuthCubit>();
-                            await cubit.completeOnboarding(
-                                alarmCubit, authCubit);
-                            if (mounted) _next();
-                          },
-                        ),
-                        // 34: Paywall - Try for free
-                        PaywallStep(onContinue: _next),
-                        // 35: Trial reminder — navigates to app
-                        TrialReminderStep(onContinue: () {
-                          Navigator.of(context).pushReplacement(
-                            PageRouteBuilder(
-                              pageBuilder: (_, _, _) =>
-                                  const BottomNavShell(),
-                              transitionsBuilder:
-                                  (_, animation, _, child) =>
-                                      FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
-                              transitionDuration:
-                                  const Duration(
-                                      milliseconds: 400),
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
                   ),
 
                   // Bottom button (hidden for pages with own nav)
@@ -655,6 +691,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: ElevatedButton(
                             onPressed: _canContinue(state)
                                 ? withHaptic(() {
+                                    // Special: referral step submits code if entered
+                                    if (_currentPage == 27 &&
+                                        state.referralCode.trim().isNotEmpty) {
+                                      cubit.submitReferralCode();
+                                    }
                                     // Special: rating step triggers in_app_review
                                     if (_currentPage == 28) {
                                       InAppReview.instance.requestReview();
@@ -673,7 +714,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ),
                             child: Text(
                               _currentPage == 22
-                                  ? l10n.onboardingSetAlarmFor(_formatTime(state.alarmTime ?? state.targetTime))
+                                  ? l10n.onboardingSetAlarmFor(
+                                      _formatTime(
+                                        state.alarmTime ?? state.targetTime,
+                                      ),
+                                    )
                                   : l10n.onboardingContinue,
                               style: const TextStyle(
                                 fontSize: 18,
@@ -748,8 +793,11 @@ class _StandaloneSignInScreen extends StatelessWidget {
                         color: c.card,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.chevron_left,
-                          size: 20, color: c.textPrimary),
+                      child: Icon(
+                        Icons.chevron_left,
+                        size: 20,
+                        color: c.textPrimary,
+                      ),
                     ),
                   ),
                 ],

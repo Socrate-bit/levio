@@ -316,7 +316,7 @@ class _AlarmCard extends StatelessWidget {
                 const Spacer(),
                 Switch(
                   value: alarm.isEnabled,
-                  activeThumbColor: AppColors.green,
+                  activeThumbColor: c.purpleDeep,
                   onChanged: withHapticValue((val) =>
                       context.read<AlarmCubit>().toggleAlarm(alarm.id, val)),
                 ),

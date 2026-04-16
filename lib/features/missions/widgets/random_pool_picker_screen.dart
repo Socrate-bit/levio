@@ -109,9 +109,9 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                       _selected.length < _available.length
                           ? l10n.randomPoolSelectAll
                           : l10n.randomPoolDeselectAll,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.green,
+                        color: c.purpleDeep,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -155,7 +155,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: selected
-                              ? AppColors.green
+                              ? c.purpleDeep
                               : Colors.transparent,
                           width: 2,
                         ),

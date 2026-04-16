@@ -38,6 +38,8 @@ dependencies:
   intl: ^0.20.2
   file_picker: ^11.0.2
   path_provider: ^2.1.5
+  liquid_glass_bar:
+    path: packages/liquid_glass_bar
 
 dev_dependencies:
   flutter_test:
@@ -45,7 +47,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 flutter_launcher_icons:
-  android: true
+  android: false
   ios: true
   image_path: "assets/app_icon.png"
   macos:
@@ -55,7 +57,7 @@ flutter_launcher_icons:
 flutter_native_splash:
   color: "#17093F"
   image: assets/icon.png
-  android: true
+  android: false
   ios: true
 
 flutter:
@@ -63,6 +65,14 @@ flutter:
   uses-material-design: true
   assets:
     - assets/sounds/
+    - assets/alarm_set/Clock/
+    - assets/alarm_set/Gentle/
+    - assets/alarm_set/Musical/
+    - assets/alarm_set/Ringstone/
+    - assets/alarm_set/Violent/
     - assets/icon.png
     - assets/app_icon.png
+    - assets/streaks.png
+    - assets/siren.png
     - shorebird.yaml
+    - assets/exemple.png

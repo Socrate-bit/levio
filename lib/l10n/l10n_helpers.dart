@@ -70,38 +70,54 @@ String localizedSoundName(AppLocalizations l10n, String soundId) {
   switch (soundId) {
     case 'default':
       return l10n.soundDefault;
-    case 'alarm_clock':
-      return l10n.soundAlarmClock;
-    case 'reveille':
-      return l10n.soundReveille;
-    case 'sparkles':
-      return l10n.soundSparkles;
-    case 'mindful_earth':
-      return l10n.soundMindfulEarth;
-    case 'epic_brass':
-      return l10n.soundEpicBrass;
-    case 'neon':
-      return l10n.soundNeon;
-    case 'rise_and_shine':
-      return l10n.soundRiseAndShine;
-    case 'air_raid':
-      return l10n.soundAirRaid;
-    case 'meltdown':
-      return l10n.soundMeltdown;
-    case 'rave':
-      return l10n.soundRave;
-    case 'pop_star':
-      return l10n.soundPopStar;
-    case 'party_time':
-      return l10n.soundPartyTime;
-    case 'sunray':
-      return l10n.soundSunray;
-    case 'jolly_day':
-      return l10n.soundJollyDay;
-    case 'london_town':
-      return l10n.soundLondonTown;
-    case 'first_snow':
-      return l10n.soundFirstSnow;
+    case 'clock_2':
+      return l10n.soundClock2;
+    case 'clock_3':
+      return l10n.soundClock3;
+    case 'clock_4':
+      return l10n.soundClock4;
+    case 'funny':
+      return l10n.soundFunny;
+    case 'celestial':
+      return l10n.soundCelestial;
+    case 'chiptune':
+      return l10n.soundChiptune;
+    case 'dreamscape':
+      return l10n.soundDreamscape;
+    case 'game':
+      return l10n.soundGame;
+    case 'game_2':
+      return l10n.soundGame2;
+    case 'oversimplified':
+      return l10n.soundOversimplified;
+    case 'smooth':
+      return l10n.soundSmooth;
+    case 'acoustic':
+      return l10n.soundAcoustic;
+    case 'coming':
+      return l10n.soundComing;
+    case 'cyber':
+      return l10n.soundCyber;
+    case 'determination':
+      return l10n.soundDetermination;
+    case 'dubstep':
+      return l10n.soundDubstep;
+    case 'hiphop':
+      return l10n.soundHiphop;
+    case 'piano':
+      return l10n.soundPiano;
+    case 'tropical':
+      return l10n.soundTropical;
+    case 'ringstone_1':
+      return l10n.soundRingstone1;
+    case 'ringstone_2':
+      return l10n.soundRingstone2;
+    case 'ringstone_3':
+      return l10n.soundRingstone3;
+    case 'alarm':
+      return l10n.soundAlarm;
+    case 'hardcore':
+      return l10n.soundHardcore;
     default:
       return soundId;
   }
@@ -110,14 +126,16 @@ String localizedSoundName(AppLocalizations l10n, String soundId) {
 /// Returns the localized category name for a sound category key.
 String localizedSoundCategory(AppLocalizations l10n, String category) {
   switch (category) {
-    case 'Classic':
-      return l10n.soundCategoryClassic;
-    case 'Viral':
-      return l10n.soundCategoryViral;
-    case 'Aggressive':
-      return l10n.soundCategoryAggressive;
-    case 'Peaceful':
-      return l10n.soundCategoryPeaceful;
+    case 'Clock':
+      return l10n.soundCategoryClock;
+    case 'Gentle':
+      return l10n.soundCategoryGentle;
+    case 'Musical':
+      return l10n.soundCategoryMusical;
+    case 'Ringstone':
+      return l10n.soundCategoryRingstone;
+    case 'Violent':
+      return l10n.soundCategoryViolent;
     default:
       return category;
   }

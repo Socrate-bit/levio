@@ -10,114 +10,190 @@ class AlarmSoundItem {
   final String name;
   final Color color;
   final String category;
+  /// Relative path under assets/ (e.g. 'alarm_set/Clock/Clock 1.mp3')
+  final String assetPath;
 
   const AlarmSoundItem({
     required this.id,
     required this.name,
     required this.color,
     required this.category,
+    required this.assetPath,
   });
 }
 
 const alarmSounds = [
-  // Classic
+  // Clock
   AlarmSoundItem(
       id: 'default',
       name: 'Default',
       color: Color(0xFF8E8E93),
-      category: 'Classic'),
+      category: 'Clock',
+      assetPath: 'alarm_set/Clock/Clock 1.mp3'),
   AlarmSoundItem(
-      id: 'alarm_clock',
-      name: 'Alarm Clock',
+      id: 'clock_2',
+      name: 'Clock 2',
       color: Color(0xFF4A5568),
-      category: 'Classic'),
+      category: 'Clock',
+      assetPath: 'alarm_set/Clock/Clock 2.mp3'),
   AlarmSoundItem(
-      id: 'reveille',
-      name: 'Reveille',
-      color: Color(0xFF2D6A4F),
-      category: 'Classic'),
+      id: 'clock_3',
+      name: 'Clock 3',
+      color: Color(0xFF5B6B7F),
+      category: 'Clock',
+      assetPath: 'alarm_set/Clock/Clock 3.mp3'),
   AlarmSoundItem(
-      id: 'sparkles',
-      name: 'Sparkles',
-      color: Color(0xFFCC79B8),
-      category: 'Classic'),
-  // Viral
+      id: 'clock_4',
+      name: 'Clock 4',
+      color: Color(0xFF6C7A89),
+      category: 'Clock',
+      assetPath: 'alarm_set/Clock/Clock 4.mp3'),
   AlarmSoundItem(
-      id: 'mindful_earth',
-      name: 'Mindful Earth',
-      color: Color(0xFF1FAB89),
-      category: 'Viral'),
+      id: 'funny',
+      name: 'Funny',
+      color: Color(0xFFFF6B6B),
+      category: 'Clock',
+      assetPath: 'alarm_set/Clock/Funny.mp3'),
+  // Gentle
   AlarmSoundItem(
-      id: 'epic_brass',
-      name: 'Epic Brass',
-      color: Color(0xFFE8B400),
-      category: 'Viral'),
-  AlarmSoundItem(
-      id: 'neon',
-      name: 'Neon',
-      color: Color(0xFF5DADE2),
-      category: 'Viral'),
-  AlarmSoundItem(
-      id: 'rise_and_shine',
-      name: 'Rise And Shine',
-      color: Color(0xFFFF8C42),
-      category: 'Viral'),
-  // Aggressive
-  AlarmSoundItem(
-      id: 'air_raid',
-      name: 'Air Raid',
-      color: Color(0xFFE53E3E),
-      category: 'Aggressive'),
-  AlarmSoundItem(
-      id: 'meltdown',
-      name: 'Meltdown',
-      color: Color(0xFFC53030),
-      category: 'Aggressive'),
-  AlarmSoundItem(
-      id: 'rave',
-      name: 'Rave',
-      color: Color(0xFFB83280),
-      category: 'Aggressive'),
-  AlarmSoundItem(
-      id: 'pop_star',
-      name: 'Pop Star',
-      color: Color(0xFF00B5D8),
-      category: 'Aggressive'),
-  AlarmSoundItem(
-      id: 'party_time',
-      name: 'Party Time',
-      color: Color(0xFFED64A6),
-      category: 'Aggressive'),
-  // Peaceful
-  AlarmSoundItem(
-      id: 'sunray',
-      name: 'Sunray',
-      color: Color(0xFFE8B400),
-      category: 'Peaceful'),
-  AlarmSoundItem(
-      id: 'jolly_day',
-      name: 'Jolly Day',
-      color: Color(0xFFED8936),
-      category: 'Peaceful'),
-  AlarmSoundItem(
-      id: 'london_town',
-      name: 'London Town',
+      id: 'celestial',
+      name: 'Celestial',
       color: Color(0xFF667EEA),
-      category: 'Peaceful'),
+      category: 'Gentle',
+      assetPath: 'alarm_set/Gentle/Celestial.mp3'),
   AlarmSoundItem(
-      id: 'first_snow',
-      name: 'First Snow',
+      id: 'chiptune',
+      name: 'Chiptune',
+      color: Color(0xFF48BB78),
+      category: 'Gentle',
+      assetPath: 'alarm_set/Gentle/Chiptune.mp3'),
+  AlarmSoundItem(
+      id: 'dreamscape',
+      name: 'Dreamscape',
+      color: Color(0xFFB794F4),
+      category: 'Gentle',
+      assetPath: 'alarm_set/Gentle/Dreamscape.mp3'),
+  AlarmSoundItem(
+      id: 'game',
+      name: 'Game',
+      color: Color(0xFF38B2AC),
+      category: 'Gentle',
+      assetPath: 'alarm_set/Gentle/Game.mp3'),
+  AlarmSoundItem(
+      id: 'game_2',
+      name: 'Game 2',
+      color: Color(0xFF4FD1C5),
+      category: 'Gentle',
+      assetPath: 'alarm_set/Gentle/Game 2.mp3'),
+  AlarmSoundItem(
+      id: 'oversimplified',
+      name: 'Oversimplified',
+      color: Color(0xFFED8936),
+      category: 'Gentle',
+      assetPath: 'alarm_set/Gentle/Oversimplified.mp3'),
+  AlarmSoundItem(
+      id: 'smooth',
+      name: 'Smooth',
       color: Color(0xFF76E4F7),
-      category: 'Peaceful'),
+      category: 'Gentle',
+      assetPath: 'alarm_set/Gentle/Smooth 1.mp3'),
+  // Musical
+  AlarmSoundItem(
+      id: 'acoustic',
+      name: 'Acoustic',
+      color: Color(0xFFD69E2E),
+      category: 'Musical',
+      assetPath: 'alarm_set/Musical/Acoustic.mp3'),
+  AlarmSoundItem(
+      id: 'coming',
+      name: 'Coming',
+      color: Color(0xFFE53E3E),
+      category: 'Musical',
+      assetPath: 'alarm_set/Musical/Coming.mp3'),
+  AlarmSoundItem(
+      id: 'cyber',
+      name: 'Cyber',
+      color: Color(0xFF5DADE2),
+      category: 'Musical',
+      assetPath: 'alarm_set/Musical/Cyber.mp3'),
+  AlarmSoundItem(
+      id: 'determination',
+      name: 'Determination',
+      color: Color(0xFFE8B400),
+      category: 'Musical',
+      assetPath: 'alarm_set/Musical/Determination.mp3'),
+  AlarmSoundItem(
+      id: 'dubstep',
+      name: 'Dubstep',
+      color: Color(0xFFB83280),
+      category: 'Musical',
+      assetPath: 'alarm_set/Musical/Dubstep.mp3'),
+  AlarmSoundItem(
+      id: 'hiphop',
+      name: 'Hiphop',
+      color: Color(0xFFFF8C42),
+      category: 'Musical',
+      assetPath: 'alarm_set/Musical/Hiphop.mp3'),
+  AlarmSoundItem(
+      id: 'piano',
+      name: 'Piano',
+      color: Color(0xFF2D6A4F),
+      category: 'Musical',
+      assetPath: 'alarm_set/Musical/Piano.mp3'),
+  AlarmSoundItem(
+      id: 'tropical',
+      name: 'Tropical',
+      color: Color(0xFF1FAB89),
+      category: 'Musical',
+      assetPath: 'alarm_set/Musical/Tropical.mp3'),
+  // Ringstone
+  AlarmSoundItem(
+      id: 'ringstone_1',
+      name: 'Ringstone 1',
+      color: Color(0xFFCC79B8),
+      category: 'Ringstone',
+      assetPath: 'alarm_set/Ringstone/Ringstone 1.mp3'),
+  AlarmSoundItem(
+      id: 'ringstone_2',
+      name: 'Ringstone 2',
+      color: Color(0xFFED64A6),
+      category: 'Ringstone',
+      assetPath: 'alarm_set/Ringstone/Ringstone 2.mp3'),
+  AlarmSoundItem(
+      id: 'ringstone_3',
+      name: 'Ringstone 3',
+      color: Color(0xFFD53F8C),
+      category: 'Ringstone',
+      assetPath: 'alarm_set/Ringstone/Ringstone 3.mp3'),
+  // Violent
+  AlarmSoundItem(
+      id: 'alarm',
+      name: 'Alarm',
+      color: Color(0xFFC53030),
+      category: 'Violent',
+      assetPath: 'alarm_set/Violent/Alarm.mp3'),
+  AlarmSoundItem(
+      id: 'hardcore',
+      name: 'Hardcore',
+      color: Color(0xFF9B2C2C),
+      category: 'Violent',
+      assetPath: 'alarm_set/Violent/Hardcore.mp3'),
 ];
 
-const soundCategories = ['Classic', 'Viral', 'Aggressive', 'Peaceful'];
+const soundCategories = ['Clock', 'Gentle', 'Musical', 'Ringstone', 'Violent'];
 const soundCategoryIcons = {
-  'Classic': '🔔',
-  'Viral': '🔥',
-  'Aggressive': '⚡',
-  'Peaceful': '🌿',
+  'Clock': '⏰',
+  'Gentle': '🌿',
+  'Musical': '🎵',
+  'Ringstone': '📱',
+  'Violent': '⚡',
 };
+
+/// Returns the asset path for a preset sound ID, or null if not found.
+String? soundAssetPath(String id) {
+  final sound = alarmSounds.where((s) => s.id == id).firstOrNull;
+  return sound?.assetPath;
+}
 
 // ── Custom (user-uploaded) sounds ──────────────────────────────────────
 

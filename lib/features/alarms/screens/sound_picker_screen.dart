@@ -101,7 +101,9 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
         final path = await customSoundFilePath(item.fileName);
         await _player.play(DeviceFileSource(path));
       } else {
-        await _player.play(AssetSource('sounds/$id.mp3'));
+        final path = soundAssetPath(id);
+        if (path == null) return;
+        await _player.play(AssetSource(path));
       }
       _player.onPlayerComplete.listen((_) {
         if (mounted) setState(() => _playingId = null);
@@ -226,7 +228,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                 ),
                                 border: isSelected
                                     ? Border.all(
-                                        color: AppColors.green,
+                                        color: c.purpleDeep,
                                         width: 2,
                                       )
                                     : null,
@@ -237,11 +239,11 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                     width: 36,
                                     height: 36,
                                     decoration: BoxDecoration(
-                                      color: AppColors.green.withValues(alpha: 0.3),
+                                      color: c.purpleDeep.withValues(alpha: 0.3),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(Icons.music_note,
-                                        size: 18, color: AppColors.green),
+                                    child: Icon(Icons.music_note,
+                                        size: 18, color: c.purpleDeep),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
@@ -325,7 +327,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                     ),
                                     border: isSelected
                                         ? Border.all(
-                                            color: AppColors.green,
+                                            color: c.purpleDeep,
                                             width: 2,
                                           )
                                         : null,

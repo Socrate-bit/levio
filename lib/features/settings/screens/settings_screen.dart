@@ -18,6 +18,8 @@ import '../../missions/screens/mission_picker_screen.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
 import '../widgets/referral_code_dialog.dart';
+import 'privacy_policy_screen.dart';
+import 'terms_conditions_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -110,8 +112,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
+        bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -125,54 +128,54 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
               ),
               const SizedBox(height: 24),
-              // Profile card
-              BlocBuilder<AuthCubit, AuthState>(
-                builder: (context, authState) => Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: c.card,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: AppColors.orange.withAlpha(30),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Text('🌟', style: TextStyle(fontSize: 28)),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.settingsAnonymousUser,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: c.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            l10n.settingsAccountType(authState.userType.name),
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: c.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
+              // // Profile card
+              // BlocBuilder<AuthCubit, AuthState>(
+              //   builder: (context, authState) => Container(
+              //     padding: const EdgeInsets.all(16),
+              //     decoration: BoxDecoration(
+              //       color: c.card,
+              //       borderRadius: BorderRadius.circular(16),
+              //     ),
+              //     child: Row(
+              //       children: [
+              //         Container(
+              //           width: 56,
+              //           height: 56,
+              //           decoration: BoxDecoration(
+              //             color: AppColors.orange.withAlpha(30),
+              //             shape: BoxShape.circle,
+              //           ),
+              //           child: const Center(
+              //             child: Text('🌟', style: TextStyle(fontSize: 28)),
+              //           ),
+              //         ),
+              //         const SizedBox(width: 14),
+              //         Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Text(
+              //               l10n.settingsAnonymousUser,
+              //               style: TextStyle(
+              //                 fontSize: 16,
+              //                 fontWeight: FontWeight.bold,
+              //                 color: c.textPrimary,
+              //               ),
+              //             ),
+              //             const SizedBox(height: 2),
+              //             Text(
+              //               l10n.settingsAccountType(authState.userType.name),
+              //               style: TextStyle(
+              //                 fontSize: 13,
+              //                 color: c.textSecondary,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: 24),
               // Account section
               _SectionTitle(title: l10n.settingsAccount),
               BlocBuilder<AuthCubit, AuthState>(
@@ -183,19 +186,32 @@ class _SettingsScreenState extends State<SettingsScreen>
                     value: authState.userType.name,
                     onTap: () {},
                   ),
-                  const _Divider(),
-                  _LinkRow(
-                    icon: Icons.redeem_outlined,
-                    label: l10n.settingsEnterReferralCode,
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<AuthCubit>(),
-                        child: const ReferralCodeDialog(),
+                ]),
+              ),
+              const SizedBox(height: 12),
+              BlocBuilder<AuthCubit, AuthState>(
+                builder: (context, authState) => GestureDetector(
+                  onTap: withHaptic(() => showDialog(
+                    context: context,
+                    builder: (_) => BlocProvider.value(
+                      value: context.read<AuthCubit>(),
+                      child: const ReferralCodeDialog(),
+                    ),
+                  )),
+                  child: _SettingsCard(children: [
+                    _LinkRow(
+                      icon: Icons.redeem_outlined,
+                      label: l10n.settingsEnterReferralCode,
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<AuthCubit>(),
+                          child: const ReferralCodeDialog(),
+                        ),
                       ),
                     ),
-                  ),
-                ]),
+                  ]),
+                ),
               ),
               const SizedBox(height: 16),
               _SectionTitle(title: l10n.settingsApp),
@@ -269,13 +285,21 @@ class _SettingsScreenState extends State<SettingsScreen>
                 _LinkRow(
                   icon: Icons.privacy_tip_outlined,
                   label: l10n.settingsPrivacyPolicy,
-                  onTap: () {},
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const PrivacyPolicyScreen(),
+                    ),
+                  ),
                 ),
                 const _Divider(),
                 _LinkRow(
                   icon: Icons.description_outlined,
                   label: l10n.settingsTermsOfService,
-                  onTap: () {},
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const TermsConditionsScreen(),
+                    ),
+                  ),
                 ),
               ]),
               const SizedBox(height: 16),
@@ -384,11 +408,11 @@ class _ToggleRow extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: c.textSecondary),
           const SizedBox(width: 12),
-          Text(label, style: const TextStyle(fontSize: 16)),
+          Text(label, style: Theme.of(context).textTheme.bodyLarge),
           const Spacer(),
           Switch(
             value: value,
-            activeThumbColor: AppColors.green,
+            activeThumbColor: c.purpleDeep,
             onChanged: withHapticValue(onChanged),
           ),
         ],
@@ -421,7 +445,7 @@ class _LinkRow extends StatelessWidget {
           children: [
             Icon(icon, size: 20, color: c.textSecondary),
             const SizedBox(width: 12),
-            Text(label, style: const TextStyle(fontSize: 16)),
+            Text(label, style: Theme.of(context).textTheme.bodyLarge),
             const Spacer(),
             if (value != null)
               Padding(
@@ -480,7 +504,10 @@ class _ActionRow extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               label,
-              style: TextStyle(fontSize: 16, color: color, fontWeight: FontWeight.w500),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),

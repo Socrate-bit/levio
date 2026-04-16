@@ -244,9 +244,9 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                       _selected.length < _allItems.length
                           ? l10n.itemPickerSelectAll
                           : l10n.itemPickerDeselectAll,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.green,
+                        color: c.purpleDeep,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -392,7 +392,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
               color: c.card,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: selected ? AppColors.green : Colors.transparent,
+                color: selected ? c.purpleDeep : Colors.transparent,
                 width: 2,
               ),
             ),

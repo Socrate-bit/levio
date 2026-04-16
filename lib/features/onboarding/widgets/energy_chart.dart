@@ -74,14 +74,49 @@ class _EnergyChartPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final snoozePath = Path();
-    snoozePath.moveTo(0, h * 0.55);
-    snoozePath.cubicTo(w * 0.05, h * 0.35, w * 0.10, h * 0.35, w * 0.15, h * 0.50);
-    snoozePath.cubicTo(w * 0.20, h * 0.65, w * 0.22, h * 0.70, w * 0.28, h * 0.45);
-    snoozePath.cubicTo(w * 0.34, h * 0.20, w * 0.38, h * 0.25, w * 0.42, h * 0.50);
-    snoozePath.cubicTo(w * 0.46, h * 0.70, w * 0.48, h * 0.75, w * 0.55, h * 0.45);
-    snoozePath.cubicTo(w * 0.62, h * 0.15, w * 0.65, h * 0.25, w * 0.70, h * 0.50);
+    snoozePath.moveTo(0, h * 0.75);
+    snoozePath.cubicTo(
+      w * 0.05,
+      h * 0.55,
+      w * 0.10,
+      h * 0.55,
+      w * 0.15,
+      h * 0.70,
+    );
+    snoozePath.cubicTo(
+      w * 0.20,
+      h * 0.85,
+      w * 0.22,
+      h * 0.90,
+      w * 0.28,
+      h * 0.65,
+    );
+    snoozePath.cubicTo(
+      w * 0.34,
+      h * 0.40,
+      w * 0.38,
+      h * 0.45,
+      w * 0.42,
+      h * 0.70,
+    );
+    snoozePath.cubicTo(
+      w * 0.46,
+      h * 0.90,
+      w * 0.48,
+      h * 0.92,
+      w * 0.55,
+      h * 0.65,
+    );
+    snoozePath.cubicTo(
+      w * 0.62,
+      h * 0.38,
+      w * 0.65,
+      h * 0.45,
+      w * 0.70,
+      h * 0.70,
+    );
     // Flatten into groggy zone
-    snoozePath.cubicTo(w * 0.78, h * 0.60, w * 0.88, h * 0.55, w, h * 0.50);
+    snoozePath.cubicTo(w * 0.78, h * 0.78, w * 0.88, h * 0.73, w, h * 0.70);
 
     canvas.drawPath(snoozePath, snoozePaint);
 
@@ -93,22 +128,25 @@ class _EnergyChartPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final levioPath = Path();
-    levioPath.moveTo(w * 0.25, h * 0.75);
-    levioPath.cubicTo(w * 0.35, h * 0.70, w * 0.45, h * 0.55, w * 0.55, h * 0.30);
-    levioPath.cubicTo(w * 0.65, h * 0.05, w * 0.80, h * 0.02, w * 0.92, h * 0.02);
+    levioPath.moveTo(0, h * 0.75);
+    levioPath.cubicTo(
+      w * 0.15,
+      h * 0.70,
+      w * 0.30,
+      h * 0.55,
+      w * 0.45,
+      h * 0.30,
+    );
+    levioPath.cubicTo(w * 0.60, h * 0.05, w * 0.80, h * 0.02, w, h * 0.02);
 
     canvas.drawPath(levioPath, levioPaint);
 
     // Levio endpoint dot
-    canvas.drawCircle(
-      Offset(w * 0.92, h * 0.02),
-      5,
-      Paint()..color = Colors.black,
-    );
+    canvas.drawCircle(Offset(w, h * 0.02), 5, Paint()..color = Colors.black);
 
     // Snooze endpoint circle (hollow)
     canvas.drawCircle(
-      Offset(w, h * 0.50),
+      Offset(w, h * 0.70),
       4,
       Paint()
         ..color = const Color(0xFFFF6B6B)
@@ -117,19 +155,16 @@ class _EnergyChartPainter extends CustomPainter {
     );
 
     // Labels
-    final labelStyle = TextStyle(
-      fontSize: 11,
-      fontWeight: FontWeight.w600,
-    );
+    final labelStyle = TextStyle(fontSize: 11, fontWeight: FontWeight.w600);
 
     // "Levio Protocol" pill label
-    _drawPill(canvas, Offset(w * 0.18, h * 0.42), levioLabel, Colors.black);
+    _drawPill(canvas, Offset(w * 0.05, h * 0.15), levioLabel, Colors.black);
 
     // "Snooze Cycle" label
     _drawText(
       canvas,
       snoozeLabel,
-      Offset(w * 0.15, h * 0.78),
+      Offset(w * 0.08, h * 0.98),
       labelStyle.copyWith(color: const Color(0xFFFF6B6B)),
     );
 
@@ -137,12 +172,8 @@ class _EnergyChartPainter extends CustomPainter {
     _drawText(
       canvas,
       groggyLabel,
-      Offset(w * 0.68, h * 0.68),
-      labelStyle.copyWith(
-        color: const Color(0xFFFF6B6B).withValues(alpha: 0.6),
-        fontSize: 10,
-        letterSpacing: 1,
-      ),
+      Offset(w * 0.68, h * 0.98),
+      labelStyle.copyWith(color: const Color(0xFFFF6B6B)),
     );
   }
 
@@ -174,7 +205,10 @@ class _EnergyChartPainter extends CustomPainter {
       const Radius.circular(14),
     );
     canvas.drawRRect(rect, Paint()..color = color);
-    textPainter.paint(canvas, Offset(pos.dx + 8, pos.dy - textPainter.height / 2));
+    textPainter.paint(
+      canvas,
+      Offset(pos.dx + 8, pos.dy - textPainter.height / 2),
+    );
   }
 
   void _drawText(Canvas canvas, String text, Offset pos, TextStyle style) {
