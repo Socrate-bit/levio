@@ -244,7 +244,7 @@ class _WeekRow extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: status == DayStatus.done
                         ? Border.all(color: AppColors.orange, width: 2)
-                        : Border.all(color: c.separator, width: 1.5),
+                        : Border.all(color: c.separator, width: 2),
                   ),
                   child: Center(
                     child: Text(

@@ -543,10 +543,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 builder: (context) {
                                   final alarmTime =
                                       state.alarmTime ?? state.targetTime;
+                                  final l10n = AppLocalizations.of(context);
                                   return TimePickerStep(
-                                    title: 'Set your first Levio time',
+                                    title: l10n.onboardingTimePickerTitle,
                                     subtitle:
-                                        "We'll wake you at ${_formatTime(alarmTime)} with your mission.",
+                                        l10n.onboardingTimePickerSubtitle(_formatTime(alarmTime)),
                                     time: alarmTime,
                                     onTimeChanged: cubit.setAlarmTime,
                                   );

@@ -2360,6 +2360,54 @@ abstract class AppLocalizations {
   /// **'Start Mission'**
   String get dismissStartMission;
 
+  /// No description provided for @dismissFeedbackMoveIntoFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Move your whole body into frame'**
+  String get dismissFeedbackMoveIntoFrame;
+
+  /// No description provided for @dismissFeedbackKeepGoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, keep going!'**
+  String get dismissFeedbackKeepGoing;
+
+  /// No description provided for @dismissFeedbackPushupPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Lie down in push-up position'**
+  String get dismissFeedbackPushupPosition;
+
+  /// No description provided for @dismissFeedbackStartPushups.
+  ///
+  /// In en, this message translates to:
+  /// **'Start doing your push-ups!'**
+  String get dismissFeedbackStartPushups;
+
+  /// No description provided for @dismissFeedbackPushupGoDeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Go deeper, your chest should touch the ground!'**
+  String get dismissFeedbackPushupGoDeeper;
+
+  /// No description provided for @dismissFeedbackSquatPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Stand up to start squats'**
+  String get dismissFeedbackSquatPosition;
+
+  /// No description provided for @dismissFeedbackStartSquats.
+  ///
+  /// In en, this message translates to:
+  /// **'Start doing your squats!'**
+  String get dismissFeedbackStartSquats;
+
+  /// No description provided for @dismissFeedbackSquatGoDeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Go deeper, your thighs should be parallel to the ground!'**
+  String get dismissFeedbackSquatGoDeeper;
+
   /// No description provided for @onboardingMorningPerson.
   ///
   /// In en, this message translates to:
@@ -3103,6 +3151,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I Commit'**
   String get onboardingSignatureCommit;
+
+  /// No description provided for @onboardingTimePickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your first Levio time'**
+  String get onboardingTimePickerTitle;
+
+  /// No description provided for @onboardingTimePickerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll wake you at {time} with your mission.'**
+  String onboardingTimePickerSubtitle(String time);
 
   /// No description provided for @onboardingSoundPickerTitle.
   ///

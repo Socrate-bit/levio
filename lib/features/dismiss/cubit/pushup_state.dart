@@ -25,6 +25,18 @@ class DetectedPose {
 
 enum FeedbackType { warning, positive }
 
+/// Localisation-safe feedback keys emitted by exercise cubits.
+enum FeedbackKey {
+  moveIntoFrame,
+  keepGoing,
+  pushupPosition,
+  startPushups,
+  pushupGoDeeper,
+  squatPosition,
+  startSquats,
+  squatGoDeeper,
+}
+
 // ---------- States ----------
 
 abstract class PushUpState extends Equatable {
@@ -45,7 +57,7 @@ class CameraLoading extends PushUpState {
 class SessionActive extends PushUpState {
   final CameraController camera;
   final int repCount;
-  final String? feedback;
+  final FeedbackKey? feedback;
   final FeedbackType feedbackType;
   final List<DetectedPose> poses;
   final int imageWidth;
@@ -65,7 +77,7 @@ class SessionActive extends PushUpState {
 
   SessionActive copyWith({
     int? repCount,
-    String? feedback,
+    FeedbackKey? feedback,
     bool clearFeedback = false,
     FeedbackType? feedbackType,
     List<DetectedPose>? poses,

@@ -483,6 +483,15 @@
   },
   "dismissStartMission": "Start Mission",
 
+  "dismissFeedbackMoveIntoFrame": "Move your whole body into frame",
+  "dismissFeedbackKeepGoing": "Yes, keep going!",
+  "dismissFeedbackPushupPosition": "Lie down in push-up position",
+  "dismissFeedbackStartPushups": "Start doing your push-ups!",
+  "dismissFeedbackPushupGoDeeper": "Go deeper, your chest should touch the ground!",
+  "dismissFeedbackSquatPosition": "Stand up to start squats",
+  "dismissFeedbackStartSquats": "Start doing your squats!",
+  "dismissFeedbackSquatGoDeeper": "Go deeper, your thighs should be parallel to the ground!",
+
   "onboardingMorningPerson": "Do you feel like a morning person?",
   "onboardingYes": "Yes",
   "onboardingNotYet": "Not yet",
@@ -639,6 +648,12 @@
     "placeholders": { "time": { "type": "String" } }
   },
   "onboardingSignatureCommit": "I Commit",
+
+  "onboardingTimePickerTitle": "Set your first Levio time",
+  "onboardingTimePickerSubtitle": "We'll wake you at {time} with your mission.",
+  "@onboardingTimePickerSubtitle": {
+    "placeholders": { "time": { "type": "String" } }
+  },
 
   "onboardingSoundPickerTitle": "Pick your alarm sound",
 

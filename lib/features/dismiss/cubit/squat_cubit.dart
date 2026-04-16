@@ -101,12 +101,12 @@ class SquatCubit extends Cubit<PushUpState> {
 
       final poses = await _detector!.processImage(inputImage);
 
-      String? feedback;
+      FeedbackKey? feedback;
       FeedbackType? feedbackType;
       List<DetectedPose> detectedPoses;
 
       if (poses.isEmpty) {
-        feedback = 'Move your whole body into frame';
+        feedback = FeedbackKey.moveIntoFrame;
         feedbackType = FeedbackType.warning;
         detectedPoses = const [];
       } else {
@@ -125,7 +125,7 @@ class SquatCubit extends Cubit<PushUpState> {
 
         // Check landmark
         if (kneeAngle == null) {
-          feedback = 'Move your whole body into frame';
+          feedback = FeedbackKey.moveIntoFrame;
           _phase = _Phase.no;
           feedbackType = FeedbackType.warning;
           detectedPoses = const [];
@@ -134,11 +134,11 @@ class SquatCubit extends Cubit<PushUpState> {
           final kneesAboveAnkles = _isKneesAboveAnkles(pose);
           if (!kneesAboveAnkles) {
             _phase = _Phase.no;
-            feedback = 'Stand up to start squats';
+            feedback = FeedbackKey.squatPosition;
             feedbackType = FeedbackType.warning;
           } else if (_phase == _Phase.no && kneeAngle >= _kneeUpAngle) {
             _phase = _Phase.up;
-            feedback = 'Start doing your squats!';
+            feedback = FeedbackKey.startSquats;
             feedbackType = FeedbackType.positive;
           }
 
@@ -150,12 +150,12 @@ class SquatCubit extends Cubit<PushUpState> {
             _phase = _Phase.down;
           } else if (kneeAngle > _kneeUpAngle) {
             if (_phase == _Phase.hdown) {
-              feedback = 'Go deeper, your thighs should be parallel to the ground!';
+              feedback = FeedbackKey.squatGoDeeper;
               feedbackType = FeedbackType.warning;
             } else if (_phase == _Phase.down) {
               _phase = _Phase.up;
               _repCount++;
-              feedback = 'Yes, keep going!';
+              feedback = FeedbackKey.keepGoing;
               feedbackType = FeedbackType.positive;
               unawaited(SoundService.instance.playRepBell());
               if (targetReps != null && _repCount >= targetReps!) {

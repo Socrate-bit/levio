@@ -68,6 +68,10 @@ class _LevioAppState extends State<LevioApp> {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           navigatorKey: widget.navigatorKey,
+          builder: (context, child) => GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: child,
+          ),
           initialRoute: '/',
           routes: {
             '/': (_) => widget.showOnboarding
