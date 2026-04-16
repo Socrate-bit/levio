@@ -1,5 +1,6 @@
 import Flutter
 import AlarmKit
+import ActivityKit
 import AppIntents
 import SwiftUI
 
@@ -141,17 +142,19 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let title = args["title"] as? String ?? "Alarm"
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
+        let soundPath = args["soundPath"] as? String
         let alarmId = UUID()
         let date = Date(timeIntervalSince1970: timestampMs / 1000)
 
-        let soundPath = args["soundPath"] as? String
+        let soundName = prepareSoundFile(soundPath: soundPath)
+
         let config = makeAlarmConfig(
             id: alarmId,
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
             schedule: .fixed(date),
-            soundPath: soundPath
+            soundName: soundName
         )
 
         do {
@@ -178,20 +181,22 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let title = args["title"] as? String ?? "Alarm"
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
+        let soundPath = args["soundPath"] as? String
         let alarmId = UUID()
         let weekdays = decodeWeekdays(from: mask)
         let time = Alarm.Schedule.Relative.Time(hour: hour, minute: minute)
         let recurrence = Alarm.Schedule.Relative.Recurrence.weekly(weekdays)
         let schedule = Alarm.Schedule.Relative(time: time, repeats: recurrence)
 
-        let soundPath = args["soundPath"] as? String
+        let soundName = prepareSoundFile(soundPath: soundPath)
+
         let config = makeAlarmConfig(
             id: alarmId,
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
             schedule: .relative(schedule),
-            soundPath: soundPath
+            soundName: soundName
         )
 
         do {
@@ -379,13 +384,15 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let newId = UUID()
         let fireDate = Date().addingTimeInterval(Double(delaySeconds))
 
+        let soundName = prepareSoundFile(soundPath: soundPath)
+
         let alarmConfig = makeAlarmConfig(
             id: newId,
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
             schedule: .fixed(fireDate),
-            soundPath: soundPath
+            soundName: soundName
         )
 
         do {
@@ -484,7 +491,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         sfSymbol: String,
         secondaryLabel: String,
         schedule: Alarm.Schedule,
-        soundPath: String? = nil
+        soundName: String? = nil
     ) -> AlarmManager.AlarmConfiguration<LevioAlarmMetadata> {
         let stopButton = AlarmButton(
             text: "Stop",
@@ -507,15 +514,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             tintColor: .white
         )
 
-        // Resolve custom sound from Flutter asset path
-        let sound: AlertConfiguration.AlertSound
-        if let soundPath = soundPath,
-           let registrar = LevioAlarmKit.registrar {
-            let key = registrar.lookupKey(forAsset: soundPath)
-            sound = .named(key)
-        } else {
-            sound = .default
-        }
+        // Use custom sound if provided, otherwise system default
+        let sound: AlertConfiguration.AlertSound = {
+            if let name = soundName {
+                return .named(name)
+            }
+            return .default
+        }()
 
         return AlarmManager.AlarmConfiguration.alarm(
             schedule: schedule,
@@ -560,6 +565,49 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     }
 
 
+
+    /// Copies the sound file to Library/Sounds so AlarmKit can find it via .named().
+    /// Returns the filename to pass to AlertConfiguration.AlertSound.named(), or nil for default.
+    private func prepareSoundFile(soundPath: String?) -> String? {
+        guard let soundPath = soundPath else { return nil }
+
+        let fileManager = FileManager.default
+        let soundsDir = fileManager.urls(for: .libraryDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Sounds")
+        try? fileManager.createDirectory(at: soundsDir, withIntermediateDirectories: true)
+
+        let sourceURL: URL?
+        if soundPath.hasPrefix("assets/") {
+            // Flutter asset — look up the real bundle path
+            let key = FlutterDartProject.lookupKey(forAsset: soundPath)
+            if let bundlePath = Bundle.main.path(forResource: key, ofType: nil) {
+                sourceURL = URL(fileURLWithPath: bundlePath)
+            } else {
+                NSLog("[LevioAlarmKit] prepareSoundFile: Flutter asset not found for key '%@'", key)
+                return nil
+            }
+        } else {
+            // Custom sound — absolute file path
+            sourceURL = URL(fileURLWithPath: soundPath)
+        }
+
+        guard let source = sourceURL else { return nil }
+
+        let filename = source.lastPathComponent
+        let destination = soundsDir.appendingPathComponent(filename)
+
+        // Copy if not already present (or replace if source is newer)
+        if !fileManager.fileExists(atPath: destination.path) {
+            do {
+                try fileManager.copyItem(at: source, to: destination)
+            } catch {
+                NSLog("[LevioAlarmKit] prepareSoundFile: copy failed — %@", error.localizedDescription)
+                return nil
+            }
+        }
+
+        return filename
+    }
 
     private func decodeWeekdays(from mask: Int) -> [Locale.Weekday] {
         var weekdays: [Locale.Weekday] = []
