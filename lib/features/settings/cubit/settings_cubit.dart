@@ -45,10 +45,14 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   Future<void> toggleKeepAlarmDuringMission() async {
-    final next = !state.keepAlarmDuringMission;
-    emit(state.copyWith(keepAlarmDuringMission: next));
+    await setKeepAlarmDuringMission(!state.keepAlarmDuringMission);
+  }
+
+  Future<void> setKeepAlarmDuringMission(bool value) async {
+    if (state.keepAlarmDuringMission == value) return;
+    emit(state.copyWith(keepAlarmDuringMission: value));
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keepAlarmKey, next);
+    await prefs.setBool(_keepAlarmKey, value);
   }
 
   Future<void> setDefaultSound(String id, String name) async {

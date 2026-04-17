@@ -7,6 +7,7 @@ import '../../../shared/utils/haptic_utils.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../missions/models/mission.dart';
+import '../../settings/cubit/settings_cubit.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
@@ -654,9 +655,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   final alarmCubit = context.read<AlarmCubit>();
                                   final subCubit =
                                       context.read<SubscriptionCubit>();
+                                  final settingsCubit =
+                                      context.read<SettingsCubit>();
                                   await cubit.completeOnboarding(
                                     alarmCubit,
                                     subCubit,
+                                    settingsCubit,
                                   );
                                   if (mounted) _next();
                                 },
@@ -664,9 +668,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   final alarmCubit = context.read<AlarmCubit>();
                                   final subCubit =
                                       context.read<SubscriptionCubit>();
+                                  final settingsCubit =
+                                      context.read<SettingsCubit>();
                                   await cubit.completeOnboarding(
                                     alarmCubit,
                                     subCubit,
+                                    settingsCubit,
                                   );
                                   if (mounted) _next();
                                 },

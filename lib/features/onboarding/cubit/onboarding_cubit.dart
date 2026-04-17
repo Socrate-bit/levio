@@ -9,6 +9,7 @@ import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
+import '../../settings/cubit/settings_cubit.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
 import 'onboarding_state.dart';
 
@@ -127,6 +128,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   Future<void> completeOnboarding(
     AlarmCubit alarmCubit,
     SubscriptionCubit subscriptionCubit,
+    SettingsCubit settingsCubit,
   ) async {
     final alarmTime = state.alarmTime;
     final now = DateTime.now();
@@ -159,12 +161,14 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       debugPrint('[OnboardingCubit] alarm creation failed: $e');
     }
 
+    final keepRinging = state.surveyAnswers['alarmDuringMission'] ==
+        'Keep alarm ringing while completing the mission.';
+    await settingsCubit.setKeepAlarmDuringMission(keepRinging);
+
     // Persist survey answers + onboarding metadata to Firestore.
     final uid = AuthService.uidOrNull;
     if (uid != null) {
       try {
-        final keepRinging = state.surveyAnswers['alarmDuringMission'] ==
-            'Keep alarm ringing while completing the mission.';
         final data = <String, dynamic>{
           ...state.surveyAnswers,
           'alarmTime': '${alarmTime.hour}:${alarmTime.minute}',
