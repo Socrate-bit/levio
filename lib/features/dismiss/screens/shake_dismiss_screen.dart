@@ -8,7 +8,7 @@ import 'package:shake/shake.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
-import '../../../shared/widgets/levio_brand_header.dart';
+import '../widgets/levio_brand_header.dart';
 
 class ShakeDismissScreen extends StatefulWidget {
   final String alarmId;

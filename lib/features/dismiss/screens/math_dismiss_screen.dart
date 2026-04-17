@@ -7,7 +7,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../alarms/services/alarm_channel.dart';
 
 import '../../../shared/theme/app_theme.dart';
-import '../../../shared/widgets/levio_brand_header.dart';
+import '../widgets/levio_brand_header.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 

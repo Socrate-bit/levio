@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-import 'analytics_service.dart';
+import '../subscription/services/analytics_service.dart';
 
 /// Thrown when [blockNewAccounts] is set and the OAuth credential
 /// did not match any existing Firebase user.

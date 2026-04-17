@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../services/analytics_service.dart';
-import '../../../services/auth_service.dart';
-import '../../../services/referral_service.dart';
+import '../../auth/auth_service.dart';
+import '../../subscription/services/analytics_service.dart';
+import '../../subscription/services/referral_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../services/analytics_service.dart';
-import '../../../services/auth_service.dart';
+import '../../auth/auth_service.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../../missions/models/mission.dart';
 import '../models/wakeup_session.dart';
 

@@ -2,14 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../services/auth_service.dart';
+import 'auth_service.dart';
 import '../alarms/cubit/alarm_cubit.dart';
 import '../onboarding/cubit/onboarding_cubit.dart';
 import '../onboarding/cubit/onboarding_state.dart';
 import '../onboarding/screens/onboarding_screen.dart';
 import '../settings/cubit/settings_cubit.dart';
 import '../subscription/cubit/subscription_cubit.dart';
-import 'app_gate_wrapper.dart';
+import '../subscription/screens/app_gate_wrapper.dart';
 
 /// Top-level reactive auth gate. Routes between OnboardingScreen and
 /// AppGateWrapper based on FirebaseAuth state and OnboardingCubit progress.
