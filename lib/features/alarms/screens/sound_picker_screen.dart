@@ -40,7 +40,16 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
 
   /// Pick an audio file, copy it to app storage, and refresh the list.
   Future<void> _uploadSound() async {
-    final result = await FilePicker.pickFiles(type: FileType.audio);
+    final FilePickerResult? result;
+    try {
+      result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'ogg', 'aiff'],
+      );
+    } catch (e) {
+      debugPrint('[SoundPickerScreen] file pick failed: $e');
+      return;
+    }
     if (result == null || result.files.single.path == null) return;
 
     final file = result.files.single;
