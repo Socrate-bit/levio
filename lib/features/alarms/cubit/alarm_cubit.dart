@@ -25,6 +25,67 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
   }
 
+  /// Debug: dumps native AlarmKit alarms and cross-references with Flutter state.
+  Future<void> printActiveAlarms() async {
+    final flutterAlarms = state.alarms;
+    final nativeAlarms = await AlarmChannel.getAlarms();
+    final nativeIds = nativeAlarms.map((a) => a['id'] as String).toSet();
+
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('[AlarmCubit] Native AlarmKit alarms (${nativeAlarms.length}):');
+    for (final native in nativeAlarms) {
+      final id = native['id'] as String;
+      debugPrint('  • $id');
+      debugPrint('      state          : ${native['state']}');
+      debugPrint('      title          : ${native['title'] ?? '-'}');
+      debugPrint('      sfSymbol       : ${native['sfSymbol'] ?? '-'}');
+      debugPrint('      secondaryLabel : ${native['secondaryLabel'] ?? '-'}');
+      debugPrint('      isOneShot      : ${native['isOneShot']}');
+      if (native['timestampMs'] != null) {
+        final dt = DateTime.fromMillisecondsSinceEpoch(
+            (native['timestampMs'] as double).toInt());
+        debugPrint('      scheduledAt    : $dt');
+      }
+      if (native['weekdayMask'] != null) {
+        debugPrint(
+            '      weekdayMask    : ${native['weekdayMask']}  hour=${native['hour']}  minute=${native['minute']}');
+      }
+
+      final match = flutterAlarms.where((a) => a.id == id).firstOrNull;
+      if (match != null) {
+        debugPrint(
+            '      [Flutter] name       : ${match.name.isEmpty ? "(no name)" : match.name}');
+        debugPrint('      [Flutter] enabled    : ${match.isEnabled}');
+        debugPrint(
+            '      [Flutter] missions   : ${match.missions.map((m) => m.type.name).toList()}');
+        debugPrint('      [Flutter] sound      : ${match.soundId}');
+        debugPrint('      [Flutter] repeatDays : ${match.repeatDays}');
+      } else {
+        debugPrint('      [Flutter] ⚠ not found in Flutter state');
+      }
+    }
+
+    final orphans = flutterAlarms.where((a) => !nativeIds.contains(a.id));
+    if (orphans.isNotEmpty) {
+      debugPrint('[AlarmCubit] Flutter-only (not in AlarmKit):');
+      for (final a in orphans) {
+        debugPrint('  • ${a.id}  name=${a.name}  enabled=${a.isEnabled}');
+      }
+    }
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }
+
+  /// Loads alarms from Firestore into state. Called on auth so the UI has
+  /// data before the gated [sync] runs.
+  Future<void> loadAlarm() async {
+    try {
+      final alarms = await AlarmFirestoreService.getAlarms();
+      emit(state.copyWith(alarms: alarms));
+    } catch (e) {
+      debugPrint('[AlarmCubit] loadAlarm failed: $e');
+    }
+  }
+
   /// Restores alarms from Firestore (source of truth), reschedules missing
   /// native alarms, cancels orphans, and creates missed-session entries.
   /// Only call when the user has access to gated features.

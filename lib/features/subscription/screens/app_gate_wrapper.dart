@@ -28,8 +28,7 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
     AlarmService.listenForRing(
       widget.navigatorKey,
       canDismiss: () => context.read<SubscriptionCubit>().state.hasAccess,
-      onRingBlocked: () =>
-          Superwall.shared.registerPlacement('app_start'),
+      onRingBlocked: () => Superwall.shared.registerPlacement('app_start'),
     );
     // Sync once on mount if access is already known. Defer past build so
     // cubits are settled before we trigger work.
@@ -64,8 +63,9 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
         builder: (context, sub) {
           return BlocBuilder<AlarmCubit, AlarmState>(
             builder: (context, alarm) {
-              final subReady = sub.isLoaded &&
-                  sub.status != SubscriptionGateStatus.unknown;
+              final alarmCubit = context.read<AlarmCubit>();
+              final subReady =
+                  sub.isLoaded && sub.status != SubscriptionGateStatus.unknown;
               if (!subReady) {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
@@ -78,8 +78,11 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
                 );
               }
               if (sub.hasAccess) {
+                alarmCubit.restoreSubscriptionDisabled();
                 return const BottomNavShell();
               }
+
+              alarmCubit.disableAllForSubscription();
               return Stack(
                 children: [
                   const BottomNavShell(),

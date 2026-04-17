@@ -35,6 +35,15 @@ class AuthWrapper extends StatelessWidget {
         }
         final isAuth = snap.data != null;
 
+        // Debug dump on every auth state change.
+        debugPrint(
+          '[AuthWrapper] auth state → ${isAuth ? 'signed in (uid=${snap.data!.uid})' : 'signed out'}',
+        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.read<AlarmCubit>().printActiveAlarms();
+          context.read<SettingsCubit>().printSharedPrefs();
+        });
+
         return BlocBuilder<OnboardingCubit, OnboardingState>(
           builder: (context, ob) {
             if (!isAuth) {
@@ -48,6 +57,9 @@ class AuthWrapper extends StatelessWidget {
               return const OnboardingScreen();
             }
             context.read<SubscriptionCubit>().identifyUser(snap.data!.uid);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.read<AlarmCubit>().loadAlarm();
+            });
             if (ob.isInProgress) {
               return const OnboardingScreen();
             }

@@ -64,6 +64,19 @@ class SettingsCubit extends Cubit<SettingsState> {
     await prefs.setString(_defaultMissionKey, type.name);
   }
 
+  /// Debug: dumps every SharedPreferences key/value.
+  Future<void> printSharedPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().toList()..sort();
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('[SettingsCubit] SharedPreferences (${keys.length} keys):');
+    for (final key in keys) {
+      final value = prefs.get(key);
+      debugPrint('  $key = $value  (${value.runtimeType})');
+    }
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }
+
   /// Wipes all persisted settings and resets state to defaults. Called on
   /// logout so the next account starts from a clean slate.
   Future<void> clearAll() async {

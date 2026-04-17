@@ -5,8 +5,6 @@ import '../../../shared/utils/haptic_utils.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../shared/theme/app_theme.dart';
 import '../../auth/auth_service.dart';
 import '../../subscription/services/analytics_service.dart';
@@ -36,64 +34,6 @@ class _SettingsScreenState extends State<SettingsScreen>
   bool get wantKeepAlive => true;
 
   bool _notifications = true;
-
-  Future<void> _printAllAlarms(BuildContext context) async {
-    final flutterAlarms = context.read<AlarmCubit>().state.alarms;
-    final nativeAlarms = await AlarmChannel.getAlarms();
-    final nativeIds = nativeAlarms.map((a) => a['id'] as String).toSet();
-
-    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    debugPrint('[Admin] Native AlarmKit alarms (${nativeAlarms.length}):');
-    for (final native in nativeAlarms) {
-      final id = native['id'] as String;
-      debugPrint('  • $id');
-      debugPrint('      state          : ${native['state']}');
-      debugPrint('      title          : ${native['title'] ?? '-'}');
-      debugPrint('      sfSymbol       : ${native['sfSymbol'] ?? '-'}');
-      debugPrint('      secondaryLabel : ${native['secondaryLabel'] ?? '-'}');
-      debugPrint('      isOneShot      : ${native['isOneShot']}');
-      if (native['timestampMs'] != null) {
-        final dt = DateTime.fromMillisecondsSinceEpoch((native['timestampMs'] as double).toInt());
-        debugPrint('      scheduledAt    : $dt');
-      }
-      if (native['weekdayMask'] != null) {
-        debugPrint('      weekdayMask    : ${native['weekdayMask']}  hour=${native['hour']}  minute=${native['minute']}');
-      }
-
-      // Cross-reference with Flutter state
-      final match = flutterAlarms.where((a) => a.id == id).firstOrNull;
-      if (match != null) {
-        debugPrint('      [Flutter] name       : ${match.name.isEmpty ? "(no name)" : match.name}');
-        debugPrint('      [Flutter] enabled    : ${match.isEnabled}');
-        debugPrint('      [Flutter] missions   : ${match.missions.map((m) => m.type.name).toList()}');
-        debugPrint('      [Flutter] sound      : ${match.soundId}');
-        debugPrint('      [Flutter] repeatDays : ${match.repeatDays}');
-      } else {
-        debugPrint('      [Flutter] ⚠ not found in Flutter state');
-      }
-    }
-
-    final orphans = flutterAlarms.where((a) => !nativeIds.contains(a.id));
-    if (orphans.isNotEmpty) {
-      debugPrint('[Admin] Flutter-only (not in AlarmKit):');
-      for (final a in orphans) {
-        debugPrint('  • ${a.id}  name=${a.name}  enabled=${a.isEnabled}');
-      }
-    }
-    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  }
-
-  Future<void> _printSharedPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().toList()..sort();
-    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    debugPrint('[Admin] SharedPreferences (${keys.length} keys):');
-    for (final key in keys) {
-      final value = prefs.get(key);
-      debugPrint('  $key = $value  (${value.runtimeType})');
-    }
-    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  }
 
   Future<void> _confirmLogout(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
@@ -365,14 +305,16 @@ class _SettingsScreenState extends State<SettingsScreen>
                     icon: Icons.bug_report_outlined,
                     label: l10n.settingsPrintAllAlarms,
                     color: AppColors.orange,
-                    onTap: () => _printAllAlarms(context),
+                    onTap: () =>
+                        context.read<AlarmCubit>().printActiveAlarms(),
                   ),
                   const _Divider(),
                   _ActionRow(
                     icon: Icons.storage_outlined,
                     label: l10n.settingsPrintSharedPreferences,
                     color: AppColors.orange,
-                    onTap: _printSharedPrefs,
+                    onTap: () =>
+                        context.read<SettingsCubit>().printSharedPrefs(),
                   ),
                   const _Divider(),
                   _ActionRow(
