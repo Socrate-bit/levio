@@ -12,7 +12,7 @@ import '../../missions/widgets/item_picker_screen.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
-import '../../../shared/widgets/levio_brand_header.dart';
+import '../widgets/levio_brand_header.dart';
 
 /// Returns the default item labels for a hunt mission type.
 List<String> _defaultItemsFor(MissionType type) {

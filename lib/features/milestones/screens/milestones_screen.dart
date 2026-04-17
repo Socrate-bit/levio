@@ -5,7 +5,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
-import '../../../shared/widgets/hexagon_badge.dart';
+import '../../insights/widgets/hexagon_badge.dart';
 import '../cubit/milestones_cubit.dart';
 import '../cubit/milestones_state.dart';
 import '../models/badge_model.dart';

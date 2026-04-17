@@ -8,8 +8,8 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared/theme/app_theme.dart';
-import '../../../services/analytics_service.dart';
-import '../../../services/auth_service.dart';
+import '../../auth/auth_service.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/screens/sound_picker_screen.dart';
 import '../../alarms/services/alarm_channel.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../services/analytics_service.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/services/history_service.dart';
 import '../data/sounds.dart';

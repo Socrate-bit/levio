@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../shared/utils/haptic_utils.dart';
-import '../../../shared/widgets/hexagon_badge.dart';
+import '../../insights/widgets/hexagon_badge.dart';
 import '../models/badge_model.dart';
 
 class BadgeUnlockScreen extends StatelessWidget {

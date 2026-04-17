@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../features/alarms/services/alarm_firestore_service.dart';
 import '../../../features/missions/models/mission.dart';
-import '../../../services/analytics_service.dart';
-import '../../../services/auth_service.dart';
+import '../../subscription/services/analytics_service.dart';
+import '../../auth/auth_service.dart';
 import '../../../features/wakeup/models/wakeup_session.dart';
 import '../../../features/wakeup/services/history_service.dart';
 import '../models/badge_model.dart';

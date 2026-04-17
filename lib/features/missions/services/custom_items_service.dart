@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
-import 'auth_service.dart';
+import '../../auth/auth_service.dart';
 
 /// Persists user-created custom objects and affirmations in Firestore.
 ///
