@@ -72,6 +72,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _next() => _goToPage(_currentPage + 1);
 
+  Future<void> _handleContinuePress(
+    OnboardingState state,
+    OnboardingCubit cubit,
+  ) async {
+    // Referral step: validate any entered code before advancing.
+    if (_currentPage == 27) {
+      final code = state.referralCode.trim();
+      FocusScope.of(context).unfocus();
+      if (code.isNotEmpty &&
+          state.referralStatus != ReferralStatus.valid) {
+        await cubit.submitReferralCode();
+        if (!mounted) return;
+        if (cubit.state.referralStatus != ReferralStatus.valid) return;
+      }
+    }
+    // Rating step triggers in-app review.
+    if (_currentPage == 28) {
+      InAppReview.instance.requestReview();
+    }
+    _next();
+  }
+
   void _back() {
     if (_currentPage > 0 && _currentPage != 31) _goToPage(_currentPage - 1);
   }
@@ -116,8 +138,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 18: // info - target
       case 19: // info - quote
         return true;
-      case 20:
-        return state.selectedMission != null;
+      case 20: // mission picker — always has a default mission
       case 21: // info - mission
       case 22: // time picker - alarm
       case 23: // day picker
@@ -127,7 +148,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         return state.surveyAnswers.containsKey('alarmDuringMission');
       case 26:
         return state.surveyAnswers.containsKey('heardFrom');
-      case 27: // referral (optional)
+      case 27: // referral — blocked when entered code is invalid/exhausted
+        return state.referralStatus != ReferralStatus.checking &&
+            state.referralStatus != ReferralStatus.invalid &&
+            state.referralStatus != ReferralStatus.exhausted;
       case 28: // rating
       case 29: // notification — has own buttons
       case 30: // signature — has own button
@@ -506,9 +530,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 21: Info - Mission explanation
                               Builder(
                                 builder: (context) {
-                                  final mission =
-                                      state.selectedMission ??
-                                      MissionType.pushUps;
+                                  final mission = state.selectedMission;
                                   final info = missionInfoFor(mission);
                                   final explanations = getMissionExplanations(
                                     l10n,
@@ -539,8 +561,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 22: Alarm time picker
                               Builder(
                                 builder: (context) {
-                                  final alarmTime =
-                                      state.alarmTime ?? state.targetTime;
+                                  final alarmTime = state.alarmTime;
                                   final l10n = AppLocalizations.of(context);
                                   return TimePickerStep(
                                     title: l10n.onboardingTimePickerTitle,
@@ -611,9 +632,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               NotificationStep(onNext: _next),
                               // 30: Signature
                               SignatureStep(
-                                alarmTimeText: _formatTime(
-                                  state.alarmTime ?? state.targetTime,
-                                ),
+                                alarmTimeText: _formatTime(state.alarmTime),
                                 onCommit: _next,
                               ),
                               // 31: Loading
@@ -624,10 +643,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                               // 32: Morning plan summary
                               MorningPlanStep(
-                                alarmTime: state.alarmTime ?? state.targetTime,
-                                mission:
-                                    state.selectedMission ??
-                                    MissionType.pushUps,
+                                alarmTime: state.alarmTime,
+                                mission: state.selectedMission,
                                 soundId: state.soundId,
                                 repeatDays: state.repeatDays,
                               ),
@@ -677,16 +694,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: ElevatedButton(
                             onPressed: _canContinue(state)
                                 ? withHaptic(() {
-                                    // Special: referral step submits code if entered
-                                    if (_currentPage == 27 &&
-                                        state.referralCode.trim().isNotEmpty) {
-                                      cubit.submitReferralCode();
-                                    }
-                                    // Special: rating step triggers in_app_review
-                                    if (_currentPage == 28) {
-                                      InAppReview.instance.requestReview();
-                                    }
-                                    _next();
+                                    _handleContinuePress(state, cubit);
                                   })
                                 : null,
                             style: ElevatedButton.styleFrom(
@@ -701,9 +709,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             child: Text(
                               _currentPage == 22
                                   ? l10n.onboardingSetAlarmFor(
-                                      _formatTime(
-                                        state.alarmTime ?? state.targetTime,
-                                      ),
+                                      _formatTime(state.alarmTime),
                                     )
                                   : l10n.onboardingContinue,
                               style: const TextStyle(

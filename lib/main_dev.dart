@@ -14,7 +14,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Superwall.configure('pk_H0nPpphGj3awY7K1T2ngX');
 
-  FirebaseFunctions.instance.useFunctionsEmulator('192.168.1.69', 5001);
+  // FirebaseFunctions.instance.useFunctionsEmulator('192.168.1.69', 5001);
 
   runApp(LevioApp(navigatorKey: _navigatorKey));
 }

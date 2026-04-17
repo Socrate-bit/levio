@@ -128,7 +128,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     AlarmCubit alarmCubit,
     SubscriptionCubit subscriptionCubit,
   ) async {
-    final alarmTime = state.alarmTime ?? state.targetTime;
+    final alarmTime = state.alarmTime;
     final now = DateTime.now();
     var scheduled = DateTime(
       now.year,
@@ -141,7 +141,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
-    final selectedMission = state.selectedMission ?? MissionType.pushUps;
+    final selectedMission = state.selectedMission;
     final entry = AppAlarmEntry(
       id: '',
       dateTime: scheduled,

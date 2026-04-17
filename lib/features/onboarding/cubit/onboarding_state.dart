@@ -10,8 +10,8 @@ class OnboardingState extends Equatable {
   final Map<String, String> surveyAnswers;
   final TimeOfDay usualWakeTime;
   final TimeOfDay idealWakeTime;
-  final TimeOfDay? alarmTime;
-  final MissionType? selectedMission;
+  final TimeOfDay alarmTime;
+  final MissionType selectedMission;
   final String soundId;
   final String soundName;
   final List<bool> repeatDays;
@@ -25,8 +25,8 @@ class OnboardingState extends Equatable {
     this.surveyAnswers = const {},
     this.usualWakeTime = const TimeOfDay(hour: 7, minute: 30),
     this.idealWakeTime = const TimeOfDay(hour: 7, minute: 0),
-    this.alarmTime,
-    this.selectedMission,
+    this.alarmTime = const TimeOfDay(hour: 7, minute: 0),
+    this.selectedMission = MissionType.pushUps,
     this.soundId = 'default',
     this.soundName = 'Default',
     this.repeatDays = const [false, true, true, true, true, true, false],
