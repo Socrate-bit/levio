@@ -273,6 +273,11 @@
   "settingsPrintAllAlarms": "Afficher toutes les alarmes",
   "settingsPrintSharedPreferences": "Afficher SharedPreferences",
   "settingsDeleteAllAlarms": "Supprimer toutes les alarmes",
+  "settingsLogout": "Se déconnecter",
+  "settingsLogoutTitle": "Se déconnecter ?",
+  "settingsLogoutBody": "Vous serez déconnecté de cet appareil. Les paramètres locaux et les alarmes programmées seront effacés.",
+  "settingsLogoutConfirm": "Se déconnecter",
+  "settingsLogoutCancel": "Annuler",
   "settingsVersion": "Levio v0.1.0",
 
   "referralTitle": "Entrer un code de parrainage",

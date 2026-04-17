@@ -73,11 +73,15 @@ class AppAlarmEntry extends Equatable {
 
 class AlarmState extends Equatable {
   final List<AppAlarmEntry> alarms;
-  const AlarmState({this.alarms = const []});
+  final bool isLoading;
+  const AlarmState({this.alarms = const [], this.isLoading = false});
 
-  AlarmState copyWith({List<AppAlarmEntry>? alarms}) =>
-      AlarmState(alarms: alarms ?? this.alarms);
+  AlarmState copyWith({List<AppAlarmEntry>? alarms, bool? isLoading}) =>
+      AlarmState(
+        alarms: alarms ?? this.alarms,
+        isLoading: isLoading ?? this.isLoading,
+      );
 
   @override
-  List<Object?> get props => [alarms];
+  List<Object?> get props => [alarms, isLoading];
 }

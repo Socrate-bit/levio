@@ -799,6 +799,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsDeleteAllAlarms => 'Supprimer toutes les alarmes';
 
   @override
+  String get settingsLogout => 'Se déconnecter';
+
+  @override
+  String get settingsLogoutTitle => 'Se déconnecter ?';
+
+  @override
+  String get settingsLogoutBody =>
+      'Vous serez déconnecté de cet appareil. Les paramètres locaux et les alarmes programmées seront effacés.';
+
+  @override
+  String get settingsLogoutConfirm => 'Se déconnecter';
+
+  @override
+  String get settingsLogoutCancel => 'Annuler';
+
+  @override
   String get settingsVersion => 'Levio v0.1.0';
 
   @override

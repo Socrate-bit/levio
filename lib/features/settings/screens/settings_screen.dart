@@ -8,11 +8,12 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../services/auth_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/screens/sound_picker_screen.dart';
 import '../../alarms/services/alarm_channel.dart';
-import '../../auth/cubit/auth_cubit.dart';
-import '../../auth/cubit/auth_state.dart';
+import '../../subscription/cubit/subscription_cubit.dart';
+import '../../subscription/cubit/subscription_state.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../cubit/settings_cubit.dart';
@@ -93,6 +94,33 @@ class _SettingsScreenState extends State<SettingsScreen>
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }
 
+  Future<void> _confirmLogout(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.settingsLogoutTitle),
+        content: Text(l10n.settingsLogoutBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.settingsLogoutCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              l10n.settingsLogoutConfirm,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await AuthService.signOut();
+    }
+  }
+
   Future<void> _deleteAllAlarms(BuildContext context) async {
     final cubit = context.read<AlarmCubit>();
     final ids = await AlarmChannel.getAlarmIds();
@@ -129,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
               const SizedBox(height: 24),
               // // Profile card
-              // BlocBuilder<AuthCubit, AuthState>(
+              // BlocBuilder<SubscriptionCubit, SubscriptionState>(
               //   builder: (context, authState) => Container(
               //     padding: const EdgeInsets.all(16),
               //     decoration: BoxDecoration(
@@ -178,40 +206,38 @@ class _SettingsScreenState extends State<SettingsScreen>
               // const SizedBox(height: 24),
               // Account section
               _SectionTitle(title: l10n.settingsAccount),
-              BlocBuilder<AuthCubit, AuthState>(
-                builder: (context, authState) => _SettingsCard(children: [
+              BlocBuilder<SubscriptionCubit, SubscriptionState>(
+                builder: (context, subState) => _SettingsCard(children: [
                   _LinkRow(
                     icon: Icons.card_membership_outlined,
                     label: l10n.settingsUserType,
-                    value: authState.userType.name,
+                    value: subState.userType.name,
                     onTap: () {},
                   ),
                 ]),
               ),
               const SizedBox(height: 12),
-              BlocBuilder<AuthCubit, AuthState>(
-                builder: (context, authState) => GestureDetector(
-                  onTap: withHaptic(() => showDialog(
-                    context: context,
-                    builder: (_) => BlocProvider.value(
-                      value: context.read<AuthCubit>(),
-                      child: const ReferralCodeDialog(),
-                    ),
-                  )),
-                  child: _SettingsCard(children: [
-                    _LinkRow(
-                      icon: Icons.redeem_outlined,
-                      label: l10n.settingsEnterReferralCode,
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (_) => BlocProvider.value(
-                          value: context.read<AuthCubit>(),
-                          child: const ReferralCodeDialog(),
-                        ),
+              GestureDetector(
+                onTap: withHaptic(() => showDialog(
+                      context: context,
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<SubscriptionCubit>(),
+                        child: const ReferralCodeDialog(),
+                      ),
+                    )),
+                child: _SettingsCard(children: [
+                  _LinkRow(
+                    icon: Icons.redeem_outlined,
+                    label: l10n.settingsEnterReferralCode,
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<SubscriptionCubit>(),
+                        child: const ReferralCodeDialog(),
                       ),
                     ),
-                  ]),
-                ),
+                  ),
+                ]),
               ),
               const SizedBox(height: 16),
               _SectionTitle(title: l10n.settingsApp),
@@ -300,6 +326,15 @@ class _SettingsScreenState extends State<SettingsScreen>
                       builder: (_) => const TermsConditionsScreen(),
                     ),
                   ),
+                ),
+              ]),
+              const SizedBox(height: 16),
+              _SettingsCard(children: [
+                _ActionRow(
+                  icon: Icons.logout,
+                  label: l10n.settingsLogout,
+                  color: Colors.red,
+                  onTap: () => _confirmLogout(context),
                 ),
               ]),
               const SizedBox(height: 16),

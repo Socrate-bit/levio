@@ -1,16 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
-import '../../../services/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
-import '../../auth/cubit/auth_cubit.dart';
-import '../../main/main_app_gate.dart';
 import '../../missions/models/mission.dart';
+import '../../subscription/cubit/subscription_cubit.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
 import '../data/mission_explanations.dart';
@@ -37,9 +34,7 @@ import '../widgets/welcome_step.dart';
 const _totalPages = 36;
 
 class OnboardingScreen extends StatefulWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
-
-  const OnboardingScreen({super.key, required this.navigatorKey});
+  const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -159,9 +154,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => OnboardingCubit(),
-      child: BlocBuilder<OnboardingCubit, OnboardingState>(
+    return BlocBuilder<OnboardingCubit, OnboardingState>(
         builder: (context, state) {
           final cubit = context.read<OnboardingCubit>();
           final c = AppColors.of(context);
@@ -226,12 +219,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Expanded(
                     child: _currentPage == 0
                         ? WelcomeStep(
-                            onBuildPlan: _next,
+                            onBuildPlan: () {
+                              cubit.startOnboarding();
+                              _next();
+                            },
                             onSignIn: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) =>
-                                      _StandaloneSignInScreen(navigatorKey: widget.navigatorKey),
+                                      const _StandaloneSignInScreen(),
                                 ),
                               );
                             },
@@ -635,48 +631,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 soundId: state.soundId,
                                 repeatDays: state.repeatDays,
                               ),
-                              // 33: Sign in — completes onboarding
+                              // 33: Sign in — saves alarm + refreshes user type
                               SignInStep(
                                 onSkip: () async {
                                   final alarmCubit = context.read<AlarmCubit>();
-                                  final authCubit = context.read<AuthCubit>();
+                                  final subCubit =
+                                      context.read<SubscriptionCubit>();
                                   await cubit.completeOnboarding(
                                     alarmCubit,
-                                    authCubit,
+                                    subCubit,
                                   );
                                   if (mounted) _next();
                                 },
                                 onSignInComplete: () async {
                                   final alarmCubit = context.read<AlarmCubit>();
-                                  final authCubit = context.read<AuthCubit>();
+                                  final subCubit =
+                                      context.read<SubscriptionCubit>();
                                   await cubit.completeOnboarding(
                                     alarmCubit,
-                                    authCubit,
+                                    subCubit,
                                   );
                                   if (mounted) _next();
                                 },
                               ),
                               // 34: Paywall - Try for free
                               PaywallStep(onContinue: _next),
-                              // 35: Trial reminder — navigates to app
+                              // 35: Trial reminder — finishes onboarding;
+                              // AuthWrapper reactively swaps to AppGateWrapper.
                               TrialReminderStep(
-                                onContinue: () {
-                                  Navigator.of(context).pushReplacement(
-                                    PageRouteBuilder(
-                                      pageBuilder: (_, _, _) =>
-                                          MainAppGate(navigatorKey: widget.navigatorKey),
-                                      transitionsBuilder:
-                                          (_, animation, _, child) =>
-                                              FadeTransition(
-                                                opacity: animation,
-                                                child: child,
-                                              ),
-                                      transitionDuration: const Duration(
-                                        milliseconds: 400,
-                                      ),
-                                    ),
-                                  );
-                                },
+                                onContinue: cubit.finishOnboarding,
                               ),
                             ],
                           ),
@@ -736,47 +719,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           );
-        },
-      ),
-    );
+        });
   }
 }
 
 class _StandaloneSignInScreen extends StatelessWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
-
-  const _StandaloneSignInScreen({required this.navigatorKey});
-
-  Future<void> _onSignInComplete(BuildContext context) async {
-    // Check if returning user already completed onboarding
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(AuthService.uid)
-          .collection('meta')
-          .doc('onboarding')
-          .get();
-      if (doc.exists && doc.data()?['onboardingComplete'] == true) {
-        if (context.mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            PageRouteBuilder(
-              pageBuilder: (_, _, _) =>
-                  MainAppGate(navigatorKey: navigatorKey),
-              transitionsBuilder: (_, animation, _, child) =>
-                  FadeTransition(opacity: animation, child: child),
-              transitionDuration: const Duration(milliseconds: 400),
-            ),
-            (_) => false,
-          );
-        }
-        return;
-      }
-    } catch (e) {
-      debugPrint('[OnboardingScreen] onboarding check failed: $e');
-    }
-    // New user with provider account — go back to onboarding
-    if (context.mounted) Navigator.of(context).pop();
-  }
+  const _StandaloneSignInScreen();
 
   @override
   Widget build(BuildContext context) {
@@ -814,7 +762,9 @@ class _StandaloneSignInScreen extends StatelessWidget {
                 title: 'Welcome back',
                 subtitle: 'Sign in to restore your plan.',
                 onSkip: () => Navigator.of(context).pop(),
-                onSignInComplete: () => _onSignInComplete(context),
+                // After sign-in, pop. AuthWrapper reactively routes to
+                // AppGateWrapper because isInProgress is still false.
+                onSignInComplete: () => Navigator.of(context).pop(),
                 showSkip: false,
               ),
             ),

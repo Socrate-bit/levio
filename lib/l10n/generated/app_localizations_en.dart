@@ -793,6 +793,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDeleteAllAlarms => 'Delete All Alarms';
 
   @override
+  String get settingsLogout => 'Log out';
+
+  @override
+  String get settingsLogoutTitle => 'Log out?';
+
+  @override
+  String get settingsLogoutBody =>
+      'You\'ll be signed out of this device. Local settings and scheduled alarms will be cleared.';
+
+  @override
+  String get settingsLogoutConfirm => 'Log out';
+
+  @override
+  String get settingsLogoutCancel => 'Cancel';
+
+  @override
   String get settingsVersion => 'Levio v0.1.0';
 
   @override

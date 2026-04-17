@@ -303,6 +303,11 @@
   "settingsPrintAllAlarms": "Print All Alarms",
   "settingsPrintSharedPreferences": "Print SharedPreferences",
   "settingsDeleteAllAlarms": "Delete All Alarms",
+  "settingsLogout": "Log out",
+  "settingsLogoutTitle": "Log out?",
+  "settingsLogoutBody": "You'll be signed out of this device. Local settings and scheduled alarms will be cleared.",
+  "settingsLogoutConfirm": "Log out",
+  "settingsLogoutCancel": "Cancel",
   "settingsVersion": "Levio v0.1.0",
 
   "referralTitle": "Enter Referral Code",
