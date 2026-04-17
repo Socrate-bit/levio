@@ -1513,6 +1513,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Échec de la connexion Apple. Veuillez réessayer.';
 
   @override
+  String get onboardingAccountNotFound =>
+      'Aucun compte trouvé. Veuillez d\'abord créer un compte via l\'inscription.';
+
+  @override
   String get onboardingDayPickerTitle => 'Quels jours Levio doit-il sonner ?';
 
   @override

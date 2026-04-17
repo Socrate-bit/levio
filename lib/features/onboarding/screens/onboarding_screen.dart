@@ -766,6 +766,7 @@ class _StandaloneSignInScreen extends StatelessWidget {
                 // AppGateWrapper because isInProgress is still false.
                 onSignInComplete: () => Navigator.of(context).pop(),
                 showSkip: false,
+                blockNewAccounts: true,
               ),
             ),
           ],

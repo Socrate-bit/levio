@@ -1492,6 +1492,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingAppleFailed => 'Apple sign-in failed. Please try again.';
 
   @override
+  String get onboardingAccountNotFound =>
+      'No account found. Please complete onboarding to create one.';
+
+  @override
   String get onboardingDayPickerTitle => 'Which days should Levio ring?';
 
   @override

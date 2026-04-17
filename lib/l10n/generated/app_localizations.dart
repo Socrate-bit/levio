@@ -2906,6 +2906,12 @@ abstract class AppLocalizations {
   /// **'Apple sign-in failed. Please try again.'**
   String get onboardingAppleFailed;
 
+  /// No description provided for @onboardingAccountNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No account found. Please complete onboarding to create one.'**
+  String get onboardingAccountNotFound;
+
   /// No description provided for @onboardingDayPickerTitle.
   ///
   /// In en, this message translates to:
