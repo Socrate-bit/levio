@@ -68,7 +68,8 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
   void _addCustom() {
     final text = _customCtrl.text.trim();
     if (text.isEmpty) return;
-    if (_customAffirmations.contains(text) || affirmations.contains(text)) {
+    if (_customAffirmations.contains(text) ||
+        allBuiltInAffirmations.contains(text)) {
       _customCtrl.clear();
       return;
     }
@@ -103,7 +104,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    final allBuiltIn = affirmations;
+    final allBuiltIn = affirmationsFor(context);
     final allItems = [...allBuiltIn, ..._customAffirmations];
 
     return Scaffold(

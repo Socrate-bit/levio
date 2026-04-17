@@ -1,4 +1,6 @@
-const List<String> affirmations = [
+import 'package:flutter/widgets.dart';
+
+const List<String> _affirmationsEn = [
   'I am worthy of love, respect, and success.',
   'I trust my ability to navigate through difficult times.',
   'My potential to succeed is limitless.',
@@ -49,4 +51,71 @@ const List<String> affirmations = [
   'I am free from the need for external validation.',
   'I embrace my uniqueness.',
   'I am ready for the challenges of today.',
+];
+
+const List<String> _affirmationsFr = [
+  'Je mérite l\'amour, le respect et la réussite.',
+  'Je fais confiance à ma capacité à traverser les moments difficiles.',
+  'Mon potentiel de réussite est illimité.',
+  'Je choisis de me concentrer sur ce que je peux contrôler.',
+  'Je suis reconnaissant pour la personne que je deviens.',
+  'J\'ai le pouvoir de créer la vie que je désire.',
+  'Je suis résilient, fort et courageux.',
+  'Mes erreurs sont des opportunités d\'apprendre et de grandir.',
+  'Je mérite de prendre ma place et de faire entendre ma voix.',
+  'Je suis en paix avec mon passé.',
+  'Je fais confiance au rythme de ma vie.',
+  'Je suis capable d\'atteindre mes objectifs.',
+  'Je nourris mon corps avec des choix sains.',
+  'Je suis entouré de personnes bienveillantes et positives.',
+  'Mon esprit regorge d\'idées brillantes et créatives.',
+  'Je choisis de répondre avec gentillesse, même quand c\'est difficile.',
+  'J\'ai le droit de poser des limites qui protègent mon énergie.',
+  'Je suis assez, exactement tel que je suis en ce moment.',
+  'Chaque jour est un nouveau départ.',
+  'J\'attire l\'abondance et la prospérité dans ma vie.',
+  'Je suis un aimant à énergie positive.',
+  'Je libère tous mes doutes et mes insécurités.',
+  'Je suis fier des progrès que j\'ai accomplis.',
+  'J\'ai la discipline nécessaire pour atteindre mes objectifs.',
+  'Je suis calme, centré et détendu.',
+  'Mes contributions au monde ont de la valeur.',
+  'Je choisis de lâcher prise sur ce qui ne me sert plus.',
+  'Je suis ouvert aux nouvelles expériences et opportunités.',
+  'Je possède les qualités nécessaires pour réussir.',
+  'Je suis l\'architecte de mon propre bonheur.',
+  'Je me pardonne mes erreurs passées.',
+  'J\'ai confiance en mes compétences et mes talents.',
+  'Je priorise mon bien-être mental et émotionnel.',
+  'Je deviens une meilleure version de moi-même chaque jour.',
+  'J\'ai le courage de poursuivre mes rêves.',
+  'Je suis responsable de ce que je ressens.',
+  'Je rayonne de confiance et de paix intérieure.',
+  'J\'apprends tout au long de ma vie.',
+  'Ma vie est remplie de sens et de raison d\'être.',
+  'Je suis reconnaissant pour les petites joies de la vie.',
+  'Je fais confiance à mon intuition pour me guider.',
+  'Je suis capable de gérer tout ce qui se présente à moi.',
+  'Je me traite avec la même bienveillance que j\'offre aux autres.',
+  'Je suis concentré, productif et efficace.',
+  'J\'attire des relations saines et épanouissantes.',
+  'Je mérite toutes les bonnes choses qui m\'arrivent.',
+  'J\'ai un impact positif sur le monde.',
+  'Je suis libéré du besoin de validation extérieure.',
+  'J\'embrasse ma singularité.',
+  'Je suis prêt à relever les défis d\'aujourd\'hui.',
+];
+
+/// Returns the built-in affirmations list for the current locale.
+List<String> affirmationsFor(BuildContext context) {
+  final code = Localizations.localeOf(context).languageCode;
+  return code == 'fr' ? _affirmationsFr : _affirmationsEn;
+}
+
+/// All built-in affirmations across locales. Used to detect duplicates when
+/// adding custom entries, so a user can't re-add a built-in phrase in any
+/// language.
+const List<String> allBuiltInAffirmations = [
+  ..._affirmationsEn,
+  ..._affirmationsFr,
 ];

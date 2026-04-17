@@ -52,6 +52,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   String _transcription = '';
   double? _lastScore;
   bool _initialized = false;
+  String? _sttLocaleId;
   final _startTime = DateTime.now();
   late String _targetText;
   int _completedCount = 0;
@@ -65,7 +66,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
     final pool = (widget.selectedAffirmations != null &&
             widget.selectedAffirmations!.isNotEmpty)
         ? widget.selectedAffirmations!
-        : affirmations;
+        : affirmationsFor(context);
     return pool[rng.nextInt(pool.length)];
   }
 
@@ -94,7 +95,38 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
 
   Future<void> _initSpeech() async {
     final available = await _stt.initialize();
-    if (mounted) setState(() => _initialized = available);
+    if (!available) {
+      if (mounted) setState(() => _initialized = false);
+      return;
+    }
+    // Pick an STT locale that matches the app's current locale. Prefer a
+    // language+country match (e.g. fr_FR), fall back to any locale whose
+    // language matches (fr_*), else let the engine use its default.
+    String? localeId;
+    try {
+      if (mounted) {
+        final appCode =
+            Localizations.localeOf(context).languageCode.toLowerCase();
+        final locales = await _stt.locales();
+        LocaleName? match;
+        for (final l in locales) {
+          final id = l.localeId.replaceAll('-', '_').toLowerCase();
+          if (id == appCode || id.startsWith('${appCode}_')) {
+            match = l;
+            break;
+          }
+        }
+        localeId = match?.localeId;
+      }
+    } catch (e) {
+      debugPrint('[SpeechDismissScreen] locale lookup failed: $e');
+    }
+    if (mounted) {
+      setState(() {
+        _initialized = true;
+        _sttLocaleId = localeId;
+      });
+    }
   }
 
   static String _normalize(String text) {
@@ -124,6 +156,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
       onResult: _onResult,
       listenFor: const Duration(seconds: 30),
       pauseFor: const Duration(seconds: 4),
+      localeId: _sttLocaleId,
       listenOptions: SpeechListenOptions(
         cancelOnError: true,
         partialResults: true,

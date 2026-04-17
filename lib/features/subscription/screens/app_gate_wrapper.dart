@@ -83,6 +83,7 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
               }
 
               alarmCubit.disableAllForSubscription();
+              Superwall.shared.registerPlacement('app_start');
               return Stack(
                 children: [
                   const BottomNavShell(),
