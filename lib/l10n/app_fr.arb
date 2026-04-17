@@ -499,6 +499,7 @@
   "onboardingSkipForNow": "Passer pour l'instant",
   "onboardingGoogleFailed": "Échec de la connexion Google. Veuillez réessayer.",
   "onboardingAppleFailed": "Échec de la connexion Apple. Veuillez réessayer.",
+  "onboardingAccountNotFound": "Aucun compte trouvé. Veuillez d'abord créer un compte via l'inscription.",
 
   "onboardingDayPickerTitle": "Quels jours Levio doit-il sonner ?",
   "onboardingDayPickerSubtitle": "Choisissez les jours à verrouiller.",

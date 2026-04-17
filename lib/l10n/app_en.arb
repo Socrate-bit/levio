@@ -587,6 +587,7 @@
   "onboardingSkipForNow": "Skip for now",
   "onboardingGoogleFailed": "Google sign-in failed. Please try again.",
   "onboardingAppleFailed": "Apple sign-in failed. Please try again.",
+  "onboardingAccountNotFound": "No account found. Please complete onboarding to create one.",
 
   "onboardingDayPickerTitle": "Which days should Levio ring?",
   "onboardingDayPickerSubtitle": "Pick the days you want to lock in.",
