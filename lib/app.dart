@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/features/main/auth_wrapper.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
@@ -46,6 +47,7 @@ class LevioApp extends StatelessWidget {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           navigatorKey: navigatorKey,
+          navigatorObservers: [PosthogObserver()],
           builder: (context, child) => GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: child,

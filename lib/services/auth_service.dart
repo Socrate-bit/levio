@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import 'analytics_service.dart';
+
 class AuthService {
   static final _auth = FirebaseAuth.instance;
   static bool _googleInitialized = false;
@@ -15,6 +17,7 @@ class AuthService {
   static Future<void> signInAnonymously() async {
     if (_auth.currentUser != null) return;
     await _auth.signInAnonymously();
+    AnalyticsService.capture(AnalyticsService.signIn, {'method': 'anonymous'});
   }
 
   static String get uid {
@@ -40,7 +43,9 @@ class AuthService {
     final idToken = account.authentication.idToken;
 
     final credential = GoogleAuthProvider.credential(idToken: idToken);
-    return _auth.signInWithCredential(credential);
+    final result = await _auth.signInWithCredential(credential);
+    AnalyticsService.capture(AnalyticsService.signIn, {'method': 'google'});
+    return result;
   }
 
   static Future<UserCredential> signInWithApple() async {
@@ -60,10 +65,13 @@ class AuthService {
       rawNonce: rawNonce,
     );
 
-    return _auth.signInWithCredential(oauthCredential);
+    final result = await _auth.signInWithCredential(oauthCredential);
+    AnalyticsService.capture(AnalyticsService.signIn, {'method': 'apple'});
+    return result;
   }
 
   static Future<void> signOut() async {
+    await AnalyticsService.capture(AnalyticsService.signOut);
     if (_googleInitialized) {
       await GoogleSignIn.instance.signOut();
     }

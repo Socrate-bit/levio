@@ -8,6 +8,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../services/analytics_service.dart';
 import '../../../services/auth_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/screens/sound_picker_screen.dart';
@@ -247,23 +248,41 @@ class _SettingsScreenState extends State<SettingsScreen>
                     icon: Icons.notifications_outlined,
                     label: l10n.settingsNotifications,
                     value: _notifications,
-                    onChanged: (v) => setState(() => _notifications = v),
+                    onChanged: (v) {
+                      setState(() => _notifications = v);
+                      AnalyticsService.capture(
+                        AnalyticsService.settingsNotificationsToggled,
+                        {'enabled': v},
+                      );
+                    },
                   ),
                   const _Divider(),
                   _ToggleRow(
                     icon: Icons.dark_mode_outlined,
                     label: l10n.settingsDarkMode,
                     value: settings.themeMode == ThemeMode.dark,
-                    onChanged: (_) =>
-                        context.read<SettingsCubit>().toggleTheme(),
+                    onChanged: (v) {
+                      context.read<SettingsCubit>().toggleTheme();
+                      AnalyticsService.capture(
+                        AnalyticsService.settingsDarkModeToggled,
+                        {'enabled': v},
+                      );
+                    },
                   ),
                   const _Divider(),
                   _ToggleRow(
                     icon: Icons.music_note_outlined,
                     label: l10n.settingsAlarmDuringMission,
                     value: settings.keepAlarmDuringMission,
-                    onChanged: (_) =>
-                        context.read<SettingsCubit>().toggleKeepAlarmDuringMission(),
+                    onChanged: (v) {
+                      context
+                          .read<SettingsCubit>()
+                          .toggleKeepAlarmDuringMission();
+                      AnalyticsService.capture(
+                        AnalyticsService.settingsKeepAlarmToggled,
+                        {'enabled': v},
+                      );
+                    },
                   ),
                   const _Divider(),
                   _LinkRow(

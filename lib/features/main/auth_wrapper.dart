@@ -8,6 +8,7 @@ import '../onboarding/cubit/onboarding_cubit.dart';
 import '../onboarding/cubit/onboarding_state.dart';
 import '../onboarding/screens/onboarding_screen.dart';
 import '../settings/cubit/settings_cubit.dart';
+import '../subscription/cubit/subscription_cubit.dart';
 import 'app_gate_wrapper.dart';
 
 /// Top-level reactive auth gate. Routes between OnboardingScreen and
@@ -40,11 +41,13 @@ class AuthWrapper extends StatelessWidget {
               // Logout / fresh install — wipe device-local state, then show
               // onboarding. Fire-and-forget; safe to call repeatedly.
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                context.read<SubscriptionCubit>().resetIdentity();
                 context.read<SettingsCubit>().clearAll();
                 context.read<AlarmCubit>().cancelAllNative();
               });
               return const OnboardingScreen();
             }
+            context.read<SubscriptionCubit>().identifyUser(snap.data!.uid);
             if (ob.isInProgress) {
               return const OnboardingScreen();
             }

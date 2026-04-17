@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:levio/app.dart';
 import 'package:levio/firebase_options_dev.dart';
-import 'services/superwall_service.dart';
+import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 
 final _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -12,7 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  SuperwallService.configure();
+  Superwall.configure('pk_H0nPpphGj3awY7K1T2ngX');
 
   FirebaseFunctions.instance.useFunctionsEmulator('192.168.1.69', 5001);
 

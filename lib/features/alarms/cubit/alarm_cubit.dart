@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../services/analytics_service.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/services/history_service.dart';
 import '../data/sounds.dart';
@@ -242,6 +243,17 @@ class AlarmCubit extends Cubit<AlarmState> {
       await AlarmChannel.cancel(id);
       rethrow;
     }
+
+    final firstMission = saved.missions.isNotEmpty
+        ? saved.missions.first.type.name
+        : 'none';
+    AnalyticsService.capture(AnalyticsService.alarmCreated, {
+      'mission_type': firstMission,
+      'mission_count': saved.missions.length,
+      'is_one_time': saved.isOneTime,
+      'repeats': saved.repeatDays.where((d) => d).length,
+      'sound_id': saved.soundId,
+    });
   }
 
   Future<void> toggleAlarm(String id, bool enabled) async {
@@ -298,6 +310,11 @@ class AlarmCubit extends Cubit<AlarmState> {
         rethrow;
       }
     }
+
+    AnalyticsService.capture(
+      AnalyticsService.alarmToggled,
+      {'enabled': enabled},
+    );
   }
 
   Future<void> editAlarm(AppAlarmEntry old, AppAlarmEntry updated) async {
@@ -332,6 +349,8 @@ class AlarmCubit extends Cubit<AlarmState> {
       emit(state.copyWith(alarms: previousAlarms));
       rethrow;
     }
+
+    AnalyticsService.capture(AnalyticsService.alarmUpdated);
   }
 
   Future<void> removeAlarm(String id) async {
@@ -356,6 +375,9 @@ class AlarmCubit extends Cubit<AlarmState> {
     } catch (e) {
       debugPrint('Error cancelling/cleaning up alarm with id $id: $e');
     }
+
+    AnalyticsService.capture(AnalyticsService.alarmDeleted, {'alarm_id': id});
+    AnalyticsService.capture(AnalyticsService.alarmStopped, {'alarm_id': id});
   }
 
   /// Schedules a native alarm, choosing one-shot or recurrent based on the
