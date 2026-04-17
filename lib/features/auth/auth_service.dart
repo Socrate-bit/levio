@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-import 'analytics_service.dart';
+import '../subscription/services/analytics_service.dart';
 
 class AuthService {
   static final _auth = FirebaseAuth.instance;
