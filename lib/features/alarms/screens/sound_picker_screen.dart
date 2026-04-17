@@ -20,6 +20,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
   String? _playingId;
   final _player = AudioPlayer();
   List<CustomSoundItem> _customSounds = [];
+  bool _isPickingFile = false;
 
   @override
   void initState() {
@@ -40,6 +41,10 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
 
   /// Pick an audio file, copy it to app storage, and refresh the list.
   Future<void> _uploadSound() async {
+    // Guard against rapid double taps triggering a second pickFiles call while
+    // the first picker dialog is still open (native throws multiple_request).
+    if (_isPickingFile) return;
+    _isPickingFile = true;
     final FilePickerResult? result;
     try {
       result = await FilePicker.pickFiles(
@@ -49,6 +54,8 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
     } catch (e) {
       debugPrint('[SoundPickerScreen] file pick failed: $e');
       return;
+    } finally {
+      _isPickingFile = false;
     }
     if (result == null || result.files.single.path == null) return;
 

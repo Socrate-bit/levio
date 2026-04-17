@@ -55,6 +55,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   String? _sttLocaleId;
   final _startTime = DateTime.now();
   late String _targetText;
+  bool _targetTextInitialized = false;
   int _completedCount = 0;
   String? _missionSnoozeId;
   bool _keepRinging = false;
@@ -73,10 +74,20 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   @override
   void initState() {
     super.initState();
-    _targetText = _randomPhrase();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _initSpeech();
     if (widget.manageAlarm && !widget.isPreview) _initAlarm();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pick the initial phrase here (not initState) because _randomPhrase reads
+    // Localizations.localeOf(context), which requires dependencies to be set.
+    if (!_targetTextInitialized) {
+      _targetText = _randomPhrase();
+      _targetTextInitialized = true;
+    }
   }
 
   Future<void> _initAlarm() async {

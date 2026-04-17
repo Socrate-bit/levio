@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +13,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  Superwall.configure('pk_H0nPpphGj3awY7K1T2ngX');
+
+  // Match paywall locale to the device locale (e.g. "en_US", "fr_FR").
+  final options = SuperwallOptions()..localeIdentifier = Platform.localeName;
+  Superwall.configure('pk_H0nPpphGj3awY7K1T2ngX', options: options);
 
   runApp(LevioApp(navigatorKey: _navigatorKey));
 }
