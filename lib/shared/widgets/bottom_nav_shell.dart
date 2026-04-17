@@ -10,6 +10,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/insights/screens/insights_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
+import '../../services/analytics_service.dart';
 
 class BottomNavShell extends StatefulWidget {
   final int initialIndex;
@@ -31,9 +32,18 @@ class BottomNavShellState extends State<BottomNavShell> {
     _index = widget.initialIndex;
   }
 
-  void navigateTo(int index) {
+  static const _tabNames = ['home', 'insights', 'settings'];
+
+  void _selectTab(int index) {
+    if (index == _index) return;
     setState(() => _index = index);
+    AnalyticsService.capture(
+      AnalyticsService.navTabSelected,
+      {'tab': _tabNames[index], 'index': index},
+    );
   }
+
+  void navigateTo(int index) => _selectTab(index);
 
   void _openAlarmForm(BuildContext context) {
     Navigator.push(
@@ -66,7 +76,7 @@ class BottomNavShellState extends State<BottomNavShell> {
             Expanded(
               child: LiquidGlassBar(
                 currentIndex: _index,
-                onTap: withHapticValue((int i) => setState(() => _index = i))!,
+                onTap: withHapticValue(_selectTab)!,
                 style: LiquidGlassBarStyle(
                   activeColor: AppColors.orange,
                   inactiveColor: c.textSecondary,

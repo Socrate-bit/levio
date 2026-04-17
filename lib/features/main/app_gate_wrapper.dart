@@ -25,8 +25,6 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
   @override
   void initState() {
     super.initState();
-    final subCubit = context.read<SubscriptionCubit>();
-    subCubit.loadUserType();
     AlarmService.listenForRing(
       widget.navigatorKey,
       canDismiss: () => context.read<SubscriptionCubit>().state.hasAccess,

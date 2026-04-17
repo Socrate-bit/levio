@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../services/analytics_service.dart';
 import '../../../services/auth_service.dart';
 import '../../missions/models/mission.dart';
 import '../models/wakeup_session.dart';
@@ -32,6 +33,11 @@ class HistoryService {
     );
     final docId = now.millisecondsSinceEpoch.toString();
     await _sessions.doc(docId).set(session.toFirestore());
+    AnalyticsService.capture(AnalyticsService.alarmRingStarted, {
+      'alarm_id': alarmId,
+      'mission_type': missionType?.name ?? 'none',
+      'sound_id': soundId,
+    });
     return docId;
   }
 
@@ -39,6 +45,7 @@ class HistoryService {
   static Future<void> completeSession(
     String sessionId, {
     required int timeTakenSeconds,
+    MissionType? missionType,
   }) async {
     await _sessions.doc(sessionId).update({
       'completed': true,
@@ -48,6 +55,19 @@ class HistoryService {
       {'totalWakeups': FieldValue.increment(1)},
       SetOptions(merge: true),
     );
+    final props = <String, Object>{
+      'time_taken_seconds': timeTakenSeconds,
+      'mission_type': missionType?.name ?? 'none',
+      'completed': true,
+    };
+    AnalyticsService.capture(AnalyticsService.alarmRingDismissed, props);
+    AnalyticsService.capture(AnalyticsService.sessionSaved, props);
+    if (missionType != null && missionType != MissionType.none) {
+      AnalyticsService.capture(AnalyticsService.missionCompleted, {
+        'type': missionType.name,
+        'duration_ms': timeTakenSeconds * 1000,
+      });
+    }
   }
 
   /// Creates a missed session (completed: false) for an alarm that was never dismissed.
@@ -68,6 +88,11 @@ class HistoryService {
     );
     final docId = timestamp.millisecondsSinceEpoch.toString();
     await _sessions.doc(docId).set(session.toFirestore());
+    AnalyticsService.capture(AnalyticsService.sessionSaved, {
+      'alarm_id': alarmId,
+      'mission_type': missionType?.name ?? 'none',
+      'completed': false,
+    });
     return docId;
   }
 

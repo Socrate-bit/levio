@@ -56,6 +56,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
         await HistoryService.completeSession(
           session.id,
           timeTakenSeconds: widget.timeTakenSeconds,
+          missionType: widget.missionType,
         );
       }
 

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../services/analytics_service.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/referral_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
@@ -20,44 +21,80 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   void startOnboarding() {
     if (state.isInProgress) return;
     emit(state.copyWith(isInProgress: true));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'start'},
+    );
   }
 
   /// Marks the onboarding flow as finished. Called at the end of the trial
   /// reminder step. AuthWrapper then routes to AppGateWrapper.
   void finishOnboarding() {
     emit(state.copyWith(isInProgress: false, isComplete: true));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'finish'},
+    );
   }
 
   void answerSurvey(String key, String value) {
     emit(state.copyWith(
       surveyAnswers: {...state.surveyAnswers, key: value},
     ));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'survey_$key', 'value': value},
+    );
   }
 
   void setUsualWakeTime(TimeOfDay time) {
     emit(state.copyWith(usualWakeTime: time));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'usual_wake_time'},
+    );
   }
 
   void setIdealWakeTime(TimeOfDay time) {
     emit(state.copyWith(idealWakeTime: time, alarmTime: time));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'ideal_wake_time'},
+    );
   }
 
   void setAlarmTime(TimeOfDay time) {
     emit(state.copyWith(alarmTime: time));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'alarm_time'},
+    );
   }
 
   void setMission(MissionType mission) {
     emit(state.copyWith(selectedMission: mission));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'mission', 'mission': mission.name},
+    );
   }
 
   void setSound(String id, String name) {
     emit(state.copyWith(soundId: id, soundName: name));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'sound', 'sound_id': id},
+    );
   }
 
   void toggleDay(int index) {
     final days = List<bool>.from(state.repeatDays);
     days[index] = !days[index];
     emit(state.copyWith(repeatDays: days));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'toggle_day', 'day_index': index, 'enabled': days[index]},
+    );
   }
 
   void setReferralCode(String code) {
@@ -161,6 +198,6 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         debugPrint('[OnboardingCubit] referral redeem failed: $e');
       }
     }
-    await subscriptionCubit.loadUserType();
+    await subscriptionCubit.refreshUserType();
   }
 }

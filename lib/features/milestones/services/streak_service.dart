@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../features/alarms/services/alarm_firestore_service.dart';
 import '../../../features/missions/models/mission.dart';
+import '../../../services/analytics_service.dart';
 import '../../../services/auth_service.dart';
 import '../../../features/wakeup/models/wakeup_session.dart';
 import '../../../features/wakeup/services/history_service.dart';
@@ -195,6 +196,19 @@ class StreakService {
       'usedSoundIds': updatedSounds,
       'usedMissionTypeNames': updatedMissions,
     }, SetOptions(merge: true));
+
+    if (newStreak > profile.currentStreak) {
+      AnalyticsService.capture(
+        AnalyticsService.streakMilestone,
+        {'days': newStreak},
+      );
+    }
+    for (final badge in newlyEarned) {
+      AnalyticsService.capture(
+        AnalyticsService.badgeEarned,
+        {'badge_id': badge.id},
+      );
+    }
 
     return WakeupResult(newStreak: newStreak, newlyEarnedBadges: newlyEarned);
   }
