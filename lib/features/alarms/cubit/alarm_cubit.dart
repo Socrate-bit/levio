@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../missions/models/mission.dart';
-import '../../missions/models/mission_config.dart';
 import '../../wakeup/services/history_service.dart';
 import '../data/sounds.dart';
 import '../services/alarm_channel.dart';
@@ -12,25 +9,36 @@ import '../services/alarm_firestore_service.dart';
 import 'alarm_state.dart';
 
 class AlarmCubit extends Cubit<AlarmState> {
-  final Completer<void> _ready = Completer<void>();
-
   AlarmCubit() : super(const AlarmState()) {
     _init();
   }
 
+  /// Constructor-side init: only request native AlarmKit authorization.
+  /// Firestore reconciliation lives in [sync] and is gated by access in
+  /// AppGateWrapper.
   Future<void> _init() async {
     try {
       await AlarmChannel.requestAuthorization();
-      await _syncAlarms();
-      await _markMissedAlarms();
-    } finally {
-      _ready.complete();
+    } catch (e) {
+      debugPrint('[AlarmCubit] requestAuthorization failed: $e');
     }
   }
 
-  /// Restores alarms from Firestore (source of truth) and reschedules any
-  /// that are no longer registered in the native alarm system.
-  Future<void> _syncAlarms() async {
+  /// Restores alarms from Firestore (source of truth), reschedules missing
+  /// native alarms, cancels orphans, and creates missed-session entries.
+  /// Only call when the user has access to gated features.
+  Future<void> sync() async {
+    if (state.isLoading) return;
+    emit(state.copyWith(isLoading: true));
+    try {
+      await _reconcileWithNative();
+      await _markMissedAlarms();
+    } finally {
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
+  Future<void> _reconcileWithNative() async {
     final results = await Future.wait([
       AlarmFirestoreService.getAlarms(),
       AlarmChannel.getAlarmIds(),
@@ -68,7 +76,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         resolved.add(rescheduled);
       } catch (e) {
         debugPrint(
-          '[AlarmCubit] _syncAlarms reschedule failed for ${alarm.id}: $e',
+          '[AlarmCubit] sync reschedule failed for ${alarm.id}: $e',
         );
         resolved.add(alarm);
       }
@@ -101,6 +109,26 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
 
     emit(state.copyWith(alarms: resolved));
+  }
+
+  /// Cancels every native alarm (and snoozes) and clears the in-memory list.
+  /// Used on logout — does not touch Firestore (data stays scoped to that uid).
+  Future<void> cancelAllNative() async {
+    try {
+      final nativeIds = await AlarmChannel.getAlarmIds();
+      for (final id in nativeIds) {
+        try {
+          await AlarmChannel.cancelSnoozesForAlarm(id);
+          await AlarmChannel.cancel(id);
+          await AlarmChannel.cleanupConfig(id);
+        } catch (e) {
+          debugPrint('[AlarmCubit] cancelAllNative failed for $id: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('[AlarmCubit] cancelAllNative getAlarmIds failed: $e');
+    }
+    emit(state.copyWith(alarms: const []));
   }
 
   /// Creates missed sessions for enabled alarms that should have fired but
@@ -388,8 +416,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   /// Disables all enabled alarms because the user lost their subscription.
   Future<void> disableAllForSubscription() async {
-    await _ready.future;
-    final enabledAlarms = state.alarms.where((a) => a.isEnabled).toList();
+final enabledAlarms = state.alarms.where((a) => a.isEnabled).toList();
     if (enabledAlarms.isEmpty) return;
 
     // Optimistic: mark all as disabled in one emit
@@ -419,8 +446,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   /// Re-enables alarms that were auto-disabled by a subscription lapse.
   Future<void> restoreSubscriptionDisabled() async {
-    await _ready.future;
-    final toRestore =
+final toRestore =
         state.alarms.where((a) => a.disabledBySubscription).toList();
     if (toRestore.isEmpty) return;
 

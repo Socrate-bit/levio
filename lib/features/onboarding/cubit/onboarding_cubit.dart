@@ -6,13 +6,27 @@ import '../../../services/auth_service.dart';
 import '../../../services/referral_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
-import '../../auth/cubit/auth_cubit.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
+import '../../subscription/cubit/subscription_cubit.dart';
 import 'onboarding_state.dart';
 
 class OnboardingCubit extends Cubit<OnboardingState> {
   OnboardingCubit() : super(const OnboardingState());
+
+  /// Marks the onboarding flow as in progress. Called when the user commits
+  /// to the build-plan flow (e.g. on the welcome screen). AuthWrapper uses
+  /// this to keep showing OnboardingScreen across reactive auth changes.
+  void startOnboarding() {
+    if (state.isInProgress) return;
+    emit(state.copyWith(isInProgress: true));
+  }
+
+  /// Marks the onboarding flow as finished. Called at the end of the trial
+  /// reminder step. AuthWrapper then routes to AppGateWrapper.
+  void finishOnboarding() {
+    emit(state.copyWith(isInProgress: false, isComplete: true));
+  }
 
   void answerSurvey(String key, String value) {
     emit(state.copyWith(
@@ -70,9 +84,12 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     }
   }
 
+  /// Saves the configured alarm, redeems any validated referral code, and
+  /// refreshes the user's type. Does NOT flip [isInProgress]; call
+  /// [finishOnboarding] after the post-signin steps (paywall, trial reminder).
   Future<void> completeOnboarding(
     AlarmCubit alarmCubit,
-    AuthCubit authCubit,
+    SubscriptionCubit subscriptionCubit,
   ) async {
     final alarmTime = state.alarmTime ?? state.targetTime;
     final now = DateTime.now();
@@ -105,16 +122,16 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       debugPrint('[OnboardingCubit] alarm creation failed: $e');
     }
 
-    // Save survey data + onboarding complete flag to Firestore (only if logged in)
+    // Persist survey answers + onboarding metadata to Firestore.
     final uid = AuthService.uidOrNull;
     if (uid != null) {
       try {
         final keepRinging = state.surveyAnswers['alarmDuringMission'] ==
             'Keep alarm ringing while completing the mission.';
-        final data = {
+        final data = <String, dynamic>{
           ...state.surveyAnswers,
           'alarmTime': '${alarmTime.hour}:${alarmTime.minute}',
-          'mission': (state.selectedMission ?? MissionType.pushUps).name,
+          'mission': selectedMission.name,
           'soundId': state.soundId,
           'repeatDays': state.repeatDays,
           'keepAlarmDuringMission': keepRinging,
@@ -144,8 +161,6 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         debugPrint('[OnboardingCubit] referral redeem failed: $e');
       }
     }
-    await authCubit.loadUserType();
-
-    emit(state.copyWith(isComplete: true));
+    await subscriptionCubit.loadUserType();
   }
 }

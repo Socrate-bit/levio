@@ -4,8 +4,8 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
-import '../../auth/cubit/auth_cubit.dart';
-import '../../auth/cubit/auth_state.dart';
+import '../../subscription/cubit/subscription_cubit.dart';
+import '../../subscription/cubit/subscription_state.dart';
 
 /// Dialog for entering a referral code from the settings screen.
 class ReferralCodeDialog extends StatefulWidget {
@@ -28,7 +28,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    return BlocConsumer<AuthCubit, AuthState>(
+    return BlocConsumer<SubscriptionCubit, SubscriptionState>(
       listenWhen: (prev, curr) => prev.redeemStatus != curr.redeemStatus,
       listener: (context, state) {
         if (state.redeemStatus == ReferralRedeemStatus.success) {
@@ -46,7 +46,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
               ),
             ),
           );
-          context.read<AuthCubit>().clearRedeemStatus();
+          context.read<SubscriptionCubit>().clearRedeemStatus();
         }
       },
       builder: (context, state) {
@@ -100,7 +100,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
               onPressed: isSubmitting
                   ? null
                   : withHaptic(() {
-                      context.read<AuthCubit>().clearRedeemStatus();
+                      context.read<SubscriptionCubit>().clearRedeemStatus();
                       Navigator.of(context).pop();
                     }),
               child: Text(l10n.referralCancel, style: TextStyle(color: c.textSecondary)),
@@ -109,7 +109,7 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
               onPressed: isSubmitting
                   ? null
                   : withHaptic(() => context
-                      .read<AuthCubit>()
+                      .read<SubscriptionCubit>()
                       .redeemReferralCode(_controller.text)),
               child: isSubmitting
                   ? const SizedBox(

@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -28,24 +26,6 @@ class AuthService {
   static String? get uidOrNull => _auth.currentUser?.uid;
 
   static Stream<User?> get authStateChanges => _auth.authStateChanges();
-
-  /// Checks Firestore for onboardingComplete flag on the current user.
-  static Future<bool> checkOnboardingComplete() async {
-    final user = _auth.currentUser;
-    if (user == null) return false;
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('meta')
-          .doc('onboarding')
-          .get();
-      return doc.exists && doc.data()?['onboardingComplete'] == true;
-    } catch (e) {
-      debugPrint('[AuthService] onboarding check failed: $e');
-      return false;
-    }
-  }
 
   static Future<void> _ensureGoogleInitialized() async {
     if (_googleInitialized) return;

@@ -63,4 +63,18 @@ class SettingsCubit extends Cubit<SettingsState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_defaultMissionKey, type.name);
   }
+
+  /// Wipes all persisted settings and resets state to defaults. Called on
+  /// logout so the next account starts from a clean slate.
+  Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await Future.wait([
+      prefs.remove(_themeKey),
+      prefs.remove(_keepAlarmKey),
+      prefs.remove(_defaultSoundIdKey),
+      prefs.remove(_defaultSoundNameKey),
+      prefs.remove(_defaultMissionKey),
+    ]);
+    emit(const SettingsState());
+  }
 }

@@ -1622,6 +1622,36 @@ abstract class AppLocalizations {
   /// **'Delete All Alarms'**
   String get settingsDeleteAllAlarms;
 
+  /// No description provided for @settingsLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get settingsLogout;
+
+  /// No description provided for @settingsLogoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get settingsLogoutTitle;
+
+  /// No description provided for @settingsLogoutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be signed out of this device. Local settings and scheduled alarms will be cleared.'**
+  String get settingsLogoutBody;
+
+  /// No description provided for @settingsLogoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get settingsLogoutConfirm;
+
+  /// No description provided for @settingsLogoutCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get settingsLogoutCancel;
+
   /// No description provided for @settingsVersion.
   ///
   /// In en, this message translates to:

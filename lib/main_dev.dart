@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:levio/app.dart';
 import 'package:levio/firebase_options_dev.dart';
-import 'services/auth_service.dart';
 import 'services/superwall_service.dart';
 
 final _navigatorKey = GlobalKey<NavigatorState>();
@@ -17,9 +16,5 @@ void main() async {
 
   FirebaseFunctions.instance.useFunctionsEmulator('192.168.1.69', 5001);
 
-  // Check if user is logged in and has completed onboarding
-  final showOnboarding =
-      !AuthService.isLoggedIn || !(await AuthService.checkOnboardingComplete());
-
-  runApp(LevioApp(navigatorKey: _navigatorKey, showOnboarding: showOnboarding));
+  runApp(LevioApp(navigatorKey: _navigatorKey));
 }
