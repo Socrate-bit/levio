@@ -35,7 +35,7 @@ class AuthService {
 
   static String? get uidOrNull => _auth.currentUser?.uid;
 
-  static Stream<User?> get authStateChanges => _auth.authStateChanges();
+  static final Stream<User?> authStateChanges = _auth.authStateChanges();
 
   static Future<void> _ensureGoogleInitialized() async {
     if (_googleInitialized) return;
