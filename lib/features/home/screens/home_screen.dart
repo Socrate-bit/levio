@@ -12,7 +12,7 @@ import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
 import '../../../shared/theme/app_theme.dart';
-import '../../../shared/widgets/bottom_nav_shell.dart';
+import '../../../shared/bottom_nav_shell.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 

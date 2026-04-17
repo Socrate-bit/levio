@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
-import '../../../services/auth_service.dart';
+import '../../auth/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 

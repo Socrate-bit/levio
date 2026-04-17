@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
+import '../../../shared/theme/app_theme.dart';
 
 /// Centered Levio logo + brand name header for screen tops.
 class LevioBrandHeader extends StatelessWidget {

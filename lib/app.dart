@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:levio/features/main/auth_wrapper.dart';
+import 'package:levio/features/auth/auth_wrapper.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import 'features/alarms/cubit/alarm_cubit.dart';

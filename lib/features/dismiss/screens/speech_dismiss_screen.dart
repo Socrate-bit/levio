@@ -14,7 +14,7 @@ import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
-import '../../../shared/widgets/levio_brand_header.dart';
+import '../widgets/levio_brand_header.dart';
 
 class SpeechDismissScreen extends StatefulWidget {
   final String alarmId;

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:levio/app.dart';
 import 'package:levio/firebase_options.dart';
-import 'services/superwall_service.dart';
+import 'features/subscription/services/superwall_service.dart';
 
 final _navigatorKey = GlobalKey<NavigatorState>();
 

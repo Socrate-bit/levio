@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 
-import '../alarms/cubit/alarm_cubit.dart';
-import '../alarms/cubit/alarm_state.dart';
-import '../alarms/services/alarm_service.dart';
-import '../subscription/cubit/subscription_cubit.dart';
-import '../subscription/cubit/subscription_state.dart';
-import '../../shared/widgets/bottom_nav_shell.dart';
+import '../../alarms/cubit/alarm_cubit.dart';
+import '../../alarms/cubit/alarm_state.dart';
+import '../../alarms/services/alarm_service.dart';
+import '../cubit/subscription_cubit.dart';
+import '../cubit/subscription_state.dart';
+import '../../../shared/bottom_nav_shell.dart';
 
 /// Subscription gate. Loads user_type once, drives [AlarmCubit.sync] only
 /// when the user has access, and renders BottomNavShell — wrapped in a

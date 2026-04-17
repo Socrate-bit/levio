@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:liquid_glass_bar/liquid_glass_bar.dart';
-import '../theme/app_theme.dart';
-import '../utils/haptic_utils.dart';
+import 'theme/app_theme.dart';
+import 'utils/haptic_utils.dart';
 import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
 import 'package:levio/features/alarms/screens/alarm_form_screen.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
-import '../../features/home/screens/home_screen.dart';
-import '../../features/insights/screens/insights_screen.dart';
-import '../../features/settings/screens/settings_screen.dart';
+import '../features/home/screens/home_screen.dart';
+import '../features/insights/screens/insights_screen.dart';
+import '../features/settings/screens/settings_screen.dart';
 
 class BottomNavShell extends StatefulWidget {
   final int initialIndex;

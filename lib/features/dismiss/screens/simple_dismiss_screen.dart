@@ -7,7 +7,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../alarms/services/alarm_channel.dart';
 import '../../wakeup/services/history_service.dart';
 import '../../../shared/theme/app_theme.dart';
-import '../../../shared/widgets/levio_brand_header.dart';
+import '../widgets/levio_brand_header.dart';
 
 class SimpleDismissScreen extends StatefulWidget {
   final String alarmId;

@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 
-import '../../../services/auth_service.dart';
-import '../../../services/referral_service.dart';
+import '../../auth/auth_service.dart';
+import '../services/referral_service.dart';
 import 'subscription_state.dart';
 
 /// Owns subscription gate state (Superwall stream) plus user type / referral
