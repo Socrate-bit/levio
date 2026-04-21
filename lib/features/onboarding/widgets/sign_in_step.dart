@@ -9,6 +9,7 @@ class SignInStep extends StatefulWidget {
   final VoidCallback onSkip;
   final VoidCallback? onSignInComplete;
   final bool showSkip;
+  final bool blockNewAccounts;
   final String title;
   final String subtitle;
 
@@ -17,6 +18,7 @@ class SignInStep extends StatefulWidget {
     required this.onSkip,
     this.onSignInComplete,
     this.showSkip = true,
+    this.blockNewAccounts = false,
     this.title = 'Create your account',
     this.subtitle = 'Save your progress and sync your plan.',
   });
@@ -46,8 +48,16 @@ class _SignInStepState extends State<SignInStep> {
   Future<void> _handleGoogleSignIn() async {
     setState(() => _loading = true);
     try {
-      await AuthService.signInWithGoogle();
+      await AuthService.signInWithGoogle(
+        blockNewAccounts: widget.blockNewAccounts,
+      );
       if (mounted) (widget.onSignInComplete ?? widget.onSkip)();
+    } on AccountNotFoundAuthException {
+      if (mounted) {
+        _showAuthSnackBar(
+          AppLocalizations.of(context).onboardingAccountNotFound,
+        );
+      }
     } catch (e) {
       debugPrint('[SignInStep] Google sign-in failed: $e');
       if (mounted) {
@@ -61,8 +71,16 @@ class _SignInStepState extends State<SignInStep> {
   Future<void> _handleAppleSignIn() async {
     setState(() => _loading = true);
     try {
-      await AuthService.signInWithApple();
+      await AuthService.signInWithApple(
+        blockNewAccounts: widget.blockNewAccounts,
+      );
       if (mounted) (widget.onSignInComplete ?? widget.onSkip)();
+    } on AccountNotFoundAuthException {
+      if (mounted) {
+        _showAuthSnackBar(
+          AppLocalizations.of(context).onboardingAccountNotFound,
+        );
+      }
     } catch (e) {
       debugPrint('[SignInStep] Apple sign-in failed: $e');
       if (mounted) {

@@ -10,6 +10,12 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../subscription/services/analytics_service.dart';
 
+/// Thrown when [blockNewAccounts] is set and the OAuth credential
+/// did not match any existing Firebase user.
+class AccountNotFoundAuthException implements Exception {
+  const AccountNotFoundAuthException();
+}
+
 class AuthService {
   static final _auth = FirebaseAuth.instance;
   static bool _googleInitialized = false;
@@ -38,7 +44,9 @@ class AuthService {
     _googleInitialized = true;
   }
 
-  static Future<UserCredential> signInWithGoogle() async {
+  static Future<UserCredential> signInWithGoogle({
+    bool blockNewAccounts = false,
+  }) async {
     await _ensureGoogleInitialized();
 
     final account = await GoogleSignIn.instance.authenticate();
@@ -46,11 +54,14 @@ class AuthService {
 
     final credential = GoogleAuthProvider.credential(idToken: idToken);
     final result = await _auth.signInWithCredential(credential);
+    await _enforceExistingAccount(result, blockNewAccounts);
     AnalyticsService.capture(AnalyticsService.signIn, {'method': 'google'});
     return result;
   }
 
-  static Future<UserCredential> signInWithApple() async {
+  static Future<UserCredential> signInWithApple({
+    bool blockNewAccounts = false,
+  }) async {
     final rawNonce = _generateNonce();
     final nonce = _sha256ofString(rawNonce);
 
@@ -68,8 +79,27 @@ class AuthService {
     );
 
     final result = await _auth.signInWithCredential(oauthCredential);
+    await _enforceExistingAccount(result, blockNewAccounts);
     AnalyticsService.capture(AnalyticsService.signIn, {'method': 'apple'});
     return result;
+  }
+
+  /// If [block] is true and Firebase just provisioned a new account, undo it
+  /// (delete the user, then sign out as a fallback) and throw
+  /// [AccountNotFoundAuthException] so the UI can surface a "no account" error.
+  static Future<void> _enforceExistingAccount(
+    UserCredential result,
+    bool block,
+  ) async {
+    if (!block) return;
+    if (result.additionalUserInfo?.isNewUser != true) return;
+    try {
+      await result.user?.delete();
+    } catch (e) {
+      debugPrint('[AuthService] Failed to delete orphan user: $e');
+      await _auth.signOut();
+    }
+    throw const AccountNotFoundAuthException();
   }
 
   static Future<void> signOut() async {
