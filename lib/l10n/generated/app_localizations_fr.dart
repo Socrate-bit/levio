@@ -1640,6 +1640,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingPaywallTerms => 'Conditions d\'utilisation';
 
   @override
+  String get onboardingPaywallEula => 'CLUF';
+
+  @override
   String get onboardingRatingTitle => 'Donnez-nous une note';
 
   @override

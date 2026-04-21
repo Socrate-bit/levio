@@ -49,7 +49,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildBulletSection(c, '1. Information We Collect', '', [
               'Usage data (app interactions, alarm usage patterns)',
-              'Technical data (advertising identifiers such as IDFA)',
               'Anonymous account information (Firebase anonymous auth)',
               'Alarm and session data stored in your Firestore profile',
             ]),
@@ -57,28 +56,24 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'To provide and improve alarm, mission, and analytics features',
               'To respond to user inquiries and customer support requests',
               'To send essential updates and comply with legal obligations',
-              'To display personalized advertising and measure ad performance',
             ]),
-            _buildParagraphSection(c, '3. Advertising and Tracking',
-                'Our app may use the Apple Advertising Identifier (IDFA) and integrate third-party SDKs to deliver personalized ads and measure campaign performance. This may involve tracking user interactions across apps and websites.\n\nUsers can control or revoke ad tracking permission at any time through their device settings under Settings → Privacy → Tracking.'),
-            _buildParagraphSection(c, '4. Camera, Biometric and Sensor Data',
+            _buildParagraphSection(c, '3. Camera, Biometric and Sensor Data',
                 'Levio uses your device camera and motion sensors to detect mission completion (e.g., counting exercise repetitions via pose detection, detecting phone shakes). This data is processed transiently on-device and is never stored, uploaded, or retained.\n\nWe do not collect, store, or retain any biometric or face data. While the camera may capture images during exercise missions, these frames are processed solely for real-time rep counting and are immediately discarded. No images or biometric identifiers are saved or transmitted.'),
             _buildBulletSection(
-                c, '5. AI-Processed Data', '', [
+                c, '4. AI-Processed Data', '', [
               'Certain features may use Google Gemini for processing (e.g., photo verification missions)',
               'Images sent to Gemini are processed only for the requested task and are not retained by Google or any third party',
               'No biometric data is extracted or stored during AI processing',
             ]),
-            _buildBulletSection(c, '6. Sharing of Information', '', [
+            _buildBulletSection(c, '5. Sharing of Information', '', [
               'We do not sell, rent, or share personal data with third parties',
-              'Third-party partners may collect and use identifiers (e.g., IDFA) to display relevant ads',
               'Google Gemini only processes data transiently and does not store or reuse it',
             ]),
-            _buildParagraphSection(c, '7. Data Security',
+            _buildParagraphSection(c, '6. Data Security',
                 'We use appropriate technical and organizational measures to protect all personal data against unauthorized access, alteration, loss, or misuse.'),
-            _buildParagraphSection(c, '8. Your Rights',
+            _buildParagraphSection(c, '7. Your Rights',
                 'You may request access, correction, or deletion of your personal data by contacting us directly. We respond to all verified requests in compliance with applicable privacy laws.'),
-            _buildParagraphSection(c, '9. Policy Updates',
+            _buildParagraphSection(c, '8. Policy Updates',
                 'We may update this Privacy Policy periodically. Any revisions will be posted on this page with an updated effective date.'),
             _buildContactSection(c),
             _buildDeletionSection(c),
@@ -172,7 +167,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '10. Contact Us',
+            '9. Contact Us',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -236,7 +231,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '11. Data Deletion Requests',
+            '10. Data Deletion Requests',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -258,7 +253,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 15, color: c.textSecondary)),
                 Expanded(
                   child: Text(
-                    'Use the "Delete Data" option available in the app settings, which permanently removes your data from our servers',
+                    'Use the "Delete Account" option available in the app settings, which permanently removes your data from our servers',
                     style: TextStyle(fontSize: 15, color: c.textSecondary),
                   ),
                 ),

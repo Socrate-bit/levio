@@ -3122,6 +3122,12 @@ abstract class AppLocalizations {
   /// **'Terms of Use'**
   String get onboardingPaywallTerms;
 
+  /// No description provided for @onboardingPaywallEula.
+  ///
+  /// In en, this message translates to:
+  /// **'EULA'**
+  String get onboardingPaywallEula;
+
   /// No description provided for @onboardingRatingTitle.
   ///
   /// In en, this message translates to:

@@ -1615,6 +1615,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPaywallTerms => 'Terms of Use';
 
   @override
+  String get onboardingPaywallEula => 'EULA';
+
+  @override
   String get onboardingRatingTitle => 'Give us a rating';
 
   @override

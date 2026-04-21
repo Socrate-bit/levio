@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -134,6 +135,26 @@ class PaywallStep extends StatelessWidget {
                     ),
                     child: Text(
                       l10n.onboardingPaywallTerms,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: c.textSecondary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '  \u2022  ',
+                    style: TextStyle(fontSize: 12, color: c.textSecondary),
+                  ),
+                  GestureDetector(
+                    onTap: () => launchUrl(
+                      Uri.parse(
+                        'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+                      ),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    child: Text(
+                      l10n.onboardingPaywallEula,
                       style: TextStyle(
                         fontSize: 12,
                         color: c.textSecondary,
