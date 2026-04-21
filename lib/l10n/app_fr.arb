@@ -278,6 +278,13 @@
   "settingsLogoutBody": "Vous serez déconnecté de cet appareil. Les paramètres locaux et les alarmes programmées seront effacés.",
   "settingsLogoutConfirm": "Se déconnecter",
   "settingsLogoutCancel": "Annuler",
+  "settingsDeleteAccount": "Supprimer le compte",
+  "settingsDeleteAccountTitle": "Supprimer le compte ?",
+  "settingsDeleteAccountBody": "Cette action supprime définitivement votre compte, vos alarmes, vos sessions et votre historique de séries. Elle est irréversible.",
+  "settingsDeleteAccountConfirm": "Supprimer",
+  "settingsDeleteAccountCancel": "Annuler",
+  "settingsDeleteAccountReauthRequired": "Veuillez vous reconnecter, puis réessayer de supprimer votre compte.",
+  "settingsDeleteAccountError": "Impossible de supprimer votre compte. Veuillez réessayer.",
   "settingsVersion": "Levio v0.1.0",
 
   "referralTitle": "Entrer un code de parrainage",

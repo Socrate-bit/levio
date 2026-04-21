@@ -815,6 +815,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsLogoutCancel => 'Annuler';
 
   @override
+  String get settingsDeleteAccount => 'Supprimer le compte';
+
+  @override
+  String get settingsDeleteAccountTitle => 'Supprimer le compte ?';
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'Cette action supprime définitivement votre compte, vos alarmes, vos sessions et votre historique de séries. Elle est irréversible.';
+
+  @override
+  String get settingsDeleteAccountConfirm => 'Supprimer';
+
+  @override
+  String get settingsDeleteAccountCancel => 'Annuler';
+
+  @override
+  String get settingsDeleteAccountReauthRequired =>
+      'Veuillez vous reconnecter, puis réessayer de supprimer votre compte.';
+
+  @override
+  String get settingsDeleteAccountError =>
+      'Impossible de supprimer votre compte. Veuillez réessayer.';
+
+  @override
   String get settingsVersion => 'Levio v0.1.0';
 
   @override

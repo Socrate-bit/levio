@@ -809,6 +809,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLogoutCancel => 'Cancel';
 
   @override
+  String get settingsDeleteAccount => 'Delete account';
+
+  @override
+  String get settingsDeleteAccountTitle => 'Delete account?';
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'This permanently deletes your account, alarms, sessions, and streak history. This action cannot be undone.';
+
+  @override
+  String get settingsDeleteAccountConfirm => 'Delete';
+
+  @override
+  String get settingsDeleteAccountCancel => 'Cancel';
+
+  @override
+  String get settingsDeleteAccountReauthRequired =>
+      'Please sign in again, then retry deleting your account.';
+
+  @override
+  String get settingsDeleteAccountError =>
+      'Couldn\'t delete your account. Please try again.';
+
+  @override
   String get settingsVersion => 'Levio v0.1.0';
 
   @override

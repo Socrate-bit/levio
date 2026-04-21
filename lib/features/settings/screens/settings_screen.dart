@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,6 +60,46 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
     if (confirmed == true) {
       await AuthService.signOut();
+    }
+  }
+
+  Future<void> _confirmDeleteAccount(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.settingsDeleteAccountTitle),
+        content: Text(l10n.settingsDeleteAccountBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.settingsDeleteAccountCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              l10n.settingsDeleteAccountConfirm,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await AuthService.deleteAccount();
+    } on FirebaseAuthException catch (e) {
+      debugPrint('[SettingsScreen] deleteAccount failed: ${e.code}');
+      final msg = e.code == 'requires-recent-login'
+          ? l10n.settingsDeleteAccountReauthRequired
+          : l10n.settingsDeleteAccountError;
+      messenger.showSnackBar(SnackBar(content: Text(msg)));
+    } catch (e) {
+      debugPrint('[SettingsScreen] deleteAccount failed: $e');
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsDeleteAccountError)),
+      );
     }
   }
 
@@ -294,6 +335,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                   label: l10n.settingsLogout,
                   color: Colors.red,
                   onTap: () => _confirmLogout(context),
+                ),
+                const _Divider(),
+                _ActionRow(
+                  icon: Icons.delete_forever_outlined,
+                  label: l10n.settingsDeleteAccount,
+                  color: Colors.red,
+                  onTap: () => _confirmDeleteAccount(context),
                 ),
               ]),
               const SizedBox(height: 16),

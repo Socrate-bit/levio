@@ -308,6 +308,13 @@
   "settingsLogoutBody": "You'll be signed out of this device. Local settings and scheduled alarms will be cleared.",
   "settingsLogoutConfirm": "Log out",
   "settingsLogoutCancel": "Cancel",
+  "settingsDeleteAccount": "Delete account",
+  "settingsDeleteAccountTitle": "Delete account?",
+  "settingsDeleteAccountBody": "This permanently deletes your account, alarms, sessions, and streak history. This action cannot be undone.",
+  "settingsDeleteAccountConfirm": "Delete",
+  "settingsDeleteAccountCancel": "Cancel",
+  "settingsDeleteAccountReauthRequired": "Please sign in again, then retry deleting your account.",
+  "settingsDeleteAccountError": "Couldn't delete your account. Please try again.",
   "settingsVersion": "Levio v0.1.0",
 
   "referralTitle": "Enter Referral Code",

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -107,6 +108,53 @@ class AuthService {
       await GoogleSignIn.instance.signOut();
     }
     await _auth.signOut();
+  }
+
+  /// Deletes the Firestore user document (with all known subcollections) and
+  /// the Firebase Auth account. The auth state change then triggers the
+  /// AuthWrapper cleanup (local settings, native alarms).
+  ///
+  /// May throw [FirebaseAuthException] with code `requires-recent-login` if
+  /// the user has not signed in recently — the UI should surface a re-auth
+  /// prompt in that case.
+  static Future<void> deleteAccount() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    final uid = user.uid;
+
+    await AnalyticsService.capture(AnalyticsService.accountDeleted);
+
+    await _deleteUserFirestoreData(uid);
+
+    if (_googleInitialized) {
+      try {
+        await GoogleSignIn.instance.signOut();
+      } catch (e) {
+        debugPrint('[AuthService] Google signOut during delete failed: $e');
+      }
+    }
+
+    await user.delete();
+  }
+
+  static Future<void> _deleteUserFirestoreData(String uid) async {
+    final userRef = FirebaseFirestore.instance.collection('users').doc(uid);
+    const subcollections = ['alarms', 'sessions', 'meta'];
+    for (final name in subcollections) {
+      final snap = await userRef.collection(name).get();
+      for (final doc in snap.docs) {
+        try {
+          await doc.reference.delete();
+        } catch (e) {
+          debugPrint('[AuthService] Failed to delete $name/${doc.id}: $e');
+        }
+      }
+    }
+    try {
+      await userRef.delete();
+    } catch (e) {
+      debugPrint('[AuthService] Failed to delete user doc: $e');
+    }
   }
 
   static String _generateNonce([int length = 32]) {

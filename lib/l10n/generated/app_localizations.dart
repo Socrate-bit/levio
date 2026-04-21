@@ -1652,6 +1652,48 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get settingsLogoutCancel;
 
+  /// No description provided for @settingsDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get settingsDeleteAccount;
+
+  /// No description provided for @settingsDeleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account?'**
+  String get settingsDeleteAccountTitle;
+
+  /// No description provided for @settingsDeleteAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account, alarms, sessions, and streak history. This action cannot be undone.'**
+  String get settingsDeleteAccountBody;
+
+  /// No description provided for @settingsDeleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get settingsDeleteAccountConfirm;
+
+  /// No description provided for @settingsDeleteAccountCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get settingsDeleteAccountCancel;
+
+  /// No description provided for @settingsDeleteAccountReauthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in again, then retry deleting your account.'**
+  String get settingsDeleteAccountReauthRequired;
+
+  /// No description provided for @settingsDeleteAccountError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete your account. Please try again.'**
+  String get settingsDeleteAccountError;
+
   /// No description provided for @settingsVersion.
   ///
   /// In en, this message translates to:

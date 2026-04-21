@@ -29,6 +29,7 @@ class AnalyticsService {
   // Auth
   static const signIn = 'sign_in';
   static const signOut = 'sign_out';
+  static const accountDeleted = 'account_deleted';
 
   // Alarms
   static const alarmCreated = 'alarm_created';
