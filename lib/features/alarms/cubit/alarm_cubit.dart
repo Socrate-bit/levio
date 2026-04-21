@@ -43,21 +43,25 @@ class AlarmCubit extends Cubit<AlarmState> {
       debugPrint('      isOneShot      : ${native['isOneShot']}');
       if (native['timestampMs'] != null) {
         final dt = DateTime.fromMillisecondsSinceEpoch(
-            (native['timestampMs'] as double).toInt());
+          (native['timestampMs'] as double).toInt(),
+        );
         debugPrint('      scheduledAt    : $dt');
       }
       if (native['weekdayMask'] != null) {
         debugPrint(
-            '      weekdayMask    : ${native['weekdayMask']}  hour=${native['hour']}  minute=${native['minute']}');
+          '      weekdayMask    : ${native['weekdayMask']}  hour=${native['hour']}  minute=${native['minute']}',
+        );
       }
 
       final match = flutterAlarms.where((a) => a.id == id).firstOrNull;
       if (match != null) {
         debugPrint(
-            '      [Flutter] name       : ${match.name.isEmpty ? "(no name)" : match.name}');
+          '      [Flutter] name       : ${match.name.isEmpty ? "(no name)" : match.name}',
+        );
         debugPrint('      [Flutter] enabled    : ${match.isEnabled}');
         debugPrint(
-            '      [Flutter] missions   : ${match.missions.map((m) => m.type.name).toList()}');
+          '      [Flutter] missions   : ${match.missions.map((m) => m.type.name).toList()}',
+        );
         debugPrint('      [Flutter] sound      : ${match.soundId}');
         debugPrint('      [Flutter] repeatDays : ${match.repeatDays}');
       } else {
@@ -137,9 +141,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         await AlarmFirestoreService.saveAlarm(rescheduled);
         resolved.add(rescheduled);
       } catch (e) {
-        debugPrint(
-          '[AlarmCubit] sync reschedule failed for ${alarm.id}: $e',
-        );
+        debugPrint('[AlarmCubit] sync reschedule failed for ${alarm.id}: $e');
         resolved.add(alarm);
       }
     }
@@ -215,8 +217,11 @@ class AlarmCubit extends Cubit<AlarmState> {
 
         // Don't look back further than the alarm's creation date.
         final lookbackStart = alarm.createdAt.isAfter(sevenDaysAgo)
-            ? DateTime(alarm.createdAt.year, alarm.createdAt.month,
-                alarm.createdAt.day)
+            ? DateTime(
+                alarm.createdAt.year,
+                alarm.createdAt.month,
+                alarm.createdAt.day,
+              )
             : sevenDaysAgo;
 
         // One-time alarm in the past with no session → missed.
@@ -243,21 +248,31 @@ class AlarmCubit extends Cubit<AlarmState> {
         final hour = alarm.dateTime.hour;
         final minute = alarm.dateTime.minute;
 
-        for (var day = lookbackStart;
-            day.isBefore(now);
-            day = day.add(const Duration(days: 1))) {
+        for (
+          var day = lookbackStart;
+          day.isBefore(now);
+          day = day.add(const Duration(days: 1))
+        ) {
           final repeatIndex = day.weekday == 7 ? 0 : day.weekday;
           if (!alarm.repeatDays[repeatIndex]) continue;
 
-          final expectedFire = DateTime(day.year, day.month, day.day, hour, minute);
+          final expectedFire = DateTime(
+            day.year,
+            day.month,
+            day.day,
+            hour,
+            minute,
+          );
           if (!expectedFire.isBefore(now)) continue;
 
           final dayStart = DateTime(day.year, day.month, day.day);
           final dayEnd = dayStart.add(const Duration(days: 1));
-          final hasSession = recentSessions.any((s) =>
-              s.alarmId == alarm.id &&
-              s.timestamp.isAfter(dayStart) &&
-              s.timestamp.isBefore(dayEnd));
+          final hasSession = recentSessions.any(
+            (s) =>
+                s.alarmId == alarm.id &&
+                s.timestamp.isAfter(dayStart) &&
+                s.timestamp.isBefore(dayEnd),
+          );
           if (hasSession) continue;
 
           await HistoryService.createMissedSession(
@@ -351,8 +366,10 @@ class AlarmCubit extends Cubit<AlarmState> {
         createdAt: now,
       );
       final newId = await _scheduleNative(toSchedule);
-      final rescheduled =
-          toSchedule.copyWith(id: newId, disabledBySubscription: false);
+      final rescheduled = toSchedule.copyWith(
+        id: newId,
+        disabledBySubscription: false,
+      );
 
       emit(
         state.copyWith(
@@ -372,10 +389,9 @@ class AlarmCubit extends Cubit<AlarmState> {
       }
     }
 
-    AnalyticsService.capture(
-      AnalyticsService.alarmToggled,
-      {'enabled': enabled},
-    );
+    AnalyticsService.capture(AnalyticsService.alarmToggled, {
+      'enabled': enabled,
+    });
   }
 
   Future<void> editAlarm(AppAlarmEntry old, AppAlarmEntry updated) async {
@@ -385,9 +401,7 @@ class AlarmCubit extends Cubit<AlarmState> {
     await AlarmChannel.cleanupConfig(old.id);
 
     final toSchedule = updated.copyWith(
-      dateTime: kDebugMode
-          ? DateTime.now().add(const Duration(seconds: 5))
-          : _nextFutureDay(updated.dateTime),
+      dateTime: _nextFutureDay(updated.dateTime),
     );
 
     final newId = await _scheduleNative(toSchedule);
@@ -499,7 +513,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   /// Disables all enabled alarms because the user lost their subscription.
   Future<void> disableAllForSubscription() async {
-final enabledAlarms = state.alarms.where((a) => a.isEnabled).toList();
+    final enabledAlarms = state.alarms.where((a) => a.isEnabled).toList();
     if (enabledAlarms.isEmpty) return;
 
     // Optimistic: mark all as disabled in one emit
@@ -510,27 +524,32 @@ final enabledAlarms = state.alarms.where((a) => a.isEnabled).toList();
     emit(state.copyWith(alarms: updated));
 
     for (final alarm in enabledAlarms) {
-      final disabled =
-          alarm.copyWith(isEnabled: false, disabledBySubscription: true);
+      final disabled = alarm.copyWith(
+        isEnabled: false,
+        disabledBySubscription: true,
+      );
       try {
         await AlarmFirestoreService.saveAlarm(disabled);
       } catch (e) {
         debugPrint(
-            '[AlarmCubit] disableAllForSubscription save failed ${alarm.id}: $e');
+          '[AlarmCubit] disableAllForSubscription save failed ${alarm.id}: $e',
+        );
       }
       try {
         await AlarmChannel.cancel(alarm.id);
       } catch (e) {
         debugPrint(
-            '[AlarmCubit] disableAllForSubscription cancel failed ${alarm.id}: $e');
+          '[AlarmCubit] disableAllForSubscription cancel failed ${alarm.id}: $e',
+        );
       }
     }
   }
 
   /// Re-enables alarms that were auto-disabled by a subscription lapse.
   Future<void> restoreSubscriptionDisabled() async {
-final toRestore =
-        state.alarms.where((a) => a.disabledBySubscription).toList();
+    final toRestore = state.alarms
+        .where((a) => a.disabledBySubscription)
+        .toList();
     if (toRestore.isEmpty) return;
 
     final updatedAlarms = List<AppAlarmEntry>.from(state.alarms);
@@ -553,7 +572,8 @@ final toRestore =
         await AlarmFirestoreService.saveAlarm(rescheduled);
       } catch (e) {
         debugPrint(
-            '[AlarmCubit] restoreSubscriptionDisabled failed ${alarm.id}: $e');
+          '[AlarmCubit] restoreSubscriptionDisabled failed ${alarm.id}: $e',
+        );
       }
     }
 

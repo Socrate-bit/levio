@@ -76,21 +76,24 @@ class _MilestonesView extends StatelessWidget {
                               ),
                               const SizedBox(height: 20),
                               // Header row
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _TopCard(
-                                      icon: Image.asset('assets/streaks.png', width: 36, height: 36),
-                                      label: l10n.milestonesDayStreak,
+                              Container(
+                                height: 120,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: _TopCard(
+                                        icon: Image.asset('assets/streaks.png', width: 56, height: 56),
+                                        label: l10n.milestonesDayStreak,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _BadgeTopCard(
-                                      earned: state.badgesEarned,
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: _BadgeTopCard(
+                                        earned: state.badgesEarned,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               const SizedBox(height: 12),
                               // Stats row
