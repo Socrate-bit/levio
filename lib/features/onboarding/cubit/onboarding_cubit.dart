@@ -80,6 +80,14 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     );
   }
 
+  void setKeepAlarmDuringMission(bool value) {
+    emit(state.copyWith(keepAlarmDuringMission: value));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'alarm_during_mission', 'keep_ringing': value},
+    );
+  }
+
   void setSound(String id, String name) {
     emit(state.copyWith(soundId: id, soundName: name));
     AnalyticsService.capture(
@@ -161,8 +169,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       debugPrint('[OnboardingCubit] alarm creation failed: $e');
     }
 
-    final keepRinging = state.surveyAnswers['alarmDuringMission'] ==
-        'Keep alarm ringing while completing the mission.';
+    final keepRinging = state.keepAlarmDuringMission ?? false;
     await settingsCubit.setKeepAlarmDuringMission(keepRinging);
 
     // Persist survey answers + onboarding metadata to Firestore.

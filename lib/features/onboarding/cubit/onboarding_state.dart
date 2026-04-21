@@ -17,6 +17,7 @@ class OnboardingState extends Equatable {
   final List<bool> repeatDays;
   final String referralCode;
   final ReferralStatus referralStatus;
+  final bool? keepAlarmDuringMission;
   final bool isInProgress;
   final bool isComplete;
 
@@ -32,6 +33,7 @@ class OnboardingState extends Equatable {
     this.repeatDays = const [false, true, true, true, true, true, false],
     this.referralCode = '',
     this.referralStatus = ReferralStatus.none,
+    this.keepAlarmDuringMission,
     this.isInProgress = false,
     this.isComplete = false,
   });
@@ -59,6 +61,7 @@ class OnboardingState extends Equatable {
     List<bool>? repeatDays,
     String? referralCode,
     ReferralStatus? referralStatus,
+    bool? keepAlarmDuringMission,
     bool? isInProgress,
     bool? isComplete,
   }) =>
@@ -74,6 +77,8 @@ class OnboardingState extends Equatable {
         repeatDays: repeatDays ?? this.repeatDays,
         referralCode: referralCode ?? this.referralCode,
         referralStatus: referralStatus ?? this.referralStatus,
+        keepAlarmDuringMission:
+            keepAlarmDuringMission ?? this.keepAlarmDuringMission,
         isInProgress: isInProgress ?? this.isInProgress,
         isComplete: isComplete ?? this.isComplete,
       );
@@ -91,6 +96,7 @@ class OnboardingState extends Equatable {
         repeatDays,
         referralCode,
         referralStatus,
+        keepAlarmDuringMission,
         isInProgress,
         isComplete,
       ];

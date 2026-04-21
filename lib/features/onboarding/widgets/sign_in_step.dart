@@ -30,17 +30,17 @@ class SignInStep extends StatefulWidget {
 class _SignInStepState extends State<SignInStep> {
   bool _loading = false;
 
-  void _showAuthSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+  Future<void> _showAuthDialog(String message) {
+    return showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
         content: Text(message),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).size.height - 150,
-          left: 16,
-          right: 16,
-        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }
@@ -54,14 +54,16 @@ class _SignInStepState extends State<SignInStep> {
       if (mounted) (widget.onSignInComplete ?? widget.onSkip)();
     } on AccountNotFoundAuthException {
       if (mounted) {
-        _showAuthSnackBar(
+        await _showAuthDialog(
           AppLocalizations.of(context).onboardingAccountNotFound,
         );
       }
     } catch (e) {
       debugPrint('[SignInStep] Google sign-in failed: $e');
       if (mounted) {
-        _showAuthSnackBar(AppLocalizations.of(context).onboardingGoogleFailed);
+        await _showAuthDialog(
+          AppLocalizations.of(context).onboardingGoogleFailed,
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -77,14 +79,16 @@ class _SignInStepState extends State<SignInStep> {
       if (mounted) (widget.onSignInComplete ?? widget.onSkip)();
     } on AccountNotFoundAuthException {
       if (mounted) {
-        _showAuthSnackBar(
+        await _showAuthDialog(
           AppLocalizations.of(context).onboardingAccountNotFound,
         );
       }
     } catch (e) {
       debugPrint('[SignInStep] Apple sign-in failed: $e');
       if (mounted) {
-        _showAuthSnackBar(AppLocalizations.of(context).onboardingAppleFailed);
+        await _showAuthDialog(
+          AppLocalizations.of(context).onboardingAppleFailed,
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);

@@ -146,7 +146,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 24: // sound picker
         return true;
       case 25:
-        return state.surveyAnswers.containsKey('alarmDuringMission');
+        return state.keepAlarmDuringMission != null;
       case 26:
         return state.surveyAnswers.containsKey('heardFrom');
       case 27: // referral — blocked when entered code is invalid/exhausted
@@ -584,16 +584,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 onSelected: cubit.setSound,
                               ),
                               // 25: Alarm during mission
-                              SurveyStep(
-                                question: l10n.onboardingAlarmDuringMission,
-                                options: [
-                                  l10n.onboardingAlarmKeepRinging,
-                                  l10n.onboardingAlarmStopRinging,
-                                ],
-                                selectedOption:
-                                    state.surveyAnswers['alarmDuringMission'],
-                                onSelected: (v) =>
-                                    cubit.answerSurvey('alarmDuringMission', v),
+                              Builder(
+                                builder: (context) {
+                                  final keepLabel =
+                                      l10n.onboardingAlarmKeepRinging;
+                                  final stopLabel =
+                                      l10n.onboardingAlarmStopRinging;
+                                  final keep = state.keepAlarmDuringMission;
+                                  return SurveyStep(
+                                    question:
+                                        l10n.onboardingAlarmDuringMission,
+                                    options: [keepLabel, stopLabel],
+                                    selectedOption: keep == null
+                                        ? null
+                                        : (keep ? keepLabel : stopLabel),
+                                    onSelected: (v) => cubit
+                                        .setKeepAlarmDuringMission(
+                                            v == keepLabel),
+                                  );
+                                },
                               ),
                               // 26: Where heard about us
                               SurveyStep(
