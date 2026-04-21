@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:levio/features/auth/auth_wrapper.dart';
@@ -46,11 +47,15 @@ class LevioApp extends StatelessWidget {
           themeMode: settings.themeMode,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          locale: DevicePreview.locale(context),
           navigatorKey: navigatorKey,
           navigatorObservers: [PosthogObserver()],
-          builder: (context, child) => GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: child,
+          builder: (context, child) => DevicePreview.appBuilder(
+            context,
+            GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: child,
+            ),
           ),
           initialRoute: '/',
           routes: {
