@@ -180,6 +180,21 @@ class AlarmCubit extends Cubit<AlarmState> {
       }
     }
 
+    // Prime recurrent cascades whose `.relative` safety-net is alive but whose
+    // `.fixed` bursts have all fired. The user ignored the full 6-min cascade
+    // last week; now that the app is open, re-fill the bursts for next time
+    // without touching the originalId or the recurring `.relative` burst.
+    for (final alarm in resolved) {
+      if (!alarm.isEnabled) continue;
+      if (alarm.isOneTime) continue;
+      if (!alarm.repeatDays.any((d) => d)) continue;
+      try {
+        await AlarmChannel.primeCascadeIfNeeded(alarm.id);
+      } catch (e) {
+        debugPrint('[AlarmCubit] primeCascadeIfNeeded failed for ${alarm.id}: $e');
+      }
+    }
+
     emit(state.copyWith(alarms: resolved));
   }
 
