@@ -103,12 +103,15 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
 
   /// Fired by the cascade controller when the user has gone idle for 60s on
   /// an in-progress mission. Pops the mission screen, returns to the start
-  /// screen, and lets bursts resume ringing until the user taps Start again.
+  /// screen for the CURRENT mission (same index — no previously-completed
+  /// mission is redone), and lets bursts resume ringing until the user taps
+  /// Start again.
   void _onInactivityTimeout() {
     if (!mounted) return;
     if (!_inMission) return;
-    // Pop the in-progress mission screen back to this MissionStartScreen.
-    Navigator.of(context).popUntil((route) => route.isFirst || route.isCurrent);
+    // _startMission pushed exactly one MaterialPageRoute on top of this
+    // MissionSequenceScreen, so a single pop returns us to MissionStartScreen.
+    Navigator.of(context).pop();
     if (mounted) setState(() => _inMission = false);
   }
 

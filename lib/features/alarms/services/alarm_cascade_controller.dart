@@ -27,6 +27,7 @@ class AlarmCascadeController {
   Timer? _watchdogTimer;
   DateTime _lastProgressAt = DateTime.now();
   bool _active = false;
+  bool _disposed = false;
 
   AlarmCascadeController({
     required this.alarmId,
@@ -36,8 +37,11 @@ class AlarmCascadeController {
   /// Starts the suppression + inactivity watchdog if the user opted out of
   /// "keep ringing during mission". Idempotent.
   Future<void> start() async {
-    if (_active) return;
+    if (_active || _disposed) return;
     final prefs = await SharedPreferences.getInstance();
+    // Guard the async gap: finish()/dispose() may have run while we were
+    // awaiting prefs — don't arm timers on a torn-down controller.
+    if (_disposed) return;
     final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
     if (keepRinging) return;
 
@@ -76,17 +80,27 @@ class AlarmCascadeController {
 
   /// Called on mission completion: stops timers, cancels every remaining
   /// burst, and (for recurrent alarms) schedules a fresh cascade for next week.
+  /// For one-shots, the native `rescheduleForNextWeek` also clears the saved
+  /// config so it doesn't linger in UserDefaults.
   Future<void> finish() async {
+    _disposed = true;
     stopSuppression();
+    // Independent try/catch so a failure in one call doesn't abort the next —
+    // particularly, a `cancel` error must not prevent a recurrent reschedule.
     try {
       await AlarmChannel.cancel(alarmId);
+    } catch (e) {
+      debugPrint('[AlarmCascadeController] cancel failed for $alarmId: $e');
+    }
+    try {
       await AlarmChannel.rescheduleForNextWeek(alarmId);
     } catch (e) {
-      debugPrint('[AlarmCascadeController] finish failed for $alarmId: $e');
+      debugPrint('[AlarmCascadeController] rescheduleForNextWeek failed for $alarmId: $e');
     }
   }
 
   void dispose() {
+    _disposed = true;
     stopSuppression();
   }
 

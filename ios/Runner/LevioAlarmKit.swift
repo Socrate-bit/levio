@@ -300,14 +300,24 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         }
 
         let defaults = UserDefaults.standard
+        // One-shot cascades never reschedule; clear their saved config so
+        // `levio_config_` / `levio_cascade_meta_` don't accumulate in
+        // UserDefaults across one-shot alarms.
+        if let data = defaults.data(forKey: "levio_config_\(originalId)"),
+           let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           (config["isOneShot"] as? Bool) == true {
+            cleanupConfigInternal(originalId: originalId)
+            result(nil)
+            return
+        }
+
         guard let data = defaults.data(forKey: "levio_config_\(originalId)"),
               let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let isOneShot = config["isOneShot"] as? Bool, !isOneShot,
               let mask = config["weekdayMask"] as? Int,
               let hour = config["hour"] as? Int,
               let minute = config["minute"] as? Int,
               let originalUUID = UUID(uuidString: originalId) else {
-            result(nil) // one-shot or missing config: nothing to do
+            result(nil) // missing config: nothing to do
             return
         }
 
