@@ -88,7 +88,7 @@ class BottomNavShellState extends State<BottomNavShell> {
                   animationDuration: const Duration(milliseconds: 250),
                   padding: EdgeInsets.fromLTRB(20.w, 12.h, 4.w, 0),
                   labelStyle: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
                     color: c.textSecondary,
                   ),

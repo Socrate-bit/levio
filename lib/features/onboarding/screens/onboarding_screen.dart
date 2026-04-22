@@ -79,7 +79,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingCubit cubit,
   ) async {
     // Referral step: validate any entered code before advancing.
-    if (_currentPage == 27) {
+    if (_currentPage == 26) {
       final code = state.referralCode.trim();
       FocusScope.of(context).unfocus();
       if (code.isNotEmpty &&
@@ -134,26 +134,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 13:
         return state.surveyAnswers.containsKey('timeToAwake');
       case 14: // info (biology)
-      case 15: // info (speedometer)
-      case 16: // time picker - usual wake time
-      case 17: // time picker - ideal wake time
-      case 18: // info - target
-      case 19: // info - quote
+      case 15: // time picker - usual wake time
+      case 16: // time picker - ideal wake time
+      case 17: // info - target
+      case 18: // info - quote
         return true;
-      case 20: // mission picker — always has a default mission
-      case 21: // info - mission
-      case 22: // time picker - alarm
-      case 23: // day picker
-      case 24: // sound picker
+      case 19: // mission picker — always has a default mission
+      case 20: // info - mission
+      case 21: // time picker - alarm
+      case 22: // day picker
+      case 23: // sound picker
         return true;
-      case 25:
+      case 24:
         return state.keepAlarmDuringMission != null;
-      case 26:
+      case 25:
         return state.surveyAnswers.containsKey('heardFrom');
-      case 27: // referral — blocked when entered code is invalid/exhausted
+      case 26: // referral — blocked when entered code is invalid/exhausted
         return state.referralStatus != ReferralStatus.checking &&
             state.referralStatus != ReferralStatus.invalid &&
             state.referralStatus != ReferralStatus.exhausted;
+      case 27: // info (speedometer)
+        return true;
       case 28: // rating
       case 29: // notification — has own buttons
       case 30: // signature — has own button
@@ -422,12 +423,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 ),
                                 bodyText: l10n.onboardingBiologyBody,
                               ),
-                              // 15: Info - Speedometer
-                              InfoStep(
-                                title: l10n.onboarding5xFaster,
-                                imagePlaceholder: const SpeedometerChart(),
-                              ),
-                              // 16: Time picker - usual wake time
+                              // 15: Time picker - usual wake time
                               TimePickerStep(
                                 title:
                                     'What time do you usually get out of bed?',
@@ -436,14 +432,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 time: state.usualWakeTime,
                                 onTimeChanged: cubit.setUsualWakeTime,
                               ),
-                              // 17: Time picker - ideal wake time
+                              // 16: Time picker - ideal wake time
                               TimePickerStep(
                                 title: 'What time do you want to\nbe up?',
                                 subtitle: 'Your ideal daily wake up time.',
                                 time: state.idealWakeTime,
                                 onTimeChanged: cubit.setIdealWakeTime,
                               ),
-                              // 18: Info - Target time with delta
+                              // 17: Info - Target time with delta
                               Builder(
                                 builder: (context) {
                                   final target = state.targetTime;
@@ -488,7 +484,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   );
                                 },
                               ),
-                              // 19: Info - Quote
+                              // 18: Info - Quote
                               InfoStep(
                                 title: '',
                                 centerTitle: true,
@@ -524,12 +520,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   ],
                                 ),
                               ),
-                              // 20: Mission picker
+                              // 19: Mission picker
                               MissionPickerStep(
                                 selectedMission: state.selectedMission,
                                 onSelected: cubit.setMission,
                               ),
-                              // 21: Info - Mission explanation
+                              // 20: Info - Mission explanation
                               Builder(
                                 builder: (context) {
                                   final mission = state.selectedMission;
@@ -560,7 +556,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   );
                                 },
                               ),
-                              // 22: Alarm time picker
+                              // 21: Alarm time picker
                               Builder(
                                 builder: (context) {
                                   final alarmTime = state.alarmTime;
@@ -574,17 +570,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   );
                                 },
                               ),
-                              // 23: Day picker
+                              // 22: Day picker
                               DayPickerStep(
                                 repeatDays: state.repeatDays,
                                 onToggle: cubit.toggleDay,
                               ),
-                              // 24: Sound picker
+                              // 23: Sound picker
                               SoundPickerStep(
                                 selectedId: state.soundId,
                                 onSelected: cubit.setSound,
                               ),
-                              // 25: Alarm during mission
+                              // 24: Alarm during mission
                               Builder(
                                 builder: (context) {
                                   final keepLabel =
@@ -605,7 +601,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   );
                                 },
                               ),
-                              // 26: Where heard about us
+                              // 25: Where heard about us
                               SurveyStep(
                                 question: l10n.onboardingWhereHeard,
                                 options: [
@@ -631,11 +627,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 onSelected: (v) =>
                                     cubit.answerSurvey('heardFrom', v),
                               ),
-                              // 27: Referral code
+                              // 26: Referral code
                               ReferralStep(
                                 code: state.referralCode,
                                 status: state.referralStatus,
                                 onCodeChanged: cubit.setReferralCode,
+                              ),
+                              // 27: Info - Speedometer
+                              InfoStep(
+                                title: l10n.onboarding5xFaster,
+                                imagePlaceholder: const SpeedometerChart(),
                               ),
                               // 28: Rating
                               const RatingStep(),
@@ -724,7 +725,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                             ),
                             child: Text(
-                              _currentPage == 22
+                              _currentPage == 21
                                   ? l10n.onboardingSetAlarmFor(
                                       _formatTime(state.alarmTime),
                                     )

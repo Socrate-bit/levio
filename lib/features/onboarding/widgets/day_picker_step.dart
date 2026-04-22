@@ -24,7 +24,7 @@ class DayPickerStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
