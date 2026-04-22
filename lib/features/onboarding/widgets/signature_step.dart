@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:signature/signature.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
@@ -43,36 +44,36 @@ class _SignatureStepState extends State<SignatureStep> {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             l10n.onboardingSignatureTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Text(
             l10n.onboardingSignatureSubtitle(widget.alarmTimeText),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: c.textSecondary),
+            style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
           ),
           const Spacer(),
           Container(
-            height: 250,
+            height: 250.h,
             decoration: BoxDecoration(
               color: c.card,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               border: Border.all(color: c.separator),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: Signature(
                 controller: _controller,
                 backgroundColor: Colors.transparent,
@@ -82,7 +83,7 @@ class _SignatureStepState extends State<SignatureStep> {
           const Spacer(),
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 56.h,
             child: ElevatedButton(
               onPressed: _controller.isNotEmpty ? withHaptic(widget.onCommit) : null,
               style: ElevatedButton.styleFrom(
@@ -90,18 +91,18 @@ class _SignatureStepState extends State<SignatureStep> {
                 foregroundColor: c.card,
                 disabledBackgroundColor: c.separator,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(28.r),
                 ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check, size: 20, color: c.card),
-                  const SizedBox(width: 8),
+                  Icon(Icons.check, size: 20.sp, color: c.card),
+                  SizedBox(width: 8.w),
                   Text(
                     l10n.onboardingSignatureCommit,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w600,
                       color: c.card,
                     ),
@@ -110,7 +111,7 @@ class _SignatureStepState extends State<SignatureStep> {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
         ],
       ),
     );

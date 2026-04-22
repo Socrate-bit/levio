@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -199,32 +200,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ? 1.0
                         : 0.0,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
                       child: Row(
                         children: [
                           if (_currentPage > 0 && _currentPage != 31)
                             GestureDetector(
                               onTap: withHaptic(_back),
                               child: Container(
-                                width: 32,
-                                height: 32,
+                                width: 32.w,
+                                height: 32.h,
                                 decoration: BoxDecoration(
                                   color: c.card,
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   Icons.chevron_left,
-                                  size: 20,
+                                  size: 20.sp,
                                   color: c.textPrimary,
                                 ),
                               ),
                             )
                           else
-                            const SizedBox(width: 32),
-                          const SizedBox(width: 12),
+                            SizedBox(width: 32.w),
+                          SizedBox(width: 12.w),
                           Expanded(
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(4.r),
                               child: LinearProgressIndicator(
                                 value: _currentPage / (_totalPages - 1),
                                 backgroundColor: c.separator,
@@ -415,9 +416,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               InfoStep(
                                 title: l10n.onboardingBiologyTitle,
                                 centerTitle: true,
-                                imagePlaceholder: const Text(
+                                imagePlaceholder: Text(
                                   '🧬',
-                                  style: TextStyle(fontSize: 80),
+                                  style: TextStyle(fontSize: 80.sp),
                                 ),
                                 bodyText: l10n.onboardingBiologyBody,
                               ),
@@ -457,27 +458,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           'Waking up at ${_formatTime(target)} is your target.',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                            fontSize: 28,
+                                            fontSize: 28.sp,
                                             fontWeight: FontWeight.bold,
                                             color: c.textPrimary,
                                             height: 1.2,
                                           ),
                                         ),
                                         if (delta > 0) ...[
-                                          const SizedBox(height: 16),
+                                          SizedBox(height: 16.h),
                                           Text(
                                             '+$delta minutes every morning',
                                             style: TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 18.sp,
                                               fontWeight: FontWeight.bold,
                                               color: AppColors.orange,
                                             ),
                                           ),
-                                          const SizedBox(height: 8),
+                                          SizedBox(height: 8.h),
                                           Text(
                                             '+$monthHours hours this month',
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 16.sp,
                                               color: c.textSecondary,
                                             ),
                                           ),
@@ -496,27 +497,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     Text(
                                       '66',
                                       style: TextStyle(
-                                        fontSize: 48,
+                                        fontSize: 48.sp,
                                         color: c.separator,
                                         fontFamily: 'Georgia',
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: 16.h),
                                     Text(
                                       'If you win\nthe morning,\nyou win the day.',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: 28,
+                                        fontSize: 28.sp,
                                         fontWeight: FontWeight.bold,
                                         color: c.textPrimary,
                                         height: 1.3,
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: 16.h),
                                     Text(
                                       '— Tim Ferriss',
                                       style: TextStyle(
-                                        fontSize: 17,
+                                        fontSize: 17.sp,
                                         color: c.textSecondary,
                                       ),
                                     ),
@@ -542,8 +543,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   return InfoStep(
                                     title: explanation['title']!,
                                     imagePlaceholder: Container(
-                                      width: 120,
-                                      height: 120,
+                                      width: 120.w,
+                                      height: 120.h,
                                       decoration: BoxDecoration(
                                         color: info.iconBg,
                                         shape: BoxShape.circle,
@@ -551,7 +552,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                       child: Icon(
                                         info.icon,
                                         color: info.iconColor,
-                                        size: 56,
+                                        size: 56.sp,
                                       ),
                                     ),
                                     subtitle: explanation['subtitle'],
@@ -703,10 +704,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     SafeArea(
                       top: false,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                        padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 16.h),
                         child: SizedBox(
                           width: double.infinity,
-                          height: 56,
+                          height: 56.h,
                           child: ElevatedButton(
                             onPressed: _canContinue(state)
                                 ? withHaptic(() {
@@ -719,7 +720,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               disabledBackgroundColor: c.separator,
                               disabledForegroundColor: c.textSecondary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(28),
+                                borderRadius: BorderRadius.circular(28.r),
                               ),
                             ),
                             child: Text(
@@ -728,8 +729,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                       _formatTime(state.alarmTime),
                                     )
                                   : l10n.onboardingContinue,
-                              style: const TextStyle(
-                                fontSize: 18,
+                              style: TextStyle(
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -757,21 +758,21 @@ class _StandaloneSignInScreen extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: withHaptic(() => Navigator.of(context).pop()),
                     child: Container(
-                      width: 32,
-                      height: 32,
+                      width: 32.w,
+                      height: 32.h,
                       decoration: BoxDecoration(
                         color: c.card,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.chevron_left,
-                        size: 20,
+                        size: 20.sp,
                         color: c.textPrimary,
                       ),
                     ),

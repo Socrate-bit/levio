@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -11,54 +12,54 @@ class RatingStep extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           // Stars placeholder
           Container(
-            height: 60,
+            height: 60.h,
             alignment: Alignment.center,
-            child: const Text('⭐⭐⭐⭐⭐',
-                style: TextStyle(fontSize: 28)),
+            child: Text('⭐⭐⭐⭐⭐',
+                style: TextStyle(fontSize: 28.sp)),
           ),
           Text(
             l10n.onboardingRatingTitle,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             l10n.onboardingRatingSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 22.sp,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           _TestimonialCard(
             name: l10n.onboardingRatingMarc,
             review: l10n.onboardingRatingMarcReview,
             colors: c,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           _TestimonialCard(
             name: l10n.onboardingRatingSophie,
             review: l10n.onboardingRatingSophieReview,
             colors: c,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           _TestimonialCard(
             name: l10n.onboardingRatingAlex,
             review: l10n.onboardingRatingAlexReview,
             colors: c,
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
         ],
       ),
     );
@@ -79,10 +80,10 @@ class _TestimonialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: colors.card,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: colors.separator),
       ),
       child: Column(
@@ -91,7 +92,7 @@ class _TestimonialCard extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                radius: 18,
+                radius: 18.r,
                 backgroundColor: colors.separator,
                 child: Text(
                   name[0],
@@ -101,11 +102,11 @@ class _TestimonialCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Text(
                 name,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: colors.textPrimary,
                 ),
@@ -114,17 +115,17 @@ class _TestimonialCard extends StatelessWidget {
               Row(
                 children: List.generate(
                   5,
-                  (_) => const Icon(Icons.star,
-                      color: Color(0xFFFFB800), size: 16),
+                  (_) => Icon(Icons.star,
+                      color: const Color(0xFFFFB800), size: 16.sp),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           Text(
             review,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: colors.textSecondary,
               height: 1.4,
             ),

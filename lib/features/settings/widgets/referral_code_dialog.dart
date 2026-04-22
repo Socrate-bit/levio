@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
@@ -41,8 +42,8 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
               behavior: SnackBarBehavior.floating,
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).size.height - 150,
-                left: 16,
-                right: 16,
+                left: 16.w,
+                right: 16.w,
               ),
             ),
           );
@@ -68,30 +69,30 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
                   filled: true,
                   fillColor: c.background,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                     borderSide: BorderSide(color: c.separator),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                     borderSide: BorderSide(color: c.separator),
                   ),
                 ),
               ),
               if (state.redeemStatus == ReferralRedeemStatus.invalid) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(l10n.referralInvalid,
-                    style: TextStyle(fontSize: 13, color: Colors.red.shade700)),
+                    style: TextStyle(fontSize: 13.sp, color: Colors.red.shade700)),
               ],
               if (state.redeemStatus == ReferralRedeemStatus.exhausted) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(l10n.referralUsageLimit,
                     style: TextStyle(
-                        fontSize: 13, color: Colors.orange.shade700)),
+                        fontSize: 13.sp, color: Colors.orange.shade700)),
               ],
               if (state.redeemStatus == ReferralRedeemStatus.error) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(l10n.referralError,
-                    style: TextStyle(fontSize: 13, color: Colors.red.shade700)),
+                    style: TextStyle(fontSize: 13.sp, color: Colors.red.shade700)),
               ],
             ],
           ),
@@ -112,10 +113,10 @@ class _ReferralCodeDialogState extends State<ReferralCodeDialog> {
                       .read<SubscriptionCubit>()
                       .redeemReferralCode(_controller.text)),
               child: isSubmitting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                  ? SizedBox(
+                      width: 18.w,
+                      height: 18.h,
+                      child: const CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(l10n.referralSubmit,
                       style: const TextStyle(fontWeight: FontWeight.w600)),

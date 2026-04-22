@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:liquid_glass_bar/liquid_glass_bar.dart';
 import 'theme/app_theme.dart';
 import 'utils/haptic_utils.dart';
@@ -69,7 +70,7 @@ class BottomNavShellState extends State<BottomNavShell> {
       extendBody: true,
       body: IndexedStack(index: _index, children: _tabs),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.only(bottom: 16.h),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -80,14 +81,14 @@ class BottomNavShellState extends State<BottomNavShell> {
                 style: LiquidGlassBarStyle(
                   activeColor: AppColors.orange,
                   inactiveColor: c.textSecondary,
-                  borderRadius: 28,
-                  height: 52,
-                  iconSize: 24,
+                  borderRadius: 28.r,
+                  height: 52.h,
+                  iconSize: 24.sp,
                   selectedIconScale: 1.15,
                   animationDuration: const Duration(milliseconds: 250),
-                  padding: const EdgeInsets.fromLTRB(20, 12, 4, 0),
+                  padding: EdgeInsets.fromLTRB(20.w, 12.h, 4.w, 0),
                   labelStyle: TextStyle(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: c.textSecondary,
                   ),
@@ -124,7 +125,7 @@ class BottomNavShellState extends State<BottomNavShell> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 24, left: 6),
+              padding: EdgeInsets.only(right: 24.w, left: 6.w),
               child: _AddAlarmCircleButton(
 
                 onTap: () => _openAlarmForm(context),
@@ -146,8 +147,8 @@ class _AddAlarmCircleButton extends StatelessWidget {
     return GestureDetector(
       onTap: withMediumHaptic(onTap),
       child: Container(
-        width: 64,
-        height: 64,
+        width: 64.w,
+        height: 64.h,
         decoration: const BoxDecoration(
           color: AppColors.orange,
           shape: BoxShape.circle,
@@ -159,7 +160,7 @@ class _AddAlarmCircleButton extends StatelessWidget {
             ),
           ],
         ),
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 44),
+        child: Icon(Icons.add_rounded, color: Colors.white, size: 44.sp),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../alarms/services/alarm_channel.dart';
@@ -259,56 +260,56 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                 const LevioBrandHeader(),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    padding: EdgeInsets.symmetric(horizontal: 32.w),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 64,
-                          height: 64,
+                          width: 64.w,
+                          height: 64.h,
                           decoration: BoxDecoration(
                             color: info.iconBg,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(info.icon,
-                              color: info.iconColor, size: 30),
+                              color: info.iconColor, size: 30.sp),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         if (_totalCount > 1) ...[
                           Text(
                             l10n.dismissSpeechProgress(
                                 _completedCount + 1, _totalCount),
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
                               color: AppColors.orange,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8.h),
                         ],
                         Text(
                           l10n.dismissSpeechSay,
                           style: TextStyle(
-                              fontSize: 16, color: c.textSecondary),
+                              fontSize: 16.sp, color: c.textSecondary),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         Text(
                           '"$_targetText"',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 24.sp,
                             fontWeight: FontWeight.bold,
                             color: c.textPrimary,
                             height: 1.4,
                           ),
                         ),
-                        const SizedBox(height: 44),
+                        SizedBox(height: 44.h),
                         GestureDetector(
                           onTap: _isListening ? null : withHaptic(_startListening),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            width: 80,
-                            height: 80,
+                            width: 80.w,
+                            height: 80.h,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _isListening
@@ -320,25 +321,25 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                               color: _isListening
                                   ? Colors.white
                                   : c.textSecondary,
-                              size: 36,
+                              size: 36.sp,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         Text(
                           _isListening ? l10n.dismissSpeechListening : l10n.dismissSpeechTapToSpeak,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             color: c.textSecondary,
                           ),
                         ),
                         if (_transcription.isNotEmpty) ...[
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20.h),
                           Text(
                             _transcription,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 16.sp,
                               color: c.textPrimary,
                               fontStyle: FontStyle.italic,
                             ),
@@ -346,22 +347,22 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                         ],
                         if (scoreText != null)
                           Padding(
-                            padding: const EdgeInsets.only(top: 12),
+                            padding: EdgeInsets.only(top: 12.h),
                             child: Text(
                               scoreText,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.orange,
-                                fontSize: 15,
+                                fontSize: 15.sp,
                               ),
                             ),
                           ),
                         if (!_initialized)
                           Padding(
-                            padding: const EdgeInsets.only(top: 12),
+                            padding: EdgeInsets.only(top: 12.h),
                             child: Text(
                               l10n.dismissSpeechMicUnavailable,
-                              style: const TextStyle(
-                                  color: Colors.red, fontSize: 14),
+                              style: TextStyle(
+                                  color: Colors.red, fontSize: 14.sp),
                             ),
                           ),
                       ],
@@ -372,18 +373,18 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
             ),
             if (widget.isPreview)
               Positioned(
-                top: 16,
-                right: 16,
+                top: 16.h,
+                right: 16.w,
                 child: GestureDetector(
                   onTap: withHaptic(() => Navigator.of(context).pop()),
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    width: 36.w,
+                    height: 36.h,
                     decoration: BoxDecoration(
                       color: c.card,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.close, size: 18, color: c.textPrimary),
+                    child: Icon(Icons.close, size: 18.sp, color: c.textPrimary),
                   ),
                 ),
               ),

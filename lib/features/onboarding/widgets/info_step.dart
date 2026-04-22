@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../shared/theme/app_theme.dart';
 
@@ -22,17 +23,17 @@ class InfoStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           if (!centerTitle)
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
                   color: c.textPrimary,
                   height: 1.2,
@@ -40,12 +41,12 @@ class InfoStep extends StatelessWidget {
               ),
             ),
           if (subtitle != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 subtitle!,
-                style: TextStyle(fontSize: 16, color: c.textSecondary),
+                style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
               ),
             ),
           ],
@@ -59,19 +60,19 @@ class InfoStep extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
                 height: 1.2,
               ),
             ),
           if (bodyText != null) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               bodyText!,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 15.sp,
                 color: c.textSecondary,
                 height: 1.5,
               ),

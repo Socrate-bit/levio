@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
@@ -42,56 +43,56 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
           children: [
             // Top bar
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 36.w,
+                      height: 36.h,
                       decoration: BoxDecoration(
                         color: c.card,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.close, size: 18, color: c.textPrimary),
+                      child: Icon(Icons.close, size: 18.sp, color: c.textPrimary),
                     ),
                   ),
                   Expanded(
                     child: Center(
                       child: Text(
                         l10n.randomPoolTitle,
-                        style: const TextStyle(
-                          fontSize: 17,
+                        style: TextStyle(
+                          fontSize: 17.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 36),
+                  SizedBox(width: 36.w),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Text(
                 l10n.randomPoolSubtitle,
-                style: TextStyle(fontSize: 13, color: c.textSecondary),
+                style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
 
             // Count + select/deselect
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
                 children: [
                   Text(
                     l10n.randomPoolSelected(_selected.length),
-                    style: TextStyle(fontSize: 14, color: c.textSecondary),
+                    style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
                   ),
                   const Spacer(),
                   GestureDetector(
@@ -110,7 +111,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                           ? l10n.randomPoolSelectAll
                           : l10n.randomPoolDeselectAll,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         color: c.purpleDeep,
                         fontWeight: FontWeight.w600,
                       ),
@@ -119,12 +120,12 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
 
             // Grid
             Expanded(
               child: GridView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 gridDelegate:
                     const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -152,7 +153,7 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                         color: selected
                             ? c.card
                             : c.card.withAlpha(80),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14.r),
                         border: Border.all(
                           color: selected
                               ? c.purpleDeep
@@ -168,13 +169,13 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                             color: selected
                                 ? info.iconColor
                                 : c.textSecondary,
-                            size: 22,
+                            size: 22.sp,
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8.w),
                           Text(
                             localizedMissionName(l10n, info.type),
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
                               color: selected
                                   ? c.textPrimary
@@ -191,23 +192,23 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
 
             // Done button
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
               child: ElevatedButton(
                 onPressed: withHaptic(() =>
                     Navigator.pop(context, _selected.toList())),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: c.textPrimary,
                   foregroundColor: c.background,
-                  minimumSize: const Size(double.infinity, 54),
+                  minimumSize: Size(double.infinity, 54.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   elevation: 0,
                 ),
                 child: Text(
                   l10n.randomPoolDone,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      fontSize: 16.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

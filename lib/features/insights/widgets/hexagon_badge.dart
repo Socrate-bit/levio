@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -150,14 +151,14 @@ class LargeHexagonBadge extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4.h),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(
                   3,
-                  (_) => const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 1),
-                    child: Icon(Icons.star, color: Colors.yellow, size: 14),
+                  (_) => Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 1.w),
+                    child: Icon(Icons.star, color: Colors.yellow, size: 14.sp),
                   ),
                 ),
               ),

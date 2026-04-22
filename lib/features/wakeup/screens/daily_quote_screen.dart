@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/utils/haptic_utils.dart';
@@ -46,54 +47,54 @@ class DailyQuoteScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.w),
                   child: GestureDetector(
                     onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 36.w,
+                      height: 36.h,
                       decoration: BoxDecoration(
                         color: Colors.white.withAlpha(80),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close,
-                          size: 18, color: Colors.white),
+                      child: Icon(Icons.close,
+                          size: 18.sp, color: Colors.white),
                     ),
                   ),
                 ),
                 Expanded(
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      padding: EdgeInsets.symmetric(horizontal: 40.w),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
+                          Text(
                             '\u201C',
                             style: TextStyle(
-                              fontSize: 48,
+                              fontSize: 48.sp,
                               color: Colors.white54,
                               height: 0.8,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           Text(
                             quote,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 22,
+                            style: TextStyle(
+                              fontSize: 22.sp,
                               fontStyle: FontStyle.italic,
-                              color: Color(0xFF3D2B1F),
+                              color: const Color(0xFF3D2B1F),
                               height: 1.5,
                             ),
                           ),
-                          const SizedBox(height: 32),
+                          SizedBox(height: 32.h),
                           Text(
                             author.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 13,
+                            style: TextStyle(
+                              fontSize: 13.sp,
                               letterSpacing: 2,
-                              color: Color(0xFF6B4C3B),
+                              color: const Color(0xFF6B4C3B),
                               fontWeight: FontWeight.w500,
                             ),
                           ),

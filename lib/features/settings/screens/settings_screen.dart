@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -124,20 +125,20 @@ class _SettingsScreenState extends State<SettingsScreen>
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+          padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 120.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 l10n.settingsTitle,
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
                   color: c.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               // // Profile card
               // BlocBuilder<SubscriptionCubit, SubscriptionState>(
               //   builder: (context, authState) => Container(
@@ -198,7 +199,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                 ]),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               GestureDetector(
                 onTap: withHaptic(() => showDialog(
                       context: context,
@@ -221,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                 ]),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               _SectionTitle(title: l10n.settingsApp),
               BlocBuilder<SettingsCubit, SettingsState>(
                 builder: (context, settings) => _SettingsCard(children: [
@@ -305,7 +306,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                 ]),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               _SectionTitle(title: l10n.settingsAbout),
               _SettingsCard(children: [
                 _LinkRow(
@@ -328,7 +329,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                 ),
               ]),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               _SettingsCard(children: [
                 _ActionRow(
                   icon: Icons.logout,
@@ -344,9 +345,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                   onTap: () => _confirmDeleteAccount(context),
                 ),
               ]),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               if (kDebugMode) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 _SectionTitle(title: l10n.settingsAdmin),
                 _SettingsCard(children: [
                   _ActionRow(
@@ -372,13 +373,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                     onTap: () => _deleteAllAlarms(context),
                   ),
                 ]),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
               ],
               Center(
                 child: Text(
                   l10n.settingsVersion,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     color: c.textSecondary,
                   ),
                 ),
@@ -399,11 +400,11 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8.h),
       child: Text(
         title,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 13.sp,
           fontWeight: FontWeight.w600,
           color: c.textSecondary,
           letterSpacing: 0.5,
@@ -423,7 +424,7 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: c.card,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
       ),
       child: Column(children: children),
     );
@@ -447,11 +448,11 @@ class _ToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: c.textSecondary),
-          const SizedBox(width: 12),
+          Icon(icon, size: 20.sp, color: c.textSecondary),
+          SizedBox(width: 12.w),
           Text(label, style: Theme.of(context).textTheme.bodyLarge),
           const Spacer(),
           Switch(
@@ -484,25 +485,25 @@ class _LinkRow extends StatelessWidget {
     return GestureDetector(
       onTap: withHaptic(onTap),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: c.textSecondary),
-            const SizedBox(width: 12),
+            Icon(icon, size: 20.sp, color: c.textSecondary),
+            SizedBox(width: 12.w),
             Text(label, style: Theme.of(context).textTheme.bodyLarge),
             const Spacer(),
             if (value != null)
               Padding(
-                padding: const EdgeInsets.only(right: 6),
+                padding: EdgeInsets.only(right: 6.w),
                 child: Text(
                   value!,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 15.sp,
                     color: c.textSecondary,
                   ),
                 ),
               ),
-            Icon(Icons.chevron_right, size: 18, color: c.textSecondary),
+            Icon(Icons.chevron_right, size: 18.sp, color: c.textSecondary),
           ],
         ),
       ),
@@ -517,7 +518,7 @@ class _Divider extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return Padding(
-      padding: const EdgeInsets.only(left: 48),
+      padding: EdgeInsets.only(left: 48.w),
       child: Divider(height: 1, color: c.separator),
     );
   }
@@ -541,11 +542,11 @@ class _ActionRow extends StatelessWidget {
     return GestureDetector(
       onTap: withHaptic(onTap),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: color),
-            const SizedBox(width: 12),
+            Icon(icon, size: 20.sp, color: color),
+            SizedBox(width: 12.w),
             Text(
               label,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(

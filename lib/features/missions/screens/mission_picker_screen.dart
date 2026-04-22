@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
@@ -34,42 +35,42 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 36.w,
+                      height: 36.h,
                       decoration: BoxDecoration(
                         color: c.card,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.close,
-                          size: 18, color: c.textPrimary),
+                          size: 18.sp, color: c.textPrimary),
                     ),
                   ),
                   Expanded(
                     child: Center(
                       child: Text(
                         l10n.missionPickerTitle,
-                        style: const TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 17.sp, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 36),
+                  SizedBox(width: 36.w),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             // Filter tabs
             SizedBox(
-              height: 38,
+              height: 38.h,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 children: MissionCategory.values.map((cat) {
                   final label = switch (cat) {
                     MissionCategory.all => l10n.missionPickerAll,
@@ -85,21 +86,21 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                   };
                   final selected = _filter == cat;
                   return Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.only(right: 8.w),
                     child: GestureDetector(
                       onTap: withHaptic(() => setState(() => _filter = cat)),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 14.w, vertical: 8.h),
                         decoration: BoxDecoration(
                           color: selected ? AppColors.orange : c.card,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Text(
                           '$icon $label',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w600,
                             color: selected
                                 ? Colors.white
@@ -112,10 +113,10 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                 }).toList(),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Expanded(
               child: GridView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 gridDelegate:
                     const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -170,37 +171,37 @@ class _MissionCard extends StatelessWidget {
     return GestureDetector(
       onTap: withHaptic(() => _onTap(context)),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 52.w,
+              height: 52.h,
               decoration: BoxDecoration(
                 color: info.iconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(info.icon, color: info.iconColor, size: 26),
+              child: Icon(info.icon, color: info.iconColor, size: 26.sp),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             Text(
               localizedMissionName(l10n, info.type),
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               localizedMissionDesc(l10n, info.type),
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: c.textSecondary,
               ),
               maxLines: 2,
@@ -211,21 +212,21 @@ class _MissionCard extends StatelessWidget {
               onTap: withHaptic(() => _preview(context)),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: EdgeInsets.symmetric(vertical: 6.h),
                 decoration: BoxDecoration(
                   color: c.background,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.play_arrow,
-                        size: 14, color: c.textSecondary),
-                    const SizedBox(width: 2),
+                        size: 14.sp, color: c.textSecondary),
+                    SizedBox(width: 2.w),
                     Text(
                       l10n.missionPickerPreview,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         fontWeight: FontWeight.w600,
                         color: c.textSecondary,
                       ),

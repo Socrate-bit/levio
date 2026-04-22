@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -30,27 +31,27 @@ class MorningPlanStep extends StatelessWidget {
     final timeStr = _fmt(alarmTime);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           // Stars placeholder
-          const Text('⭐⭐⭐⭐⭐', style: TextStyle(fontSize: 22)),
-          const SizedBox(height: 12),
+          Text('⭐⭐⭐⭐⭐', style: TextStyle(fontSize: 22.sp)),
+          SizedBox(height: 12.h),
           Text(
             l10n.onboardingMorningPlanTitle,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             l10n.onboardingMorningPlanSubtitle(timeStr),
-            style: TextStyle(fontSize: 16, color: c.textSecondary),
+            style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           // Info pills
           Builder(builder: (context) {
             final now = DateTime.now();
@@ -65,8 +66,8 @@ class MorningPlanStep extends StatelessWidget {
             final countdown = '${h}h ${m}m';
             final dayLabel = localizedDayShort(l10n, alarmDt.weekday % 7);
             return Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 8.w,
+              runSpacing: 8.h,
               alignment: WrapAlignment.center,
               children: [
                 _Pill(icon: Icons.timer, label: l10n.onboardingStartsIn(countdown), colors: c),
@@ -76,27 +77,27 @@ class MorningPlanStep extends StatelessWidget {
               ],
             );
           }),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           // Timeline
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.w),
             decoration: BoxDecoration(
               color: c.card,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               border: Border.all(color: c.separator),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(l10n.onboardingHeresTomorrow,
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: TextStyle(
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1,
-                      color: Color(0xFF8E8E93),
+                      color: const Color(0xFF8E8E93),
                     )),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 _TimelineItem(
                   icon: Icons.notifications,
                   label: l10n.onboardingAlarmRings(timeStr),
@@ -115,41 +116,41 @@ class MorningPlanStep extends StatelessWidget {
                   colors: c,
                   isLast: true,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Text(
                   l10n.onboardingNoSnooze,
                   style: TextStyle(
-                      fontSize: 14, color: c.textSecondary, height: 1.4),
+                      fontSize: 14.sp, color: c.textSecondary, height: 1.4),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40.h),
           // App icon
           ClipRRect(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(24.r),
             child: Image.asset(
               'assets/icon.png',
-              width: 120,
-              height: 120,
+              width: 120.w,
+              height: 120.h,
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
           // Rise and repeat
           Text(
             l10n.onboardingRiseAndRepeat,
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 22.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             l10n.onboardingAlarmFrequency(repeatDays.where((d) => d).length),
-            style: TextStyle(fontSize: 15, color: c.textSecondary),
+            style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           // Day circles
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -157,7 +158,7 @@ class MorningPlanStep extends StatelessWidget {
               _DayCircle(localizedDayShort(l10n, i)[0], repeatDays[i], c),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
         ],
       ),
     );
@@ -174,20 +175,20 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: colors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: colors.separator),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: colors.textSecondary),
-          const SizedBox(width: 6),
+          Icon(icon, size: 16.sp, color: colors.textSecondary),
+          SizedBox(width: 6.w),
           Text(label,
               style:
-                  TextStyle(fontSize: 13, color: colors.textPrimary)),
+                  TextStyle(fontSize: 13.sp, color: colors.textPrimary)),
         ],
       ),
     );
@@ -212,20 +213,20 @@ class _TimelineItem extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 36,
-          height: 36,
+          width: 36.w,
+          height: 36.h,
           decoration: BoxDecoration(
             color: colors.separator,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 18, color: colors.textPrimary),
+          child: Icon(icon, size: 18.sp, color: colors.textPrimary),
         ),
-        const SizedBox(width: 14),
+        SizedBox(width: 14.w),
         Expanded(
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w600,
               color: colors.textPrimary,
             ),
@@ -243,10 +244,10 @@ class _TimelineLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 17),
+      padding: EdgeInsets.only(left: 17.w),
       child: Container(
         width: 2,
-        height: 24,
+        height: 24.h,
         color: colors.separator,
       ),
     );
@@ -263,10 +264,10 @@ class _DayCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
       child: Container(
-        width: 36,
-        height: 36,
+        width: 36.w,
+        height: 36.h,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: isActive ? AppColors.orange : Colors.transparent,
@@ -278,7 +279,7 @@ class _DayCircle extends StatelessWidget {
           child: Text(
             letter,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w600,
               color: isActive ? Colors.white : colors.textSecondary,
             ),

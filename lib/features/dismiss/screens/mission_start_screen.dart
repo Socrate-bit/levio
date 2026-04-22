@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
@@ -29,56 +30,56 @@ class MissionStartScreen extends StatelessWidget {
         child: Column(
           children: [
             const Spacer(),
-            const Text('\u{1f31e}', style: TextStyle(fontSize: 80)),
-            const SizedBox(height: 24),
+            Text('\u{1f31e}', style: TextStyle(fontSize: 80.sp)),
+            SizedBox(height: 24.h),
             Text(
               l10n.dismissMissionTimeToWakeUp,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
-                fontSize: 28,
+                fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               l10n.dismissMissionLabel(currentIndex + 1, totalMissions, localizedMissionName(l10n, missionType)),
               style: TextStyle(
                 color: Colors.white.withAlpha(150),
-                fontSize: 16,
+                fontSize: 16.sp,
               ),
             ),
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: ElevatedButton(
                 onPressed: withHaptic(onStart),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 54),
+                  minimumSize: Size(double.infinity, 54.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   elevation: 0,
                 ),
                 child: Text(
                   l10n.dismissStartMission,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             // Page indicator dots
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(totalMissions, (i) {
                 return Container(
-                  width: 8,
-                  height: 8,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: 8.w,
+                  height: 8.h,
+                  margin: EdgeInsets.symmetric(horizontal: 4.w),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: i == currentIndex
@@ -88,7 +89,7 @@ class MissionStartScreen extends StatelessWidget {
                 );
               }),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
           ],
         ),
       ),

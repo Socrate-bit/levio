@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../shared/theme/app_theme.dart';
 
@@ -47,25 +48,25 @@ class _TimePickerStepState extends State<TimePickerStep> {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             widget.title,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
               height: 1.2,
             ),
           ),
           if (widget.subtitle != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               widget.subtitle!,
-              style: TextStyle(fontSize: 16, color: c.textSecondary),
+              style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
             ),
           ],
           const Spacer(),
@@ -73,21 +74,21 @@ class _TimePickerStepState extends State<TimePickerStep> {
             child: Text(
               _formatTime(widget.time),
               style: TextStyle(
-                fontSize: 64,
+                fontSize: 64.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           SizedBox(
-            height: 200,
+            height: 200.h,
             child: Row(
               children: [
                 Expanded(
                   child: CupertinoPicker(
                     scrollController: _hourController,
-                    itemExtent: 40,
+                    itemExtent: 40.h,
                     onSelectedItemChanged: (index) {
                       widget.onTimeChanged(
                         TimeOfDay(hour: index, minute: widget.time.minute),
@@ -99,7 +100,7 @@ class _TimePickerStepState extends State<TimePickerStep> {
                         child: Text(
                           i.toString().padLeft(2, '0'),
                           style: TextStyle(
-                              fontSize: 22, color: c.textPrimary),
+                              fontSize: 22.sp, color: c.textPrimary),
                         ),
                       ),
                     ),
@@ -108,7 +109,7 @@ class _TimePickerStepState extends State<TimePickerStep> {
                 Expanded(
                   child: CupertinoPicker(
                     scrollController: _minuteController,
-                    itemExtent: 40,
+                    itemExtent: 40.h,
                     onSelectedItemChanged: (index) {
                       widget.onTimeChanged(
                         TimeOfDay(hour: widget.time.hour, minute: index),
@@ -120,7 +121,7 @@ class _TimePickerStepState extends State<TimePickerStep> {
                         child: Text(
                           i.toString().padLeft(2, '0'),
                           style: TextStyle(
-                              fontSize: 22, color: c.textPrimary),
+                              fontSize: 22.sp, color: c.textPrimary),
                         ),
                       ),
                     ),

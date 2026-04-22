@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -23,36 +24,36 @@ class SurveyStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             question,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           ...options.asMap().entries.map((entry) {
             final index = entry.key;
             final option = entry.value;
             final isSelected = selectedOption == option;
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.only(bottom: 12.h),
               child: GestureDetector(
                 onTap: withHaptic(() => onSelected(option)),
                 child: Container(
                   width: double.infinity,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                   decoration: BoxDecoration(
                     color: c.card,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                     border: Border.all(
                       color: isSelected ? c.textPrimary : c.separator,
                       width: isSelected ? 2 : 1,
@@ -62,21 +63,21 @@ class SurveyStep extends StatelessWidget {
                     children: [
                       if (icons != null && index < icons!.length) ...[
                         Icon(icons![index],
-                            size: 22, color: c.textSecondary),
-                        const SizedBox(width: 12),
+                            size: 22.sp, color: c.textSecondary),
+                        SizedBox(width: 12.w),
                       ],
                       Expanded(
                         child: Text(
                           option,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             color: c.textPrimary,
                           ),
                         ),
                       ),
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: 24.w,
+                        height: 24.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isSelected ? c.textPrimary : Colors.transparent,
@@ -87,7 +88,7 @@ class SurveyStep extends StatelessWidget {
                           ),
                         ),
                         child: isSelected
-                            ? Icon(Icons.check, size: 16, color: c.card)
+                            ? Icon(Icons.check, size: 16.sp, color: c.card)
                             : null,
                       ),
                     ],

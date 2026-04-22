@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../services/custom_items_service.dart';
@@ -114,46 +115,46 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
           children: [
             // Top bar
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 36.w,
+                      height: 36.h,
                       decoration: BoxDecoration(
                         color: c.card,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.close, size: 18, color: c.textPrimary),
+                      child: Icon(Icons.close, size: 18.sp, color: c.textPrimary),
                     ),
                   ),
                   Expanded(
                     child: Center(
                       child: Text(
                         l10n.affirmationPickerTitle,
-                        style: const TextStyle(
-                          fontSize: 17,
+                        style: TextStyle(
+                          fontSize: 17.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 36),
+                  SizedBox(width: 36.w),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
 
             // Count + select/deselect
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
                 children: [
                   Text(
                     l10n.affirmationPickerSelected(_selected.length),
-                    style: TextStyle(fontSize: 14, color: c.textSecondary),
+                    style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
                   ),
                   const Spacer(),
                   GestureDetector(
@@ -171,7 +172,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                           ? l10n.affirmationPickerSelectAll
                           : l10n.affirmationPickerDeselectAll,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         color: c.purpleDeep,
                         fontWeight: FontWeight.w600,
                       ),
@@ -180,17 +181,17 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
 
             // Affirmation count stepper
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 16.w, vertical: 12.h),
                 decoration: BoxDecoration(
                   color: c.card,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Row(
                   children: [
@@ -198,7 +199,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                       child: Text(
                         l10n.missionConfigNumberOfAffirmations,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           color: c.textPrimary,
                           fontWeight: FontWeight.w500,
                         ),
@@ -209,8 +210,8 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                           ? withHaptic(() => setState(() => _count--))
                           : null,
                       child: Container(
-                        width: 32,
-                        height: 32,
+                        width: 32.w,
+                        height: 32.h,
                         decoration: BoxDecoration(
                           color: _count > 1
                               ? AppColors.orange
@@ -219,7 +220,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                         ),
                         child: Icon(
                           Icons.remove,
-                          size: 18,
+                          size: 18.sp,
                           color: _count > 1
                               ? Colors.white
                               : c.textSecondary,
@@ -227,12 +228,12 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                       ),
                     ),
                     SizedBox(
-                      width: 40,
+                      width: 40.w,
                       child: Center(
                         child: Text(
                           '$_count',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.bold,
                             color: c.textPrimary,
                           ),
@@ -244,8 +245,8 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                           ? withHaptic(() => setState(() => _count++))
                           : null,
                       child: Container(
-                        width: 32,
-                        height: 32,
+                        width: 32.w,
+                        height: 32.h,
                         decoration: BoxDecoration(
                           color: _count < 10
                               ? AppColors.orange
@@ -254,7 +255,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                         ),
                         child: Icon(
                           Icons.add,
-                          size: 18,
+                          size: 18.sp,
                           color: _count < 10
                               ? Colors.white
                               : c.textSecondary,
@@ -265,7 +266,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
 
             // List
             Expanded(
@@ -278,12 +279,12 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                     )
                   : ListView(
                       controller: _scrollCtrl,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
                       children: [
                         // Built-in affirmations
                         for (final item in allBuiltIn)
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
+                            padding: EdgeInsets.only(bottom: 4.h),
                             child: _buildTile(item, c),
                           ),
 
@@ -297,21 +298,21 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
                                   children: [
-                                    const SizedBox(height: 12),
+                                    SizedBox(height: 12.h),
                                     Text(
                                       l10n.affirmationPickerCustom,
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w600,
                                         color: c.textPrimary,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
+                                    SizedBox(height: 8.h),
                                     for (final item
                                         in _customAffirmations)
                                       Padding(
                                         padding:
-                                            const EdgeInsets.only(bottom: 4),
+                                            EdgeInsets.only(bottom: 4.h),
                                         child: _buildTile(item, c,
                                             isCustom: true),
                                       ),
@@ -319,47 +320,47 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                                 )
                               : const SizedBox.shrink(),
                         ),
-                        const SizedBox(height: 80),
+                        SizedBox(height: 80.h),
                       ],
                     ),
             ),
 
             // Add your own
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _customCtrl,
-                      style: TextStyle(fontSize: 15, color: c.textPrimary),
+                      style: TextStyle(fontSize: 15.sp, color: c.textPrimary),
                       decoration: InputDecoration(
                         hintText: l10n.affirmationPickerAddOwn,
                         hintStyle: TextStyle(color: c.textSecondary),
                         filled: true,
                         fillColor: c.card,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w, vertical: 12.h),
                       ),
                       onSubmitted: (_) => _addCustom(),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   GestureDetector(
                     onTap: withHaptic(_addCustom),
                     child: Container(
-                      width: 44,
-                      height: 44,
+                      width: 44.w,
+                      height: 44.h,
                       decoration: BoxDecoration(
                         color: AppColors.orange,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
-                      child: const Icon(Icons.add,
-                          color: Colors.white, size: 22),
+                      child: Icon(Icons.add,
+                          color: Colors.white, size: 22.sp),
                     ),
                   ),
                 ],
@@ -368,7 +369,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
 
             // Done button
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
               child: ElevatedButton(
                 onPressed: withHaptic(() => Navigator.pop(
                     context,
@@ -379,16 +380,16 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: c.textPrimary,
                   foregroundColor: c.background,
-                  minimumSize: const Size(double.infinity, 54),
+                  minimumSize: Size(double.infinity, 54.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   elevation: 0,
                 ),
                 child: Text(
                   l10n.affirmationPickerDone,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      fontSize: 16.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -412,10 +413,10 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
         });
       }),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: selected ? c.purpleDeep : Colors.transparent,
             width: 1.5,
@@ -426,22 +427,22 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
             Expanded(
               child: Text(
                 item,
-                style: TextStyle(fontSize: 14, color: c.textPrimary),
+                style: TextStyle(fontSize: 14.sp, color: c.textPrimary),
               ),
             ),
             if (isCustom)
               GestureDetector(
                 onTap: withHaptic(() => _deleteCustom(item)),
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.only(right: 8.w),
                   child: Icon(Icons.delete_outline,
-                      size: 20, color: c.textSecondary),
+                      size: 20.sp, color: c.textSecondary),
                 ),
               ),
             Icon(
               selected ? Icons.check_circle : Icons.circle_outlined,
               color: selected ? c.purpleDeep : c.textSecondary,
-              size: 22,
+              size: 22.sp,
             ),
           ],
         ),

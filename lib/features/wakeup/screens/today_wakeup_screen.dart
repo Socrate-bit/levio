@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
@@ -36,13 +37,13 @@ class TodayWakeupScreen extends StatelessWidget {
           children: [
             // Top bar
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
               child: Row(
                 children: [
                   Text(
                     l10n.wakeupTitle,
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.bold,
                       color: c.textPrimary,
                     ),
@@ -50,12 +51,12 @@ class TodayWakeupScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(24.r),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withAlpha(15),
@@ -65,12 +66,12 @@ class TodayWakeupScreen extends StatelessWidget {
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(24.r),
                   child: Column(
                     children: [
                       // Image area (mock gradient)
                       Container(
-                        height: 260,
+                        height: 260.h,
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -84,21 +85,21 @@ class TodayWakeupScreen extends StatelessWidget {
                         child: Stack(
                           children: [
                             Positioned(
-                              top: 14,
-                              left: 14,
+                              top: 14.h,
+                              left: 14.w,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 5),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10.w, vertical: 5.h),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withAlpha(140),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(8.r),
                                 ),
                                 child: Text(
                                   missionLabel,
-                                  style: const TextStyle(
-                                    fontSize: 13,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF4A3000),
+                                    color: const Color(0xFF4A3000),
                                   ),
                                 ),
                               ),
@@ -106,8 +107,8 @@ class TodayWakeupScreen extends StatelessWidget {
                             Center(
                               child: Image.asset(
                                 'assets/icon.png',
-                                width: 120,
-                                height: 120,
+                                width: 120.w,
+                                height: 120.h,
                               ),
                             ),
                           ],
@@ -116,28 +117,28 @@ class TodayWakeupScreen extends StatelessWidget {
                       // Info bar
                       Container(
                         color: c.card,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 14),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 18.w, vertical: 14.h),
                         child: Row(
                           children: [
                             Container(
-                              width: 44,
-                              height: 44,
+                              width: 44.w,
+                              height: 44.h,
                               decoration: BoxDecoration(
                                 color:
                                     AppColors.orange.withAlpha(25),
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(8.r),
                                 child: Image.asset(
                                   'assets/icon.png',
-                                  width: 28,
-                                  height: 28,
+                                  width: 28.w,
+                                  height: 28.h,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -146,19 +147,19 @@ class TodayWakeupScreen extends StatelessWidget {
                                     Text(
                                       timeStr,
                                       style: TextStyle(
-                                        fontSize: 28,
+                                        fontSize: 28.sp,
                                         fontWeight: FontWeight.bold,
                                         color: c.textPrimary,
                                         letterSpacing: -0.5,
                                       ),
                                     ),
-                                    const SizedBox(width: 4),
+                                    SizedBox(width: 4.w),
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 6),
+                                      padding: EdgeInsets.only(top: 6.h),
                                       child: Text(
                                         isPM ? 'pm' : 'am',
                                         style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 14.sp,
                                           color: c.textSecondary,
                                         ),
                                       ),
@@ -174,14 +175,14 @@ class TodayWakeupScreen extends StatelessWidget {
                                 Text(
                                   dateStr,
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                     color: c.textSecondary,
                                   ),
                                 ),
                                 Text(
                                   '#$wakeupNumber',
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 13.sp,
                                     color: c.textSecondary,
                                   ),
                                 ),
@@ -197,7 +198,7 @@ class TodayWakeupScreen extends StatelessWidget {
             ),
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+              padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 24.h),
               child: ElevatedButton(
                 onPressed: withHaptic(() => Navigator.pop(context)),
                 child: Text(l10n.wakeupStartMyDay),

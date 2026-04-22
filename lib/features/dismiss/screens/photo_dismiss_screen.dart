@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -236,13 +237,13 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
               children: [
                 const LevioBrandHeader(textColor: Colors.white),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                  padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 0),
                   child: Text(
                     l10n.dismissPhotoPrompt(targetLabel),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
                       height: 1.1,
@@ -250,13 +251,13 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
 
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(28.r),
                       child: controller != null && controller.value.isInitialized
                           ? Stack(
                               fit: StackFit.expand,
@@ -278,24 +279,24 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
 
                                 if (errorMessage != null)
                                   Positioned(
-                                    top: 14,
-                                    left: 16,
-                                    right: 16,
+                                    top: 14.h,
+                                    left: 16.w,
+                                    right: 16.w,
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 7,
-                                        horizontal: 14,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 7.h,
+                                        horizontal: 14.w,
                                       ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFE53935).withAlpha(200),
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(12.r),
                                       ),
                                       child: Text(
                                         errorMessage,
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: 13,
+                                          fontSize: 13.sp,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -313,12 +314,12 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                             color: AppColors.orange,
                                             strokeWidth: 2.5,
                                           ),
-                                          const SizedBox(height: 16),
+                                          SizedBox(height: 16.h),
                                           Text(
                                             l10n.dismissPhotoChecking(localizedPhotoTarget(l10n, widget.missionType).toLowerCase()),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               color: Colors.white,
-                                              fontSize: 14,
+                                              fontSize: 14.sp,
                                               letterSpacing: 0.3,
                                             ),
                                           ),
@@ -338,12 +339,12 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                       color: AppColors.orange,
                                       strokeWidth: 2.5,
                                     ),
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: 16.h),
                                     Text(
                                       l10n.dismissPhotoStarting,
                                       style: TextStyle(
                                         color: Colors.white54,
-                                        fontSize: 14,
+                                        fontSize: 14.sp,
                                         letterSpacing: 0.3,
                                       ),
                                     ),
@@ -355,46 +356,46 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
 
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
                   decoration: BoxDecoration(
                     color: Colors.white.withAlpha(12),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 48,
-                        height: 48,
+                        width: 48.w,
+                        height: 48.h,
                         decoration: BoxDecoration(
                           color: info.iconBg,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
-                        child: Icon(info.icon, color: info.iconColor, size: 24),
+                        child: Icon(info.icon, color: info.iconColor, size: 24.sp),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12.w),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             l10n.dismissPhotoTakePhoto,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white54,
-                              fontSize: 10,
+                              fontSize: 10.sp,
                               letterSpacing: 1.5,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2.h),
                           Text(
                             targetLabel,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 17,
+                              fontSize: 17.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -404,13 +405,13 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
 
                 GestureDetector(
                   onTap: _isValidating ? null : withHaptic(_captureAndValidate),
                   child: Container(
-                    width: 72,
-                    height: 72,
+                    width: 72.w,
+                    height: 72.h,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _isValidating
@@ -423,27 +424,27 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.camera_alt, color: Colors.black, size: 32),
+                    child: Icon(Icons.camera_alt, color: Colors.black, size: 32.sp),
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                SizedBox(height: 32.h),
               ],
             ),
             if (widget.isPreview)
               Positioned(
-                top: 16,
-                right: 16,
+                top: 16.h,
+                right: 16.w,
                 child: GestureDetector(
                   onTap: withHaptic(() => Navigator.of(context).pop()),
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    width: 36.w,
+                    height: 36.h,
                     decoration: const BoxDecoration(
                       color: Colors.black54,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close, size: 18, color: Colors.white),
+                    child: Icon(Icons.close, size: 18.sp, color: Colors.white),
                   ),
                 ),
               ),
