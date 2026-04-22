@@ -44,20 +44,22 @@ class AlarmService {
         if (eventType == 'ring') {
           if (_dismissScreenActive) return;
 
-          final nativeAlarmId = event['id'] as String?;
-          if (nativeAlarmId == null) return;
-          final firestoreEntry = await _resolveEntry(nativeAlarmId);
+          // Ring events carry the burst id (`id`) and the logical cascade id
+          // (`originalId`). Prefer originalId for Firestore lookup.
+          final burstId = event['id'] as String?;
+          final originalId = (event['originalId'] as String?) ?? burstId;
+          if (originalId == null) return;
+          final firestoreEntry = await AlarmFirestoreService.getAlarm(originalId);
           if (firestoreEntry == null) {
-            debugPrint('[AlarmService] ring: alarm $nativeAlarmId not found — stopping');
-            AlarmChannel.stop(nativeAlarmId).ignore();
+            debugPrint('[AlarmService] ring: alarm $originalId not found — cancelling cascade');
+            AlarmChannel.cancel(originalId).ignore();
             return;
           }
 
           // Gate: check if dismiss is allowed
           if (canDismiss != null && !canDismiss()) {
-            debugPrint('[AlarmService] ring blocked — stopping alarm $nativeAlarmId');
-            await AlarmChannel.stop(nativeAlarmId);
-            await AlarmChannel.cancelSnoozesForAlarm(firestoreEntry.id);
+            debugPrint('[AlarmService] ring blocked — cancelling cascade $originalId');
+            await AlarmChannel.cancel(originalId);
             onRingBlocked?.call();
             return;
           }
@@ -73,9 +75,12 @@ class AlarmService {
             soundId: firestoreEntry.soundId,
           ).ignore();
           debugPrint(
-            '[AlarmService] ring → pushing dismiss  nativeAlarmId=$nativeAlarmId originalAlarmId=${firestoreEntry.id}',
+            '[AlarmService] ring → pushing dismiss  burstId=$burstId originalId=$originalId',
           );
-          _pushDismiss(navigatorKey, _argsFrom(nativeAlarmId, firestoreEntry));
+          _pushDismiss(
+            navigatorKey,
+            _argsFrom(burstId ?? originalId, firestoreEntry),
+          );
           return;
         }
       },
@@ -95,11 +100,9 @@ class AlarmService {
 
         // Gate: check if dismiss is allowed on resume
         if (canDismiss != null && !canDismiss()) {
-          final nativeId = ringing['nativeAlarmId'] ?? ringing['alarmId']!;
           final alarmId = ringing['alarmId']!;
-          debugPrint('[AlarmService] resume ring blocked — stopping alarm $nativeId');
-          await AlarmChannel.stop(nativeId);
-          await AlarmChannel.cancelSnoozesForAlarm(alarmId);
+          debugPrint('[AlarmService] resume ring blocked — cancelling cascade $alarmId');
+          await AlarmChannel.cancel(alarmId);
           onRingBlocked?.call();
           return;
         }
@@ -126,20 +129,8 @@ class AlarmService {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  /// Fetches the Firestore entry for [alarmId], falling back to the snooze map
-  /// if the ID belongs to a snooze (which has no Firestore doc of its own).
-  static Future<AppAlarmEntry?> _resolveEntry(String alarmId) async {
-    var entry = await AlarmFirestoreService.getAlarm(alarmId);
-    if (entry == null) {
-      final originalId = (await AlarmChannel.getSnoozeMap())[alarmId];
-      if (originalId != null)
-        entry = await AlarmFirestoreService.getAlarm(originalId);
-    }
-    return entry;
-  }
-
   /// Only passes identifiers — mission config is fetched from Firestore at
-  /// dismiss time.
+  /// dismiss time. `id` here is the originalId / alarmId.
   static Map<String, String> _argsFrom(
     String nativeAlarmId,
     AppAlarmEntry entry,
@@ -149,15 +140,15 @@ class AlarmService {
     'label': entry.name,
   };
 
-  /// Resolves [id] to nav args, returning null if the alarm can't be found.
-  static Future<Map<String, String>?> _toNavArgs(String id) async {
-    final entry = await _resolveEntry(id);
+  /// Resolves [originalId] to nav args, returning null if the alarm can't be found.
+  static Future<Map<String, String>?> _toNavArgs(String originalId) async {
+    final entry = await AlarmFirestoreService.getAlarm(originalId);
     if (entry == null) {
-      debugPrint('[AlarmService] → alarm $id not found in Firestore — stopping');
-      AlarmChannel.stop(id).ignore();
+      debugPrint('[AlarmService] → alarm $originalId not found in Firestore — cancelling cascade');
+      AlarmChannel.cancel(originalId).ignore();
       return null;
     }
-    return _argsFrom(id, entry);
+    return _argsFrom(originalId, entry);
   }
 
   static void _pushDismiss(

@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
-import '../../alarms/services/alarm_channel.dart';
+import '../../alarms/services/alarm_cascade_controller.dart';
 import '../../wakeup/services/history_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../widgets/levio_brand_header.dart';
@@ -28,32 +27,19 @@ class SimpleDismissScreen extends StatefulWidget {
 
 class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
   final _startTime = DateTime.now();
-  String? _missionSnoozeId;
-  bool _keepRinging = false;
+  late final AlarmCascadeController _cascade;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    _initAlarm();
-  }
-
-  Future<void> _initAlarm() async {
-    final prefs = await SharedPreferences.getInstance();
-    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    if (!_keepRinging) {
-      await Future.delayed(const Duration(seconds: 2));
-      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
-        nativeAlarmId: widget.nativeAlarmId,
-        originalAlarmId: widget.alarmId,
-      );
-    }
+    _cascade = AlarmCascadeController(alarmId: widget.alarmId);
+    _cascade.start();
   }
 
   @override
   void dispose() {
+    _cascade.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
@@ -63,14 +49,11 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
   Future<void> _dismiss() async {
     HapticFeedback.mediumImpact();
 
-    await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-    await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-    // Stop any alarm that may still be ringing (e.g. snooze fired during mission).
-    await AlarmChannel.stopRinging();
-
+    await _cascade.finish();
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
 
+    if (!mounted) return;
     // Disable one-time alarms so they don't get rescheduled.
     final isOneTime = context.read<AlarmCubit>().state.alarms
         .any((a) => a.id == widget.alarmId && a.isOneTime);

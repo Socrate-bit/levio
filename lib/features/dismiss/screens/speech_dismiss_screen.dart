@@ -3,14 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
-import '../../alarms/services/alarm_channel.dart';
+import '../../alarms/services/alarm_cascade_controller.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../data/affirmations.dart';
-import '../../wakeup/screens/daily_quote_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -25,6 +23,7 @@ class SpeechDismissScreen extends StatefulWidget {
   final List<String>? selectedAffirmations;
   final int affirmationCount;
   final VoidCallback? onComplete;
+  final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
 
@@ -37,6 +36,7 @@ class SpeechDismissScreen extends StatefulWidget {
     this.selectedAffirmations,
     this.affirmationCount = 1,
     this.onComplete,
+    this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
   });
@@ -58,8 +58,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   late String _targetText;
   bool _targetTextInitialized = false;
   int _completedCount = 0;
-  String? _missionSnoozeId;
-  bool _keepRinging = false;
+  AlarmCascadeController? _cascade;
 
   int get _totalCount => widget.affirmationCount;
 
@@ -77,7 +76,9 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _initSpeech();
-    if (widget.manageAlarm && !widget.isPreview) _initAlarm();
+    if (widget.manageAlarm && !widget.isPreview) {
+      _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
+    }
   }
 
   @override
@@ -88,20 +89,6 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
     if (!_targetTextInitialized) {
       _targetText = _randomPhrase();
       _targetTextInitialized = true;
-    }
-  }
-
-  Future<void> _initAlarm() async {
-    final prefs = await SharedPreferences.getInstance();
-    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    if (!_keepRinging) {
-      await Future.delayed(const Duration(seconds: 2));
-      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
-        nativeAlarmId: widget.nativeAlarmId,
-        originalAlarmId: widget.alarmId,
-      );
     }
   }
 
@@ -178,6 +165,10 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
 
   void _onResult(SpeechRecognitionResult result) {
     setState(() => _transcription = result.recognizedWords);
+    if (result.recognizedWords.isNotEmpty) {
+      widget.onProgress?.call();
+      _cascade?.reportProgress();
+    }
     if (!result.finalResult) return;
     final score = _similarity(result.recognizedWords, _targetText);
     _stt.stop();
@@ -213,11 +204,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
       return;
     }
 
-    if (widget.manageAlarm) {
-      await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      await AlarmChannel.stopRinging();
-    }
+    await _cascade?.finish();
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
@@ -237,6 +224,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
   @override
   void dispose() {
     _stt.stop();
+    _cascade?.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }

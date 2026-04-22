@@ -108,16 +108,12 @@ class AlarmCubit extends Cubit<AlarmState> {
     final results = await Future.wait([
       AlarmFirestoreService.getAlarms(),
       AlarmChannel.getAlarmIds(),
-      AlarmChannel.getSnoozeMap(),
     ]);
     final firestoreAlarms = results[0] as List<AppAlarmEntry>;
     final nativeIds = (results[1] as List<String>).toSet();
-    // {snoozeId → originalId} — snooze alarms are native-only, no Firestore doc.
-    final snoozeMap = results[2] as Map<String, String>;
     final now = DateTime.now();
     final resolved = <AppAlarmEntry>[];
 
-    // Check firestore alarms are planned
     for (final alarm in firestoreAlarms) {
       // Disabled or already scheduled natively — no action needed.
       if (!alarm.isEnabled || nativeIds.contains(alarm.id)) {
@@ -125,7 +121,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         continue;
       }
 
-      // Alarm is enabled but missing from native — reschedule it.
+      // Alarm is enabled but has no active cascade — reschedule it.
       final isRecurrent = !alarm.isOneTime && alarm.repeatDays.any((d) => d);
       final isPast = alarm.dateTime.isBefore(now);
 
@@ -146,24 +142,11 @@ class AlarmCubit extends Cubit<AlarmState> {
       }
     }
 
-    // Cancel orphaned native alarms not referenced by any Firestore entry.
+    // Cancel orphaned native cascades not referenced by any Firestore entry.
     final resolvedIds = resolved.map((a) => a.id).toSet();
     for (final nativeId in nativeIds) {
       if (resolvedIds.contains(nativeId)) continue;
-
-      final originalId = snoozeMap[nativeId];
-      if (originalId != null) {
-        final originalEnabled = resolved.any(
-          (a) => a.id == originalId && a.isEnabled,
-        );
-        if (originalEnabled) continue;
-        debugPrint(
-          '[AlarmCubit] cancelling snooze $nativeId (original $originalId disabled)',
-        );
-      } else {
-        debugPrint('[AlarmCubit] cancelling orphaned native alarm $nativeId');
-      }
-
+      debugPrint('[AlarmCubit] cancelling orphaned cascade $nativeId');
       try {
         await AlarmChannel.cancel(nativeId);
         await AlarmChannel.cleanupConfig(nativeId);
@@ -175,14 +158,13 @@ class AlarmCubit extends Cubit<AlarmState> {
     emit(state.copyWith(alarms: resolved));
   }
 
-  /// Cancels every native alarm (and snoozes) and clears the in-memory list.
+  /// Cancels every cascade and clears the in-memory list.
   /// Used on logout — does not touch Firestore (data stays scoped to that uid).
   Future<void> cancelAllNative() async {
     try {
       final nativeIds = await AlarmChannel.getAlarmIds();
       for (final id in nativeIds) {
         try {
-          await AlarmChannel.cancelSnoozesForAlarm(id);
           await AlarmChannel.cancel(id);
           await AlarmChannel.cleanupConfig(id);
         } catch (e) {
@@ -444,7 +426,6 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
 
     try {
-      await AlarmChannel.cancelSnoozesForAlarm(id);
       await AlarmChannel.cancel(id);
       await AlarmChannel.cleanupConfig(id);
     } catch (e) {

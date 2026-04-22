@@ -154,6 +154,7 @@ Widget buildDismissScreen({
   required String nativeAlarmId,
   required String alarmLabel,
   VoidCallback? onComplete,
+  VoidCallback? onProgress,
   bool manageAlarm = true,
   bool isPreview = false,
 }) {
@@ -182,6 +183,7 @@ Widget buildDismissScreen({
         alarmLabel: alarmLabel,
         target: config.repCount ?? 15,
         onComplete: onComplete,
+        onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       );
@@ -193,6 +195,7 @@ Widget buildDismissScreen({
         difficulty: config.mathDifficulty ?? MathDifficulty.easy,
         problemCount: config.mathProblemCount ?? 3,
         onComplete: onComplete,
+        onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       );
@@ -209,6 +212,7 @@ Widget buildDismissScreen({
         alarmLabel: alarmLabel,
         selectedItems: config.selectedItems,
         onComplete: onComplete,
+        onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       );
@@ -221,6 +225,7 @@ Widget buildDismissScreen({
         selectedAffirmations: config.selectedAffirmations,
         affirmationCount: config.affirmationCount ?? 1,
         onComplete: onComplete,
+        onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       );
@@ -231,6 +236,7 @@ Widget buildDismissScreen({
         alarmLabel: alarmLabel,
         repCount: config.repCount ?? 10,
         onComplete: onComplete,
+        onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       );
@@ -242,6 +248,7 @@ Widget buildDismissScreen({
         alarmLabel: alarmLabel,
         repCount: config.repCount ?? 5,
         onComplete: onComplete,
+        onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       );

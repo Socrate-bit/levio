@@ -3,10 +3,9 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
-import '../../alarms/services/alarm_channel.dart';
+import '../../alarms/services/alarm_cascade_controller.dart';
 
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/item_picker_screen.dart';
@@ -38,6 +37,7 @@ class PhotoDismissScreen extends StatefulWidget {
   final String alarmLabel;
   final List<String>? selectedItems;
   final VoidCallback? onComplete;
+  final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
 
@@ -49,6 +49,7 @@ class PhotoDismissScreen extends StatefulWidget {
     this.alarmLabel = 'Alarm #1',
     this.selectedItems,
     this.onComplete,
+    this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
   });
@@ -66,8 +67,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   String? _rawError;
   final _startTime = DateTime.now();
   late final String _targetObject;
-  String? _missionSnoozeId;
-  bool _keepRinging = false;
+  AlarmCascadeController? _cascade;
 
   @override
   void initState() {
@@ -83,20 +83,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         : '';
 
     _initCamera();
-    if (widget.manageAlarm && !widget.isPreview) _initAlarm();
-  }
-
-  Future<void> _initAlarm() async {
-    final prefs = await SharedPreferences.getInstance();
-    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    if (!_keepRinging) {
-      await Future.delayed(const Duration(seconds: 2));
-      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
-        nativeAlarmId: widget.nativeAlarmId,
-        originalAlarmId: widget.alarmId,
-      );
+    if (widget.manageAlarm && !widget.isPreview) {
+      _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
   }
 
@@ -123,6 +111,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
     if (_isValidating) return;
+
+    widget.onProgress?.call();
+    _cascade?.reportProgress();
 
     setState(() {
       _isValidating = true;
@@ -178,11 +169,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       return;
     }
 
-    if (widget.manageAlarm) {
-      await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      await AlarmChannel.stopRinging();
-    }
+    await _cascade?.finish();
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
@@ -202,6 +189,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   @override
   void dispose() {
     _controller?.dispose();
+    _cascade?.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }

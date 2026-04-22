@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
-import '../../alarms/services/alarm_channel.dart';
+import '../../alarms/services/alarm_cascade_controller.dart';
 import 'package:shake/shake.dart';
 
 import '../../missions/models/mission.dart';
@@ -17,6 +16,7 @@ class ShakeDismissScreen extends StatefulWidget {
   final String alarmLabel;
   final int target;
   final VoidCallback? onComplete;
+  final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
 
@@ -27,6 +27,7 @@ class ShakeDismissScreen extends StatefulWidget {
     this.alarmLabel = 'Alarm #1',
     this.target = 15,
     this.onComplete,
+    this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
   });
@@ -39,8 +40,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
   int _shakeCount = 0;
   late final ShakeDetector _detector;
   final _startTime = DateTime.now();
-  String? _missionSnoozeId;
-  bool _keepRinging = false;
+  AlarmCascadeController? _cascade;
 
   @override
   void initState() {
@@ -52,26 +52,16 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
       minimumShakeCount: 1,
       onPhoneShake: (_) => _onShake(),
     );
-    if (widget.manageAlarm && !widget.isPreview) _initAlarm();
-  }
-
-  Future<void> _initAlarm() async {
-    final prefs = await SharedPreferences.getInstance();
-    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    if (!_keepRinging) {
-      await Future.delayed(const Duration(seconds: 2));
-      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
-        nativeAlarmId: widget.nativeAlarmId,
-        originalAlarmId: widget.alarmId,
-      );
+    if (widget.manageAlarm && !widget.isPreview) {
+      _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
   }
 
   void _onShake() {
     if (_shakeCount >= widget.target) return;
     HapticFeedback.mediumImpact();
+    widget.onProgress?.call();
+    _cascade?.reportProgress();
     setState(() => _shakeCount++);
     if (_shakeCount >= widget.target) {
       _dismiss();
@@ -91,11 +81,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
       return;
     }
 
-    if (widget.manageAlarm) {
-      await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      await AlarmChannel.stopRinging();
-    }
+    await _cascade?.finish();
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
@@ -115,6 +101,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
   @override
   void dispose() {
     _detector.stopListening();
+    _cascade?.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
