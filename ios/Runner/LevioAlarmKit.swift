@@ -430,14 +430,26 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
     // MARK: - Get Alarm IDs
 
-    /// Returns the `originalId`s of every active cascade.
+    /// Returns the `originalId`s of every cascade that still has at least one
+    /// live burst in AlarmKit. Stale cascades (all 24 bursts have fired or
+    /// been removed) are filtered out so the Dart reconcile can treat them as
+    /// missing and reschedule — critical for recurrent alarms whose user
+    /// ignored the full 6-min cascade.
     private func getAlarmIds(result: @escaping FlutterResult) {
         let defaults = UserDefaults.standard
+        let liveBurstIds: Set<UUID> = Set((try? AlarmManager.shared.alarms)?.map { $0.id } ?? [])
         let prefix = "levio_cascade_"
         var ids: [String] = []
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(prefix) {
             if key.hasPrefix("levio_cascade_meta_") { continue }
-            ids.append(String(key.dropFirst(prefix.count)))
+            let originalId = String(key.dropFirst(prefix.count))
+            let hasLiveBurst = loadCascade(originalId: originalId).contains { burstStr in
+                guard let uuid = UUID(uuidString: burstStr) else { return false }
+                return liveBurstIds.contains(uuid)
+            }
+            if hasLiveBurst {
+                ids.append(originalId)
+            }
         }
         result(ids)
     }
@@ -474,6 +486,10 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             let alarms = (try? AlarmManager.shared.alarms) ?? []
             let burstSet = Set(cascade.compactMap { UUID(uuidString: $0) })
             let cascadeAlarms = alarms.filter { burstSet.contains($0.id) }
+            // Stale cascade — all bursts have already fired or been removed.
+            // Don't surface it to Flutter; the Dart reconcile will treat it as
+            // missing and reschedule.
+            if cascadeAlarms.isEmpty { continue }
             let anyAlerting = cascadeAlarms.contains { alarm in
                 switch alarm.state { case .scheduled: return false; @unknown default: return true }
             }
