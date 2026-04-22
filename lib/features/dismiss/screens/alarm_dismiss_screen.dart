@@ -11,6 +11,7 @@ class AlarmDismissScreen extends StatelessWidget {
   final String alarmLabel;
   final int repCount;
   final VoidCallback? onComplete;
+  final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
 
@@ -21,6 +22,7 @@ class AlarmDismissScreen extends StatelessWidget {
     this.alarmLabel = 'Alarm #1',
     this.repCount = 5,
     this.onComplete,
+    this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
   });
@@ -37,6 +39,7 @@ class AlarmDismissScreen extends StatelessWidget {
         missionType: MissionType.pushUps,
         mirrorCamera: true,
         onComplete: onComplete,
+        onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       ),

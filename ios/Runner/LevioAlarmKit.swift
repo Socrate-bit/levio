@@ -4,10 +4,16 @@ import ActivityKit
 import AppIntents
 import SwiftUI
 
-// MARK: - Metadata (no Live Activity, no countdown UI needed)
+// MARK: - Metadata
 
 @available(iOS 26.0, *)
 struct LevioAlarmMetadata: AlarmMetadata {}
+
+// MARK: - Cascade constants
+
+/// Number of bursts per cascade. 24 × 15s = 6 minutes of ringing coverage.
+private let kCascadeBurstCount = 24
+private let kCascadeIntervalSeconds: TimeInterval = 15
 
 // MARK: - Stream Handler
 
@@ -27,9 +33,17 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
             for await alarms in AlarmManager.shared.alarmUpdates {
                 let currentAlertingIds = Set(alarms.filter { self.isAlerting($0) }.map { $0.id })
 
-                // New alerting alarms → ring event
-                for id in currentAlertingIds.subtracting(previousAlertingIds) {
-                    emit(["event": "ring", "id": id.uuidString])
+                // New alerting alarms → ring event (emit originalId from mapping)
+                for burstId in currentAlertingIds.subtracting(previousAlertingIds) {
+                    let burstIdString = burstId.uuidString
+                    let originalId = UserDefaults.standard.string(
+                        forKey: "levio_burst_\(burstIdString)"
+                    ) ?? burstIdString
+                    emit([
+                        "event": "ring",
+                        "id": burstIdString,
+                        "originalId": originalId,
+                    ])
                 }
 
                 previousAlertingIds = currentAlertingIds
@@ -60,7 +74,6 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
             return true
         }
     }
-
 }
 
 // MARK: - Plugin
@@ -91,29 +104,25 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         case "requestAuthorization":
             Task { await requestAuthorization(result: result) }
         case "scheduleOneShot":
-            Task { await scheduleOneShot(call: call, result: result) }
+            Task { await scheduleOneShotCascade(call: call, result: result) }
         case "scheduleRepeating":
-            Task { await scheduleRepeating(call: call, result: result) }
+            Task { await scheduleRepeatingCascade(call: call, result: result) }
         case "cancel":
-            Task { await cancelAlarm(call: call, result: result) }
-        case "stop":
-            Task { await stopAlarm(call: call, result: result) }
+            Task { await cancelCascade(call: call, result: result) }
+        case "cancelBurst":
+            Task { await cancelBurst(call: call, result: result) }
+        case "rescheduleForNextWeek":
+            Task { await rescheduleForNextWeek(call: call, result: result) }
+        case "getNextBurst":
+            getNextBurst(call: call, result: result)
         case "getAlarmIds":
-            Task { await getAlarmIds(result: result) }
+            getAlarmIds(result: result)
         case "getAlarms":
-            Task { await getAlarms(result: result) }
+            getAlarms(result: result)
         case "getRingingId":
-            Task { await getRingingId(result: result) }
-        case "getSnoozeMap":
-            getSnoozeMap(result: result)
-        case "scheduleMissionSnooze":
-            Task { await scheduleMissionSnooze(call: call, result: result) }
+            getRingingId(result: result)
         case "cleanupConfig":
             cleanupConfig(call: call, result: result)
-        case "cleanupSnoozeLink":
-            cleanupSnoozeLink(call: call, result: result)
-        case "cancelSnoozesForAlarm":
-            Task { await cancelSnoozesForAlarm(call: call, result: result) }
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -130,9 +139,11 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         }
     }
 
-    // MARK: - Schedule One-Shot
+    // MARK: - Schedule One-Shot Cascade
 
-    private func scheduleOneShot(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+    /// Schedules `kCascadeBurstCount` one-shot alarms, 15s apart, all sharing
+    /// the same logical `originalId`. Returns the `originalId`.
+    private func scheduleOneShotCascade(call: FlutterMethodCall, result: @escaping FlutterResult) async {
         guard let args = call.arguments as? [String: Any],
               let timestampMs = args["timestampMs"] as? Double else {
             result(FlutterError(code: "BAD_ARGS", message: "Missing timestampMs", details: nil))
@@ -143,33 +154,42 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
         let soundPath = args["soundPath"] as? String
-        let alarmId = UUID()
-        let date = Date(timeIntervalSince1970: timestampMs / 1000)
-
+        let originalId = UUID()
+        let baseDate = Date(timeIntervalSince1970: timestampMs / 1000)
         let soundName = prepareSoundFile(soundPath: soundPath)
 
-        let config = makeAlarmConfig(
-            id: alarmId,
+        // Persist logical config for later reschedule / UI lookup.
+        saveConfig(
+            originalId: originalId,
+            title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
+            isOneShot: true,
+            timestampMs: timestampMs,
+            soundPath: soundPath
+        )
+
+        let scheduled = await scheduleCascade(
+            originalId: originalId,
+            baseDate: baseDate,
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            schedule: .fixed(date),
             soundName: soundName
         )
 
-        do {
-            let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
-            saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
-                       isOneShot: true, timestampMs: timestampMs, soundPath: soundPath)
-            result(alarm.id.uuidString)
-        } catch {
-            result(FlutterError(code: "SCHEDULE_ERROR", message: error.localizedDescription, details: nil))
+        if scheduled {
+            result(originalId.uuidString)
+        } else {
+            // Clean up partial state if nothing got scheduled.
+            cleanupConfigInternal(originalId: originalId.uuidString)
+            result(FlutterError(code: "SCHEDULE_ERROR", message: "Failed to schedule cascade", details: nil))
         }
     }
 
-    // MARK: - Schedule Repeating
+    // MARK: - Schedule Repeating Cascade
 
-    private func scheduleRepeating(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+    /// Schedules a 24-burst cascade for the next matching weekday at hour:minute.
+    /// Persists weekday/hour/minute config so we can re-schedule after completion.
+    private func scheduleRepeatingCascade(call: FlutterMethodCall, result: @escaping FlutterResult) async {
         guard let args = call.arguments as? [String: Any],
               let mask = args["weekdayMask"] as? Int,
               let hour = args["hour"] as? Int,
@@ -182,231 +202,309 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
         let soundPath = args["soundPath"] as? String
-        let alarmId = UUID()
-        let weekdays = decodeWeekdays(from: mask)
-        let time = Alarm.Schedule.Relative.Time(hour: hour, minute: minute)
-        let recurrence = Alarm.Schedule.Relative.Recurrence.weekly(weekdays)
-        let schedule = Alarm.Schedule.Relative(time: time, repeats: recurrence)
-
+        let originalId = UUID()
         let soundName = prepareSoundFile(soundPath: soundPath)
 
-        let config = makeAlarmConfig(
-            id: alarmId,
+        // Compute the next matching weekday — inclusive of today if hour:minute is still ahead.
+        let baseDate = nextMatchingDate(
+            mask: mask, hour: hour, minute: minute,
+            strictlyAfter: Date().addingTimeInterval(-1)
+        )
+
+        saveConfig(
+            originalId: originalId,
+            title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
+            isOneShot: false,
+            weekdayMask: mask, hour: hour, minute: minute,
+            soundPath: soundPath
+        )
+
+        let scheduled = await scheduleCascade(
+            originalId: originalId,
+            baseDate: baseDate,
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            schedule: .relative(schedule),
             soundName: soundName
         )
 
-        do {
-            let alarm = try await AlarmManager.shared.schedule(id: alarmId, configuration: config)
-            saveConfig(id: alarmId, title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
-                       isOneShot: false, weekdayMask: mask, hour: hour, minute: minute, soundPath: soundPath)
-            result(alarm.id.uuidString)
-        } catch {
-            result(FlutterError(code: "SCHEDULE_ERROR", message: error.localizedDescription, details: nil))
+        if scheduled {
+            result(originalId.uuidString)
+        } else {
+            cleanupConfigInternal(originalId: originalId.uuidString)
+            result(FlutterError(code: "SCHEDULE_ERROR", message: "Failed to schedule cascade", details: nil))
         }
     }
 
-    // MARK: - Cancel
+    // MARK: - Cancel Cascade
 
-    private func cancelAlarm(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+    /// Cancels every burst of the cascade (including any alerting) and clears
+    /// all burst→original mappings. Also removes the saved config — call this
+    /// when the alarm itself is deleted/disabled. For mission completion of
+    /// a recurrent alarm, use `cancelCascade` followed by `rescheduleForNextWeek`
+    /// (which re-primes the cascade under the same originalId).
+    private func cancelCascade(call: FlutterMethodCall, result: @escaping FlutterResult) async {
         guard let args = call.arguments as? [String: Any],
-              let idString = args["id"] as? String,
-              let uuid = UUID(uuidString: idString) else {
-            result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
+              let idString = args["id"] as? String else {
+            result(FlutterError(code: "BAD_ARGS", message: "Missing id", details: nil))
             return
         }
-        do {
-            // Cancel all snoozes first
-            await cancelSnoozesForAlarm(call: FlutterMethodCall(methodName: "cancelSnoozesForAlarm", arguments: ["originalAlarmId": idString]), result: { _ in })
-
-            // Cancel the alarm itself
-            try AlarmManager.shared.cancel(id: uuid)
-            UserDefaults.standard.removeObject(forKey: "levio_config_\(idString)")
-            result(nil)
-        } catch {
-            result(FlutterError(code: "CANCEL_ERROR", message: error.localizedDescription, details: nil))
-        }
+        cancelCascadeInternal(originalId: idString)
+        result(nil)
     }
 
-    // MARK: - Stop (called from Dart after challenge completion)
-
-    private func stopAlarm(call: FlutterMethodCall, result: @escaping FlutterResult) async {
-        guard let args = call.arguments as? [String: Any],
-              let idString = args["id"] as? String,
-              let uuid = UUID(uuidString: idString) else {
-            result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
-            return
-        }
-        do {
-            // Log alarm state before stopping to diagnose intermittent STOP_ERROR
-            if let alarms = try? AlarmManager.shared.alarms,
-               let alarm = alarms.first(where: { $0.id == uuid }) {
-                NSLog("[LevioAlarmKit] stopAlarm: id=%@ state=%@", idString, "\(alarm.state)")
-            } else {
-                NSLog("[LevioAlarmKit] stopAlarm: id=%@ — alarm not found in AlarmManager", idString)
-            }
-            try AlarmManager.shared.stop(id: uuid)
-            result(nil)
-        } catch {
-            NSLog("[LevioAlarmKit] stopAlarm FAILED: id=%@ error=%@", idString, "\(error)")
-            result(FlutterError(
-                code: "STOP_ERROR",
-                message: error.localizedDescription,
-                details: "\(error)"
-            ))
-        }
-    }
-
-    // MARK: - Get Alarm IDs
-
-    private func getAlarmIds(result: @escaping FlutterResult) async {
-        do {
-            let alarms = try AlarmManager.shared.alarms
-            let nativeIds = Set(alarms.map { $0.id.uuidString })
-            result(Array(nativeIds))
-        } catch {
-            result([String]())
-        }
-    }
-
-    // MARK: - Get Alarms (full info)
-
-    private func getAlarms(result: @escaping FlutterResult) async {
-        do {
-            let alarms = try AlarmManager.shared.alarms
-            let list: [[String: Any]] = alarms.map { alarm in
-                let idString = alarm.id.uuidString
-                var info: [String: Any] = ["id": idString]
-
-                // Alarm state
-                switch alarm.state {
-                case .scheduled:
-                    info["state"] = "scheduled"
-                @unknown default:
-                    info["state"] = "alerting"
-                }
-
-                // Merge saved config from UserDefaults
-                if let data = UserDefaults.standard.data(forKey: "levio_config_\(idString)"),
-                   let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                    info["title"] = config["title"] as? String ?? ""
-                    info["sfSymbol"] = config["sfSymbol"] as? String ?? ""
-                    info["secondaryLabel"] = config["secondaryLabel"] as? String ?? ""
-                    info["isOneShot"] = config["isOneShot"] as? Bool ?? false
-                    if let ts = config["timestampMs"] as? Double {
-                        info["timestampMs"] = ts
-                    }
-                    if let mask = config["weekdayMask"] as? Int {
-                        info["weekdayMask"] = mask
-                    }
-                    if let hour = config["hour"] as? Int {
-                        info["hour"] = hour
-                    }
-                    if let minute = config["minute"] as? Int {
-                        info["minute"] = minute
-                    }
-                }
-
-                return info
-            }
-            result(list)
-        } catch {
-            result([[String: Any]]())
-        }
-    }
-
-    // MARK: - Get Ringing ID
-
-    private func getRingingId(result: @escaping FlutterResult) async {
-        do {
-            let alarms = try AlarmManager.shared.alarms
-            let ringing = alarms.first { alarm in
-                switch alarm.state {
-                case .scheduled: return false
-                @unknown default: return true
-                }
-            }
-            result(ringing?.id.uuidString)
-        } catch {
-            result(nil)
-        }
-    }
-
-    // MARK: - Get Snooze Map (read-only: {snoozeId → originalId})
-
-    private func getSnoozeMap(result: @escaping FlutterResult) {
+    private func cancelCascadeInternal(originalId: String) {
         let defaults = UserDefaults.standard
-        var map: [String: String] = [:]
-        for key in defaults.dictionaryRepresentation().keys {
-            if key.hasPrefix("levio_snooze_") {
-                let snoozeId = String(key.dropFirst("levio_snooze_".count))
-                if let originalId = defaults.string(forKey: key) {
-                    map[snoozeId] = originalId
-                }
+        let burstIds = loadCascade(originalId: originalId)
+        for burstIdString in burstIds {
+            if let uuid = UUID(uuidString: burstIdString) {
+                try? AlarmManager.shared.cancel(id: uuid)
             }
+            defaults.removeObject(forKey: "levio_burst_\(burstIdString)")
         }
-        result(map)
+        defaults.removeObject(forKey: "levio_cascade_\(originalId)")
     }
 
-    // MARK: - Schedule Mission Snooze
-    // Schedules a one-shot snooze alarm using the config of an existing alarm.
-    // Links the snooze to the original via UserDefaults so _resolveEntry works.
+    // MARK: - Cancel Single Burst
 
-    private func scheduleMissionSnooze(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+    private func cancelBurst(call: FlutterMethodCall, result: @escaping FlutterResult) async {
         guard let args = call.arguments as? [String: Any],
-              let nativeId = args["nativeAlarmId"] as? String,
-              let originalId = args["originalAlarmId"] as? String,
-              let delaySeconds = args["delaySeconds"] as? Int else {
-            result(FlutterError(code: "BAD_ARGS", message: "Missing nativeAlarmId/originalAlarmId/delaySeconds", details: nil))
+              let originalId = args["originalId"] as? String,
+              let burstIdString = args["burstId"] as? String,
+              let uuid = UUID(uuidString: burstIdString) else {
+            result(FlutterError(code: "BAD_ARGS", message: "Missing originalId/burstId", details: nil))
+            return
+        }
+
+        try? AlarmManager.shared.cancel(id: uuid)
+
+        // Drop it from the cascade list.
+        var burstIds = loadCascade(originalId: originalId)
+        burstIds.removeAll { $0 == burstIdString }
+        saveCascade(originalId: originalId, burstIds: burstIds)
+        UserDefaults.standard.removeObject(forKey: "levio_burst_\(burstIdString)")
+
+        result(nil)
+    }
+
+    // MARK: - Reschedule For Next Week
+
+    /// For recurrent alarms: cancels any remaining bursts and primes a fresh
+    /// cascade for the next matching weekday **strictly after today**. No-op
+    /// for one-shot alarms.
+    private func rescheduleForNextWeek(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+        guard let args = call.arguments as? [String: Any],
+              let originalId = args["id"] as? String else {
+            result(FlutterError(code: "BAD_ARGS", message: "Missing id", details: nil))
             return
         }
 
         let defaults = UserDefaults.standard
-
-        // Read config from the currently ringing alarm (or original).
-        let configKey = defaults.data(forKey: "levio_config_\(nativeId)") != nil
-            ? "levio_config_\(nativeId)"
-            : "levio_config_\(originalId)"
-        guard let data = defaults.data(forKey: configKey),
-              let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            result(FlutterError(code: "BAD_ARGS", message: "No config found for alarm", details: nil))
+        // One-shot cascades never reschedule; clear their saved config so
+        // `levio_config_` / `levio_cascade_meta_` don't accumulate in
+        // UserDefaults across one-shot alarms.
+        if let data = defaults.data(forKey: "levio_config_\(originalId)"),
+           let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           (config["isOneShot"] as? Bool) == true {
+            cleanupConfigInternal(originalId: originalId)
+            result(nil)
             return
         }
+
+        guard let data = defaults.data(forKey: "levio_config_\(originalId)"),
+              let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let mask = config["weekdayMask"] as? Int,
+              let hour = config["hour"] as? Int,
+              let minute = config["minute"] as? Int,
+              let originalUUID = UUID(uuidString: originalId) else {
+            result(nil) // missing config: nothing to do
+            return
+        }
+
+        // Cancel any remaining bursts for this cascade (mission completion may
+        // still have stragglers scheduled in the coming 6 minutes).
+        cancelCascadeInternal(originalId: originalId)
 
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
         let soundPath = config["soundPath"] as? String
-
-        let newId = UUID()
-        let fireDate = Date().addingTimeInterval(Double(delaySeconds))
-
         let soundName = prepareSoundFile(soundPath: soundPath)
 
-        let alarmConfig = makeAlarmConfig(
-            id: newId,
+        // "Strictly after today" — start searching from tomorrow midnight.
+        let startOfTomorrow = Calendar.current.startOfDay(
+            for: Date().addingTimeInterval(24 * 60 * 60)
+        )
+        let baseDate = nextMatchingDate(
+            mask: mask, hour: hour, minute: minute,
+            strictlyAfter: startOfTomorrow.addingTimeInterval(-1)
+        )
+
+        _ = await scheduleCascade(
+            originalId: originalUUID,
+            baseDate: baseDate,
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            schedule: .fixed(fireDate),
             soundName: soundName
         )
 
-        do {
-            try await AlarmManager.shared.schedule(id: newId, configuration: alarmConfig)
-            // Link snooze → original so _resolveEntry can look up mission info.
-            // Don't save config for snoozes; they use the original's config.
-            defaults.set(originalId, forKey: "levio_snooze_\(newId.uuidString)")
-            result(newId.uuidString)
-        } catch {
-            result(FlutterError(code: "SCHEDULE_ERROR", message: error.localizedDescription, details: nil))
-        }
+        result(nil)
     }
 
-    // MARK: - Cleanup Config (removes UserDefaults entries for a dismissed alarm)
+    // MARK: - Get Next Burst
+
+    /// Returns `{burstId, timestampMs}` for the soonest future burst in this
+    /// cascade. Also returns a currently-alerting burst if any (with its
+    /// timestamp, which will be in the past). Nil if the cascade is empty.
+    private func getNextBurst(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let originalId = args["id"] as? String else {
+            result(nil)
+            return
+        }
+
+        let burstIds = loadCascade(originalId: originalId)
+        guard !burstIds.isEmpty,
+              let alarms = try? AlarmManager.shared.alarms else {
+            result(nil)
+            return
+        }
+
+        let burstSet = Set(burstIds.compactMap { UUID(uuidString: $0) })
+        // Map by id → alarm.
+        let byId: [UUID: Alarm] = Dictionary(uniqueKeysWithValues: alarms.compactMap {
+            burstSet.contains($0.id) ? ($0.id, $0) : nil
+        })
+
+        // Prefer an alerting burst (fire it first so suppression can cancel it).
+        let alerting = byId.values.first { alarm in
+            switch alarm.state { case .scheduled: return false; @unknown default: return true }
+        }
+        if let a = alerting {
+            result([
+                "burstId": a.id.uuidString,
+                "timestampMs": Date().timeIntervalSince1970 * 1000,
+                "isAlerting": true,
+            ])
+            return
+        }
+
+        // Otherwise pick the earliest scheduled one. AlarmKit doesn't expose
+        // the fire time directly via the public API on iOS 26, so we look
+        // it up from our saved cascade metadata (stored as ordered UUIDs at
+        // known 15s offsets from baseDate).
+        guard let data = UserDefaults.standard.data(forKey: "levio_cascade_meta_\(originalId)"),
+              let meta = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let baseMs = meta["baseTimestampMs"] as? Double else {
+            // Fallback: return the first burst id we still have scheduled.
+            if let first = byId.keys.first {
+                result([
+                    "burstId": first.uuidString,
+                    "timestampMs": Date().timeIntervalSince1970 * 1000,
+                    "isAlerting": false,
+                ])
+                return
+            }
+            result(nil)
+            return
+        }
+
+        // Walk cascade order, find first burst still scheduled whose offset
+        // places it in the future.
+        let now = Date().timeIntervalSince1970 * 1000
+        for (idx, burstIdString) in burstIds.enumerated() {
+            let fireMs = baseMs + Double(idx) * kCascadeIntervalSeconds * 1000
+            if fireMs <= now { continue }
+            if let uuid = UUID(uuidString: burstIdString), byId[uuid] != nil {
+                result([
+                    "burstId": burstIdString,
+                    "timestampMs": fireMs,
+                    "isAlerting": false,
+                ])
+                return
+            }
+        }
+        result(nil)
+    }
+
+    // MARK: - Get Alarm IDs
+
+    /// Returns the `originalId`s of every active cascade.
+    private func getAlarmIds(result: @escaping FlutterResult) {
+        let defaults = UserDefaults.standard
+        let prefix = "levio_cascade_"
+        var ids: [String] = []
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(prefix) {
+            if key.hasPrefix("levio_cascade_meta_") { continue }
+            ids.append(String(key.dropFirst(prefix.count)))
+        }
+        result(ids)
+    }
+
+    // MARK: - Get Alarms (full info)
+
+    private func getAlarms(result: @escaping FlutterResult) {
+        let defaults = UserDefaults.standard
+        let prefix = "levio_config_"
+        var list: [[String: Any]] = []
+
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(prefix) {
+            let originalId = String(key.dropFirst(prefix.count))
+            guard let data = defaults.data(forKey: key),
+                  let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                continue
+            }
+
+            var info: [String: Any] = ["id": originalId]
+            info["title"] = config["title"] as? String ?? ""
+            info["sfSymbol"] = config["sfSymbol"] as? String ?? ""
+            info["secondaryLabel"] = config["secondaryLabel"] as? String ?? ""
+            info["isOneShot"] = config["isOneShot"] as? Bool ?? false
+            if let ts = config["timestampMs"] as? Double { info["timestampMs"] = ts }
+            if let mask = config["weekdayMask"] as? Int { info["weekdayMask"] = mask }
+            if let hour = config["hour"] as? Int { info["hour"] = hour }
+            if let minute = config["minute"] as? Int { info["minute"] = minute }
+
+            // Derive state from the cascade: alerting if any burst is alerting,
+            // scheduled if any bursts remain, else gone (skip).
+            let cascade = loadCascade(originalId: originalId)
+            if cascade.isEmpty { continue }
+
+            let alarms = (try? AlarmManager.shared.alarms) ?? []
+            let burstSet = Set(cascade.compactMap { UUID(uuidString: $0) })
+            let cascadeAlarms = alarms.filter { burstSet.contains($0.id) }
+            let anyAlerting = cascadeAlarms.contains { alarm in
+                switch alarm.state { case .scheduled: return false; @unknown default: return true }
+            }
+            info["state"] = anyAlerting ? "alerting" : "scheduled"
+            list.append(info)
+        }
+        result(list)
+    }
+
+    // MARK: - Get Ringing Alarm (as originalId)
+
+    private func getRingingId(result: @escaping FlutterResult) {
+        guard let alarms = try? AlarmManager.shared.alarms else {
+            result(nil)
+            return
+        }
+        let ringing = alarms.first { alarm in
+            switch alarm.state { case .scheduled: return false; @unknown default: return true }
+        }
+        guard let burstId = ringing?.id.uuidString else {
+            result(nil)
+            return
+        }
+        // Map to originalId if possible; fall back to burstId.
+        let originalId = UserDefaults.standard.string(
+            forKey: "levio_burst_\(burstId)"
+        ) ?? burstId
+        result(originalId)
+    }
+
+    // MARK: - Cleanup Config
 
     private func cleanupConfig(call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
@@ -414,84 +512,72 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
             return
         }
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "levio_config_\(idString)")
-        defaults.removeObject(forKey: "levio_snooze_\(idString)")
-        // Remove orphaned snooze links where this alarm was the original.
-        for key in defaults.dictionaryRepresentation().keys {
-            if key.hasPrefix("levio_snooze_"),
-               defaults.string(forKey: key) == idString {
-                defaults.removeObject(forKey: key)
-            }
-        }
+        cleanupConfigInternal(originalId: idString)
         result(nil)
     }
 
-    private func cleanupSnoozeLink(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments as? [String: Any],
-              let idString = args["id"] as? String else {
-            result(FlutterError(code: "BAD_ARGS", message: "Invalid alarm ID", details: nil))
-            return
-        }
+    private func cleanupConfigInternal(originalId: String) {
         let defaults = UserDefaults.standard
-        // Remove snooze link for this ID (if it's a snooze).
-        defaults.removeObject(forKey: "levio_snooze_\(idString)")
-        // Remove snooze links where this ID is the original alarm.
-        for key in defaults.dictionaryRepresentation().keys {
-            if key.hasPrefix("levio_snooze_"),
-               defaults.string(forKey: key) == idString {
-                defaults.removeObject(forKey: key)
-            }
-        }
-        result(nil)
+        // Cancel any remaining bursts first.
+        cancelCascadeInternal(originalId: originalId)
+        defaults.removeObject(forKey: "levio_config_\(originalId)")
+        defaults.removeObject(forKey: "levio_cascade_meta_\(originalId)")
     }
 
-    private func cancelSnoozesForAlarm(call: FlutterMethodCall, result: @escaping FlutterResult) async {
-        guard let args = call.arguments as? [String: Any],
-              let originalId = args["originalAlarmId"] as? String else {
-            result(FlutterError(code: "BAD_ARGS", message: "Missing originalAlarmId", details: nil))
-            return
-        }
+    // MARK: - Cascade helpers
 
+    /// Schedules `kCascadeBurstCount` one-shot alarms for the cascade starting
+    /// at `baseDate`. Stores the ordered burst UUIDs under
+    /// `levio_cascade_<originalId>` and the base timestamp under
+    /// `levio_cascade_meta_<originalId>`. Also writes `levio_burst_<burstId>`
+    /// reverse lookups.
+    @discardableResult
+    private func scheduleCascade(
+        originalId: UUID,
+        baseDate: Date,
+        title: String,
+        sfSymbol: String,
+        secondaryLabel: String,
+        soundName: String?
+    ) async -> Bool {
         let defaults = UserDefaults.standard
-        var snoozeIdsToCancel: [String] = []
+        var burstIds: [String] = []
 
-        // Find all snoozes pointing to this original alarm
-        for (key, value) in defaults.dictionaryRepresentation() {
-            if key.hasPrefix("levio_snooze_"),
-               let snoozeOriginalId = value as? String,
-               snoozeOriginalId == originalId {
-                // Extract snooze UUID from key (format: "levio_snooze_{uuid}")
-                let snoozeId = String(key.dropFirst("levio_snooze_".count))
-                snoozeIdsToCancel.append(snoozeId)
+        for i in 0..<kCascadeBurstCount {
+            let fire = baseDate.addingTimeInterval(Double(i) * kCascadeIntervalSeconds)
+            let burstId = UUID()
+            let config = makeBurstConfig(
+                burstId: burstId,
+                originalId: originalId,
+                title: title,
+                sfSymbol: sfSymbol,
+                secondaryLabel: secondaryLabel,
+                schedule: .fixed(fire),
+                soundName: soundName
+            )
+            do {
+                _ = try await AlarmManager.shared.schedule(id: burstId, configuration: config)
+                defaults.set(originalId.uuidString, forKey: "levio_burst_\(burstId.uuidString)")
+                burstIds.append(burstId.uuidString)
+            } catch {
+                NSLog("[LevioAlarmKit] cascade burst %d/%d failed: %@", i + 1, kCascadeBurstCount, "\(error)")
+                // Continue scheduling the rest — we want as much coverage as we can get.
             }
         }
 
-        // Cancel all snoozes
-        do {
-            let alarms = try AlarmManager.shared.alarms
-            for snoozeIdString in snoozeIdsToCancel {
-                if let snoozeUUID = UUID(uuidString: snoozeIdString),
-                   alarms.contains(where: { $0.id == snoozeUUID }) {
-                    try AlarmManager.shared.cancel(id: snoozeUUID)
-                    defaults.removeObject(forKey: "levio_snooze_\(snoozeIdString)")
-                }
-            }
-            result(nil)
-        } catch {
-            result(FlutterError(code: "CANCEL_ERROR", message: error.localizedDescription, details: nil))
-        }
+        saveCascade(originalId: originalId.uuidString, burstIds: burstIds)
+        saveCascadeMeta(originalId: originalId.uuidString, baseDate: baseDate)
+        return !burstIds.isEmpty
     }
 
-    // MARK: - Helpers
-
-    private func makeAlarmConfig(
-        id: UUID,
+    private func makeBurstConfig(
+        burstId: UUID,
+        originalId: UUID,
         title: String,
         sfSymbol: String,
         secondaryLabel: String,
         schedule: Alarm.Schedule,
-        soundName: String? = nil
+        soundName: String?
     ) -> AlarmManager.AlarmConfiguration<LevioAlarmMetadata> {
         let stopButton = AlarmButton(
             text: "Stop",
@@ -513,26 +599,23 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             presentation: AlarmPresentation(alert: alert),
             tintColor: .white
         )
-
-        // Use custom sound if provided, otherwise system default
         let sound: AlertConfiguration.AlertSound = {
-            if let name = soundName {
-                return .named(name)
-            }
+            if let name = soundName { return .named(name) }
             return .default
         }()
 
+        // Both stop and secondary now just open the app — no native stop-and-reschedule.
         return AlarmManager.AlarmConfiguration.alarm(
             schedule: schedule,
             attributes: attributes,
-            stopIntent: StopAndRescheduleIntent(alarmID: id.uuidString),
-            secondaryIntent: OpenAlarmAppIntent(alarmID: id.uuidString),
+            stopIntent: OpenAppIntent(alarmID: burstId.uuidString),
+            secondaryIntent: OpenAlarmAppIntent(alarmID: burstId.uuidString),
             sound: sound
         )
     }
 
     private func saveConfig(
-        id: UUID,
+        originalId: UUID,
         title: String,
         sfSymbol: String,
         secondaryLabel: String,
@@ -556,18 +639,60 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             config["hour"] = hour
             config["minute"] = minute
         }
-        if let soundPath = soundPath {
-            config["soundPath"] = soundPath
-        }
+        if let soundPath = soundPath { config["soundPath"] = soundPath }
         if let data = try? JSONSerialization.data(withJSONObject: config) {
-            UserDefaults.standard.set(data, forKey: "levio_config_\(id.uuidString)")
+            UserDefaults.standard.set(data, forKey: "levio_config_\(originalId.uuidString)")
         }
     }
 
+    private func saveCascade(originalId: String, burstIds: [String]) {
+        let defaults = UserDefaults.standard
+        if burstIds.isEmpty {
+            defaults.removeObject(forKey: "levio_cascade_\(originalId)")
+            return
+        }
+        if let data = try? JSONSerialization.data(withJSONObject: burstIds) {
+            defaults.set(data, forKey: "levio_cascade_\(originalId)")
+        }
+    }
 
+    private func loadCascade(originalId: String) -> [String] {
+        guard let data = UserDefaults.standard.data(forKey: "levio_cascade_\(originalId)"),
+              let ids = try? JSONSerialization.jsonObject(with: data) as? [String] else {
+            return []
+        }
+        return ids
+    }
 
-    /// Copies the sound file to Library/Sounds so AlarmKit can find it via .named().
-    /// Returns the filename to pass to AlertConfiguration.AlertSound.named(), or nil for default.
+    private func saveCascadeMeta(originalId: String, baseDate: Date) {
+        let meta: [String: Any] = [
+            "baseTimestampMs": baseDate.timeIntervalSince1970 * 1000,
+        ]
+        if let data = try? JSONSerialization.data(withJSONObject: meta) {
+            UserDefaults.standard.set(data, forKey: "levio_cascade_meta_\(originalId)")
+        }
+    }
+
+    /// Returns the next Date matching any weekday in `mask` at hour:minute that
+    /// is strictly after `reference`. `mask` uses bit 0 = Monday … bit 6 = Sunday.
+    private func nextMatchingDate(mask: Int, hour: Int, minute: Int, strictlyAfter reference: Date) -> Date {
+        let cal = Calendar(identifier: .gregorian)
+        for dayOffset in 0...8 {
+            guard let candidateDay = cal.date(byAdding: .day, value: dayOffset, to: reference) else { continue }
+            let weekday = cal.component(.weekday, from: candidateDay) // 1 = Sunday … 7 = Saturday
+            let maskBit = (weekday == 1) ? 6 : (weekday - 2) // 0 = Monday … 6 = Sunday
+            if (mask & (1 << maskBit)) == 0 { continue }
+            guard let fire = cal.date(
+                bySettingHour: hour, minute: minute, second: 0, of: candidateDay
+            ), fire > reference else { continue }
+            return fire
+        }
+        // Shouldn't happen — fall back to one day from reference.
+        return reference.addingTimeInterval(24 * 60 * 60)
+    }
+
+    // MARK: - Sound file prep (unchanged)
+
     private func prepareSoundFile(soundPath: String?) -> String? {
         guard let soundPath = soundPath else { return nil }
 
@@ -578,7 +703,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         let sourceURL: URL?
         if soundPath.hasPrefix("assets/") {
-            // Flutter asset — look up the real bundle path
             let key = FlutterDartProject.lookupKey(forAsset: soundPath)
             if let bundlePath = Bundle.main.path(forResource: key, ofType: nil) {
                 sourceURL = URL(fileURLWithPath: bundlePath)
@@ -587,7 +711,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 return nil
             }
         } else {
-            // Custom sound — absolute file path
             sourceURL = URL(fileURLWithPath: soundPath)
         }
 
@@ -596,7 +719,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let filename = source.lastPathComponent
         let destination = soundsDir.appendingPathComponent(filename)
 
-        // Copy if not already present (or replace if source is newer)
         if !fileManager.fileExists(atPath: destination.path) {
             do {
                 try fileManager.copyItem(at: source, to: destination)
@@ -608,17 +730,4 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         return filename
     }
-
-    private func decodeWeekdays(from mask: Int) -> [Locale.Weekday] {
-        var weekdays: [Locale.Weekday] = []
-        if mask & (1 << 0) != 0 { weekdays.append(.monday) }
-        if mask & (1 << 1) != 0 { weekdays.append(.tuesday) }
-        if mask & (1 << 2) != 0 { weekdays.append(.wednesday) }
-        if mask & (1 << 3) != 0 { weekdays.append(.thursday) }
-        if mask & (1 << 4) != 0 { weekdays.append(.friday) }
-        if mask & (1 << 5) != 0 { weekdays.append(.saturday) }
-        if mask & (1 << 6) != 0 { weekdays.append(.sunday) }
-        return weekdays
-    }
-
 }

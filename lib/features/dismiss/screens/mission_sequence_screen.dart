@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../app.dart';
-import '../../../shared/theme/app_theme.dart';
-import '../../alarms/services/alarm_channel.dart';
+import '../../alarms/services/alarm_cascade_controller.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import 'mission_start_screen.dart';
 
 /// Orchestrates a multi-mission dismiss flow (up to 3 missions in sequence).
+///
+/// Owns the [AlarmCascadeController] for the whole sequence. The controller
+/// is started the moment the user taps "Start" on the current mission-start
+/// screen and is finished when the final mission completes. If the user goes
+/// inactive for 60s on any in-progress mission, we pop back to the mission
+/// start screen and pause the suppression timer so bursts resume ringing.
 class MissionSequenceScreen extends StatefulWidget {
   final List<MissionConfig> missions;
   final String alarmId;
@@ -31,17 +35,19 @@ class MissionSequenceScreen extends StatefulWidget {
 class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
   int _currentIndex = 0;
   bool _inMission = false;
-  String? _missionSnoozeId;
   final _startTime = DateTime.now();
+  late final AlarmCascadeController _cascade;
 
-  /// Resolved mission types (random missions are resolved once at init).
   late final List<MissionConfig> _resolvedMissions;
 
   @override
   void initState() {
     super.initState();
     _resolvedMissions = widget.missions.map(_resolveRandom).toList();
-    _initAlarm();
+    _cascade = AlarmCascadeController(
+      alarmId: widget.alarmId,
+      onInactivityTimeout: _onInactivityTimeout,
+    );
   }
 
   /// Resolves a random mission config to a concrete mission type.
@@ -57,21 +63,9 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
     return config.copyWith(type: picked);
   }
 
-  Future<void> _initAlarm() async {
-    final prefs = await SharedPreferences.getInstance();
-    final keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    if (!keepRinging) {
-      await Future.delayed(const Duration(seconds: 2));
-      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
-        nativeAlarmId: widget.nativeAlarmId,
-        originalAlarmId: widget.alarmId,
-      );
-    }
-  }
-
   void _startMission() {
+    // Mission has now officially "started" — fire up suppression + watchdog.
+    _cascade.start();
     setState(() => _inMission = true);
 
     final config = _resolvedMissions[_currentIndex];
@@ -81,22 +75,23 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
       nativeAlarmId: widget.nativeAlarmId,
       alarmLabel: widget.alarmLabel,
       manageAlarm: false,
+      onProgress: _cascade.reportProgress,
       onComplete: _onMissionComplete,
     );
 
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => screen),
     ).then((_) {
-      // If popped without completing (shouldn't happen normally)
       if (mounted) setState(() => _inMission = false);
     });
   }
 
   void _onMissionComplete() {
-    // Pop the dismiss screen
     Navigator.of(context).pop();
 
     if (_currentIndex + 1 < _resolvedMissions.length) {
+      // Next mission will restart suppression when the user taps Start.
+      _cascade.stopSuppression();
       setState(() {
         _currentIndex++;
         _inMission = false;
@@ -106,10 +101,22 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
     }
   }
 
+  /// Fired by the cascade controller when the user has gone idle for 60s on
+  /// an in-progress mission. Pops the mission screen, returns to the start
+  /// screen for the CURRENT mission (same index — no previously-completed
+  /// mission is redone), and lets bursts resume ringing until the user taps
+  /// Start again.
+  void _onInactivityTimeout() {
+    if (!mounted) return;
+    if (!_inMission) return;
+    // _startMission pushed exactly one MaterialPageRoute on top of this
+    // MissionSequenceScreen, so a single pop returns us to MissionStartScreen.
+    Navigator.of(context).pop();
+    if (mounted) setState(() => _inMission = false);
+  }
+
   Future<void> _finishSequence() async {
-    await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-    await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-    await AlarmChannel.stopRinging();
+    await _cascade.finish();
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
@@ -124,6 +131,12 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _cascade.dispose();
+    super.dispose();
   }
 
   @override

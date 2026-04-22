@@ -3,10 +3,9 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
-import '../../alarms/services/alarm_channel.dart';
+import '../../alarms/services/alarm_cascade_controller.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/pushup_state.dart';
@@ -29,6 +28,7 @@ class RepExerciseDismissView<C extends Cubit<PushUpState>>
   final MissionType missionType;
   final bool mirrorCamera;
   final VoidCallback? onComplete;
+  final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
 
@@ -41,6 +41,7 @@ class RepExerciseDismissView<C extends Cubit<PushUpState>>
     required this.missionType,
     this.mirrorCamera = false,
     this.onComplete,
+    this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
   });
@@ -57,8 +58,7 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   int _lastRepCount = 0;
-  String? _missionSnoozeId;
-  bool _keepRinging = false;
+  AlarmCascadeController? _cascade;
 
   @override
   void initState() {
@@ -72,26 +72,15 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
       begin: 1.0,
       end: 1.08,
     ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeOut));
-    if (widget.manageAlarm && !widget.isPreview) _initAlarm();
-  }
-
-  Future<void> _initAlarm() async {
-    final prefs = await SharedPreferences.getInstance();
-    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    if (!_keepRinging) {
-      await Future.delayed(const Duration(seconds: 2));
-      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
-        nativeAlarmId: widget.nativeAlarmId,
-        originalAlarmId: widget.alarmId,
-      );
+    if (widget.manageAlarm && !widget.isPreview) {
+      _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
   }
 
   @override
   void dispose() {
     _pulseController.dispose();
+    _cascade?.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
@@ -99,6 +88,8 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
   void _triggerPulse(int repCount) {
     if (repCount != _lastRepCount) {
       _lastRepCount = repCount;
+      widget.onProgress?.call();
+      _cascade?.reportProgress();
       _pulseController.forward().then((_) => _pulseController.reverse());
     }
   }
@@ -118,12 +109,7 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
             return;
           }
 
-          // Single-mission flow: manage alarm and go to completion
-          if (widget.manageAlarm) {
-            await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-            await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-            await AlarmChannel.stopRinging();
-          }
+          await _cascade?.finish();
 
           final elapsed = DateTime.now().difference(_startTime).inSeconds;
           if (context.mounted) {

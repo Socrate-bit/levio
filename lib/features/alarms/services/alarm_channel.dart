@@ -1,6 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+/// Info about a burst within a cascade.
+class NextBurst {
+  final String burstId;
+  final int timestampMs;
+  final bool isAlerting;
+
+  const NextBurst({
+    required this.burstId,
+    required this.timestampMs,
+    required this.isAlerting,
+  });
+}
+
 class AlarmChannel {
   static const _method = MethodChannel('levio/alarmkit');
   static const _events = EventChannel('levio/alarmkit/events');
@@ -9,7 +22,8 @@ class AlarmChannel {
     return await _method.invokeMethod<bool>('requestAuthorization') ?? false;
   }
 
-  /// Schedules a one-shot alarm. Returns the native UUID string.
+  /// Schedules a one-shot **cascade** — 24 native alarms, 15s apart, all
+  /// sharing the returned `originalAlarmId`.
   static Future<String> scheduleOneShot({
     required int timestampMs,
     required String title,
@@ -27,8 +41,9 @@ class AlarmChannel {
     return id!;
   }
 
-  /// Schedules a repeating alarm. Returns the native UUID string.
-  /// [weekdayMask]: bit 0 = Monday … bit 6 = Sunday.
+  /// Schedules a repeating **cascade** — 24 native alarms, 15s apart, starting
+  /// at the next matching weekday at hour:minute. `weekdayMask` uses bit 0 =
+  /// Monday … bit 6 = Sunday.
   static Future<String> scheduleRepeating({
     required int weekdayMask,
     required int hour,
@@ -50,92 +65,65 @@ class AlarmChannel {
     return id!;
   }
 
-  // Cancel scheduled alarm based on id
+  /// Cancels every remaining burst of the cascade (including any alerting one)
+  /// and clears the saved config. Use on alarm delete or disable.
   static Future<void> cancel(String id) async {
     try {
       await _method.invokeMethod('cancel', {'id': id});
     } on PlatformException catch (e) {
-      debugPrint('[AlarmChannel] cancel($id) failed — code=${e.code} | message=${e.message} | details=${e.details}');
+      debugPrint('[AlarmChannel] cancel($id) failed — code=${e.code} | message=${e.message}');
       rethrow;
     }
   }
 
-  // Stop alarm to ring based on id
-  static Future<void> stop(String id) async {
+  /// Cancels a single burst within a cascade. Used by the in-app suppression
+  /// timer to silence the next upcoming (or currently alerting) burst while
+  /// the user is on the mission screen.
+  static Future<void> cancelBurst({
+    required String originalId,
+    required String burstId,
+  }) async {
     try {
-      await _method.invokeMethod('stop', {'id': id});
+      await _method.invokeMethod('cancelBurst', {
+        'originalId': originalId,
+        'burstId': burstId,
+      });
     } on PlatformException catch (e) {
-      debugPrint('[AlarmChannel] stop($id) failed — code=${e.code} | message=${e.message} | details=${e.details}');
-      rethrow;
+      debugPrint('[AlarmChannel] cancelBurst($originalId/$burstId) failed: ${e.message}');
     }
   }
 
-  /// Cleans up UserDefaults entries (config, stopped set)
-  /// for a fully dismissed or removed alarm.
+  /// For recurrent alarms: cancels any remaining bursts and schedules a fresh
+  /// 24-burst cascade for the next matching weekday **strictly after today**.
+  /// No-op for one-shot alarms.
+  static Future<void> rescheduleForNextWeek(String originalId) async {
+    try {
+      await _method.invokeMethod('rescheduleForNextWeek', {'id': originalId});
+    } on PlatformException catch (e) {
+      debugPrint('[AlarmChannel] rescheduleForNextWeek($originalId) failed: ${e.message}');
+    }
+  }
+
+  /// Returns the next burst to act on for this cascade — either the currently
+  /// alerting burst, or the soonest-future scheduled one. Null if none.
+  static Future<NextBurst?> getNextBurst(String originalId) async {
+    final raw = await _method.invokeMapMethod<String, dynamic>('getNextBurst', {
+      'id': originalId,
+    });
+    if (raw == null) return null;
+    final burstId = raw['burstId'] as String?;
+    final tsRaw = raw['timestampMs'];
+    final isAlerting = raw['isAlerting'] as bool? ?? false;
+    if (burstId == null) return null;
+    final ts = tsRaw is double
+        ? tsRaw.toInt()
+        : (tsRaw is int ? tsRaw : 0);
+    return NextBurst(burstId: burstId, timestampMs: ts, isAlerting: isAlerting);
+  }
+
+  /// Removes the saved config for a cascade (and any leftover bursts).
   static Future<void> cleanupConfig(String id) async {
     await _method.invokeMethod('cleanupConfig', {'id': id});
-  }
-
-  /// Removes the snooze link for an alarm ID.
-  static Future<void> cleanupSnoozeLink(String id) async {
-    await _method.invokeMethod('cleanupSnoozeLink', {'id': id});
-  }
-
-  /// Cancels all snooze alarms associated with an original alarm ID.
-  static Future<void> cancelSnoozesForAlarm(String originalAlarmId) async {
-    await _method.invokeMethod('cancelSnoozesForAlarm', {
-      'originalAlarmId': originalAlarmId,
-    });
-  }
-
-  /// Stops the native ringing alarm.
-  static Future<void> dismissAlarm(String nativeAlarmId) async {
-    final ringingId = await getRingingId() ?? nativeAlarmId;
-    try {
-      await stop(ringingId);
-    } on PlatformException catch (e) {
-      debugPrint('[AlarmChannel] dismissAlarm: stop failed (code=${e.code}) — ${e.message} | details: ${e.details}');
-    }
-  }
-
-  /// Schedules a mission snooze alarm that re-rings after [delaySeconds] if
-  /// the mission is not completed in time. Returns the snooze UUID.
-  static Future<String> scheduleMissionSnooze({
-    required String nativeAlarmId,
-    required String originalAlarmId,
-    int delaySeconds = 120,
-  }) async {
-    final id = await _method.invokeMethod<String>('scheduleMissionSnooze', {
-      'nativeAlarmId': nativeAlarmId,
-      'originalAlarmId': originalAlarmId,
-      'delaySeconds': delaySeconds,
-    });
-    return id!;
-  }
-
-  /// Cancels a mission snooze and cleans up its config/snooze link.
-  static Future<void> cancelMissionSnooze(String? snoozeId) async {
-    if (snoozeId == null) return;
-    try {
-      await cancel(snoozeId);
-    } on PlatformException catch (_) {
-      // Snooze may have already fired or been cancelled.
-    }
-    try {
-      await cleanupConfig(snoozeId);
-    } catch (_) {}
-  }
-
-  /// Stops the currently ringing alarm audio. Called when a mission completes
-  /// and the alarm was kept ringing during the mission.
-  static Future<void> stopRinging() async {
-    final ringingId = await getRingingId();
-    if (ringingId == null) return;
-    try {
-      await stop(ringingId);
-    } on PlatformException catch (e) {
-      debugPrint('[AlarmChannel] stopRinging failed: ${e.message}');
-    }
   }
 
   static Future<List<String>> getAlarmIds() async {
@@ -143,7 +131,7 @@ class AlarmChannel {
     return result ?? [];
   }
 
-  /// Returns full native info for each scheduled alarm.
+  /// Returns full info for each cascade (keyed by `originalId`).
   static Future<List<Map<String, dynamic>>> getAlarms() async {
     final raw = await _method.invokeListMethod<Object?>('getAlarms') ?? [];
     return raw
@@ -152,25 +140,18 @@ class AlarmChannel {
         .toList();
   }
 
+  /// Returns the `originalId` of any cascade whose burst is currently alerting.
   static Future<String?> getRingingId() async {
     return _method.invokeMethod<String?>('getRingingId');
-  }
-
-  /// Returns {snoozeId → originalId} for all active snooze alarms.
-  /// Read-only — never clears keys. Used by _syncAlarms (orphan check)
-  /// and getRingingAlarm (Firestore lookup fallback).
-  static Future<Map<String, String>> getSnoozeMap() async {
-    final raw = await _method.invokeMapMethod<String, String>('getSnoozeMap');
-    return raw ?? {};
   }
 
   static Stream<Map<Object?, Object?>> get events =>
       _events.receiveBroadcastStream().cast<Map<Object?, Object?>>();
 
-  /// Converts repeatDays (index 0 = Sunday … 6 = Saturday) to a weekday mask
+  /// Converts `repeatDays` (index 0 = Sunday … 6 = Saturday) to a weekday mask
   /// where bit 0 = Monday … bit 6 = Sunday.
   static int toWeekdayMask(List<bool> days) {
-    const mapping = [6, 0, 1, 2, 3, 4, 5]; // days index → mask bit
+    const mapping = [6, 0, 1, 2, 3, 4, 5];
     var mask = 0;
     for (var i = 0; i < days.length; i++) {
       if (days[i]) mask |= (1 << mapping[i]);

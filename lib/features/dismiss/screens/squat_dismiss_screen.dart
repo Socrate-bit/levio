@@ -11,6 +11,7 @@ class SquatDismissScreen extends StatelessWidget {
   final String alarmLabel;
   final int repCount;
   final VoidCallback? onComplete;
+  final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
 
@@ -21,6 +22,7 @@ class SquatDismissScreen extends StatelessWidget {
     this.alarmLabel = 'Alarm #1',
     this.repCount = 10,
     this.onComplete,
+    this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
   });
@@ -37,6 +39,7 @@ class SquatDismissScreen extends StatelessWidget {
         missionType: MissionType.squats,
         mirrorCamera: true,
         onComplete: onComplete,
+        onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       ),

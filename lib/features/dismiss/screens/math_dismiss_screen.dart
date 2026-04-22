@@ -3,9 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
-import '../../alarms/services/alarm_channel.dart';
+import '../../alarms/services/alarm_cascade_controller.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../widgets/levio_brand_header.dart';
@@ -19,6 +18,7 @@ class MathDismissScreen extends StatefulWidget {
   final MathDifficulty difficulty;
   final int problemCount;
   final VoidCallback? onComplete;
+  final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
 
@@ -30,6 +30,7 @@ class MathDismissScreen extends StatefulWidget {
     this.difficulty = MathDifficulty.easy,
     this.problemCount = 3,
     this.onComplete,
+    this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
   });
@@ -48,28 +49,15 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   int _solved = 0;
   bool _showError = false;
   final _startTime = DateTime.now();
-  String? _missionSnoozeId;
-  bool _keepRinging = false;
+  AlarmCascadeController? _cascade;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _nextProblem();
-    if (widget.manageAlarm && !widget.isPreview) _initAlarm();
-  }
-
-  Future<void> _initAlarm() async {
-    final prefs = await SharedPreferences.getInstance();
-    _keepRinging = prefs.getBool('keep_alarm_during_mission') ?? false;
-    if (!_keepRinging) {
-      await Future.delayed(const Duration(seconds: 2));
-      await AlarmChannel.dismissAlarm(widget.nativeAlarmId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      _missionSnoozeId = await AlarmChannel.scheduleMissionSnooze(
-        nativeAlarmId: widget.nativeAlarmId,
-        originalAlarmId: widget.alarmId,
-      );
+    if (widget.manageAlarm && !widget.isPreview) {
+      _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
   }
 
@@ -174,6 +162,8 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   void _check() {
     final input = int.tryParse(_ctrl.text.trim());
     if (input == null) return;
+    widget.onProgress?.call();
+    _cascade?.reportProgress();
     if (input == _answer) {
       HapticFeedback.lightImpact();
       if (_solved + 1 >= widget.problemCount) {
@@ -202,11 +192,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
       return;
     }
 
-    if (widget.manageAlarm) {
-      await AlarmChannel.cancelMissionSnooze(_missionSnoozeId);
-      await AlarmChannel.cancelSnoozesForAlarm(widget.alarmId);
-      await AlarmChannel.stopRinging();
-    }
+    await _cascade?.finish();
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
@@ -225,6 +211,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
   @override
   void dispose() {
     _ctrl.dispose();
+    _cascade?.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
