@@ -24,13 +24,14 @@ void main() async {
   // FirebaseFunctions.instance.useFunctionsEmulator('192.168.1.69', 5001);
 
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      data: DevicePreviewData(
-        deviceIdentifier: Devices.ios.iPhoneSE.identifier.toString(),
-        isFrameVisible: true,
-      ),
-      builder: (context) => LevioApp(navigatorKey: _navigatorKey),
-    ),
+    // DevicePreview(
+    //   enabled: !kReleaseMode,
+    //   data: DevicePreviewData(
+    //     deviceIdentifier: Devices.ios.iPhoneSE.identifier.toString(),
+    //     isFrameVisible: true,
+    //   ),
+    //   builder: (context) =>
+    LevioApp(navigatorKey: _navigatorKey),
+    // ),
   );
 }
