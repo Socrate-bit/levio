@@ -49,6 +49,12 @@ class AlarmService {
           final burstId = event['id'] as String?;
           final originalId = (event['originalId'] as String?) ?? burstId;
           if (originalId == null) return;
+
+          // If the relative safety-net just rang with no .fixed bursts behind
+          // it (user ignored last week's cascade), plan bursts now so the user
+          // still gets the full 6-min pressure. No-op in every other case.
+          AlarmChannel.primeCascadeIfNeeded(originalId).ignore();
+
           final firestoreEntry = await AlarmFirestoreService.getAlarm(originalId);
           if (firestoreEntry == null) {
             debugPrint('[AlarmService] ring: alarm $originalId not found — cancelling cascade');

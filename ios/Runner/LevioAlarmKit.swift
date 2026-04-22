@@ -82,6 +82,13 @@ class LevioAlarmStreamHandler: NSObject, FlutterStreamHandler {
 public class LevioAlarmKit: NSObject, FlutterPlugin {
     private static var registrar: FlutterPluginRegistrar?
 
+    /// Guards `primeCascadeIfNeeded` against overlapping invocations for the
+    /// same originalId. Without this, ring-event priming and sync-time priming
+    /// could both observe "no .fixed bursts" and each schedule 23 — doubling
+    /// the cascade and halving the 15s spacing.
+    private static let primingLock = NSLock()
+    private static var primingInProgress: Set<String> = []
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
 
@@ -113,6 +120,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             Task { await cancelBurst(call: call, result: result) }
         case "rescheduleForNextWeek":
             Task { await rescheduleForNextWeek(call: call, result: result) }
+        case "primeCascadeIfNeeded":
+            Task { await primeCascadeIfNeeded(call: call, result: result) }
         case "getNextBurst":
             getNextBurst(call: call, result: result)
         case "getAlarmIds":
@@ -188,6 +197,9 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     // MARK: - Schedule Repeating Cascade
 
     /// Schedules a 24-burst cascade for the next matching weekday at hour:minute.
+    /// Burst 0 uses `.relative(weekly)` as a safety net so the alarm still
+    /// fires next matching weekday even if the app never opens to re-prime the
+    /// `.fixed` bursts. Bursts 1-23 are `.fixed` one-shots (15s spacing).
     /// Persists weekday/hour/minute config so we can re-schedule after completion.
     private func scheduleRepeatingCascade(call: FlutterMethodCall, result: @escaping FlutterResult) async {
         guard let args = call.arguments as? [String: Any],
@@ -225,7 +237,10 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            soundName: soundName
+            soundName: soundName,
+            weeklyRecurrence: weekdaysFromMask(mask),
+            recurrenceHour: hour,
+            recurrenceMinute: minute
         )
 
         if scheduled {
@@ -263,6 +278,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             defaults.removeObject(forKey: "levio_burst_\(burstIdString)")
         }
         defaults.removeObject(forKey: "levio_cascade_\(originalId)")
+        defaults.removeObject(forKey: "levio_relative_burst_\(originalId)")
     }
 
     // MARK: - Cancel Single Burst
@@ -282,9 +298,71 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         var burstIds = loadCascade(originalId: originalId)
         burstIds.removeAll { $0 == burstIdString }
         saveCascade(originalId: originalId, burstIds: burstIds)
-        UserDefaults.standard.removeObject(forKey: "levio_burst_\(burstIdString)")
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "levio_burst_\(burstIdString)")
+
+        // If we just cancelled the `.relative` safety-net burst, schedule a
+        // fresh one under a new UUID so weekly recurrence survives app crashes
+        // between now and mission completion.
+        let relativeBurst = defaults.string(forKey: "levio_relative_burst_\(originalId)")
+        if relativeBurst == burstIdString {
+            defaults.removeObject(forKey: "levio_relative_burst_\(originalId)")
+            await recreateRelativeBurst(originalId: originalId)
+        }
 
         result(nil)
+    }
+
+    /// Re-schedules the `.relative(weekly)` safety-net burst for a recurrent
+    /// cascade under a new UUID. Called after a `cancelBurst` on the relative
+    /// burst so weekly recurrence isn't lost.
+    private func recreateRelativeBurst(originalId: String) async {
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: "levio_config_\(originalId)"),
+              let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              (config["isOneShot"] as? Bool) == false,
+              let mask = config["weekdayMask"] as? Int,
+              let hour = config["hour"] as? Int,
+              let minute = config["minute"] as? Int,
+              let originalUUID = UUID(uuidString: originalId) else {
+            return
+        }
+
+        let title = config["title"] as? String ?? "Alarm"
+        let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
+        let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
+        let soundPath = config["soundPath"] as? String
+        let soundName = prepareSoundFile(soundPath: soundPath)
+
+        let weekdays = weekdaysFromMask(mask)
+        guard !weekdays.isEmpty else { return }
+
+        let burstId = UUID()
+        let schedule = Alarm.Schedule.relative(
+            Alarm.Schedule.Relative(
+                time: Alarm.Schedule.Relative.Time(hour: hour, minute: minute),
+                repeats: .weekly(weekdays)
+            )
+        )
+        let alarmConfig = makeBurstConfig(
+            burstId: burstId,
+            originalId: originalUUID,
+            title: title,
+            sfSymbol: sfSymbol,
+            secondaryLabel: secondaryLabel,
+            schedule: schedule,
+            soundName: soundName
+        )
+        do {
+            _ = try await AlarmManager.shared.schedule(id: burstId, configuration: alarmConfig)
+            defaults.set(originalId, forKey: "levio_burst_\(burstId.uuidString)")
+            defaults.set(burstId.uuidString, forKey: "levio_relative_burst_\(originalId)")
+            var burstIds = loadCascade(originalId: originalId)
+            burstIds.append(burstId.uuidString)
+            saveCascade(originalId: originalId, burstIds: burstIds)
+        } catch {
+            NSLog("[LevioAlarmKit] recreateRelativeBurst failed: %@", "\(error)")
+        }
     }
 
     // MARK: - Reschedule For Next Week
@@ -346,9 +424,152 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            soundName: soundName
+            soundName: soundName,
+            weeklyRecurrence: weekdaysFromMask(mask),
+            recurrenceHour: hour,
+            recurrenceMinute: minute
         )
 
+        result(nil)
+    }
+
+    // MARK: - Prime Cascade If Needed
+
+    /// For recurrent alarms whose `.relative(weekly)` safety-net burst is still
+    /// alive but whose 23 `.fixed` bursts have all fired/expired. Schedules a
+    /// fresh set of `.fixed` bursts, preserving the originalId and the existing
+    /// `.relative` burst so weekly recurrence continuity is kept.
+    ///
+    /// BaseDate is adaptive: if the `.relative` burst is **currently alerting**
+    /// (the ring just started and there's nothing behind it), bursts chain from
+    /// **now + 15s** so the user still gets the 6-min cascade pressure. Otherwise
+    /// they're scheduled for the **next matching weekday** at hour:minute.
+    ///
+    /// No-op if any `.fixed` burst is still alive, if no `.relative` burst is
+    /// alive, or if the alarm is one-shot.
+    private func primeCascadeIfNeeded(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+        guard let args = call.arguments as? [String: Any],
+              let originalId = args["id"] as? String else {
+            result(FlutterError(code: "BAD_ARGS", message: "Missing id", details: nil))
+            return
+        }
+
+        // Drop overlapping invocations for the same cascade.
+        Self.primingLock.lock()
+        if Self.primingInProgress.contains(originalId) {
+            Self.primingLock.unlock()
+            result(nil)
+            return
+        }
+        Self.primingInProgress.insert(originalId)
+        Self.primingLock.unlock()
+        defer {
+            Self.primingLock.lock()
+            Self.primingInProgress.remove(originalId)
+            Self.primingLock.unlock()
+        }
+
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: "levio_config_\(originalId)"),
+              let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              (config["isOneShot"] as? Bool) == false,
+              let mask = config["weekdayMask"] as? Int,
+              let hour = config["hour"] as? Int,
+              let minute = config["minute"] as? Int,
+              let originalUUID = UUID(uuidString: originalId) else {
+            result(nil)
+            return
+        }
+
+        // Defensive guard: priming needs at least one weekday for
+        // `nextMatchingDate` to land on a real day. An empty mask is already
+        // prevented upstream (scheduleCascade only creates a `.relative` burst
+        // when weeklyRecurrence is non-empty, so `hasLiveRelative` would be
+        // false), but this keeps the contract explicit.
+        guard mask != 0 else {
+            result(nil)
+            return
+        }
+
+        let allAlarms = (try? AlarmManager.shared.alarms) ?? []
+        let alarmsById: [UUID: Alarm] = Dictionary(uniqueKeysWithValues: allAlarms.map { ($0.id, $0) })
+        let cascadeList = loadCascade(originalId: originalId)
+        let relativeBurstString = defaults.string(forKey: "levio_relative_burst_\(originalId)")
+
+        var hasLiveRelative = false
+        var relativeIsAlerting = false
+        var hasLiveFixed = false
+        for burstStr in cascadeList {
+            guard let uuid = UUID(uuidString: burstStr), let alarm = alarmsById[uuid] else { continue }
+            if burstStr == relativeBurstString {
+                hasLiveRelative = true
+                switch alarm.state { case .scheduled: break; @unknown default: relativeIsAlerting = true }
+            } else {
+                hasLiveFixed = true
+            }
+        }
+
+        // Only prime when the safety-net is alive AND all fixed bursts are gone.
+        guard hasLiveRelative, !hasLiveFixed else {
+            result(nil)
+            return
+        }
+
+        let title = config["title"] as? String ?? "Alarm"
+        let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
+        let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
+        let soundPath = config["soundPath"] as? String
+        let soundName = prepareSoundFile(soundPath: soundPath)
+
+        // `.relative` ringing now → chain immediately from now so the user keeps
+        // getting hit every 15s. Otherwise schedule for the next matching weekday.
+        let baseDate: Date
+        if relativeIsAlerting {
+            baseDate = Date()
+        } else {
+            baseDate = nextMatchingDate(
+                mask: mask, hour: hour, minute: minute,
+                strictlyAfter: Date().addingTimeInterval(-1)
+            )
+        }
+
+        // Drop any dead burst references from the cascade list so the final
+        // ordering stays [relative, new-fixed-1, … new-fixed-23].
+        var alive: [String] = cascadeList.filter { burstStr in
+            guard let uuid = UUID(uuidString: burstStr) else { return false }
+            return alarmsById[uuid] != nil
+        }
+
+        var scheduledCount = 0
+        // Schedule bursts 1..<kCascadeBurstCount as `.fixed`. Idx 0 slot stays
+        // conceptually owned by the live `.relative` burst.
+        for i in 1..<kCascadeBurstCount {
+            let fire = baseDate.addingTimeInterval(Double(i) * kCascadeIntervalSeconds)
+            let burstId = UUID()
+            let alarmConfig = makeBurstConfig(
+                burstId: burstId,
+                originalId: originalUUID,
+                title: title,
+                sfSymbol: sfSymbol,
+                secondaryLabel: secondaryLabel,
+                schedule: .fixed(fire),
+                soundName: soundName
+            )
+            do {
+                _ = try await AlarmManager.shared.schedule(id: burstId, configuration: alarmConfig)
+                defaults.set(originalId, forKey: "levio_burst_\(burstId.uuidString)")
+                alive.append(burstId.uuidString)
+                scheduledCount += 1
+            } catch {
+                NSLog("[LevioAlarmKit] primeCascadeIfNeeded burst %d failed: %@", i, "\(error)")
+            }
+        }
+
+        saveCascade(originalId: originalId, burstIds: alive)
+        saveCascadeMeta(originalId: originalId, baseDate: baseDate)
+
+        NSLog("[LevioAlarmKit] primed %d .fixed bursts for cascade %@ (fromNow=%@)",
+              scheduledCount, originalId, relativeIsAlerting ? "true" : "false")
         result(nil)
     }
 
@@ -430,14 +651,26 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
     // MARK: - Get Alarm IDs
 
-    /// Returns the `originalId`s of every active cascade.
+    /// Returns the `originalId`s of every cascade that still has at least one
+    /// live burst in AlarmKit (including the `.relative` safety-net burst).
+    /// Cascades with only the `.relative` burst left are kept alive from
+    /// Dart's point of view — `primeCascadeIfNeeded` will re-fill the
+    /// `.fixed` bursts without touching the `.relative` or the originalId.
     private func getAlarmIds(result: @escaping FlutterResult) {
         let defaults = UserDefaults.standard
+        let liveBurstIds: Set<UUID> = Set((try? AlarmManager.shared.alarms)?.map { $0.id } ?? [])
         let prefix = "levio_cascade_"
         var ids: [String] = []
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(prefix) {
             if key.hasPrefix("levio_cascade_meta_") { continue }
-            ids.append(String(key.dropFirst(prefix.count)))
+            let originalId = String(key.dropFirst(prefix.count))
+            let hasLiveBurst = loadCascade(originalId: originalId).contains { burstStr in
+                guard let uuid = UUID(uuidString: burstStr) else { return false }
+                return liveBurstIds.contains(uuid)
+            }
+            if hasLiveBurst {
+                ids.append(originalId)
+            }
         }
         result(ids)
     }
@@ -474,6 +707,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             let alarms = (try? AlarmManager.shared.alarms) ?? []
             let burstSet = Set(cascade.compactMap { UUID(uuidString: $0) })
             let cascadeAlarms = alarms.filter { burstSet.contains($0.id) }
+            // Stale cascade — all bursts have already fired or been removed.
+            if cascadeAlarms.isEmpty { continue }
             let anyAlerting = cascadeAlarms.contains { alarm in
                 switch alarm.state { case .scheduled: return false; @unknown default: return true }
             }
@@ -531,6 +766,12 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     /// `levio_cascade_<originalId>` and the base timestamp under
     /// `levio_cascade_meta_<originalId>`. Also writes `levio_burst_<burstId>`
     /// reverse lookups.
+    ///
+    /// When `weeklyRecurrence` is non-empty, burst 0 is scheduled as
+    /// `.relative(weekly(…))` at `recurrenceHour:recurrenceMinute` to act as a
+    /// safety net that keeps firing every matching weekday even if the app
+    /// never opens to re-prime the cascade. Its UUID is stored under
+    /// `levio_relative_burst_<originalId>` so suppression logic can detect it.
     @discardableResult
     private func scheduleCascade(
         originalId: UUID,
@@ -538,27 +779,44 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         title: String,
         sfSymbol: String,
         secondaryLabel: String,
-        soundName: String?
+        soundName: String?,
+        weeklyRecurrence: [Locale.Weekday] = [],
+        recurrenceHour: Int = 0,
+        recurrenceMinute: Int = 0
     ) async -> Bool {
         let defaults = UserDefaults.standard
         var burstIds: [String] = []
+        var relativeBurstIdString: String?
 
         for i in 0..<kCascadeBurstCount {
             let fire = baseDate.addingTimeInterval(Double(i) * kCascadeIntervalSeconds)
             let burstId = UUID()
+            let schedule: Alarm.Schedule
+            let isRelative = (i == 0 && !weeklyRecurrence.isEmpty)
+            if isRelative {
+                schedule = .relative(
+                    Alarm.Schedule.Relative(
+                        time: Alarm.Schedule.Relative.Time(hour: recurrenceHour, minute: recurrenceMinute),
+                        repeats: .weekly(weeklyRecurrence)
+                    )
+                )
+            } else {
+                schedule = .fixed(fire)
+            }
             let config = makeBurstConfig(
                 burstId: burstId,
                 originalId: originalId,
                 title: title,
                 sfSymbol: sfSymbol,
                 secondaryLabel: secondaryLabel,
-                schedule: .fixed(fire),
+                schedule: schedule,
                 soundName: soundName
             )
             do {
                 _ = try await AlarmManager.shared.schedule(id: burstId, configuration: config)
                 defaults.set(originalId.uuidString, forKey: "levio_burst_\(burstId.uuidString)")
                 burstIds.append(burstId.uuidString)
+                if isRelative { relativeBurstIdString = burstId.uuidString }
             } catch {
                 NSLog("[LevioAlarmKit] cascade burst %d/%d failed: %@", i + 1, kCascadeBurstCount, "\(error)")
                 // Continue scheduling the rest — we want as much coverage as we can get.
@@ -567,7 +825,25 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         saveCascade(originalId: originalId.uuidString, burstIds: burstIds)
         saveCascadeMeta(originalId: originalId.uuidString, baseDate: baseDate)
+        if let rel = relativeBurstIdString {
+            defaults.set(rel, forKey: "levio_relative_burst_\(originalId.uuidString)")
+        } else {
+            defaults.removeObject(forKey: "levio_relative_burst_\(originalId.uuidString)")
+        }
         return !burstIds.isEmpty
+    }
+
+    /// Maps Levio's weekday bitmask (bit 0 = Monday … bit 6 = Sunday) to
+    /// AlarmKit's `Locale.Weekday` enum used by `.relative(weekly(…))`.
+    private func weekdaysFromMask(_ mask: Int) -> [Locale.Weekday] {
+        let bitToWeekday: [Locale.Weekday] = [
+            .monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday,
+        ]
+        var result: [Locale.Weekday] = []
+        for bit in 0..<7 where (mask & (1 << bit)) != 0 {
+            result.append(bitToWeekday[bit])
+        }
+        return result
     }
 
     private func makeBurstConfig(

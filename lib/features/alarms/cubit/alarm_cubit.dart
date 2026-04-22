@@ -115,8 +115,26 @@ class AlarmCubit extends Cubit<AlarmState> {
     final resolved = <AppAlarmEntry>[];
 
     for (final alarm in firestoreAlarms) {
-      // Disabled or already scheduled natively — no action needed.
-      if (!alarm.isEnabled || nativeIds.contains(alarm.id)) {
+      // Disabled alarm — if a cascade leaked (e.g. a prior toggle-off failed
+      // mid-flight) cancel it now so it doesn't keep ringing. Without this,
+      // the orphan-cancel loop below would skip it because its id is in
+      // `resolvedIds`.
+      if (!alarm.isEnabled) {
+        if (nativeIds.contains(alarm.id)) {
+          debugPrint('[AlarmCubit] cancelling leaked cascade for disabled ${alarm.id}');
+          try {
+            await AlarmChannel.cancel(alarm.id);
+            await AlarmChannel.cleanupConfig(alarm.id);
+          } catch (e) {
+            debugPrint('[AlarmCubit] disabled-cleanup failed for ${alarm.id}: $e');
+          }
+        }
+        resolved.add(alarm);
+        continue;
+      }
+
+      // Enabled alarm already scheduled natively — no action needed.
+      if (nativeIds.contains(alarm.id)) {
         resolved.add(alarm);
         continue;
       }
@@ -131,6 +149,13 @@ class AlarmCubit extends Cubit<AlarmState> {
           : alarm;
 
       try {
+        // Purge any stale native config under the old id. This is the common
+        // case for recurrent alarms whose user slept through the full 6-min
+        // cascade: the burst UUIDs are gone but `levio_config_` and
+        // `levio_cascade_meta_` still linger in UserDefaults under `alarm.id`.
+        try {
+          await AlarmChannel.cleanupConfig(alarm.id);
+        } catch (_) {}
         final newId = await _scheduleNative(toSchedule);
         await AlarmFirestoreService.deleteAlarm(alarm.id);
         final rescheduled = toSchedule.copyWith(id: newId);
@@ -152,6 +177,21 @@ class AlarmCubit extends Cubit<AlarmState> {
         await AlarmChannel.cleanupConfig(nativeId);
       } catch (e) {
         debugPrint('[AlarmCubit] orphan cleanup failed for $nativeId: $e');
+      }
+    }
+
+    // Prime recurrent cascades whose `.relative` safety-net is alive but whose
+    // `.fixed` bursts have all fired. The user ignored the full 6-min cascade
+    // last week; now that the app is open, re-fill the bursts for next time
+    // without touching the originalId or the recurring `.relative` burst.
+    for (final alarm in resolved) {
+      if (!alarm.isEnabled) continue;
+      if (alarm.isOneTime) continue;
+      if (!alarm.repeatDays.any((d) => d)) continue;
+      try {
+        await AlarmChannel.primeCascadeIfNeeded(alarm.id);
+      } catch (e) {
+        debugPrint('[AlarmCubit] primeCascadeIfNeeded failed for ${alarm.id}: $e');
       }
     }
 

@@ -104,6 +104,18 @@ class AlarmChannel {
     }
   }
 
+  /// For recurrent alarms: if the `.relative(weekly)` safety-net burst is the
+  /// only thing left alive (all 23 `.fixed` bursts have fired/expired), schedule
+  /// a fresh set of `.fixed` bursts for the next matching weekday. Preserves
+  /// the originalId and the live `.relative` burst. No-op otherwise.
+  static Future<void> primeCascadeIfNeeded(String originalId) async {
+    try {
+      await _method.invokeMethod('primeCascadeIfNeeded', {'id': originalId});
+    } on PlatformException catch (e) {
+      debugPrint('[AlarmChannel] primeCascadeIfNeeded($originalId) failed: ${e.message}');
+    }
+  }
+
   /// Returns the next burst to act on for this cascade — either the currently
   /// alerting burst, or the soonest-future scheduled one. Null if none.
   static Future<NextBurst?> getNextBurst(String originalId) async {
