@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -24,39 +25,39 @@ class DayPickerStep extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             l10n.onboardingDayPickerTitle,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             l10n.onboardingDayPickerSubtitle,
-            style: TextStyle(fontSize: 16, color: c.textSecondary),
+            style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
           ..._displayOrder.map((dayIndex) {
             final isSelected = repeatDays[dayIndex];
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.only(bottom: 12.h),
               child: GestureDetector(
                 onTap: withHaptic(() => onToggle(dayIndex)),
                 child: Container(
                   width: double.infinity,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                   decoration: BoxDecoration(
                     color: c.card,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                     border: Border.all(
                       color: isSelected ? c.textPrimary : c.separator,
                       width: isSelected ? 2 : 1,
@@ -67,14 +68,14 @@ class DayPickerStep extends StatelessWidget {
                       Text(
                         localizedDayFull(l10n, dayIndex),
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           color: c.textPrimary,
                         ),
                       ),
                       const Spacer(),
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: 24.w,
+                        height: 24.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isSelected
@@ -88,7 +89,7 @@ class DayPickerStep extends StatelessWidget {
                           ),
                         ),
                         child: isSelected
-                            ? Icon(Icons.check, size: 16, color: c.card)
+                            ? Icon(Icons.check, size: 16.sp, color: c.card)
                             : null,
                       ),
                     ],

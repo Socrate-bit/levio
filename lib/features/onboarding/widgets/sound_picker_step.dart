@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -58,21 +59,21 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 0),
           child: Text(
             l10n.onboardingSoundPickerTitle,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
               height: 1.2,
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             children: soundCategories.map((cat) {
               final catSounds =
                   alarmSounds.where((s) => s.category == cat).toList();
@@ -82,12 +83,12 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                   Row(
                     children: [
                       Text(soundCategoryIcons[cat] ?? '',
-                          style: const TextStyle(fontSize: 16)),
-                      const SizedBox(width: 6),
+                          style: TextStyle(fontSize: 16.sp)),
+                      SizedBox(width: 6.w),
                       Text(
                         localizedSoundCategory(l10n, cat).toUpperCase(),
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.bold,
                           color: c.textSecondary,
                           letterSpacing: 1,
@@ -95,21 +96,21 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   ...catSounds.map((sound) {
                     final isSelected = widget.selectedId == sound.id;
                     final isPlaying = _playingId == sound.id;
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: EdgeInsets.only(bottom: 8.h),
                       child: GestureDetector(
                         onTap: withHaptic(() =>
                             widget.onSelected(sound.id, sound.name)),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 14.h),
                           decoration: BoxDecoration(
                             color: c.card,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             border: Border.all(
                               color: isSelected
                                   ? c.textPrimary
@@ -120,19 +121,19 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                           child: Row(
                             children: [
                               Container(
-                                width: 36,
-                                height: 36,
+                                width: 36.w,
+                                height: 36.h,
                                 decoration: BoxDecoration(
                                   color: sound.color,
                                   shape: BoxShape.circle,
                                 ),
                               ),
-                              const SizedBox(width: 14),
+                              SizedBox(width: 14.w),
                               Expanded(
                                 child: Text(
                                   localizedSoundName(l10n, sound.id),
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 16.sp,
                                     color: c.textPrimary,
                                   ),
                                 ),
@@ -141,7 +142,7 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                                 behavior: HitTestBehavior.opaque,
                                 onTap: withHaptic(() => _previewSound(sound.id)),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(4),
+                                  padding: EdgeInsets.all(4.w),
                                   child: Icon(
                                     isPlaying
                                         ? Icons.pause
@@ -149,14 +150,14 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                                     color: isPlaying
                                         ? AppColors.orange
                                         : c.textSecondary,
-                                    size: 22,
+                                    size: 22.sp,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8.w),
                               Container(
-                                width: 24,
-                                height: 24,
+                                width: 24.w,
+                                height: 24.h,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: isSelected
@@ -171,7 +172,7 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                                 ),
                                 child: isSelected
                                     ? Icon(Icons.check,
-                                        size: 16, color: c.card)
+                                        size: 16.sp, color: c.card)
                                     : null,
                               ),
                             ],
@@ -180,7 +181,7 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                       ),
                     );
                   }),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                 ],
               );
             }).toList(),

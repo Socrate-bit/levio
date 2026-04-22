@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -15,39 +16,39 @@ class NotificationStep extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
           const Spacer(flex: 2),
           Container(
-            width: 80,
-            height: 80,
+            width: 80.w,
+            height: 80.h,
             decoration: BoxDecoration(
               color: c.textPrimary,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.notifications, size: 40, color: c.card),
+            child: Icon(Icons.notifications, size: 40.sp, color: c.card),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
           Text(
             l10n.onboardingNotificationTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Text(
             l10n.onboardingNotificationSubtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: c.textSecondary),
+            style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
           ),
           const Spacer(flex: 3),
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 56.h,
             child: ElevatedButton(
               onPressed: withHaptic(() async {
                 await AlarmChannel.requestAuthorization();
@@ -57,31 +58,31 @@ class NotificationStep extends StatelessWidget {
                 backgroundColor: c.textPrimary,
                 foregroundColor: c.card,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(28.r),
                 ),
               ),
               child: Text(
                 l10n.onboardingNotificationEnable,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   color: c.card,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           GestureDetector(
             onTap: withHaptic(onNext),
             child: Text(
               l10n.onboardingNotificationNotNow,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 16.sp,
                 color: c.textSecondary,
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
         ],
       ),
     );

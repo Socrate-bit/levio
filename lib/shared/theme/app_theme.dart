@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppColors {
   // Theme-invariant accent colors
@@ -67,15 +68,15 @@ class AppTheme {
         brightness: Brightness.light,
         surface: bg,
       ),
-      cardTheme: const CardThemeData(
+      cardTheme: CardThemeData(
         color: card,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderRadius: BorderRadius.all(Radius.circular(16.r)),
         ),
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: bg,
         foregroundColor: textPrimary,
         elevation: 0,
@@ -83,46 +84,46 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: TextStyle(
           color: textPrimary,
-          fontSize: 28,
+          fontSize: 28.sp,
           fontWeight: FontWeight.bold,
           letterSpacing: -0.5,
         ),
       ),
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: TextStyle(
-          fontSize: 34,
+          fontSize: 34.sp,
           fontWeight: FontWeight.bold,
           color: textPrimary,
           letterSpacing: -0.5,
         ),
         headlineMedium: TextStyle(
-          fontSize: 22,
+          fontSize: 22.sp,
           fontWeight: FontWeight.bold,
           color: textPrimary,
         ),
         titleLarge: TextStyle(
-          fontSize: 17,
+          fontSize: 17.sp,
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
         bodyLarge: TextStyle(
-          fontSize: 15,
+          fontSize: 15.sp,
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
-        bodyMedium: TextStyle(fontSize: 15, color: textPrimary),
-        bodySmall: TextStyle(fontSize: 13, color: textSecondary),
+        bodyMedium: TextStyle(fontSize: 15.sp, color: textPrimary),
+        bodySmall: TextStyle(fontSize: 13.sp, color: textSecondary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: textPrimary,
           foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 54),
+          minimumSize: Size(double.infinity, 54.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
           ),
           elevation: 0,
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -142,15 +143,15 @@ class AppTheme {
         brightness: Brightness.dark,
         surface: darkBg,
       ),
-      cardTheme: const CardThemeData(
+      cardTheme: CardThemeData(
         color: darkCard,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderRadius: BorderRadius.all(Radius.circular(16.r)),
         ),
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: darkBg,
         foregroundColor: darkText,
         elevation: 0,
@@ -158,47 +159,47 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: TextStyle(
           color: darkText,
-          fontSize: 28,
+          fontSize: 28.sp,
           fontWeight: FontWeight.bold,
           letterSpacing: -0.5,
         ),
       ),
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: TextStyle(
-          fontSize: 34,
+          fontSize: 34.sp,
           fontWeight: FontWeight.bold,
           color: darkText,
           letterSpacing: -0.5,
         ),
         headlineMedium: TextStyle(
-          fontSize: 22,
+          fontSize: 22.sp,
           fontWeight: FontWeight.bold,
           color: darkText,
         ),
         titleLarge: TextStyle(
-          fontSize: 17,
+          fontSize: 17.sp,
           fontWeight: FontWeight.w600,
           color: darkText,
         ),
         bodyLarge: TextStyle(
-          fontSize: 15,
+          fontSize: 15.sp,
           fontWeight: FontWeight.w600,
           color: darkText,
         ),
 
-        bodyMedium: TextStyle(fontSize: 15, color: darkText),
-        bodySmall: TextStyle(fontSize: 13, color: darkSecondary),
+        bodyMedium: TextStyle(fontSize: 15.sp, color: darkText),
+        bodySmall: TextStyle(fontSize: 13.sp, color: darkSecondary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: darkText,
           foregroundColor: darkBg,
-          minimumSize: const Size(double.infinity, 54),
+          minimumSize: Size(double.infinity, 54.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
           ),
           elevation: 0,
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
         ),
       ),
     );

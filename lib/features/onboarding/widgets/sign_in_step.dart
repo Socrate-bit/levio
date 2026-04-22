@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../auth/auth_service.dart';
@@ -100,35 +101,35 @@ class _SignInStepState extends State<SignInStep> {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
           const Spacer(flex: 2),
           Text(
             widget.title,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             widget.subtitle,
-            style: TextStyle(fontSize: 16, color: c.textSecondary),
+            style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
           // Sign in with Apple
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 56.h,
             child: ElevatedButton.icon(
               onPressed: _loading ? null : withHaptic(_handleAppleSignIn),
-              icon: Icon(Icons.apple, size: 24, color: c.card),
+              icon: Icon(Icons.apple, size: 24.sp, color: c.card),
               label: Text(
                 l10n.onboardingSignInApple,
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 17.sp,
                   fontWeight: FontWeight.w600,
                   color: c.card,
                 ),
@@ -136,35 +137,35 @@ class _SignInStepState extends State<SignInStep> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: c.textPrimary,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(28.r),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           // Continue with Google
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 56.h,
             child: OutlinedButton(
               onPressed: _loading ? null : withHaptic(_handleGoogleSignIn),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: c.separator, width: 1.5),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(28.r),
                 ),
               ),
               child: Text(
                 l10n.onboardingSignInGoogle,
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 17.sp,
                   fontWeight: FontWeight.w600,
                   color: c.textPrimary,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           if (_loading)
             const CircularProgressIndicator()
           else if (widget.showSkip)
@@ -184,7 +185,7 @@ class _SignInStepState extends State<SignInStep> {
               child: Text(
                 l10n.onboardingSkipForNow,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   color: c.textSecondary,
                   decoration: TextDecoration.underline,
                 ),

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DnaHelix extends StatelessWidget {
   const DnaHelix({super.key});
@@ -7,8 +8,8 @@ class DnaHelix extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 120,
-      height: 140,
+      width: 120.w,
+      height: 140.h,
       child: CustomPaint(
         painter: _DnaHelixPainter(),
       ),

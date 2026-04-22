@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -71,31 +72,31 @@ class _LoadingStepState extends State<LoadingStep>
           final completed = _completedCount(progress);
 
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Column(
               children: [
                 const Spacer(flex: 2),
                 Text(
                   '$percent%',
                   style: TextStyle(
-                    fontSize: 64,
+                    fontSize: 64.sp,
                     fontWeight: FontWeight.bold,
                     color: c.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(
                   l10n.onboardingLoadingTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 22.sp,
                     fontWeight: FontWeight.w600,
                     color: c.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(4.r),
                   child: LinearProgressIndicator(
                     value: progress,
                     backgroundColor: c.separator,
@@ -104,25 +105,25 @@ class _LoadingStepState extends State<LoadingStep>
                     minHeight: 6,
                   ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32.h),
                 ...List.generate(_stepCount, (i) {
                   final steps = _steps(l10n);
                   final done = i < completed;
                   final active = i == completed && completed < _stepCount;
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    padding: EdgeInsets.symmetric(vertical: 6.h),
                     child: Row(
                       children: [
                         SizedBox(
-                          width: 24,
-                          height: 24,
+                          width: 24.w,
+                          height: 24.h,
                           child: done
                               ? Icon(Icons.check_circle,
-                                  size: 22, color: AppColors.orange)
+                                  size: 22.sp, color: AppColors.orange)
                               : active
                                   ? SizedBox(
-                                      width: 18,
-                                      height: 18,
+                                      width: 18.w,
+                                      height: 18.h,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
                                         valueColor:
@@ -131,13 +132,13 @@ class _LoadingStepState extends State<LoadingStep>
                                       ),
                                     )
                                   : Icon(Icons.circle_outlined,
-                                      size: 22, color: c.separator),
+                                      size: 22.sp, color: c.separator),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12.w),
                         Text(
                           steps[i],
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             color: done || active
                                 ? c.textPrimary
                                 : c.textSecondary,

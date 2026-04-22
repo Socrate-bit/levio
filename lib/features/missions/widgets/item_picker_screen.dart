@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
@@ -250,46 +251,46 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
           children: [
             // Top bar
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 36.w,
+                      height: 36.h,
                       decoration: BoxDecoration(
                         color: c.card,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.close, size: 18, color: c.textPrimary),
+                      child: Icon(Icons.close, size: 18.sp, color: c.textPrimary),
                     ),
                   ),
                   Expanded(
                     child: Center(
                       child: Text(
                         widget.title,
-                        style: const TextStyle(
-                          fontSize: 17,
+                        style: TextStyle(
+                          fontSize: 17.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 36),
+                  SizedBox(width: 36.w),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
 
             // Selected count + Select/Deselect All
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
                 children: [
                   Text(
                     l10n.itemPickerSelected(_selected.length),
-                    style: TextStyle(fontSize: 14, color: c.textSecondary),
+                    style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
                   ),
                   const Spacer(),
                   GestureDetector(
@@ -300,7 +301,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                           ? l10n.itemPickerSelectAll
                           : l10n.itemPickerDeselectAll,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         color: c.purpleDeep,
                         fontWeight: FontWeight.w600,
                       ),
@@ -309,18 +310,18 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
 
             // Subtitle
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Text(
                 widget.subtitle,
-                style: TextStyle(fontSize: 13, color: c.textSecondary),
+                style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
 
             // Grid
             Expanded(
@@ -333,24 +334,24 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                     )
                   : ListView(
                       controller: _scrollCtrl,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
                       children: [
                         // Built-in sections
                         for (final section in widget.sections) ...[
                           if (section.name.isNotEmpty) ...[
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                             Text(
                               _localizedSectionName(l10n, section.name),
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
                                 color: c.textPrimary,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                           ],
                           _buildGrid(section.items, c, l10n),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8.h),
                         ],
 
                         // Custom objects section (at the bottom)
@@ -365,33 +366,33 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const SizedBox(height: 8),
+                                      SizedBox(height: 8.h),
                                       Text(
                                         _localizedSectionName(
                                             l10n, 'Custom Items'),
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 16.sp,
                                           fontWeight: FontWeight.w600,
                                           color: c.textPrimary,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
+                                      SizedBox(height: 8.h),
                                       _buildCustomGrid(c, l10n),
-                                      const SizedBox(height: 8),
+                                      SizedBox(height: 8.h),
                                     ],
                                   )
                                 : const SizedBox.shrink(),
                           ),
 
                           // Add your own
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8.h),
                           Row(
                             children: [
                               Expanded(
                                 child: TextField(
                                   controller: _customCtrl,
                                   style: TextStyle(
-                                      fontSize: 15, color: c.textPrimary),
+                                      fontSize: 15.sp, color: c.textPrimary),
                                   decoration: InputDecoration(
                                     hintText: l10n.itemPickerAddOwn,
                                     hintStyle:
@@ -399,57 +400,57 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                                     filled: true,
                                     fillColor: c.card,
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(12.r),
                                       borderSide: BorderSide.none,
                                     ),
                                     contentPadding:
-                                        const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 12),
+                                        EdgeInsets.symmetric(
+                                            horizontal: 16.w, vertical: 12.h),
                                   ),
                                   onSubmitted: (_) => _addCustom(),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8.w),
                               GestureDetector(
                                 onTap: withHaptic(_addCustom),
                                 child: Container(
-                                  width: 44,
-                                  height: 44,
+                                  width: 44.w,
+                                  height: 44.h,
                                   decoration: BoxDecoration(
                                     color: AppColors.orange,
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12.r),
                                   ),
-                                  child: const Icon(Icons.add,
-                                      color: Colors.white, size: 22),
+                                  child: Icon(Icons.add,
+                                      color: Colors.white, size: 22.sp),
                                 ),
                               ),
                             ],
                           ),
                         ],
-                        const SizedBox(height: 80),
+                        SizedBox(height: 80.h),
                       ],
                     ),
             ),
 
             // Done button
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
               child: ElevatedButton(
                 onPressed: withHaptic(() =>
                     Navigator.pop(context, _selected.toList())),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: c.textPrimary,
                   foregroundColor: c.background,
-                  minimumSize: const Size(double.infinity, 54),
+                  minimumSize: Size(double.infinity, 54.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   elevation: 0,
                 ),
                 child: Text(
                   l10n.itemPickerDone,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      fontSize: 16.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -488,7 +489,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
             duration: const Duration(milliseconds: 150),
             decoration: BoxDecoration(
               color: c.card,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               border: Border.all(
                 color: selected ? c.purpleDeep : Colors.transparent,
                 width: 2,
@@ -498,17 +499,17 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
               children: [
                 Center(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    padding: EdgeInsets.symmetric(horizontal: 6.w),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('\u{2b50}',
-                            style: TextStyle(fontSize: 36)),
-                        const SizedBox(height: 6),
+                        Text('\u{2b50}',
+                            style: TextStyle(fontSize: 36.sp)),
+                        SizedBox(height: 6.h),
                         Text(
                           label,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: c.textPrimary,
                             fontWeight: FontWeight.w500,
                           ),
@@ -522,19 +523,19 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                 ),
                 // Delete button
                 Positioned(
-                  top: 4,
-                  right: 4,
+                  top: 4.h,
+                  right: 4.w,
                   child: GestureDetector(
                     onTap: withHaptic(() => _deleteCustom(label)),
                     child: Container(
-                      width: 22,
-                      height: 22,
+                      width: 22.w,
+                      height: 22.h,
                       decoration: BoxDecoration(
                         color: c.separator,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.close,
-                          size: 14, color: c.textSecondary),
+                          size: 14.sp, color: c.textSecondary),
                     ),
                   ),
                 ),
@@ -576,7 +577,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
             duration: const Duration(milliseconds: 150),
             decoration: BoxDecoration(
               color: c.card,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               border: Border.all(
                 color: selected ? c.purpleDeep : Colors.transparent,
                 width: 2,
@@ -587,13 +588,13 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
               children: [
                 Text(
                   item.emoji,
-                  style: const TextStyle(fontSize: 36),
+                  style: TextStyle(fontSize: 36.sp),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6.h),
                 Text(
                   localizedItemName(l10n, item.label),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: c.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),

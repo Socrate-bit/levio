@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
@@ -139,64 +140,64 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 36.w,
+                      height: 36.h,
                       decoration: BoxDecoration(
                         color: c.card,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.close,
-                          size: 18, color: c.textPrimary),
+                          size: 18.sp, color: c.textPrimary),
                     ),
                   ),
                   Expanded(
                     child: Center(
                       child: Text(
                         l10n.soundPickerTitle,
-                        style: const TextStyle(
-                          fontSize: 17,
+                        style: TextStyle(
+                          fontSize: 17.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 36),
+                  SizedBox(width: 36.w),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 children: [
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20.h),
                   // Your Sounds section
                   _SectionHeader(title: l10n.soundPickerYourSounds),
                   GestureDetector(
                     onTap: withHaptic(_uploadSound),
                     child: Container(
-                      margin: const EdgeInsets.only(top: 8, bottom: 4),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
+                      margin: EdgeInsets.only(top: 8.h, bottom: 4.h),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 16.w, vertical: 14.h),
                       decoration: BoxDecoration(
                         color: c.card,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14.r),
                       ),
                       child: Row(
                         children: [
                           Icon(Icons.add,
-                              size: 18, color: c.textSecondary),
-                          const SizedBox(width: 12),
+                              size: 18.sp, color: c.textSecondary),
+                          SizedBox(width: 12.w),
                           Text(
                             l10n.soundPickerUpload,
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               color: c.textPrimary,
                             ),
                           ),
@@ -206,11 +207,11 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                   ),
                   // Custom sound rows
                   if (_customSounds.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     Container(
                       decoration: BoxDecoration(
                         color: c.card,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14.r),
                       ),
                       child: Column(
                         children: _customSounds.asMap().entries.map((entry) {
@@ -225,21 +226,21 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                 setState(() => _selectedId = sound.id)),
                             onLongPress: () => _confirmDelete(sound),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 14),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w, vertical: 14.h),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.only(
                                   topLeft: isFirst
-                                      ? const Radius.circular(14)
+                                      ? Radius.circular(14.r)
                                       : Radius.zero,
                                   topRight: isFirst
-                                      ? const Radius.circular(14)
+                                      ? Radius.circular(14.r)
                                       : Radius.zero,
                                   bottomLeft: isLast
-                                      ? const Radius.circular(14)
+                                      ? Radius.circular(14.r)
                                       : Radius.zero,
                                   bottomRight: isLast
-                                      ? const Radius.circular(14)
+                                      ? Radius.circular(14.r)
                                       : Radius.zero,
                                 ),
                                 border: isSelected
@@ -252,21 +253,21 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                               child: Row(
                                 children: [
                                   Container(
-                                    width: 36,
-                                    height: 36,
+                                    width: 36.w,
+                                    height: 36.h,
                                     decoration: BoxDecoration(
                                       color: c.purpleDeep.withValues(alpha: 0.3),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(Icons.music_note,
-                                        size: 18, color: c.purpleDeep),
+                                        size: 18.sp, color: c.purpleDeep),
                                   ),
-                                  const SizedBox(width: 14),
+                                  SizedBox(width: 14.w),
                                   Expanded(
                                     child: Text(
                                       sound.name,
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 16.sp,
                                         color: c.textPrimary,
                                       ),
                                       overflow: TextOverflow.ellipsis,
@@ -282,7 +283,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                       color: isPlaying
                                           ? AppColors.orange
                                           : c.textSecondary,
-                                      size: 22,
+                                      size: 22.sp,
                                     ),
                                   ),
                                 ],
@@ -293,7 +294,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   ...soundCategories.map((cat) {
                     final catSounds =
                         alarmSounds.where((s) => s.category == cat).toList();
@@ -304,11 +305,11 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                           title: localizedSoundCategory(l10n, cat),
                           icon: soundCategoryIcons[cat],
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Container(
                           decoration: BoxDecoration(
                             color: c.card,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                           ),
                           child: Column(
                             children:
@@ -324,21 +325,21 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                 onTap: withHaptic(() => setState(
                                     () => _selectedId = sound.id)),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.w, vertical: 14.h),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.only(
                                       topLeft: isFirst
-                                          ? const Radius.circular(14)
+                                          ? Radius.circular(14.r)
                                           : Radius.zero,
                                       topRight: isFirst
-                                          ? const Radius.circular(14)
+                                          ? Radius.circular(14.r)
                                           : Radius.zero,
                                       bottomLeft: isLast
-                                          ? const Radius.circular(14)
+                                          ? Radius.circular(14.r)
                                           : Radius.zero,
                                       bottomRight: isLast
-                                          ? const Radius.circular(14)
+                                          ? Radius.circular(14.r)
                                           : Radius.zero,
                                     ),
                                     border: isSelected
@@ -351,18 +352,18 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                   child: Row(
                                     children: [
                                       Container(
-                                        width: 36,
-                                        height: 36,
+                                        width: 36.w,
+                                        height: 36.h,
                                         decoration: BoxDecoration(
                                           color: sound.color,
                                           shape: BoxShape.circle,
                                         ),
                                       ),
-                                      const SizedBox(width: 14),
+                                      SizedBox(width: 14.w),
                                       Text(
                                         localizedSoundName(l10n, sound.id),
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 16.sp,
                                           color: c.textPrimary,
                                         ),
                                       ),
@@ -377,7 +378,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                           color: isPlaying
                                               ? AppColors.orange
                                               : c.textSecondary,
-                                          size: 22,
+                                          size: 22.sp,
                                         ),
                                       ),
                                     ],
@@ -387,7 +388,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                             }).toList(),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                       ],
                     );
                   }),
@@ -395,7 +396,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
               child: ElevatedButton(
                 onPressed: withHaptic(() {
                   // Handle both preset and custom sounds
@@ -433,13 +434,13 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       children: [
         if (icon != null) ...[
-          Text(icon!, style: const TextStyle(fontSize: 16)),
-          const SizedBox(width: 6),
+          Text(icon!, style: TextStyle(fontSize: 16.sp)),
+          SizedBox(width: 6.w),
         ],
         Text(
           title,
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 15.sp,
             fontWeight: FontWeight.bold,
             color: c.textPrimary,
           ),

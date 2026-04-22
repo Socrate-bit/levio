@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -73,8 +74,8 @@ Future<MissionConfig?> showMissionConfigModal(
     context: context,
     isScrollControlled: true,
     backgroundColor: AppColors.of(context).card,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
     ),
     builder: (_) => _ConfigSheet(info: info, existing: existing),
   );
@@ -204,37 +205,37 @@ class _ConfigSheetState extends State<_ConfigSheet> {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 32),
+          24.w, 20.h, 24.w, MediaQuery.of(context).viewInsets.bottom + 32.h),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Mission icon + name
           Container(
-            width: 64,
-            height: 64,
+            width: 64.w,
+            height: 64.h,
             decoration: BoxDecoration(
               color: widget.info.iconBg,
               shape: BoxShape.circle,
             ),
             child: Icon(widget.info.icon,
-                color: widget.info.iconColor, size: 30),
+                color: widget.info.iconColor, size: 30.sp),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Text(
             localizedMissionName(l10n, widget.info.type),
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Text(
             localizedMissionDesc(l10n, widget.info.type),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: c.textSecondary),
+            style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
 
           // Rep stepper (pushUps, squats, shakePhone)
           if (isRep) ...[
@@ -242,37 +243,37 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               widget.info.type == MissionType.shakePhone
                   ? l10n.missionConfigNumberOfShakes
                   : l10n.missionConfigNumberOfReps,
-              style: TextStyle(fontSize: 14, color: c.textSecondary),
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             _Stepper(
               value: _repCount,
               min: 1,
               max: 100,
               onChanged: (v) => setState(() => _repCount = v),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
           ],
 
           // Math config
           if (isMath) ...[
             Text(
               l10n.missionConfigNumberOfProblems,
-              style: TextStyle(fontSize: 14, color: c.textSecondary),
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             _Stepper(
               value: _mathProblemCount,
               min: 1,
               max: 10,
               onChanged: (v) => setState(() => _mathProblemCount = v),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Text(
               l10n.missionConfigDifficulty,
-              style: TextStyle(fontSize: 14, color: c.textSecondary),
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Row(
               children: MathDifficulty.values.map((d) {
                 final selected = _mathDifficulty == d;
@@ -287,17 +288,17 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
                       margin: EdgeInsets.only(
-                          right: d != MathDifficulty.hard ? 8 : 0),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                          right: d != MathDifficulty.hard ? 8.w : 0),
+                      padding: EdgeInsets.symmetric(vertical: 10.h),
                       decoration: BoxDecoration(
                         color: selected ? AppColors.orange : c.background,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Center(
                         child: Text(
                           label,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             color: selected ? Colors.white : c.textSecondary,
                           ),
@@ -308,7 +309,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
           ],
 
           // Preview + Confirm buttons
@@ -318,23 +319,23 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                 child: OutlinedButton(
                   onPressed: withHaptic(_preview),
                   style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 50),
+                    minimumSize: Size(0, 50.h),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
                     side: BorderSide(color: c.separator),
                   ),
                   child: Text(
                     l10n.missionPickerPreview,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                       color: c.textPrimary,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 flex: 2,
                 child: ElevatedButton(
@@ -342,16 +343,16 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.orange,
                     foregroundColor: Colors.white,
-                    minimumSize: const Size(0, 50),
+                    minimumSize: Size(0, 50.h),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
                     elevation: 0,
                   ),
                   child: Text(
                     l10n.missionConfigChoose,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: TextStyle(
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -391,16 +392,16 @@ class _Stepper extends StatelessWidget {
           onTap: () => onChanged(value - 1),
           c: c,
         ),
-        const SizedBox(width: 24),
+        SizedBox(width: 24.w),
         Text(
           '$value',
           style: TextStyle(
-            fontSize: 32,
+            fontSize: 32.sp,
             fontWeight: FontWeight.bold,
             color: c.textPrimary,
           ),
         ),
-        const SizedBox(width: 24),
+        SizedBox(width: 24.w),
         _stepButton(
           icon: Icons.add,
           enabled: value < max,
@@ -420,8 +421,8 @@ class _Stepper extends StatelessWidget {
     return GestureDetector(
       onTap: enabled ? withHaptic(onTap) : null,
       child: Container(
-        width: 44,
-        height: 44,
+        width: 44.w,
+        height: 44.h,
         decoration: BoxDecoration(
           color: enabled ? AppColors.orange : c.separator,
           shape: BoxShape.circle,
@@ -429,7 +430,7 @@ class _Stepper extends StatelessWidget {
         child: Icon(
           icon,
           color: enabled ? Colors.white : c.textSecondary,
-          size: 22,
+          size: 22.sp,
         ),
       ),
     );

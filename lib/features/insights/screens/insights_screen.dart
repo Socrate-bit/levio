@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -50,26 +51,26 @@ class _InsightsView extends StatelessWidget {
             child: state.loading
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+                      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 120.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             l10n.insightsTitle,
                             style: TextStyle(
-                              fontSize: 28,
+                              fontSize: 28.sp,
                               fontWeight: FontWeight.bold,
                               color: c.textPrimary,
                               letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           _RangeToggle(
                             selected: state.range,
                             onChanged: (r) =>
                                 ctx.read<InsightsCubit>().changeRange(r),
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20.h),
                           // Streak + Badges cards row
                           Row(
                             children: [
@@ -85,7 +86,7 @@ class _InsightsView extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12.w),
                               Expanded(
                                 child: _BadgesCard(
                                   earned: state.badgesEarned,
@@ -101,16 +102,16 @@ class _InsightsView extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 22),
+                          SizedBox(height: 22.h),
                           Text(
                             l10n.insightsStats,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               color: c.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12.h),
                           Row(
                             children: [
                               _StatCard(
@@ -118,7 +119,7 @@ class _InsightsView extends StatelessWidget {
                                 label: l10n.insightsAvgWakeTime,
                                 value: state.avgWakeTime,
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12.w),
                               _StatCard(
                                 icon: Icons.timer_outlined,
                                 label: l10n.insightsAvgResponse,
@@ -126,7 +127,7 @@ class _InsightsView extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12.h),
                           Row(
                             children: [
                               _StatCard(
@@ -136,7 +137,7 @@ class _InsightsView extends StatelessWidget {
                                     ? '--'
                                     : localizedMissionName(l10n, MissionType.values.byName(state.favoriteMission)),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12.w),
                               _StatCard(
                                 icon: Icons.music_note_outlined,
                                 label: l10n.insightsFavoriteSound,
@@ -146,25 +147,25 @@ class _InsightsView extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24.h),
                           // History section
                           Text(
                             l10n.sessionsTitle,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               color: c.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12.h),
                           if (state.sessions.isEmpty)
                             Center(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 24),
+                                padding: EdgeInsets.symmetric(vertical: 24.h),
                                 child: Text(
                                   l10n.sessionsNoWakeups,
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 15.sp,
                                     color: c.textSecondary,
                                   ),
                                 ),
@@ -173,7 +174,7 @@ class _InsightsView extends StatelessWidget {
                           else
                             ...state.sessions.asMap().entries.map(
                               (entry) => Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
+                                padding: EdgeInsets.only(bottom: 10.h),
                                 child: _SessionTile(
                                   session: entry.value,
                                   wakeupNumber:
@@ -207,10 +208,10 @@ class _RangeToggle extends StatelessWidget {
       InsightsRange.allTime: l10n.insightsAllTime,
     };
     return Container(
-      padding: const EdgeInsets.all(3),
+      padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
         color: c.card,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Row(
         children: InsightsRange.values.map((r) {
@@ -220,18 +221,18 @@ class _RangeToggle extends StatelessWidget {
               onTap: withHaptic(() => onChanged(r)),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: EdgeInsets.symmetric(vertical: 8.h),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.orange
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Text(
                   labels[r]!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                     color: isSelected
                         ? Colors.white
@@ -265,20 +266,20 @@ class _StreakCard extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 1,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
             color: c.card,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/streaks.png', width: 56, height: 56),
-              const SizedBox(height: 4),
+              Image.asset('assets/streaks.png', width: 56.w, height: 56.h),
+              SizedBox(height: 4.h),
               Text(
                 '$streak',
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 32.sp,
                   fontWeight: FontWeight.bold,
                   color: c.textPrimary,
                 ),
@@ -286,7 +287,7 @@ class _StreakCard extends StatelessWidget {
               Text(
                 l10n.insightsDayStreak,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
                   color: c.textSecondary,
                 ),
@@ -319,10 +320,10 @@ class _BadgesCard extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 1,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
             color: c.card,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -330,25 +331,25 @@ class _BadgesCard extends StatelessWidget {
               HexagonBadge(
                 label: '$earned',
                 earned: earned > 0,
-                size: 64,
+                size: 64.w,
                 earnedColor: const Color(0xFFB8860B),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 l10n.insightsBadgesEarned,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
                   color: c.textPrimary,
                 ),
               ),
               if (earned > 0)
                 Padding(
-                  padding: const EdgeInsets.only(top: 6),
+                  padding: EdgeInsets.only(top: 6.h),
                   child: Text(
                     '$earned/$total',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: c.textSecondary,
                     ),
                   ),
@@ -377,23 +378,23 @@ class _StatCard extends StatelessWidget {
     final c = AppColors.of(context);
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(icon, size: 14, color: c.textSecondary),
-                const SizedBox(width: 4),
+                Icon(icon, size: 14.sp, color: c.textSecondary),
+                SizedBox(width: 4.w),
                 Expanded(
                   child: Text(
                     label,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       color: c.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -401,11 +402,11 @@ class _StatCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               value,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
               ),
@@ -426,10 +427,10 @@ class _ConsistencyCard extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: c.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,7 +440,7 @@ class _ConsistencyCard extends StatelessWidget {
               Text(
                 l10n.insightsConsistency,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
                   color: c.textPrimary,
                 ),
@@ -448,25 +449,25 @@ class _ConsistencyCard extends StatelessWidget {
               GestureDetector(
                 onTap: withHaptic(() => _showInfo(context)),
                 child: Icon(Icons.help_outline,
-                    size: 18, color: c.textSecondary),
+                    size: 18.sp, color: c.textSecondary),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           if (score < 30)
             Text(
               l10n.insightsNeed3Wakeups,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: c.textSecondary,
               ),
             ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           // Multi-color progress bar
           ClipRRect(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(6.r),
             child: SizedBox(
-              height: 12,
+              height: 12.h,
               child: Stack(
                 children: [
                   // Background gradient
@@ -496,7 +497,7 @@ class _ConsistencyCard extends StatelessWidget {
                     top: 0,
                     bottom: 0,
                     width: (1 - score / 100) *
-                        (MediaQuery.of(context).size.width - 72),
+                        (MediaQuery.of(context).size.width - 72.w),
                     child: Container(
                       color: c.card.withAlpha(200),
                     ),
@@ -505,30 +506,30 @@ class _ConsistencyCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('0',
                   style: TextStyle(
-                      fontSize: 11, color: c.textSecondary)),
+                      fontSize: 11.sp, color: c.textSecondary)),
               Text('30',
                   style: TextStyle(
-                      fontSize: 11, color: c.textSecondary)),
+                      fontSize: 11.sp, color: c.textSecondary)),
               Text('50',
                   style: TextStyle(
-                      fontSize: 11, color: c.textSecondary)),
+                      fontSize: 11.sp, color: c.textSecondary)),
               Text('70',
                   style: TextStyle(
-                      fontSize: 11, color: c.textSecondary)),
+                      fontSize: 11.sp, color: c.textSecondary)),
               Text('100',
                   style: TextStyle(
-                      fontSize: 11, color: c.textSecondary)),
+                      fontSize: 11.sp, color: c.textSecondary)),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Wrap(
-            spacing: 12,
+            spacing: 12.w,
             children: [
               _LegendDot(color: const Color(0xFFFC8181), label: l10n.insightsConsistencyVariable),
               _LegendDot(color: const Color(0xFFED8936), label: l10n.insightsConsistencyImproving),
@@ -572,14 +573,14 @@ class _LegendDot extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: 8.w,
+          height: 8.h,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: 4.w),
         Text(label,
             style: TextStyle(
-                fontSize: 11, color: c.textSecondary)),
+                fontSize: 11.sp, color: c.textSecondary)),
       ],
     );
   }
@@ -627,27 +628,27 @@ class _SessionTile extends StatelessWidget {
     return Opacity(
       opacity: missed ? 0.6 : 1.0,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 44.w,
+              height: 44.h,
               decoration: BoxDecoration(
                 color: iconBg,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(
                 missed ? Icons.alarm_off_outlined : missionIcon,
                 color: iconColor,
-                size: 22,
+                size: 22.sp,
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -655,15 +656,15 @@ class _SessionTile extends StatelessWidget {
                   Text(
                     timeStr,
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 17.sp,
                       fontWeight: FontWeight.bold,
                       color: c.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   Text(
                     missed ? l10n.sessionsMissed : missionLabel,
-                    style: TextStyle(fontSize: 13, color: c.textSecondary),
+                    style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                   ),
                 ],
               ),
@@ -673,19 +674,19 @@ class _SessionTile extends StatelessWidget {
               children: [
                 Text(
                   dateStr,
-                  style: TextStyle(fontSize: 13, color: c.textSecondary),
+                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 if (!missed)
                   Row(
                     children: [
                       Icon(Icons.timer_outlined,
-                          size: 12, color: c.textSecondary),
-                      const SizedBox(width: 3),
+                          size: 12.sp, color: c.textSecondary),
+                      SizedBox(width: 3.w),
                       Text(
                         durationStr,
                         style:
-                            TextStyle(fontSize: 12, color: c.textSecondary),
+                            TextStyle(fontSize: 12.sp, color: c.textSecondary),
                       ),
                     ],
                   ),

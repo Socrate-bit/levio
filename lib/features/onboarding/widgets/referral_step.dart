@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -21,24 +22,24 @@ class ReferralStep extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             l10n.onboardingReferralTitle,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             l10n.onboardingReferralSubtitle,
-            style: TextStyle(fontSize: 16, color: c.textSecondary),
+            style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
           ),
           const Spacer(),
           TextField(
@@ -49,54 +50,54 @@ class ReferralStep extends StatelessWidget {
               filled: true,
               fillColor: c.card,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 borderSide: BorderSide(color: c.separator),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 borderSide: BorderSide(color: c.separator),
               ),
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),
           ),
           if (status == ReferralStatus.valid) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                const SizedBox(width: 8),
+                Icon(Icons.check_circle, color: Colors.green, size: 20.sp),
+                SizedBox(width: 8.w),
                 Text(
                   l10n.onboardingReferralApplied,
                   style:
-                      TextStyle(fontSize: 14, color: Colors.green.shade700),
+                      TextStyle(fontSize: 14.sp, color: Colors.green.shade700),
                 ),
               ],
             ),
           ],
           if (status == ReferralStatus.invalid) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 20),
-                const SizedBox(width: 8),
+                Icon(Icons.error_outline, color: Colors.red, size: 20.sp),
+                SizedBox(width: 8.w),
                 Text(
                   l10n.onboardingReferralInvalid,
-                  style: TextStyle(fontSize: 14, color: Colors.red.shade700),
+                  style: TextStyle(fontSize: 14.sp, color: Colors.red.shade700),
                 ),
               ],
             ),
           ],
           if (status == ReferralStatus.exhausted) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Row(
               children: [
-                const Icon(Icons.block, color: Colors.orange, size: 20),
-                const SizedBox(width: 8),
+                Icon(Icons.block, color: Colors.orange, size: 20.sp),
+                SizedBox(width: 8.w),
                 Text(
                   l10n.onboardingReferralLimit,
                   style:
-                      TextStyle(fontSize: 14, color: Colors.orange.shade700),
+                      TextStyle(fontSize: 14.sp, color: Colors.orange.shade700),
                 ),
               ],
             ),

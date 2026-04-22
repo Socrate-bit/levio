@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -175,18 +176,18 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
                 child: Align(
                   alignment: Alignment.topRight,
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.w),
                     child: GestureDetector(
                       onTap: withHaptic(() => Navigator.of(context).pop()),
                       child: Container(
-                        width: 36,
-                        height: 36,
+                        width: 36.w,
+                        height: 36.h,
                         decoration: const BoxDecoration(
                           color: Colors.black54,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.close,
-                            size: 18, color: Colors.white),
+                        child: Icon(Icons.close,
+                            size: 18.sp, color: Colors.white),
                       ),
                     ),
                   ),
@@ -218,12 +219,12 @@ class _LoadingView extends StatelessWidget {
               color: AppColors.orange,
               strokeWidth: 2.5,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               l10n.dismissRepStarting,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white54,
-                fontSize: 14,
+                fontSize: 14.sp,
                 letterSpacing: 0.3,
               ),
             ),
@@ -283,13 +284,13 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
           children: [
             const LevioBrandHeader(textColor: Colors.white),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Text(
                 l10n.dismissRepPrompt(target, localizedMissionName(l10n, missionType)),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                   letterSpacing: -0.5,
                   height: 1.1,
@@ -299,11 +300,11 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
 
             Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: AspectRatio(
                   aspectRatio: state.imageWidth / state.imageHeight,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
+                    borderRadius: BorderRadius.circular(28.r),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
@@ -344,9 +345,9 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
                         ),
 
                         Positioned(
-                          top: 14,
-                          left: 16,
-                          right: 16,
+                          top: 14.h,
+                          left: 16.w,
+                          right: 16.w,
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 250),
                             transitionBuilder: (child, animation) =>
@@ -363,9 +364,9 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
                             child: state.feedback != null
                                 ? Container(
                                     key: ValueKey(state.feedback),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 7,
-                                      horizontal: 14,
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 7.h,
+                                      horizontal: 14.w,
                                     ),
                                     decoration: BoxDecoration(
                                       color:
@@ -373,14 +374,14 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
                                               FeedbackType.positive
                                           ? AppColors.success.withAlpha(200)
                                           : AppColors.error.withAlpha(200),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(12.r),
                                     ),
                                     child: Text(
                                       _feedbackText(context, state.feedback!),
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 13,
+                                        fontSize: 13.sp,
                                         fontWeight: FontWeight.w600,
                                         letterSpacing: 0.1,
                                       ),
@@ -428,13 +429,13 @@ class _RepCounter extends StatelessWidget {
     return ScaleTransition(
       scale: pulseAnimation,
       child: SizedBox(
-        width: 160,
-        height: 160,
+        width: 160.w,
+        height: 160.h,
         child: Stack(
           alignment: Alignment.center,
           children: [
             CustomPaint(
-              size: const Size(160, 160),
+              size: Size(160.w, 160.h),
               painter: _ArcPainter(progress: progress),
             ),
 
@@ -443,20 +444,20 @@ class _RepCounter extends StatelessWidget {
               children: [
                 Text(
                   '$repCount',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 52,
+                    fontSize: 52.sp,
                     fontWeight: FontWeight.bold,
                     height: 1.0,
                     letterSpacing: -2,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 Text(
                   l10n.dismissRepOf(target),
                   style: TextStyle(
                     color: Colors.white.withAlpha(120),
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.3,
                   ),

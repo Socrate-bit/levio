@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
@@ -146,21 +147,21 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: c.card,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
               child: Row(
                 children: [
                   Text(
                     l10n.alarmFormSetTime,
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 17.sp,
                       fontWeight: FontWeight.w600,
                       color: c.textPrimary,
                     ),
@@ -174,17 +175,17 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       Navigator.pop(ctx);
                     }),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.orange,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Text(
                         l10n.alarmFormDone,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
@@ -195,7 +196,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               ),
             ),
             SizedBox(
-              height: 200,
+              height: 200.h,
               child: Row(
                 children: [
                   Expanded(
@@ -203,7 +204,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       scrollController: FixedExtentScrollController(
                         initialItem: hour,
                       ),
-                      itemExtent: 40,
+                      itemExtent: 40.h,
                       onSelectedItemChanged: (i) => hour = i,
                       children: List.generate(
                         24,
@@ -211,7 +212,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           child: Text(
                             i.toString().padLeft(2, '0'),
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 22.sp,
                               color: c.textPrimary,
                             ),
                           ),
@@ -222,7 +223,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   Text(
                     ':',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                       color: c.textPrimary,
                     ),
@@ -232,7 +233,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       scrollController: FixedExtentScrollController(
                         initialItem: minute,
                       ),
-                      itemExtent: 40,
+                      itemExtent: 40.h,
                       onSelectedItemChanged: (i) => minute = i,
                       children: List.generate(
                         60,
@@ -240,7 +241,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           child: Text(
                             i.toString().padLeft(2, '0'),
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 22.sp,
                               color: c.textPrimary,
                             ),
                           ),
@@ -278,19 +279,19 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
             Expanded(
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
                     // Top bar
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+                      padding: EdgeInsets.fromLTRB(0, 12.h, 0, 0),
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: withHaptic(() => Navigator.pop(context)),
                       child: Container(
-                        width: 40,
-                        height: 40,
+                        width: 40.w,
+                        height: 40.h,
                         decoration: BoxDecoration(
                           color: c.card,
                           shape: BoxShape.circle,
@@ -303,7 +304,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         ),
                         child: Icon(
                           Icons.close,
-                          size: 20,
+                          size: 20.sp,
                           color: c.textPrimary,
                         ),
                       ),
@@ -314,24 +315,24 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           _isEditing
                               ? l10n.alarmFormEditAlarm
                               : l10n.alarmFormNewAlarm,
-                          style: const TextStyle(
-                            fontSize: 19,
+                          style: TextStyle(
+                            fontSize: 19.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 40),
+                    SizedBox(width: 40.w),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               // Name field
               _FormCard(
                 child: TextField(
                   controller: _nameCtrl,
                   onChanged: (_) => setState(() {}),
-                  style: TextStyle(fontSize: 17, color: c.textPrimary),
+                  style: TextStyle(fontSize: 17.sp, color: c.textPrimary),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: l10n.alarmFormAlarmName,
@@ -340,7 +341,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               // Alarm time — opens CupertinoPicker modal
               _FormCard(
                 onTap: () => _showTimePicker(c),
@@ -348,23 +349,23 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   children: [
                     Text(
                       l10n.alarmFormAlarmTime,
-                      style: TextStyle(fontSize: 17, color: c.textPrimary),
+                      style: TextStyle(fontSize: 17.sp, color: c.textPrimary),
                     ),
                     const Spacer(),
                     Text(
                       _time.format(context),
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 17.sp,
                         fontWeight: FontWeight.w600,
                         color: c.textPrimary,
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.chevron_right, size: 22, color: c.textSecondary),
+                    SizedBox(width: 4.w),
+                    Icon(Icons.chevron_right, size: 22.sp, color: c.textSecondary),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               // Scheduled / One-time toggle
               _FormCard(
                 child: Row(
@@ -376,7 +377,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         onTap: () => setState(() => _isScheduled = true),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     Expanded(
                       child: _TogglePill(
                         label: l10n.alarmFormOneTime,
@@ -387,7 +388,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               // Repeat days
               if (_isScheduled) ...[
                 _FormCard(
@@ -396,17 +397,17 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                     children: [
                       Text(
                         l10n.alarmFormRepeatOn,
-                        style: TextStyle(fontSize: 15, color: c.textSecondary),
+                        style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                       Row(
                         children: List.generate(7, (i) {
                           final selected = _repeatDays[i];
                           return Expanded(
                             child: Padding(
                               padding: EdgeInsets.only(
-                                left: i == 0 ? 0 : 4,
-                                right: i == 6 ? 0 : 4,
+                                left: i == 0 ? 0 : 4.w,
+                                right: i == 6 ? 0 : 4.w,
                               ),
                               child: GestureDetector(
                                 onTap: withHaptic(() {
@@ -429,7 +430,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                       child: Text(
                                         dayLabels[i],
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 16.sp,
                                           fontWeight: FontWeight.w600,
                                           color: selected
                                               ? Colors.white
@@ -447,14 +448,14 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
               ],
               // Missions (up to 3)
               if (widget.showMission) ...[
                 // Existing missions
                 for (int i = 0; i < _missions.length; i++) ...[
                   _buildMissionCard(i, c, l10n),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                 ],
                 // Add mission button (max 3)
                 if (_missions.length < 3)
@@ -464,19 +465,19 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           child: Row(
                             children: [
                               Container(
-                                width: 40,
-                                height: 40,
+                                width: 40.w,
+                                height: 40.h,
                                 decoration: BoxDecoration(
                                   color: c.background,
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   Icons.add,
-                                  size: 20,
+                                  size: 20.sp,
                                   color: c.textSecondary,
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12.w),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,7 +485,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                     Text(
                                       l10n.alarmFormAddMission(_missions.length),
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w600,
                                         color: c.textPrimary,
                                       ),
@@ -494,14 +495,14 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        fontSize: 13,
+                                        fontSize: 13.sp,
                                         color: c.textSecondary,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8.w),
                               Icon(Icons.chevron_right, color: c.textSecondary),
                             ],
                           ),
@@ -509,26 +510,26 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       : GestureDetector(
                           onTap: withHaptic(_addMission),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 14.h,
                             ),
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: c.separator,
                                 width: 1.5,
                               ),
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(14.r),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.add, size: 18, color: c.textSecondary),
-                                const SizedBox(width: 6),
+                                Icon(Icons.add, size: 18.sp, color: c.textSecondary),
+                                SizedBox(width: 6.w),
                                 Text(
                                   l10n.alarmFormAddMission(_missions.length),
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                     fontWeight: FontWeight.w500,
                                     color: c.textSecondary,
                                   ),
@@ -537,7 +538,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                             ),
                           ),
                         ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
               ],
               // Sound
               _FormCard(
@@ -559,24 +560,24 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   children: [
                     Icon(
                       Icons.notifications_outlined,
-                      size: 24,
+                      size: 24.sp,
                       color: c.textSecondary,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           l10n.alarmFormSound,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             color: c.textSecondary,
                           ),
                         ),
                         Text(
                           _soundName,
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: TextStyle(
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -587,21 +588,21 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   ],
                 ),
               ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32.h),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
               child: ElevatedButton(
                 onPressed: _canSave ? withHaptic(() => _save(context)) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _canSave ? AppColors.orange : c.separator,
                   foregroundColor: _canSave ? Colors.white : c.textSecondary,
-                  minimumSize: const Size(double.infinity, 56),
+                  minimumSize: Size(double.infinity, 56.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   elevation: 0,
                 ),
@@ -609,8 +610,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   _isEditing
                       ? l10n.alarmFormUpdateAlarm
                       : l10n.alarmFormSaveAlarm,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: 17.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -632,15 +633,15 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 40.w,
+            height: 40.h,
             decoration: BoxDecoration(
               color: info.iconBg,
               shape: BoxShape.circle,
             ),
-            child: Icon(info.icon, size: 20, color: info.iconColor),
+            child: Icon(info.icon, size: 20.sp, color: info.iconColor),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,7 +649,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                 Text(
                   localizedMissionName(l10n, config.type),
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                     color: c.textPrimary,
                   ),
@@ -658,7 +659,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       ? '${l10n.alarmFormMissionIndex(index + 1)} · $summary'
                       : l10n.alarmFormMissionIndex(index + 1),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     color: c.textSecondary,
                   ),
                 ),
@@ -668,16 +669,16 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
           GestureDetector(
             onTap: withHaptic(() => setState(() => _missions.removeAt(index))),
             child: Container(
-              width: 30,
-              height: 30,
+              width: 30.w,
+              height: 30.h,
               decoration: BoxDecoration(
                 color: c.background,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.close, size: 15, color: c.textSecondary),
+              child: Icon(Icons.close, size: 15.sp, color: c.textSecondary),
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
           Icon(Icons.chevron_right, color: c.textSecondary),
         ],
       ),
@@ -720,10 +721,10 @@ class _FormCard extends StatelessWidget {
       onTap: withHaptic(onTap),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
         ),
         child: child,
       ),
@@ -750,15 +751,15 @@ class _TogglePill extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: selected ? AppColors.orange : c.background,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 15.sp,
             fontWeight: FontWeight.w600,
             color: selected ? Colors.white : c.textSecondary,
           ),

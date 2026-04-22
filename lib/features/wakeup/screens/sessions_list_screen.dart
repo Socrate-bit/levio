@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
@@ -49,14 +50,14 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
               child: GestureDetector(
                 onTap: withHaptic(() => Navigator.pop(context)),
                 child: Row(
                   children: [
                     Icon(
                       Icons.arrow_back_ios_new,
-                      size: 20,
+                      size: 20.sp,
                       color: c.textPrimary,
                     ),
 
@@ -65,7 +66,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                         l10n.sessionsTitle,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 22.sp,
                           fontWeight: FontWeight.bold,
                           color: c.textPrimary,
                         ),
@@ -75,7 +76,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Expanded(
               child: _sessions == null
                   ? const Center(child: CircularProgressIndicator())
@@ -83,14 +84,14 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                   ? Center(
                       child: Text(
                         l10n.sessionsNoWakeups,
-                        style: TextStyle(fontSize: 15, color: c.textSecondary),
+                        style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                       ),
                     )
                   : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 24.h),
                       itemCount: _sessions!.length,
                       separatorBuilder: (context, i) =>
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10.h),
                       itemBuilder: (context, i) {
                         final session = _sessions![i];
                         final wakeupNumber = _totalWakeups - i;
@@ -155,27 +156,27 @@ class _SessionTile extends StatelessWidget {
       child: Opacity(
         opacity: missed ? 0.6 : 1.0,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
             color: c.card,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 44.w,
+                height: 44.h,
                 decoration: BoxDecoration(
                   color: iconBg,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
                   missed ? Icons.alarm_off_outlined : missionIcon,
                   color: iconColor,
-                  size: 22,
+                  size: 22.sp,
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,15 +184,15 @@ class _SessionTile extends StatelessWidget {
                     Text(
                       timeStr,
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 17.sp,
                         fontWeight: FontWeight.bold,
                         color: c.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2.h),
                     Text(
                       missed ? l10n.sessionsMissed : missionLabel,
-                      style: TextStyle(fontSize: 13, color: c.textSecondary),
+                      style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                     ),
                   ],
                 ),
@@ -201,17 +202,17 @@ class _SessionTile extends StatelessWidget {
                 children: [
                   Text(
                     dateStr,
-                    style: TextStyle(fontSize: 13, color: c.textSecondary),
+                    style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   if (!missed)
                     Row(
                       children: [
-                        Icon(Icons.timer_outlined, size: 12, color: c.textSecondary),
-                        const SizedBox(width: 3),
+                        Icon(Icons.timer_outlined, size: 12.sp, color: c.textSecondary),
+                        SizedBox(width: 3.w),
                         Text(
                           durationStr,
-                          style: TextStyle(fontSize: 12, color: c.textSecondary),
+                          style: TextStyle(fontSize: 12.sp, color: c.textSecondary),
                         ),
                       ],
                     ),

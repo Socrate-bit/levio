@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -28,33 +29,33 @@ class MissionPickerStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 l10n.onboardingMissionPickerTitle,
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
                   color: c.textPrimary,
                   height: 1.2,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 l10n.onboardingMissionPickerSubtitle,
-                style: TextStyle(fontSize: 16, color: c.textSecondary),
+                style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         Expanded(
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             itemCount: _missions.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            separatorBuilder: (_, _) => SizedBox(height: 10.h),
             itemBuilder: (context, index) {
               final mission = _missions[index];
               final isSelected = selectedMission == mission.type;
@@ -62,10 +63,10 @@ class MissionPickerStep extends StatelessWidget {
                 onTap: withHaptic(() => onSelected(mission.type)),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
                   decoration: BoxDecoration(
                     color: c.card,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                     border: Border.all(
                       color: isSelected ? c.textPrimary : c.separator,
                       width: isSelected ? 2 : 1,
@@ -74,16 +75,16 @@ class MissionPickerStep extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 44,
-                        height: 44,
+                        width: 44.w,
+                        height: 44.h,
                         decoration: BoxDecoration(
                           color: mission.iconBg,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Icon(mission.icon,
-                            color: mission.iconColor, size: 22),
+                            color: mission.iconColor, size: 22.sp),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: 14.w),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,7 +92,7 @@ class MissionPickerStep extends StatelessWidget {
                             Text(
                               localizedMissionName(l10n, mission.type),
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
                                 color: c.textPrimary,
                               ),
@@ -99,14 +100,14 @@ class MissionPickerStep extends StatelessWidget {
                             Text(
                               localizedMissionDesc(l10n, mission.type),
                               style: TextStyle(
-                                  fontSize: 13, color: c.textSecondary),
+                                  fontSize: 13.sp, color: c.textSecondary),
                             ),
                           ],
                         ),
                       ),
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: 24.w,
+                        height: 24.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color:
@@ -118,7 +119,7 @@ class MissionPickerStep extends StatelessWidget {
                           ),
                         ),
                         child: isSelected
-                            ? Icon(Icons.check, size: 16, color: c.card)
+                            ? Icon(Icons.check, size: 16.sp, color: c.card)
                             : null,
                       ),
                     ],

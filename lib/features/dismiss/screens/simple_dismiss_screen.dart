@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
@@ -107,12 +108,12 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('⏰', style: TextStyle(fontSize: 72)),
-                    const SizedBox(height: 24),
+                    Text('⏰', style: TextStyle(fontSize: 72.sp)),
+                    SizedBox(height: 24.h),
                     Text(
                       widget.alarmLabel,
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
                         color: c.textPrimary,
                       ),
@@ -122,21 +123,21 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+              padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 32.h),
               child: ElevatedButton(
                 onPressed: _dismiss,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.orange,
                   foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 56),
+                  minimumSize: Size(double.infinity, 56.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                   ),
                   elevation: 0,
                 ),
                 child: Text(
                   l10n.dismissStopAlarm,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

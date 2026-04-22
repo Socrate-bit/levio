@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -12,11 +13,11 @@ class EnergyChart extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
-      height: 240,
-      padding: const EdgeInsets.all(20),
+      height: 240.h,
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: c.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: c.separator),
       ),
       child: Column(
@@ -25,12 +26,12 @@ class EnergyChart extends StatelessWidget {
           Text(
             l10n.onboardingEnergyTitle,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Expanded(
             child: CustomPaint(
               size: Size.infinite,
@@ -155,7 +156,7 @@ class _EnergyChartPainter extends CustomPainter {
     );
 
     // Labels
-    final labelStyle = TextStyle(fontSize: 11, fontWeight: FontWeight.w600);
+    final labelStyle = TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600);
 
     // "Levio Protocol" pill label
     _drawPill(canvas, Offset(w * 0.05, h * 0.15), levioLabel, Colors.black);
@@ -181,12 +182,12 @@ class _EnergyChartPainter extends CustomPainter {
     final textPainter = TextPainter(
       text: TextSpan(
         children: [
-          const TextSpan(text: '\u26A1 ', style: TextStyle(fontSize: 10)),
+          TextSpan(text: '\u26A1 ', style: TextStyle(fontSize: 10.sp)),
           TextSpan(
             text: text,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 10,
+              fontSize: 10.sp,
               fontWeight: FontWeight.w600,
             ),
           ),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 
-const _iconSize = 40.0;
-const _lineWidth = 4.0;
-const _nodeSpacing = 48.0;
+double get _iconSize => 40.w;
+double get _lineWidth => 4.w;
+double get _nodeSpacing => 48.h;
 
 class TimelineComparison extends StatelessWidget {
   const TimelineComparison({super.key});
@@ -24,18 +25,18 @@ class TimelineComparison extends StatelessWidget {
               Text(
                 l10n.onboardingTimelineTypical,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
                   color: c.textSecondary,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               _TypicalTimeline(colors: c),
             ],
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8.w),
         // Levio morning column
         Expanded(
           child: Column(
@@ -43,13 +44,13 @@ class TimelineComparison extends StatelessWidget {
               Text(
                 l10n.onboardingTimelineLevio,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
                   color: const Color(0xFF4CAF50),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               _LevioTimeline(colors: c),
             ],
           ),
@@ -120,7 +121,7 @@ class _TypicalTimeline extends StatelessWidget {
 
     return LayoutBuilder(builder: (context, constraints) {
     final lineCenter = constraints.maxWidth / 2;
-    final lineOffset = lineCenter - _iconSize / 2 - 20;
+    final lineOffset = lineCenter - _iconSize / 2 - 20.w;
     return SizedBox(
       height: totalHeight,
       width: double.infinity,
@@ -132,9 +133,9 @@ class _TypicalTimeline extends StatelessWidget {
             left: lineOffset + _iconSize / 2 - _lineWidth / 2,
             top: _iconSize / 2,
             bottom: _iconSize / 2,
-            width: _lineWidth + 16,
+            width: _lineWidth + 16.w,
             child: CustomPaint(
-              size: Size(_lineWidth + 16, totalHeight - _iconSize),
+              size: Size(_lineWidth + 16.w, totalHeight - _iconSize),
               painter: _ZigzagLinePainter(
                 startColor: const Color(0xFFFFC107),
                 endColor: const Color(0xFFFF5252),
@@ -187,18 +188,18 @@ class _LevioTimeline extends StatelessWidget {
       ),
     ];
 
-    const levioNodeSpacing = 20.0;
+    final levioNodeSpacing = 20.h;
     final nodesHeight =
         nodes.length * _iconSize + (nodes.length - 1) * levioNodeSpacing;
-    const badgeGap = 24.0;
-    const badgeHeight = 80.0;
-    const tailHeight = 30.0;
-    final totalHeight = nodesHeight + badgeGap + badgeHeight + 8 + tailHeight;
+    final badgeGap = 24.h;
+    final badgeHeight = 80.h;
+    final tailHeight = 30.h;
+    final totalHeight = nodesHeight + badgeGap + badgeHeight + 8.h + tailHeight;
 
     return LayoutBuilder(builder: (context, constraints) {
     // Center the drawing: offset so the line sits at horizontal middle
     final lineCenter = constraints.maxWidth / 2;
-    final lineOffset = lineCenter - _iconSize / 2 - 20;
+    final lineOffset = lineCenter - _iconSize / 2 - 20.w;
     return SizedBox(
       height: totalHeight,
       width: double.infinity,
@@ -227,10 +228,10 @@ class _LevioTimeline extends StatelessWidget {
               translation: const Offset(-0.5, 0),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE8F5E9),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16.r),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -238,7 +239,7 @@ class _LevioTimeline extends StatelessWidget {
                     Text(
                       l10n.onboardingTimelineMins,
                       style: TextStyle(
-                        fontSize: 26,
+                        fontSize: 26.sp,
                         fontWeight: FontWeight.bold,
                         color: const Color(0xFF4CAF50),
                       ),
@@ -246,7 +247,7 @@ class _LevioTimeline extends StatelessWidget {
                     Text(
                       l10n.onboardingTimelineGained,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1,
                         color: const Color(0xFF4CAF50),
@@ -281,23 +282,23 @@ class _TimelineNodeRow extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 3),
           ),
-          child: Icon(node.icon, size: 20, color: node.iconColor),
+          child: Icon(node.icon, size: 20.sp, color: node.iconColor),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10.w),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               node.time,
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
               node.label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: Colors.grey[600],
               ),
             ),

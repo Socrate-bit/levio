@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/theme/app_theme.dart';
 
 /// Privacy Policy screen for ECOM-PARIS LLC / Levio app
@@ -21,7 +22,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         title: Text(
           'Privacy Policy',
           style: TextStyle(
-            fontSize: 17,
+            fontSize: 17.sp,
             fontWeight: FontWeight.w600,
             color: c.textPrimary,
           ),
@@ -29,24 +30,24 @@ class PrivacyPolicyScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Privacy Policy',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'This Privacy Policy explains how ECOM-PARIS LLC ("we", "our", "us") collects, uses, stores, and protects your personal information when you use Levio or related services.',
-              style: TextStyle(fontSize: 15, color: c.textSecondary),
+              style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             _buildBulletSection(c, '1. Information We Collect', '', [
               'Usage data (app interactions, alarm usage patterns)',
               'Anonymous account information (Firebase anonymous auth)',
@@ -77,14 +78,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 'We may update this Privacy Policy periodically. Any revisions will be posted on this page with an updated effective date.'),
             _buildContactSection(c),
             _buildDeletionSection(c),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             Center(
               child: Text(
                 '© 2025 ECOM-PARIS LLC. All rights reserved.',
-                style: TextStyle(fontSize: 13, color: c.textSecondary),
+                style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -94,38 +95,38 @@ class PrivacyPolicyScreen extends StatelessWidget {
   Widget _buildBulletSection(
       AppColors c, String title, String description, List<String> items) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 17.sp,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
           if (description.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               description,
-              style: TextStyle(fontSize: 15, color: c.textSecondary),
+              style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
             ),
           ],
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           ...items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
+                padding: EdgeInsets.only(bottom: 4.h),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('• ',
                         style:
-                            TextStyle(fontSize: 15, color: c.textSecondary)),
+                            TextStyle(fontSize: 15.sp, color: c.textSecondary)),
                     Expanded(
                       child: Text(item,
                           style: TextStyle(
-                              fontSize: 15, color: c.textSecondary)),
+                              fontSize: 15.sp, color: c.textSecondary)),
                     ),
                   ],
                 ),
@@ -138,22 +139,22 @@ class PrivacyPolicyScreen extends StatelessWidget {
   Widget _buildParagraphSection(
       AppColors c, String title, String description) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 17.sp,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             description,
-            style: TextStyle(fontSize: 15, color: c.textSecondary),
+            style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
           ),
         ],
       ),
@@ -162,31 +163,31 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   Widget _buildContactSection(AppColors c) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '9. Contact Us',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 17.sp,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'For any questions regarding this Privacy Policy, please contact:',
-            style: TextStyle(fontSize: 15, color: c.textSecondary),
+            style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Email: ',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                   color: c.textPrimary,
                 ),
@@ -194,19 +195,19 @@ class PrivacyPolicyScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   'contact@ecomparis.org',
-                  style: TextStyle(fontSize: 15, color: c.textSecondary),
+                  style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Address: ',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                   color: c.textPrimary,
                 ),
@@ -214,7 +215,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   '8206 LOUISIANA BLVD NE, STE A #2226, Albuquerque, NM 87113, USA',
-                  style: TextStyle(fontSize: 15, color: c.textSecondary),
+                  style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                 ),
               ),
             ],
@@ -226,60 +227,60 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   Widget _buildDeletionSection(AppColors c) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '10. Data Deletion Requests',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 17.sp,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'Users can request deletion of all personal data associated with their account at any time. To do so:',
-            style: TextStyle(fontSize: 15, color: c.textSecondary),
+            style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: EdgeInsets.only(bottom: 4.h),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('• ',
-                    style: TextStyle(fontSize: 15, color: c.textSecondary)),
+                    style: TextStyle(fontSize: 15.sp, color: c.textSecondary)),
                 Expanded(
                   child: Text(
                     'Use the "Delete Account" option available in the app settings, which permanently removes your data from our servers',
-                    style: TextStyle(fontSize: 15, color: c.textSecondary),
+                    style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: EdgeInsets.only(bottom: 4.h),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('• ',
-                    style: TextStyle(fontSize: 15, color: c.textSecondary)),
+                    style: TextStyle(fontSize: 15.sp, color: c.textSecondary)),
                 Expanded(
                   child: Text(
                     'Or send an email to contact@ecomparis.org with the subject "Data Deletion Request"',
-                    style: TextStyle(fontSize: 15, color: c.textSecondary),
+                    style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'All verified deletion requests are processed within 30 days and cannot be undone once completed.',
-            style: TextStyle(fontSize: 15, color: c.textSecondary),
+            style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
           ),
         ],
       ),

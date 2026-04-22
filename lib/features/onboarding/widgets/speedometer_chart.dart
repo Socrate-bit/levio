@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/shared/theme/app_theme.dart';
@@ -13,17 +14,17 @@ class SpeedometerChart extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 16.h),
       decoration: BoxDecoration(
         color: c.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: c.separator),
       ),
       child: Column(
         children: [
           SizedBox(
-            width: 260,
-            height: 150,
+            width: 260.w,
+            height: 150.h,
             child: CustomPaint(
               painter: _SpeedometerPainter(
                 multiplierLabel: l10n.onboardingSpeedometerMultiplier,
@@ -31,7 +32,7 @@ class SpeedometerChart extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -40,7 +41,7 @@ class SpeedometerChart extends StatelessWidget {
                   Text(
                     l10n.onboardingSpeedometerSlow,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       color: AppColors.error,
                     ),
@@ -48,7 +49,7 @@ class SpeedometerChart extends StatelessWidget {
                   Text(
                     l10n.onboardingSpeedometerGroggy,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: c.textSecondary,
                     ),
                   ),
@@ -59,7 +60,7 @@ class SpeedometerChart extends StatelessWidget {
                   Text(
                     l10n.onboardingSpeedometerInstant,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       color: AppColors.success,
                     ),
@@ -67,7 +68,7 @@ class SpeedometerChart extends StatelessWidget {
                   Text(
                     l10n.onboardingSpeedometerActive,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: c.textSecondary,
                     ),
                   ),
@@ -75,12 +76,12 @@ class SpeedometerChart extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Text(
             l10n.onboardingSpeedometerBody,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: c.textSecondary,
               height: 1.4,
             ),
@@ -190,7 +191,7 @@ class _SpeedometerPainter extends CustomPainter {
       text: TextSpan(
         text: multiplierLabel,
         style: TextStyle(
-          fontSize: 42,
+          fontSize: 42.sp,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
@@ -207,7 +208,7 @@ class _SpeedometerPainter extends CustomPainter {
       text: TextSpan(
         text: fasterLabel,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w600,
           letterSpacing: 2,
           color: Colors.grey[600],

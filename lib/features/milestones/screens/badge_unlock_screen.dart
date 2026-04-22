@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../shared/utils/haptic_utils.dart';
 import '../../insights/widgets/hexagon_badge.dart';
@@ -34,18 +35,18 @@ class BadgeUnlockScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.w),
                   child: GestureDetector(
                     onTap: withHaptic(() => Navigator.pop(context)),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 36.w,
+                      height: 36.h,
                       decoration: BoxDecoration(
                         color: Colors.black.withAlpha(12),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close,
-                          size: 18, color: Color(0xFF3D2B1F)),
+                      child: Icon(Icons.close,
+                          size: 18.sp, color: const Color(0xFF3D2B1F)),
                     ),
                   ),
                 ),
@@ -56,8 +57,8 @@ class BadgeUnlockScreen extends StatelessWidget {
                     children: [
                       // Glow effect
                       Container(
-                        width: 180,
-                        height: 180,
+                        width: 180.w,
+                        height: 180.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
@@ -72,27 +73,27 @@ class BadgeUnlockScreen extends StatelessWidget {
                             label:
                                 badge.requiredDays?.toString() ?? '★',
                             color: const Color(0xFFE05C1A),
-                            size: 130,
+                            size: 130.w,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      const Text(
+                      SizedBox(height: 32.h),
+                      Text(
                         'BADGE UNLOCKED',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
-                          color: Color(0xFFE05C1A),
+                          color: const Color(0xFFE05C1A),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                       Text(
                         badge.name,
-                        style: const TextStyle(
-                          fontSize: 32,
+                        style: TextStyle(
+                          fontSize: 32.sp,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2D1B00),
+                          color: const Color(0xFF2D1B00),
                         ),
                       ),
                     ],
@@ -100,32 +101,32 @@ class BadgeUnlockScreen extends StatelessWidget {
                 ),
                 const Spacer(),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  padding: EdgeInsets.symmetric(horizontal: 40.w),
                   child: Column(
                     children: [
                       Text(
                         'Unlocked $dateStr',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF8B6E50),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: const Color(0xFF8B6E50),
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       Text(
                         badge.quote,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 13,
+                        style: TextStyle(
+                          fontSize: 13.sp,
                           fontStyle: FontStyle.italic,
-                          color: Color(0xFF8B6E50),
+                          color: const Color(0xFF8B6E50),
                           height: 1.5,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 48),
+                SizedBox(height: 48.h),
               ],
             ),
           ),

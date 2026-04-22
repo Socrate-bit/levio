@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -55,15 +56,15 @@ class _HomeView extends StatelessWidget {
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                   physics: AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12.h),
                           _TopBar(streak: state.currentStreak),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20.h),
                           _WeekRow(weekDays: state.weekDays),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24.h),
                           BlocBuilder<AlarmCubit, AlarmState>(
                             builder: (context, alarmState) {
                               final alarms = [...alarmState.alarms]
@@ -79,17 +80,17 @@ class _HomeView extends StatelessWidget {
                                   Text(
                                     l10n.homeNextWakeUp,
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 18.sp,
                                       fontWeight: FontWeight.bold,
                                       color: c.textPrimary,
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
+                                  SizedBox(height: 10.h),
                                   if (next != null)
                                     _NextAlarmCard(alarm: next)
                                   else
                                     _NoAlarmCard(),
-                                  const SizedBox(height: 24),
+                                  SizedBox(height: 24.h),
                                 ],
                               );
                             },
@@ -102,18 +103,18 @@ class _HomeView extends StatelessWidget {
                                   Text(
                                     l10n.alarmsTitle,
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 18.sp,
                                       fontWeight: FontWeight.bold,
                                       color: c.textPrimary,
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
+                                  SizedBox(height: 10.h),
                                   if (alarmState.alarms.isEmpty)
                                     _EmptyAlarmsCard()
                                   else
                                     ...alarmState.alarms.map(
                                       (alarm) => Padding(
-                                        padding: const EdgeInsets.only(bottom: 12),
+                                        padding: EdgeInsets.only(bottom: 12.h),
                                         child: _AlarmCard(alarm: alarm),
                                       ),
                                     ),
@@ -121,7 +122,7 @@ class _HomeView extends StatelessWidget {
                               );
                             },
                           ),
-                          const SizedBox(height: 120),
+                          SizedBox(height: 120.h),
                         ],
                     ),
                   ),
@@ -142,12 +143,12 @@ class _TopBar extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Row(
       children: [
-        Image.asset('assets/icon.png', width: 36, height: 36),
-        const SizedBox(width: 8),
+        Image.asset('assets/icon.png', width: 36.w, height: 36.h),
+        SizedBox(width: 8.w),
         Text(
           l10n.appTitle,
           style: TextStyle(
-            fontSize: 26,
+            fontSize: 26.sp,
             fontWeight: FontWeight.bold,
             color: c.textPrimary,
             letterSpacing: -0.5,
@@ -157,22 +158,22 @@ class _TopBar extends StatelessWidget {
         GestureDetector(
           onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(1)),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             decoration: BoxDecoration(
               color: c.card,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
               boxShadow: [
                 BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 8),
               ],
             ),
             child: Row(
               children: [
-                Image.asset('assets/streaks.png', width: 20, height: 20),
-                const SizedBox(width: 4),
+                Image.asset('assets/streaks.png', width: 20.w, height: 20.h),
+                SizedBox(width: 4.w),
                 Text(
                   '$streak',
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.bold,
                     color: c.textPrimary,
                   ),
@@ -215,10 +216,10 @@ class _WeekRow extends StatelessWidget {
         if (isToday) {
           // Today: white card wrapping label + circle
           return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
             decoration: BoxDecoration(
               color: c.card,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withAlpha(10),
@@ -231,15 +232,15 @@ class _WeekRow extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
                     color: c.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6.h),
                 Container(
-                  width: 42,
-                  height: 42,
+                  width: 42.w,
+                  height: 42.h,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: status == DayStatus.done
@@ -250,7 +251,7 @@ class _WeekRow extends StatelessWidget {
                     child: Text(
                       dayNum,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                         color: c.textPrimary,
                       ),
@@ -267,8 +268,8 @@ class _WeekRow extends StatelessWidget {
         if (status == DayStatus.done) {
           // Past done: solid orange circle
           circle = Container(
-            width: 42,
-            height: 42,
+            width: 42.w,
+            height: 42.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.orange, width: 2),
@@ -277,7 +278,7 @@ class _WeekRow extends StatelessWidget {
               child: Text(
                 dayNum,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: c.textPrimary,
                 ),
@@ -287,8 +288,8 @@ class _WeekRow extends StatelessWidget {
         } else if (status == DayStatus.frozen) {
           // Frozen: solid blue circle
           circle = Container(
-            width: 42,
-            height: 42,
+            width: 42.w,
+            height: 42.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.blue, width: 2.5),
@@ -297,7 +298,7 @@ class _WeekRow extends StatelessWidget {
               child: Text(
                 dayNum,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: c.textPrimary,
                 ),
@@ -307,8 +308,8 @@ class _WeekRow extends StatelessWidget {
         } else if (isFuture) {
           // Future: plain light solid circle
           circle = Container(
-            width: 42,
-            height: 42,
+            width: 42.w,
+            height: 42.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: c.textSecondary.withAlpha(50), width: 2.5),
@@ -317,7 +318,7 @@ class _WeekRow extends StatelessWidget {
               child: Text(
                 dayNum,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   color: c.textSecondary.withAlpha(100),
                 ),
               ),
@@ -333,13 +334,13 @@ class _WeekRow extends StatelessWidget {
               gapLength: 3,
             ),
             child: SizedBox(
-              width: 42,
-              height: 42,
+              width: 42.w,
+              height: 42.h,
               child: Center(
                 child: Text(
                   dayNum,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     color: c.textSecondary,
                   ),
                 ),
@@ -353,11 +354,11 @@ class _WeekRow extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: c.textSecondary,
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             circle,
           ],
         );
@@ -428,10 +429,10 @@ class _NoAlarmCard extends StatelessWidget {
         ),
       )),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: AppColors.orange.withAlpha(60), width: 1.5),
           boxShadow: [
             BoxShadow(
@@ -444,19 +445,19 @@ class _NoAlarmCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 46,
-              height: 46,
+              width: 46.w,
+              height: 46.h,
               decoration: BoxDecoration(
                 color: AppColors.orange.withAlpha(25),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.add_alarm_rounded,
                 color: AppColors.orange,
-                size: 24,
+                size: 24.sp,
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -464,20 +465,20 @@ class _NoAlarmCard extends StatelessWidget {
                   Text(
                     l10n.homeNoActiveAlarm,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                       color: c.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   Text(
                     l10n.homeNoActiveAlarmHint,
-                    style: TextStyle(fontSize: 13, color: c.textSecondary),
+                    style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: c.textSecondary, size: 20),
+            Icon(Icons.chevron_right, color: c.textSecondary, size: 20.sp),
           ],
         ),
       ),
@@ -549,10 +550,10 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
         ),
       )),
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(18.w),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(8),
@@ -570,26 +571,26 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                   : diff.inHours < 24
                   ? l10n.homeToday
                   : l10n.homeTomorrow,
-              style: TextStyle(fontSize: 14, color: c.textSecondary),
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Row(
               children: [
                 Text(
                   timeStr,
                   style: TextStyle(
-                    fontSize: 40,
+                    fontSize: 40.sp,
                     fontWeight: FontWeight.bold,
                     color: c.textPrimary,
                     letterSpacing: -1,
                   ),
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4.w),
                 Padding(
-                  padding: const EdgeInsets.only(top: 12),
+                  padding: EdgeInsets.only(top: 12.h),
                   child: Text(
                     isPM ? 'pm' : 'am',
-                    style: TextStyle(fontSize: 16, color: c.textSecondary),
+                    style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
                   ),
                 ),
                 const Spacer(),
@@ -605,19 +606,19 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
               children: [
                 Icon(
                   Icons.access_time_outlined,
-                  size: 14,
+                  size: 14.sp,
                   color: c.textSecondary,
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4.w),
                 Text(
                   diff.isNegative
                       ? l10n.homePastAlarm
                       : l10n.homeRingsIn(hoursLeft, minsLeft),
-                  style: TextStyle(fontSize: 13, color: c.textSecondary),
+                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14.h),
             Row(
               children: [
                 _MiniInfoCard(
@@ -629,7 +630,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                       : localizedMissionName(l10n, alarm.missions.isNotEmpty ? alarm.missions.first.type : MissionType.none),
                   onTap: _pickMission,
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 _MiniInfoCard(
                   icon: Icons.music_note,
                   iconColor: const Color(0xFFFFCC00),
@@ -674,26 +675,26 @@ class _MiniInfoCard extends StatelessWidget {
       child: GestureDetector(
         onTap: withHaptic(onTap),
         child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: c.background,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
 
-            style: TextStyle(fontSize: 12, color: c.textSecondary)),
-            const SizedBox(height: 4),
+            style: TextStyle(fontSize: 12.sp, color: c.textSecondary)),
+            SizedBox(height: 4.h),
             Text(
               value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 8),
-            Icon(icon, size: 22, color: iconColor),
+            SizedBox(height: 8.h),
+            Icon(icon, size: 22.sp, color: iconColor),
           ],
         ),
       ),
@@ -727,10 +728,10 @@ class _AlarmCard extends StatelessWidget {
         ),
       )),
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(18.w),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(6),
@@ -743,27 +744,27 @@ class _AlarmCard extends StatelessWidget {
           children: [
             Text(
               dayStr,
-              style: TextStyle(fontSize: 13, color: c.textSecondary),
+              style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   '$h:$m',
                   style: TextStyle(
-                    fontSize: 44,
+                    fontSize: 44.sp,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -1,
                     color: c.textPrimary,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8, left: 4),
+                  padding: EdgeInsets.only(bottom: 8.h, left: 4.w),
                   child: Text(
                     isPM ? 'PM' : 'AM',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
                       color: c.textSecondary,
                     ),
@@ -771,7 +772,7 @@ class _AlarmCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.only(bottom: 10.h),
                   child: Switch(
                     value: alarm.isEnabled,
                     activeThumbColor: c.purpleDeep,
@@ -785,17 +786,17 @@ class _AlarmCard extends StatelessWidget {
               children: [
                 Text(
                   alarm.name.isNotEmpty ? alarm.name : l10n.alarmsDefaultName(1),
-                  style: TextStyle(fontSize: 13, color: c.textSecondary),
+                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                 ),
                 if (alarm.missions.isNotEmpty) ...[
-                  Text(' · ', style: TextStyle(fontSize: 13, color: c.textSecondary)),
+                  Text(' · ', style: TextStyle(fontSize: 13.sp, color: c.textSecondary)),
                   _StackedMissionIcons(missions: alarm.missions),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6.w),
                   Text(
                     alarm.missions.length == 1
                         ? localizedMissionName(l10n, alarm.missions.first.type)
                         : l10n.alarmsMissionsCount(alarm.missions.length),
-                    style: TextStyle(fontSize: 13, color: c.textSecondary),
+                    style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                   ),
                 ],
                 const Spacer(),
@@ -803,7 +804,7 @@ class _AlarmCard extends StatelessWidget {
                   onTap: withHaptic(() =>
                       context.read<AlarmCubit>().removeAlarm(alarm.id)),
                   child: Icon(Icons.delete_outline,
-                      size: 24, color: c.textSecondary.withAlpha(140)),
+                      size: 24.sp, color: c.textSecondary.withAlpha(140)),
                 ),
               ],
             ),
@@ -836,8 +837,8 @@ class _StackedMissionIcons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const size = 20.0;
-    const overlap = 8.0;
+    final size = 20.w;
+    final overlap = 8.w;
     final width = size + (missions.length - 1) * (size - overlap);
     return SizedBox(
       width: width,
@@ -860,7 +861,7 @@ class _StackedMissionIcons extends StatelessWidget {
                 ),
                 child: Icon(
                   missionInfoFor(missions[i].type).icon,
-                  size: 10,
+                  size: 10.sp,
                   color: missionInfoFor(missions[i].type).iconColor,
                 ),
               ),
@@ -877,28 +878,28 @@ class _EmptyAlarmsCard extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(32.w),
       decoration: BoxDecoration(
         color: c.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
       ),
       child: Center(
         child: Column(
           children: [
-            Image.asset('assets/siren.png', width: 48, height: 48),
-            const SizedBox(height: 12),
+            Image.asset('assets/siren.png', width: 48.w, height: 48.h),
+            SizedBox(height: 12.h),
             Text(
               l10n.alarmsEmpty,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: c.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               l10n.alarmsEmptyHint,
-              style: TextStyle(fontSize: 14, color: c.textSecondary),
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
             ),
           ],
         ),

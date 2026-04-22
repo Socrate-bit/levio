@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
@@ -43,34 +44,34 @@ class _AlarmsScreenState extends State<AlarmsScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('⏰', style: TextStyle(fontSize: 56)),
-                          const SizedBox(height: 16),
+                          Text('⏰', style: TextStyle(fontSize: 56.sp)),
+                          SizedBox(height: 16.h),
                           Text(
                             l10n.alarmsEmpty,
                             style: TextStyle(
-                              fontSize: 17,
+                              fontSize: 17.sp,
                               fontWeight: FontWeight.w600,
                               color: c.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          SizedBox(height: 6.h),
                           Text(
                             l10n.alarmsEmptyHint,
                             style: TextStyle(
-                                fontSize: 14, color: c.textSecondary),
+                                fontSize: 14.sp, color: c.textSecondary),
                           ),
                         ],
                       ),
                     )
                   : ListView.separated(
-                      padding: EdgeInsets.fromLTRB(20, 16, 20, bottomPadding + 72),
+                      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, bottomPadding + 72),
                       itemCount: state.alarms.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: 12),
+                      separatorBuilder: (context, index) => SizedBox(height: 12.h),
                       itemBuilder: (ctx, i) =>
                           _AlarmCard(alarm: state.alarms[i]),
                     ),
               Positioned(
-                right: 20,
+                right: 20.w,
                 bottom: bottomPadding + 10,
                 child: _AddAlarmFab(
                   onNormal: () => _addNormalAlarm(context),
@@ -166,7 +167,7 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
               widget.onMission();
             },
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _PopupOption(
             label: l10n.alarmsNormalAlarm,
             subtitle: l10n.alarmsNormalAlarmSubtitle,
@@ -175,7 +176,7 @@ class _AddAlarmFabState extends State<_AddAlarmFab>
               widget.onNormal();
             },
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
         ],
         FloatingActionButton(
           backgroundColor: AppColors.orange,
@@ -208,10 +209,10 @@ class _PopupOption extends StatelessWidget {
     return GestureDetector(
       onTap: withHaptic(onTap),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(12),
@@ -227,7 +228,7 @@ class _PopupOption extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
               ),
@@ -235,7 +236,7 @@ class _PopupOption extends StatelessWidget {
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: c.textSecondary,
               ),
             ),
@@ -271,10 +272,10 @@ class _AlarmCard extends StatelessWidget {
         ),
       )),
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(18.w),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(6),
@@ -287,27 +288,27 @@ class _AlarmCard extends StatelessWidget {
           children: [
             Text(
               dayStr,
-              style: TextStyle(fontSize: 13, color: c.textSecondary),
+              style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   '$h:$m',
                   style: TextStyle(
-                    fontSize: 44,
+                    fontSize: 44.sp,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -1,
                     color: c.textPrimary,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8, left: 4),
+                  padding: EdgeInsets.only(bottom: 8.h, left: 4.w),
                   child: Text(
                     isPM ? 'PM' : 'AM',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
                       color: c.textSecondary,
                     ),
@@ -326,17 +327,17 @@ class _AlarmCard extends StatelessWidget {
               children: [
                 Text(
                   alarm.name.isNotEmpty ? alarm.name : l10n.alarmsDefaultName(1),
-                  style: TextStyle(fontSize: 13, color: c.textSecondary),
+                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                 ),
                 if (alarm.missions.isNotEmpty) ...[
-                  Text(' · ', style: TextStyle(fontSize: 13, color: c.textSecondary)),
+                  Text(' · ', style: TextStyle(fontSize: 13.sp, color: c.textSecondary)),
                   _StackedMissionIcons(missions: alarm.missions),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6.w),
                   Text(
                     alarm.missions.length == 1
                         ? localizedMissionName(l10n, alarm.missions.first.type)
                         : l10n.alarmsMissionsCount(alarm.missions.length),
-                    style: TextStyle(fontSize: 13, color: c.textSecondary),
+                    style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                   ),
                 ],
                 const Spacer(),
@@ -344,7 +345,7 @@ class _AlarmCard extends StatelessWidget {
                   onTap: withHaptic(() =>
                       context.read<AlarmCubit>().removeAlarm(alarm.id)),
                   child: Icon(Icons.delete_outline,
-                      size: 18, color: c.textSecondary),
+                      size: 18.sp, color: c.textSecondary),
                 ),
               ],
             ),
@@ -378,8 +379,8 @@ class _StackedMissionIcons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const size = 20.0;
-    const overlap = 8.0;
+    final size = 20.w;
+    final overlap = 8.w;
     final width = size + (missions.length - 1) * (size - overlap);
     return SizedBox(
       width: width,
@@ -402,7 +403,7 @@ class _StackedMissionIcons extends StatelessWidget {
                 ),
                 child: Icon(
                   missionInfoFor(missions[i].type).icon,
-                  size: 10,
+                  size: 10.sp,
                   color: missionInfoFor(missions[i].type).iconColor,
                 ),
               ),

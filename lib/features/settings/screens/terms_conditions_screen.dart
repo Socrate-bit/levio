@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/theme/app_theme.dart';
 
 /// Terms and Conditions screen for ECOM-PARIS LLC / Levio app
@@ -21,7 +22,7 @@ class TermsConditionsScreen extends StatelessWidget {
         title: Text(
           'Terms and Conditions',
           style: TextStyle(
-            fontSize: 17,
+            fontSize: 17.sp,
             fontWeight: FontWeight.w600,
             color: c.textPrimary,
           ),
@@ -29,24 +30,24 @@ class TermsConditionsScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Terms of Service',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'Welcome to Levio, developed by ECOM-PARIS LLC. By accessing or using our app, services, or related applications, you agree to comply with and be bound by the following terms and conditions.',
-              style: TextStyle(fontSize: 15, color: c.textSecondary),
+              style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             _buildSection(c, '1. Use of Services',
                 'You agree to use Levio only for lawful purposes and in accordance with these Terms. You may not use our services to infringe upon the rights of others or to engage in any harmful or illegal activity.'),
             _buildSection(c, '2. Intellectual Property',
@@ -62,14 +63,14 @@ class TermsConditionsScreen extends StatelessWidget {
             _buildSection(c, '7. Governing Law',
                 'These Terms are governed by the laws of the State of New Mexico, USA, without regard to conflict of law principles.'),
             _buildContactSection(c),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             Center(
               child: Text(
                 '© 2025 ECOM-PARIS LLC. All rights reserved.',
-                style: TextStyle(fontSize: 13, color: c.textSecondary),
+                style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -78,22 +79,22 @@ class TermsConditionsScreen extends StatelessWidget {
 
   Widget _buildSection(AppColors c, String title, String content) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 17.sp,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             content,
-            style: TextStyle(fontSize: 15, color: c.textSecondary),
+            style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
           ),
         ],
       ),
@@ -102,31 +103,31 @@ class TermsConditionsScreen extends StatelessWidget {
 
   Widget _buildContactSection(AppColors c) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '8. Contact Information',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 17.sp,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'If you have questions about these Terms, please contact us:',
-            style: TextStyle(fontSize: 15, color: c.textSecondary),
+            style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Email: ',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                   color: c.textPrimary,
                 ),
@@ -134,19 +135,19 @@ class TermsConditionsScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   'contact@ecomparis.org',
-                  style: TextStyle(fontSize: 15, color: c.textSecondary),
+                  style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Address: ',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                   color: c.textPrimary,
                 ),
@@ -154,7 +155,7 @@ class TermsConditionsScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   '8206 LOUISIANA BLVD NE, STE A #2226, Albuquerque, NM 87113, USA',
-                  style: TextStyle(fontSize: 15, color: c.textSecondary),
+                  style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                 ),
               ),
             ],

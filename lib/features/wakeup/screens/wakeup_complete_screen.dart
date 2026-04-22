@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
@@ -105,27 +106,27 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
       backgroundColor: c.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
             children: [
               const Spacer(),
-              Image.asset('assets/icon.png', width: 120, height: 120),
-              const SizedBox(height: 24),
+              Image.asset('assets/icon.png', width: 120.w, height: 120.h),
+              SizedBox(height: 24.h),
               Text(
                 l10n.wakeupCongratulations,
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: 26.sp,
                   fontWeight: FontWeight.bold,
                   color: c.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 l10n.wakeupThanks,
-                style: TextStyle(fontSize: 14, color: c.textSecondary),
+                style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 36),
+              SizedBox(height: 36.h),
               if (_loading)
                 const CircularProgressIndicator()
               else
@@ -136,13 +137,13 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                       value: _formatTime(widget.timeTakenSeconds),
                       label: l10n.wakeupTimeTaken,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     _StatBox(
                       icon: '🔥',
                       value: '$_streak',
                       label: l10n.wakeupDayStreak,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     _StatBox(
                       icon: '☀️',
                       value: '$_totalWakeups',
@@ -164,20 +165,20 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                   children: [
                     Text(
                       l10n.wakeupDailyQuote,
-                      style: TextStyle(fontSize: 15, color: c.textSecondary),
+                      style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.chevron_right, size: 18, color: c.textSecondary),
+                    SizedBox(width: 4.w),
+                    Icon(Icons.chevron_right, size: 18.sp, color: c.textSecondary),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               ElevatedButton(
                 onPressed: withHaptic(() =>
                     Navigator.of(context).popUntil((route) => route.isFirst)),
                 child: Text(l10n.wakeupContinue),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
             ],
           ),
         ),
@@ -202,27 +203,27 @@ class _StatBox extends StatelessWidget {
     final c = AppColors.of(context);
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
         decoration: BoxDecoration(
           color: c.card,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
         ),
         child: Column(
           children: [
-            Text(icon, style: const TextStyle(fontSize: 22)),
-            const SizedBox(height: 6),
+            Text(icon, style: TextStyle(fontSize: 22.sp)),
+            SizedBox(height: 6.h),
             Text(
               value,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2.h),
             Text(
               label,
-              style: TextStyle(fontSize: 11, color: c.textSecondary),
+              style: TextStyle(fontSize: 11.sp, color: c.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

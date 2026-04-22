@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../shared/theme/app_theme.dart';
 
@@ -15,22 +16,22 @@ class LevioBrandHeader extends StatelessWidget {
 
     final color = textColor ?? AppColors.of(context).textPrimary;
     return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 8),
+      padding: EdgeInsets.only(top: 16.h, bottom: 8.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('assets/icon.png', width: 40, height: 40),
-          const SizedBox(width: 12),
+          Image.asset('assets/icon.png', width: 40.w, height: 40.h),
+          SizedBox(width: 12.w),
           Text(
             'Levio',
             style: TextStyle(
-              fontSize: 36,
+              fontSize: 36.sp,
               fontWeight: FontWeight.bold,
               color: color,
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../alarms/services/alarm_channel.dart';
@@ -134,15 +135,15 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                 const LevioBrandHeader(),
                 Expanded(
                   child: Center(
-                    
+
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0.w),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           SizedBox(
-                            width: 220,
-                            height: 220,
+                            width: 220.w,
+                            height: 220.h,
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
@@ -168,10 +169,10 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                                       children: [
                                         Text(
                                           '$_shakeCount',
-                      
+
                                           style: TextStyle(
                                             color: c.textPrimary,
-                                            fontSize: 64,
+                                            fontSize: 64.sp,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -179,7 +180,7 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                                           '/ ${widget.target}',
                                           style: TextStyle(
                                             color: c.textSecondary,
-                                            fontSize: 22,
+                                            fontSize: 22.sp,
                                           ),
                                         ),
                                       ],
@@ -189,14 +190,14 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24.h),
                           Text(
                             l10n.dismissShakePrompt,
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              
-                              fontSize: 18,
+
+                              fontSize: 18.sp,
                               color: c.textSecondary,
                             ),
                           ),
@@ -209,20 +210,20 @@ class _ShakeDismissScreenState extends State<ShakeDismissScreen> {
             ),
             if (widget.isPreview)
               Positioned(
-                top: 16,
-                right: 16,
+                top: 16.h,
+                right: 16.w,
                 child: GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    width: 36.w,
+                    height: 36.h,
                     decoration: const BoxDecoration(
                       color: Colors.black54,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
-                      size: 18,
+                      size: 18.sp,
                       color: Colors.white,
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -14,7 +15,7 @@ class TrialReminderStep extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
           const Spacer(flex: 2),
@@ -22,42 +23,42 @@ class TrialReminderStep extends StatelessWidget {
             l10n.onboardingTrialTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.bold,
               color: c.textPrimary,
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40.h),
           // Bell with notification badge
           SizedBox(
-            width: 100,
-            height: 100,
+            width: 100.w,
+            height: 100.h,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
                 Center(
                   child: Icon(
                     Icons.notifications_outlined,
-                    size: 80,
+                    size: 80.sp,
                     color: c.textSecondary,
                   ),
                 ),
                 Positioned(
-                  top: -4,
-                  right: 4,
+                  top: -4.h,
+                  right: 4.w,
                   child: Container(
-                    width: 32,
-                    height: 32,
+                    width: 32.w,
+                    height: 32.h,
                     decoration: BoxDecoration(
                       color: AppColors.orange,
                       shape: BoxShape.circle,
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         '1',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -73,48 +74,48 @@ class TrialReminderStep extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.check, size: 20, color: AppColors.orange),
-              const SizedBox(width: 6),
+              Icon(Icons.check, size: 20.sp, color: AppColors.orange),
+              SizedBox(width: 6.w),
               Text(
                 l10n.onboardingTrialNoPayment,
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                   color: c.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           // Continue for free button
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 56.h,
             child: ElevatedButton(
               onPressed: withHaptic(onContinue),
               style: ElevatedButton.styleFrom(
                 backgroundColor: c.textPrimary,
                 foregroundColor: c.card,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(28.r),
                 ),
               ),
               child: Text(
                 l10n.onboardingTrialContinueFree,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   color: c.card,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Text(
             l10n.onboardingTrialPrice,
-            style: TextStyle(fontSize: 14, color: c.textSecondary),
+            style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
         ],
       ),
     );
