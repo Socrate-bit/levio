@@ -27,6 +27,7 @@ class MissionStartScreen extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Scaffold(
+    
       backgroundColor: c.background,
       body: SafeArea(
         child: Column(
@@ -34,13 +35,18 @@ class MissionStartScreen extends StatelessWidget {
             const Spacer(),
             Image.asset('assets/icon.png', width: 130.w, height: 130.h),
             SizedBox(height: 24.h),
-            Text(
-              l10n.dismissMissionTimeToWakeUp,
-              maxLines: 2,
-              style: TextStyle(
-                color: c.textPrimary,
-                fontSize: 28.sp,
-                fontWeight: FontWeight.bold,
+            Padding(
+              padding: EdgeInsets.all(24.w),
+              child: Text(
+                l10n.dismissMissionTimeToWakeUp,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  
+                  color: c.textPrimary,
+                  fontSize: 28.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             SizedBox(height: 12.h),
