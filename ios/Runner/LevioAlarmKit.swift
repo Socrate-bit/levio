@@ -513,8 +513,36 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             switch m.state { case .scheduled: return false; @unknown default: return true }
         }()
 
+        // TZ-drift repair (recurrent only). `.relative(weekly)` masters adapt
+        // to the local tz, but `.fixed` bursts store absolute moments — if the
+        // user travels hours away, the bursts fire at the wrong wall-clock
+        // time relative to the master. Wipe them and let the priming below
+        // regenerate a fresh, coherent set.
+        var cascade = loadCascade(originalId: originalId)
+        let isOneShot = (config["isOneShot"] as? Bool) ?? false
+        let currentTzOffset = TimeZone.current.secondsFromGMT()
+        let savedTzOffset = config["tzOffsetSeconds"] as? Int
+        if !isOneShot, let saved = savedTzOffset, saved != currentTzOffset {
+            NSLog("[LevioAlarmKit] tz drift for %@ (saved=%d current=%d) — resetting bursts",
+                  originalId, saved, currentTzOffset)
+            for entry in cascade {
+                if let uuid = UUID(uuidString: entry.id) {
+                    try? AlarmManager.shared.cancel(id: uuid)
+                }
+                defaults.removeObject(forKey: "levio_burst_\(entry.id)")
+            }
+            saveCascade(originalId: originalId, cascade: [])
+            cascade = []
+        }
+        if !isOneShot && savedTzOffset != currentTzOffset {
+            var updatedConfig = config
+            updatedConfig["tzOffsetSeconds"] = currentTzOffset
+            if let data = try? JSONSerialization.data(withJSONObject: updatedConfig) {
+                defaults.set(data, forKey: "levio_config_\(originalId)")
+            }
+        }
+
         // Count live bursts.
-        let cascade = loadCascade(originalId: originalId)
         let liveIds = Set(alarms.map { $0.id })
         let liveBursts = cascade.filter { entry in
             guard let uuid = UUID(uuidString: entry.id) else { return false }
@@ -526,7 +554,6 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             return
         }
 
-        let isOneShot = (config["isOneShot"] as? Bool) ?? false
         let title = config["title"] as? String ?? "Alarm"
         let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
@@ -569,7 +596,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         )
         var alive = liveBursts
         var scheduledCount = 0
-        for _ in 0..<needed {
+        for i in 0..<needed {
             let fire = Date(timeIntervalSince1970: nextFireMs / 1000)
             nextFireMs += kBurstIntervalSeconds * 1000
             let burstId = UUID()
@@ -581,7 +608,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 secondaryLabel: secondaryLabel,
                 schedule: .fixed(fire),
                 soundName: soundName,
-                isMaster: false
+                stopReschedules: false
             )
             do {
                 _ = try await AlarmManager.shared.schedule(id: burstId, configuration: cfg)
@@ -844,7 +871,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             secondaryLabel: secondaryLabel,
             schedule: masterSchedule,
             soundName: soundName,
-            isMaster: true
+            stopReschedules: true
         )
 
         var masterOK = false
@@ -910,7 +937,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 secondaryLabel: secondaryLabel,
                 schedule: .fixed(fire),
                 soundName: soundName,
-                isMaster: false
+                stopReschedules: false
             )
             do {
                 _ = try await AlarmManager.shared.schedule(id: burstId, configuration: cfg)
@@ -936,11 +963,12 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         return result
     }
 
-    /// Builds the AlarmKit configuration for either the master (isMaster=true)
-    /// or a burst. Master's Stop button runs StopRescheduleOpenAppIntent, which
-    /// stops the master ring AND schedules a +5s nudge burst. Bursts' Stop
-    /// button is pure open-app — the cascade is silenced app-side via
-    /// `cancelBurstsKeepMaster`.
+    /// Builds the AlarmKit configuration. When `stopReschedules` is true the
+    /// Stop button runs StopRescheduleOpenAppIntent (stops the master ring AND
+    /// schedules a +5s nudge burst); otherwise the Stop button is pure open-app.
+    /// Master and post-Stop nudge bursts both use `stopReschedules: true`;
+    /// regular cascade bursts use `stopReschedules: false` (the cascade is
+    /// silenced app-side via `cancelBurstsKeepMaster`).
     fileprivate func makeBurstConfig(
         burstId: UUID,
         originalId: UUID,
@@ -949,7 +977,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         secondaryLabel: String,
         schedule: Alarm.Schedule,
         soundName: String?,
-        isMaster: Bool
+        stopReschedules: Bool
     ) -> AlarmManager.AlarmConfiguration<LevioAlarmMetadata> {
         let stopButton = AlarmButton(
             text: "Stop",
@@ -976,7 +1004,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             return .default
         }()
 
-        if isMaster {
+        if stopReschedules {
             return AlarmManager.AlarmConfiguration.alarm(
                 schedule: schedule,
                 attributes: attributes,
@@ -1011,6 +1039,10 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             "sfSymbol": sfSymbol,
             "secondaryLabel": secondaryLabel,
             "isOneShot": isOneShot,
+            // Recorded at schedule time so priming can detect a tz shift and
+            // regenerate the .fixed bursts (which are absolute and don't adapt
+            // to timezone changes like the .relative weekly master does).
+            "tzOffsetSeconds": TimeZone.current.secondsFromGMT(),
         ]
         if isOneShot {
             config["timestampMs"] = timestampMs
@@ -1119,9 +1151,11 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 extension LevioAlarmKit {
     /// Schedules a single `.fixed` nudge burst +5s from now for the given
     /// originalId, preserving the cascade list. Used by
-    /// `StopRescheduleOpenAppIntent` when the user taps Stop on the master's
-    /// lock-screen button — the master is silenced (via `AlarmManager.stop`)
-    /// but a quick follow-up burst keeps the cascade intensity honest.
+    /// `StopRescheduleOpenAppIntent` when the user taps Stop on the master
+    /// or on a prior nudge burst. The nudge burst itself uses
+    /// StopRescheduleOpenAppIntent so repeated Stop taps keep chaining +5s
+    /// nudges, but is stored under `levio_burst_` like any cascade burst so
+    /// counting / cancellation / suppression treat it uniformly.
     static func scheduleNudgeBurst(originalId: String) async {
         let defaults = UserDefaults.standard
         guard let data = defaults.data(forKey: "levio_config_\(originalId)"),
@@ -1161,7 +1195,7 @@ extension LevioAlarmKit {
             secondaryLabel: secondaryLabel,
             schedule: .fixed(fire),
             soundName: soundName,
-            isMaster: false
+            stopReschedules: true
         )
         do {
             _ = try await AlarmManager.shared.schedule(id: burstId, configuration: cfg)
