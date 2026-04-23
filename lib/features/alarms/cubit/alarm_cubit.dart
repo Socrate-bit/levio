@@ -143,10 +143,12 @@ class AlarmCubit extends Cubit<AlarmState> {
       final isRecurrent = !alarm.isOneTime && alarm.repeatDays.any((d) => d);
       final isPast = alarm.dateTime.isBefore(now);
 
-      // One-shot missed → ring now; recurrent uses hour/minute as-is.
-      final toSchedule = (isPast && !isRecurrent)
-          ? alarm.copyWith(dateTime: now.add(const Duration(seconds: 5)))
-          : alarm;
+      // One-shot missed → drop it.
+      final toSchedule = alarm;
+      
+      if (isPast && !isRecurrent) {
+        continue;
+      }
 
       try {
         // Purge any stale native config under the old id. This is the common
@@ -182,7 +184,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
     // Prime recurrent cascades whose `.relative` safety-net is alive but whose
     // `.fixed` bursts have all fired. The user ignored the full 6-min cascade
-    // last week; now that the app is open, re-fill the bursts for next time
+    // last time; now that the app is open, re-fill the bursts for next time
     // without touching the originalId or the recurring `.relative` burst.
     for (final alarm in resolved) {
       if (!alarm.isEnabled) continue;
@@ -321,7 +323,7 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   Future<void> addAlarm(AppAlarmEntry entry) async {
     final toSchedule = entry.copyWith(
-      dateTime: kDebugMode
+      dateTime: false
           ? DateTime.now().add(const Duration(seconds: 10))
           : _nextFutureDay(entry.dateTime),
     );
