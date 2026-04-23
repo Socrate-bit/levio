@@ -8,6 +8,20 @@ import '../../../features/wakeup/models/wakeup_session.dart';
 import '../../../features/wakeup/services/history_service.dart';
 import '../models/badge_model.dart';
 
+/// Per-day status used by the home weekly widget.
+enum DayStatus { none, done, frozen }
+
+/// Result of [StreakService.computeStreak].
+class StreakResult {
+  /// Number of consecutive days (sessions + freezes) walking backward from today.
+  final int streak;
+
+  /// Sun..Sat statuses for the current calendar week.
+  final List<DayStatus> weekDays;
+
+  const StreakResult({required this.streak, required this.weekDays});
+}
+
 class StreakProfile {
   final int currentStreak;
   final int longestStreak;
@@ -106,9 +120,10 @@ class StreakService {
     }
 
     // -------------------------------------------------------------------------
-    // Streak: count completed sessions walking backward, tolerance = 2 misses/week (Mon–Sun)
+    // Streak: walk backward from today; freezes (max 2/week, max 2 in a row)
+    // bridge missed days; first session date stops the walk.
     // -------------------------------------------------------------------------
-    final newStreak = await _computeCurrentStreak();
+    final newStreak = await computeCurrentStreak();
     final newLongest =
         newStreak > profile.longestStreak ? newStreak : profile.longestStreak;
 
@@ -220,94 +235,116 @@ class StreakService {
   }
 
   // ---------------------------------------------------------------------------
-  // Streak computation
+  // Streak computation (single source of truth)
   // ---------------------------------------------------------------------------
 
-  /// Computes current streak by walking backward through days from today.
-  /// Each day without a completed session is a "miss". The week (Mon–Sun)
-  /// tolerates up to 2 misses. Exceeding the tolerance breaks the streak.
-  /// Days before [firstAlarmDate] are ignored (user hadn't started yet).
+  /// Walks backward from today through [sessions], applying freeze rules:
+  ///   - At most 2 freezes per Mon–Sun calendar week.
+  ///   - At most 2 consecutive freezes in a row.
+  /// The walk stops when it would cross before [stopDate]. If [stopDate] is
+  /// null, the walk stops at the day of the oldest completed session — so
+  /// pre-app-start days never count as misses.
   ///
-  /// Pass [sessions] to avoid an extra Firestore fetch; omit to fetch internally.
+  /// Returns the streak count and Sun..Sat statuses for the current calendar
+  /// week (today displays as `none` when there is no completed session, even
+  /// if a freeze was internally applied, because today is in-progress).
+  ///
+  /// [now] is injectable for testing.
+  static StreakResult computeStreak({
+    required List<WakeupSession> sessions,
+    DateTime? stopDate,
+    DateTime? now,
+  }) {
+    final today = _dateOnly(now ?? DateTime.now());
+
+    // Index completed sessions by date; track the oldest.
+    final sessionDays = <String>{};
+    DateTime? oldestSessionDay;
+    for (final s in sessions) {
+      if (!s.completed) continue;
+      final d = _dateOnly(s.timestamp);
+      sessionDays.add(_dateStr(d));
+      if (oldestSessionDay == null || d.isBefore(oldestSessionDay)) {
+        oldestSessionDay = d;
+      }
+    }
+
+    // Build the display week (Sun..Sat) with done marks; freezes filled in
+    // during the walk below.
+    final startOfDisplayWeek = _startOfDisplayWeek(today);
+    final endOfDisplayWeek = _addDays(startOfDisplayWeek, 6);
+    final weekDays = List<DayStatus>.filled(7, DayStatus.none);
+    for (int i = 0; i < 7; i++) {
+      final d = _addDays(startOfDisplayWeek, i);
+      if (sessionDays.contains(_dateStr(d))) {
+        weekDays[i] = DayStatus.done;
+      }
+    }
+
+    final effectiveStop =
+        stopDate != null ? _dateOnly(stopDate) : oldestSessionDay;
+    if (effectiveStop == null) {
+      return StreakResult(streak: 0, weekDays: weekDays);
+    }
+
+    int streak = 0;
+    int weekFreezes = 0;
+    int consecutiveFreezes = 0;
+    DateTime currentMonday = _getMondayOfWeek(today);
+    DateTime cursor = today;
+
+    while (!cursor.isBefore(effectiveStop)) {
+      // Reset the per-week freeze budget when crossing a Monday backward.
+      final cursorMonday = _getMondayOfWeek(cursor);
+      if (!_isSameDay(cursorMonday, currentMonday)) {
+        weekFreezes = 0;
+        currentMonday = cursorMonday;
+      }
+
+      if (sessionDays.contains(_dateStr(cursor))) {
+        streak++;
+        consecutiveFreezes = 0;
+      } else if (weekFreezes < 2 && consecutiveFreezes < 2) {
+        weekFreezes++;
+        consecutiveFreezes++;
+        // Mark the display week as frozen for past days only — today stays
+        // `none` because it is still in-progress visually.
+        if (!_isSameDay(cursor, today) &&
+            !cursor.isBefore(startOfDisplayWeek) &&
+            !cursor.isAfter(endOfDisplayWeek)) {
+          final idx = cursor.difference(startOfDisplayWeek).inDays;
+          weekDays[idx] = DayStatus.frozen;
+        }
+      } else {
+        break;
+      }
+
+      cursor = _addDays(cursor, -1);
+    }
+
+    return StreakResult(streak: streak, weekDays: weekDays);
+  }
+
+  /// Backward-compatible wrapper. [firstAlarmDate] is accepted but ignored —
+  /// the walk now stops at the oldest session date.
   static Future<int> computeCurrentStreak([
     List<WakeupSession>? sessions,
     DateTime? firstAlarmDate,
   ]) async {
-    return _computeCurrentStreak(sessions, firstAlarmDate);
-  }
-
-  static Future<int> _computeCurrentStreak([
-    List<WakeupSession>? sessions,
-    DateTime? firstAlarmDate,
-  ]) async {
-    // Fetch completed sessions for the last year (enough for any streak)
     sessions ??= await HistoryService.getSessions(
       limit: 400,
       includeIncomplete: false,
     );
-
-    if (sessions.isEmpty) return 0;
-
-    // If no firstAlarmDate provided, fetch from Firestore
-    firstAlarmDate ??= await _getFirstAlarmCreatedDate();
-
-    // Build a set of 'yyyy-MM-dd' strings with at least one completed session
-    final completedDates = <String>{};
-    for (final s in sessions) {
-      completedDates.add(_dateStr(s.timestamp));
-    }
-
-    final today = DateTime.now();
-    int streak = 0;
-    int weekMisses = 0;
-    DateTime? currentWeekMonday;
-
-    // Start from yesterday — today is still in progress and shouldn't count as a miss
-    // (but if today has a session, count it)
-    final hasSessionToday = completedDates.contains(_dateStr(today));
-    if (hasSessionToday) streak++;
-
-    for (int i = 1; i <= 365; i++) {
-      final day = today.subtract(Duration(days: i));
-
-      // Stop before the first alarm was created — no misses before that
-      if (firstAlarmDate != null && day.isBefore(
-        DateTime(firstAlarmDate.year, firstAlarmDate.month, firstAlarmDate.day),
-      )) {
-        break;
-      }
-
-      final weekMonday = _getMondayOfWeek(day);
-
-      if (currentWeekMonday == null) {
-        currentWeekMonday = weekMonday;
-      } else if (!_isSameDay(weekMonday, currentWeekMonday)) {
-        // Entered a new (earlier) week — reset miss counter
-        weekMisses = 0;
-        currentWeekMonday = weekMonday;
-      }
-
-      if (completedDates.contains(_dateStr(day))) {
-        streak++;
-      } else {
-        weekMisses++;
-        if (weekMisses > 2) break;
-      }
-    }
-
-    return streak;
+    return computeStreak(sessions: sessions).streak;
   }
 
   /// Returns the earliest createdAt date across all alarms, or null if none.
-  static Future<DateTime?> _getFirstAlarmCreatedDate() async {
+  static Future<DateTime?> getFirstAlarmCreatedDate() async {
     final alarms = await AlarmFirestoreService.getAlarms();
     if (alarms.isEmpty) return null;
     alarms.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     return alarms.first.createdAt;
   }
-
-  /// Public accessor for the first alarm creation date.
-  static Future<DateTime?> getFirstAlarmCreatedDate() => _getFirstAlarmCreatedDate();
 
   // ---------------------------------------------------------------------------
   // Private helpers
@@ -316,12 +353,23 @@ class StreakService {
   static bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  /// Returns the Monday of the week containing [date].
+  /// Returns the Monday of the ISO week containing [date].
   static DateTime _getMondayOfWeek(DateTime date) {
     // weekday: Mon=1 … Sun=7
     final daysFromMonday = date.weekday - 1;
     return DateTime(date.year, date.month, date.day - daysFromMonday);
   }
+
+  /// Returns the Sunday that begins the display week containing [date].
+  static DateTime _startOfDisplayWeek(DateTime date) {
+    final daysFromSunday = date.weekday % 7; // Sun=7→0
+    return DateTime(date.year, date.month, date.day - daysFromSunday);
+  }
+
+  static DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  static DateTime _addDays(DateTime d, int n) =>
+      DateTime(d.year, d.month, d.day + n);
 
   static String _dateStr(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';

@@ -1,6 +1,7 @@
+import '../../milestones/services/streak_service.dart';
 import '../../wakeup/models/wakeup_session.dart';
 
-enum DayStatus { none, done, frozen }
+export '../../milestones/services/streak_service.dart' show DayStatus;
 
 class HomeState {
   final int currentStreak;
