@@ -610,3 +610,20 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
     );
   }
 }
+
+/// Returns the emoji associated with [label] across hunt picker data,
+/// or null when the label is custom / unknown.
+String? emojiForItemLabel(String label) {
+  for (final data in [
+    objectHuntPickerData,
+    petHuntPickerData,
+    natureHuntPickerData,
+  ]) {
+    for (final section in data.sections) {
+      for (final item in section.items) {
+        if (item.label == label) return item.emoji;
+      }
+    }
+  }
+  return null;
+}

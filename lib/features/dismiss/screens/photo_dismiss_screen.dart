@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +69,16 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   String? _rawError;
   final _startTime = DateTime.now();
   late final String _targetObject;
+  late final List<String> _candidates;
+  String _displayLabel = '';
+  bool _rouletteRunning = false;
+  Timer? _rouletteTimer;
   AlarmCascadeController? _cascade;
+
+  // Roulette tick delays (ms) — start fast, decelerate, dramatic last beat.
+  static const _rouletteDelays = <int>[
+    80, 80, 80, 90, 100, 120, 140, 170, 210, 260, 320, 400, 500, 650, 850,
+  ];
 
   @override
   void initState() {
@@ -78,14 +89,57 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final items = (widget.selectedItems != null && widget.selectedItems!.isNotEmpty)
         ? widget.selectedItems!
         : _defaultItemsFor(widget.missionType);
-    _targetObject = items.isNotEmpty
-        ? (List<String>.from(items)..shuffle()).first
+    _candidates = List<String>.from(items);
+    _targetObject = _candidates.isNotEmpty
+        ? (List<String>.from(_candidates)..shuffle()).first
         : '';
+
+    // Roulette only runs when there are multiple candidates to reveal.
+    if (_candidates.length > 1) {
+      // Start on any candidate that is not the target so the reveal isn't
+      // spoiled on the very first frame.
+      _displayLabel = _candidates.firstWhere(
+        (c) => c != _targetObject,
+        orElse: () => _candidates.first,
+      );
+      _rouletteRunning = true;
+      _scheduleRouletteTick(0);
+    } else {
+      _displayLabel = _targetObject;
+    }
 
     _initCamera();
     if (widget.manageAlarm && !widget.isPreview) {
       _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
+  }
+
+  /// Recursively schedules each roulette tick using a growing delay table.
+  /// The final tick lands on [_targetObject] and unlocks the take-photo button.
+  void _scheduleRouletteTick(int step) {
+    _rouletteTimer = Timer(Duration(milliseconds: _rouletteDelays[step]), () {
+      if (!mounted) return;
+      final isLast = step == _rouletteDelays.length - 1;
+      setState(() {
+        if (isLast) {
+          _displayLabel = _targetObject;
+          _rouletteRunning = false;
+        } else {
+          // Advance to next candidate, skipping the target until the final tick
+          // so the reveal is not spoiled mid-spin.
+          final currentIndex = _candidates.indexOf(_displayLabel);
+          var nextIndex = (currentIndex + 1) % _candidates.length;
+          if (_candidates[nextIndex] == _targetObject &&
+              _candidates.length > 2) {
+            nextIndex = (nextIndex + 1) % _candidates.length;
+          }
+          _displayLabel = _candidates[nextIndex];
+        }
+      });
+      HapticFeedback.selectionClick();
+      if (isLast) HapticFeedback.mediumImpact();
+      if (!isLast) _scheduleRouletteTick(step + 1);
+    });
   }
 
   Future<void> _initCamera() async {
@@ -188,16 +242,17 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
 
   @override
   void dispose() {
+    _rouletteTimer?.cancel();
     _controller?.dispose();
     _cascade?.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
 
-  // Localized label for the actual target — the specific picked item when
-  // present, otherwise the generic mission-type target.
-  String _targetLabel(AppLocalizations l10n) => _targetObject.isNotEmpty
-      ? localizedItemName(l10n, _targetObject)
+  // Localized label for the currently displayed target — follows the roulette
+  // mid-spin then settles on the actual picked target.
+  String _targetLabel(AppLocalizations l10n) => _displayLabel.isNotEmpty
+      ? localizedItemName(l10n, _displayLabel)
       : localizedPhotoTarget(l10n, widget.missionType);
 
   String? _resolveError(AppLocalizations l10n) {
@@ -273,6 +328,20 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                         Color(0x50000000),
                                       ],
                                     ),
+                                  ),
+                                ),
+
+                                // Viewfinder corner brackets — frame the target.
+                                const _ViewfinderFrame(),
+
+                                // Centered target icon (emoji for hunts, mission
+                                // material icon for sky/bed/grass).
+                                Center(
+                                  child: _TargetBadge(
+                                    label: _displayLabel,
+                                    info: info,
+                                    isHunt: _targetObject.isNotEmpty,
+                                    spinning: _rouletteRunning,
                                   ),
                                 ),
 
@@ -373,7 +442,15 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                           color: info.iconBg,
                           borderRadius: BorderRadius.circular(12.r),
                         ),
-                        child: Icon(info.icon, color: info.iconColor, size: 24.sp),
+                        child: Center(
+                          child: _targetObject.isNotEmpty
+                              ? Text(
+                                  emojiForItemLabel(_displayLabel) ?? '\u{2b50}',
+                                  style: TextStyle(fontSize: 22.sp),
+                                )
+                              : Icon(info.icon,
+                                  color: info.iconColor, size: 24.sp),
+                        ),
                       ),
                       SizedBox(width: 12.w),
                       Column(
@@ -407,13 +484,15 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 SizedBox(height: 20.h),
 
                 GestureDetector(
-                  onTap: _isValidating ? null : withHaptic(_captureAndValidate),
+                  onTap: (_isValidating || _rouletteRunning)
+                      ? null
+                      : withHaptic(_captureAndValidate),
                   child: Container(
                     width: 72.w,
                     height: 72.h,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _isValidating
+                      color: (_isValidating || _rouletteRunning)
                           ? Colors.white.withAlpha(80)
                           : Colors.white,
                       boxShadow: [
@@ -427,7 +506,21 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   ),
                 ),
 
-                SizedBox(height: 32.h),
+                SizedBox(height: 12.h),
+                SizedBox(
+                  height: 16.h,
+                  child: _rouletteRunning
+                      ? Text(
+                          l10n.dismissPhotoPickingTarget,
+                          style: TextStyle(
+                            color: Colors.white60,
+                            fontSize: 12.sp,
+                            letterSpacing: 0.3,
+                          ),
+                        )
+                      : null,
+                ),
+                SizedBox(height: 16.h),
               ],
             ),
             if (widget.isPreview)
@@ -448,6 +541,92 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Four white corner brackets framing the camera preview.
+class _ViewfinderFrame extends StatelessWidget {
+  const _ViewfinderFrame();
+
+  @override
+  Widget build(BuildContext context) {
+    final inset = 16.w;
+    return Stack(
+      children: [
+        Positioned(top: inset, left: inset, child: const _Corner(top: true, left: true)),
+        Positioned(top: inset, right: inset, child: const _Corner(top: true, left: false)),
+        Positioned(bottom: inset, left: inset, child: const _Corner(top: false, left: true)),
+        Positioned(bottom: inset, right: inset, child: const _Corner(top: false, left: false)),
+      ],
+    );
+  }
+}
+
+class _Corner extends StatelessWidget {
+  final bool top;
+  final bool left;
+  const _Corner({required this.top, required this.left});
+
+  @override
+  Widget build(BuildContext context) {
+    const side = BorderSide(color: Colors.white70, width: 3);
+    return Container(
+      width: 28.w,
+      height: 28.w,
+      decoration: BoxDecoration(
+        border: Border(
+          top: top ? side : BorderSide.none,
+          bottom: top ? BorderSide.none : side,
+          left: left ? side : BorderSide.none,
+          right: left ? BorderSide.none : side,
+        ),
+      ),
+    );
+  }
+}
+
+/// Centered round badge showing the target — emoji for hunt items, the
+/// mission's material icon otherwise. Pulses softly while spinning.
+class _TargetBadge extends StatelessWidget {
+  final String label;
+  final MissionInfo info;
+  final bool isHunt;
+  final bool spinning;
+
+  const _TargetBadge({
+    required this.label,
+    required this.info,
+    required this.isHunt,
+    required this.spinning,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final emoji = isHunt ? (emojiForItemLabel(label) ?? '\u{2b50}') : null;
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 120),
+      scale: spinning ? 0.94 : 1.0,
+      child: Container(
+        width: 96.w,
+        height: 96.w,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: info.iconBg.withAlpha(230),
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(60),
+              blurRadius: 16,
+            ),
+          ],
+        ),
+        child: Center(
+          child: emoji != null
+              ? Text(emoji, style: TextStyle(fontSize: 48.sp))
+              : Icon(info.icon, color: info.iconColor, size: 48.sp),
         ),
       ),
     );

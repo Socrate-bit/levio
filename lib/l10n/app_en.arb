@@ -472,6 +472,7 @@
     "placeholders": { "error": { "type": "String" } }
   },
   "dismissPhotoTakePhoto": "TAKE A PHOTO OF",
+  "dismissPhotoPickingTarget": "Picking your target…",
   "dismissSpeechSay": "Say:",
   "dismissSpeechListening": "Listening…",
   "dismissSpeechTapToSpeak": "Tap to speak",
