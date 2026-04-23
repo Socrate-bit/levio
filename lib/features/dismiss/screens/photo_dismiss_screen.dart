@@ -280,6 +280,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final controller = _controller;
     final l10n = AppLocalizations.of(context);
     final info = missionInfoFor(widget.missionType);
@@ -287,21 +288,21 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final errorMessage = _resolveError(l10n);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: c.background,
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const LevioBrandHeader(textColor: Colors.white),
+                const LevioBrandHeader(),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
                   child: Text(
                     l10n.dismissPhotoPrompt(targetLabel),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: c.textPrimary,
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
@@ -419,7 +420,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                               Text(
                                 l10n.dismissPhotoStarting,
                                 style: TextStyle(
-                                  color: Colors.white54,
+                                  color: c.textSecondary,
                                   fontSize: 14.sp,
                                   letterSpacing: 0.3,
                                 ),
@@ -442,8 +443,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: (_isValidating || _rouletteRunning)
-                              ? Colors.white.withAlpha(80)
-                              : Colors.white,
+                              ? c.textPrimary.withAlpha(80)
+                              : c.textPrimary,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withAlpha(40),
@@ -452,7 +453,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                           ],
                         ),
                         child: Icon(Icons.camera_alt,
-                            color: Colors.black, size: 32.sp),
+                            color: c.background, size: 32.sp),
                       ),
                     ),
                     SizedBox(height: 12.h),
@@ -462,7 +463,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                           ? Text(
                               l10n.dismissPhotoPickingTarget,
                               style: TextStyle(
-                                color: Colors.white60,
+                                color: c.textSecondary,
                                 fontSize: 12.sp,
                                 letterSpacing: 0.3,
                               ),
