@@ -174,7 +174,6 @@ class HistoryService {
         .snapshots()
         .map((snap) => snap.docs
             .map((d) => WakeupSession.fromFirestore(d.id, d.data()))
-            .where((s) => s.completed)
             .toList());
   }
 }
