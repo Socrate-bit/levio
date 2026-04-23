@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
+import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../missions/models/mission.dart';
 
@@ -23,9 +24,10 @@ class MissionStartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -36,7 +38,7 @@ class MissionStartScreen extends StatelessWidget {
               l10n.dismissMissionTimeToWakeUp,
               maxLines: 2,
               style: TextStyle(
-                color: Colors.white,
+                color: c.textPrimary,
                 fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
               ),
@@ -45,7 +47,7 @@ class MissionStartScreen extends StatelessWidget {
             Text(
               l10n.dismissMissionLabel(currentIndex + 1, totalMissions, localizedMissionName(l10n, missionType)),
               style: TextStyle(
-                color: Colors.white.withAlpha(150),
+                color: c.textSecondary,
                 fontSize: 16.sp,
               ),
             ),
@@ -55,8 +57,8 @@ class MissionStartScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: withHaptic(onStart),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
+                  backgroundColor: AppColors.orange,
+                  foregroundColor: Colors.white,
                   minimumSize: Size(double.infinity, 54.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),
@@ -84,8 +86,8 @@ class MissionStartScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: i == currentIndex
-                        ? Colors.white
-                        : Colors.white.withAlpha(60),
+                        ? c.textPrimary
+                        : c.textSecondary.withAlpha(80),
                   ),
                 );
               }),
