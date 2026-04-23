@@ -142,9 +142,9 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
             pulseAnimation: _pulseAnimation,
           );
         } else {
-          child = const Scaffold(
-            key: ValueKey('blank'),
-            backgroundColor: Colors.black,
+          child = Scaffold(
+            key: const ValueKey('blank'),
+            backgroundColor: AppColors.of(context).background,
           );
         }
 
@@ -194,9 +194,10 @@ class _LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: c.background,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -209,7 +210,7 @@ class _LoadingView extends StatelessWidget {
             Text(
               l10n.dismissRepStarting,
               style: TextStyle(
-                color: Colors.white54,
+                color: c.textSecondary,
                 fontSize: 14.sp,
                 letterSpacing: 0.3,
               ),
@@ -259,23 +260,24 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     final progress = (state.repCount / target).clamp(0.0, 1.0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: c.background,
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            const LevioBrandHeader(textColor: Colors.white),
+            const LevioBrandHeader(),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Text(
                 l10n.dismissRepPrompt(target, localizedMissionName(l10n, missionType)),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: c.textPrimary,
                   fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                   letterSpacing: -0.5,
@@ -388,6 +390,9 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
               target: target,
               progress: progress,
               pulseAnimation: pulseAnimation,
+              textColor: c.textPrimary,
+              subtitleColor: c.textSecondary,
+              trackColor: c.separator,
             ),
           ],
         ),
@@ -401,12 +406,18 @@ class _RepCounter extends StatelessWidget {
   final int target;
   final double progress;
   final Animation<double> pulseAnimation;
+  final Color textColor;
+  final Color subtitleColor;
+  final Color trackColor;
 
   const _RepCounter({
     required this.repCount,
     required this.target,
     required this.progress,
     required this.pulseAnimation,
+    required this.textColor,
+    required this.subtitleColor,
+    required this.trackColor,
   });
 
   @override
@@ -422,7 +433,7 @@ class _RepCounter extends StatelessWidget {
           children: [
             CustomPaint(
               size: Size(160.w, 160.h),
-              painter: _ArcPainter(progress: progress),
+              painter: _ArcPainter(progress: progress, trackColor: trackColor),
             ),
 
             Column(
@@ -431,7 +442,7 @@ class _RepCounter extends StatelessWidget {
                 Text(
                   '$repCount',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: textColor,
                     fontSize: 52.sp,
                     fontWeight: FontWeight.bold,
                     height: 1.0,
@@ -442,7 +453,7 @@ class _RepCounter extends StatelessWidget {
                 Text(
                   l10n.dismissRepOf(target),
                   style: TextStyle(
-                    color: Colors.white.withAlpha(120),
+                    color: subtitleColor,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.3,
@@ -459,8 +470,9 @@ class _RepCounter extends StatelessWidget {
 
 class _ArcPainter extends CustomPainter {
   final double progress;
+  final Color trackColor;
 
-  const _ArcPainter({required this.progress});
+  const _ArcPainter({required this.progress, required this.trackColor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -473,7 +485,7 @@ class _ArcPainter extends CustomPainter {
       center,
       radius,
       Paint()
-        ..color = Colors.white.withAlpha(20)
+        ..color = trackColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.round,
@@ -495,5 +507,6 @@ class _ArcPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ArcPainter old) => old.progress != progress;
+  bool shouldRepaint(_ArcPainter old) =>
+      old.progress != progress || old.trackColor != trackColor;
 }

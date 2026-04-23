@@ -41,7 +41,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
   List<BadgeModel> _newBadges = [];
   bool _loading = true;
   final _confetti =
-      ConfettiController(duration: const Duration(milliseconds: 800));
+      ConfettiController(duration: const Duration(milliseconds: 280));
 
   @override
   void initState() {
@@ -214,11 +214,11 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                 confettiController: _confetti,
                 blastDirection: pi / 2,
                 blastDirectionality: BlastDirectionality.explosive,
-                emissionFrequency: 0.4,
-                numberOfParticles: 60,
-                maxBlastForce: 40,
-                minBlastForce: 20,
-                gravity: 0.35,
+                emissionFrequency: 0.9,
+                numberOfParticles: 18,
+                maxBlastForce: 50,
+                minBlastForce: 30,
+                gravity: 0.45,
                 shouldLoop: false,
                 colors: [
                   c.purpleDeep,
