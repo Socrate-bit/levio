@@ -1610,6 +1610,12 @@ abstract class AppLocalizations {
   /// **'Print All Alarms'**
   String get settingsPrintAllAlarms;
 
+  /// No description provided for @settingsPrintRawAlarms.
+  ///
+  /// In en, this message translates to:
+  /// **'Print Raw AlarmKit Alarms'**
+  String get settingsPrintRawAlarms;
+
   /// No description provided for @settingsPrintSharedPreferences.
   ///
   /// In en, this message translates to:

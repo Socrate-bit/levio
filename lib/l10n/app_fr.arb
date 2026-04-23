@@ -271,6 +271,7 @@
   "settingsTermsOfService": "Conditions d'utilisation",
   "settingsAdmin": "Admin (débogage uniquement)",
   "settingsPrintAllAlarms": "Afficher toutes les alarmes",
+  "settingsPrintRawAlarms": "Afficher alarmes AlarmKit brutes",
   "settingsPrintSharedPreferences": "Afficher SharedPreferences",
   "settingsDeleteAllAlarms": "Supprimer toutes les alarmes",
   "settingsLogout": "Se déconnecter",

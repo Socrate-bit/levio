@@ -787,6 +787,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrintAllAlarms => 'Print All Alarms';
 
   @override
+  String get settingsPrintRawAlarms => 'Print Raw AlarmKit Alarms';
+
+  @override
   String get settingsPrintSharedPreferences => 'Print SharedPreferences';
 
   @override

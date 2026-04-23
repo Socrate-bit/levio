@@ -793,6 +793,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsPrintAllAlarms => 'Afficher toutes les alarmes';
 
   @override
+  String get settingsPrintRawAlarms => 'Afficher alarmes AlarmKit brutes';
+
+  @override
   String get settingsPrintSharedPreferences => 'Afficher SharedPreferences';
 
   @override
