@@ -2426,6 +2426,12 @@ abstract class AppLocalizations {
   /// **'TAKE A PHOTO OF'**
   String get dismissPhotoTakePhoto;
 
+  /// No description provided for @dismissPhotoPickingTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Picking your target…'**
+  String get dismissPhotoPickingTarget;
+
   /// No description provided for @dismissSpeechSay.
   ///
   /// In en, this message translates to:

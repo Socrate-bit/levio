@@ -415,6 +415,7 @@
   "dismissPhotoNotDetected": "Aucun {target} détecté — réessayez",
   "dismissPhotoError": "Erreur : {error}",
   "dismissPhotoTakePhoto": "PRENEZ UNE PHOTO DE",
+  "dismissPhotoPickingTarget": "Sélection de votre cible…",
   "dismissSpeechSay": "Dites :",
   "dismissSpeechListening": "Écoute en cours…",
   "dismissSpeechTapToSpeak": "Appuyez pour parler",

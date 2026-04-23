@@ -47,6 +47,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   mocktail: ^1.0.5
   bloc_test: ^10.0.0
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:
