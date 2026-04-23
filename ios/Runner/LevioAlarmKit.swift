@@ -513,18 +513,28 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             switch m.state { case .scheduled: return false; @unknown default: return true }
         }()
 
-        // TZ-drift repair (recurrent only). `.relative(weekly)` masters adapt
-        // to the local tz, but `.fixed` bursts store absolute moments — if the
-        // user travels hours away, the bursts fire at the wrong wall-clock
-        // time relative to the master. Wipe them and let the priming below
-        // regenerate a fresh, coherent set.
+        // TZ-drift repair. `.relative(weekly)` masters adapt to local tz
+        // automatically (per Apple docs); `.fixed` does not. So on tz shift:
+        //   - recurrent: master is fine, wipe the .fixed bursts and let
+        //     priming below regenerate a coherent set from the master's new
+        //     local fire time.
+        //   - one-shot: master is .fixed and anchored to an absolute moment
+        //     that drifts away from the user's intended wall-clock time.
+        //     Reschedule the master at (intendedY/M/D + hh:mm) interpreted in
+        //     the new tz (advancing by a day if that moment is already past),
+        //     then wipe bursts so priming regenerates them at master+20s,+40s…
         var cascade = loadCascade(originalId: originalId)
-        let isOneShot = (config["isOneShot"] as? Bool) ?? false
+        var workingConfig = config
+        var masterDateForBase: Date? = nil
+        let isOneShot = (workingConfig["isOneShot"] as? Bool) ?? false
         let currentTzOffset = TimeZone.current.secondsFromGMT()
-        let savedTzOffset = config["tzOffsetSeconds"] as? Int
-        if !isOneShot, let saved = savedTzOffset, saved != currentTzOffset {
-            NSLog("[LevioAlarmKit] tz drift for %@ (saved=%d current=%d) — resetting bursts",
-                  originalId, saved, currentTzOffset)
+        let savedTzOffset = workingConfig["tzOffsetSeconds"] as? Int
+        let drifted = savedTzOffset != nil && savedTzOffset != currentTzOffset
+
+        if drifted {
+            NSLog("[LevioAlarmKit] tz drift for %@ (saved=%d current=%d) — repairing",
+                  originalId, savedTzOffset ?? 0, currentTzOffset)
+            // Wipe bursts in every case.
             for entry in cascade {
                 if let uuid = UUID(uuidString: entry.id) {
                     try? AlarmManager.shared.cancel(id: uuid)
@@ -533,17 +543,64 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             }
             saveCascade(originalId: originalId, cascade: [])
             cascade = []
+
+            if isOneShot,
+               let y = workingConfig["intendedYear"] as? Int,
+               let m = workingConfig["intendedMonth"] as? Int,
+               let d = workingConfig["intendedDay"] as? Int,
+               let h = workingConfig["intendedHour"] as? Int,
+               let mi = workingConfig["intendedMinute"] as? Int {
+                var comps = DateComponents()
+                comps.year = y; comps.month = m; comps.day = d
+                comps.hour = h; comps.minute = mi; comps.second = 0
+                var newDate = Calendar.current.date(from: comps) ?? Date().addingTimeInterval(60)
+                while newDate <= Date() {
+                    guard let next = Calendar.current.date(byAdding: .day, value: 1, to: newDate) else { break }
+                    newDate = next
+                }
+
+                // Cancel old master and its reverse-lookup mapping.
+                try? AlarmManager.shared.cancel(id: masterUUID)
+                defaults.removeObject(forKey: "levio_master_owner_\(masterUUID.uuidString)")
+
+                // Reschedule new master.
+                let newMasterId = UUID()
+                let title = workingConfig["title"] as? String ?? "Alarm"
+                let sfSymbol = workingConfig["sfSymbol"] as? String ?? "alarm"
+                let secondaryLabel = workingConfig["secondaryLabel"] as? String ?? "Open"
+                let soundName = prepareSoundFile(soundPath: workingConfig["soundPath"] as? String)
+                let masterCfg = makeBurstConfig(
+                    burstId: newMasterId,
+                    originalId: originalUUID,
+                    title: title,
+                    sfSymbol: sfSymbol,
+                    secondaryLabel: secondaryLabel,
+                    schedule: .fixed(newDate),
+                    soundName: soundName,
+                    stopReschedules: true
+                )
+                do {
+                    _ = try await AlarmManager.shared.schedule(id: newMasterId, configuration: masterCfg)
+                    defaults.set(newMasterId.uuidString, forKey: "levio_master_\(originalId)")
+                    defaults.set(originalId, forKey: "levio_master_owner_\(newMasterId.uuidString)")
+                    masterDateForBase = newDate
+                    workingConfig["timestampMs"] = newDate.timeIntervalSince1970 * 1000
+                } catch {
+                    NSLog("[LevioAlarmKit] tz-repair one-shot master reschedule failed: %@", "\(error)")
+                }
+            }
         }
-        if !isOneShot && savedTzOffset != currentTzOffset {
-            var updatedConfig = config
-            updatedConfig["tzOffsetSeconds"] = currentTzOffset
-            if let data = try? JSONSerialization.data(withJSONObject: updatedConfig) {
+        if savedTzOffset != currentTzOffset {
+            workingConfig["tzOffsetSeconds"] = currentTzOffset
+            if let data = try? JSONSerialization.data(withJSONObject: workingConfig) {
                 defaults.set(data, forKey: "levio_config_\(originalId)")
             }
         }
+        let activeConfig = workingConfig
 
-        // Count live bursts.
-        let liveIds = Set(alarms.map { $0.id })
+        // Count live bursts (cascade was already wiped if we repaired tz).
+        let refreshedAlarms = (try? AlarmManager.shared.alarms) ?? alarms
+        let liveIds = Set(refreshedAlarms.map { $0.id })
         let liveBursts = cascade.filter { entry in
             guard let uuid = UUID(uuidString: entry.id) else { return false }
             return liveIds.contains(uuid)
@@ -554,27 +611,33 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             return
         }
 
-        let title = config["title"] as? String ?? "Alarm"
-        let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
-        let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
-        let soundPath = config["soundPath"] as? String
+        let title = activeConfig["title"] as? String ?? "Alarm"
+        let sfSymbol = activeConfig["sfSymbol"] as? String ?? "alarm"
+        let secondaryLabel = activeConfig["secondaryLabel"] as? String ?? "Open"
+        let soundPath = activeConfig["soundPath"] as? String
         let soundName = prepareSoundFile(soundPath: soundPath)
+
+        // After a one-shot tz repair, the freshly-scheduled master is not
+        // alerting. Otherwise keep the pre-repair alerting state.
+        let effectiveMasterAlerting = (masterDateForBase != nil) ? false : masterAlerting
 
         // Determine where to chain new bursts from. If the master is alerting
         // we're in the cascade window now — chain from now. Otherwise chain
         // from the master's next fire time.
         let baseDate: Date
-        if masterAlerting {
+        if effectiveMasterAlerting {
             baseDate = Date()
+        } else if let rescheduled = masterDateForBase {
+            baseDate = rescheduled
         } else if isOneShot {
-            if let ts = config["timestampMs"] as? Double, ts > 0 {
+            if let ts = activeConfig["timestampMs"] as? Double, ts > 0 {
                 baseDate = Date(timeIntervalSince1970: ts / 1000)
             } else {
                 baseDate = Date()
             }
-        } else if let mask = config["weekdayMask"] as? Int,
-                  let hour = config["hour"] as? Int,
-                  let minute = config["minute"] as? Int,
+        } else if let mask = activeConfig["weekdayMask"] as? Int,
+                  let hour = activeConfig["hour"] as? Int,
+                  let minute = activeConfig["minute"] as? Int,
                   mask != 0 {
             baseDate = nextMatchingDate(
                 mask: mask, hour: hour, minute: minute,
@@ -1046,6 +1109,18 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         ]
         if isOneShot {
             config["timestampMs"] = timestampMs
+            // Persist the intended local (year, month, day, hour, minute) so a
+            // later tz shift can reschedule the .fixed master at the same
+            // wall-clock moment in the new timezone.
+            let comps = Calendar.current.dateComponents(
+                [.year, .month, .day, .hour, .minute],
+                from: Date(timeIntervalSince1970: timestampMs / 1000)
+            )
+            if let y = comps.year { config["intendedYear"] = y }
+            if let m = comps.month { config["intendedMonth"] = m }
+            if let d = comps.day { config["intendedDay"] = d }
+            if let h = comps.hour { config["intendedHour"] = h }
+            if let mi = comps.minute { config["intendedMinute"] = mi }
         } else {
             config["weekdayMask"] = weekdayMask
             config["hour"] = hour
