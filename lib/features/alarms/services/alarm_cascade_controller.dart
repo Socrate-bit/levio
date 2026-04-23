@@ -14,7 +14,7 @@ import 'alarm_channel.dart';
 ///    master ring if alerting. Skipped entirely if the global
 ///    `keep_alarm_during_mission` pref is on.
 /// 2. **Inactivity watchdog** — every 2s, checks time since last progress.
-///    If ≥ 20s with no progress signal, fires [onInactivityTimeout] and
+///    If ≥ 60s with no progress signal, fires [onInactivityTimeout] and
 ///    stops the suppression timer so bursts resume ringing.
 ///
 /// Flutter pauses timers when the app is backgrounded, which is exactly the
@@ -24,7 +24,7 @@ class AlarmCascadeController {
   final String alarmId;
   final VoidCallback? onInactivityTimeout;
 
-  static const _inactivityTimeout = Duration(seconds: 20);
+  static const _inactivityTimeout = Duration(seconds: 60);
   static const _suppressionWindowMs = 10000;
 
   Timer? _suppressionTimer;

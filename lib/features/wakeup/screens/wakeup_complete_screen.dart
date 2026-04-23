@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
@@ -39,7 +40,8 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
   int _totalWakeups = 0;
   List<BadgeModel> _newBadges = [];
   bool _loading = true;
-  final _confetti = ConfettiController(duration: const Duration(seconds: 2));
+  final _confetti =
+      ConfettiController(duration: const Duration(milliseconds: 800));
 
   @override
   void initState() {
@@ -100,7 +102,15 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
 
         // Fire confetti only after badge unlocks finish — otherwise the
         // animation runs while badges cover the screen and is missed.
-        if (mounted) _confetti.play();
+        if (mounted) {
+          _confetti.play();
+          HapticFeedback.heavyImpact();
+          // Quick double-tap haptic for an "explosion" feel.
+          Future.delayed(
+            const Duration(milliseconds: 90),
+            HapticFeedback.mediumImpact,
+          );
+        }
       }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
@@ -204,9 +214,11 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                 confettiController: _confetti,
                 blastDirection: pi / 2,
                 blastDirectionality: BlastDirectionality.explosive,
-                emissionFrequency: 0.05,
-                numberOfParticles: 25,
-                gravity: 0.2,
+                emissionFrequency: 0.4,
+                numberOfParticles: 60,
+                maxBlastForce: 40,
+                minBlastForce: 20,
+                gravity: 0.35,
                 shouldLoop: false,
                 colors: [
                   c.purpleDeep,

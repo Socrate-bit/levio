@@ -149,6 +149,7 @@ Widget buildDismissScreen({
   VoidCallback? onProgress,
   bool manageAlarm = true,
   bool isPreview = false,
+  ValueChanged<String>? onPhotoTargetChosen,
 }) {
   // Resolve random mission type
   var missionType = config.type;
@@ -207,6 +208,7 @@ Widget buildDismissScreen({
         onProgress: onProgress,
         manageAlarm: manageAlarm,
         isPreview: isPreview,
+        onTargetChosen: onPhotoTargetChosen,
       );
     case MissionType.affirmation:
       return SpeechDismissScreen(

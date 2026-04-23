@@ -42,6 +42,7 @@ class PhotoDismissScreen extends StatefulWidget {
   final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
+  final ValueChanged<String>? onTargetChosen;
 
   const PhotoDismissScreen({
     super.key,
@@ -54,6 +55,7 @@ class PhotoDismissScreen extends StatefulWidget {
     this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
+    this.onTargetChosen,
   });
 
   @override
@@ -76,8 +78,10 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   AlarmCascadeController? _cascade;
 
   // Roulette tick delays (ms) — start fast, decelerate, dramatic last beat.
+  // Total ≈ 6.5s — long enough to feel like a draw, short enough not to bore.
   static const _rouletteDelays = <int>[
-    80, 80, 80, 90, 100, 120, 140, 170, 210, 260, 320, 400, 500, 650, 850,
+    70, 70, 70, 80, 80, 90, 100, 110, 120, 140, 160, 180, 210, 240, 280,
+    320, 380, 460, 560, 700, 880, 1100,
   ];
 
   @override
@@ -93,6 +97,12 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     _targetObject = _candidates.isNotEmpty
         ? (List<String>.from(_candidates)..shuffle()).first
         : '';
+
+    // Notify the orchestrator so it can cache the pick and re-use it if the
+    // mission gets remounted (e.g. inactivity timeout sends user back).
+    if (_targetObject.isNotEmpty) {
+      widget.onTargetChosen?.call(_targetObject);
+    }
 
     // Roulette only runs when there are multiple candidates to reveal.
     if (_candidates.length > 1) {
@@ -329,17 +339,17 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                     ),
                                   ),
 
-                                  // Viewfinder corner brackets — frame the target.
-                                  const _ViewfinderFrame(),
-
-                                  // Centered target icon (emoji for hunts, mission
-                                  // material icon for sky/bed/grass).
+                                  // Rounded viewfinder frame + centered target
+                                  // icon (emoji for hunts, material icon for
+                                  // sky/bed/grass) stacked on the camera feed.
                                   Center(
-                                    child: _TargetBadge(
-                                      label: _displayLabel,
-                                      info: info,
-                                      isHunt: _targetObject.isNotEmpty,
-                                      spinning: _rouletteRunning,
+                                    child: _ViewfinderFrame(
+                                      child: _TargetBadge(
+                                        label: _displayLabel,
+                                        info: info,
+                                        isHunt: _targetObject.isNotEmpty,
+                                        spinning: _rouletteRunning,
+                                      ),
                                     ),
                                   ),
 
@@ -542,49 +552,36 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   }
 }
 
-/// Four white corner brackets framing the camera preview.
+/// Single rounded rectangle viewfinder centered around the target badge.
+/// Sized to hug the badge with breathing room — tighter than a full-bleed
+/// viewfinder so the eye lands on the target.
 class _ViewfinderFrame extends StatelessWidget {
-  const _ViewfinderFrame();
+  final Widget child;
+  const _ViewfinderFrame({required this.child});
 
   @override
   Widget build(BuildContext context) {
-    final inset = 16.w;
-    return Stack(
-      children: [
-        Positioned(top: inset, left: inset, child: const _Corner(top: true, left: true)),
-        Positioned(top: inset, right: inset, child: const _Corner(top: true, left: false)),
-        Positioned(bottom: inset, left: inset, child: const _Corner(top: false, left: true)),
-        Positioned(bottom: inset, right: inset, child: const _Corner(top: false, left: false)),
-      ],
-    );
-  }
-}
-
-class _Corner extends StatelessWidget {
-  final bool top;
-  final bool left;
-  const _Corner({required this.top, required this.left});
-
-  @override
-  Widget build(BuildContext context) {
-    const side = BorderSide(color: Colors.white70, width: 3);
     return Container(
-      width: 28.w,
-      height: 28.w,
+      width: 220.w,
+      height: 220.w,
       decoration: BoxDecoration(
-        border: Border(
-          top: top ? side : BorderSide.none,
-          bottom: top ? BorderSide.none : side,
-          left: left ? side : BorderSide.none,
-          right: left ? BorderSide.none : side,
-        ),
+        borderRadius: BorderRadius.circular(40.r),
+        border: Border.all(color: Colors.white70, width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(40),
+            blurRadius: 18,
+          ),
+        ],
       ),
+      alignment: Alignment.center,
+      child: child,
     );
   }
 }
 
-/// Centered round badge showing the target — emoji for hunt items, the
-/// mission's material icon otherwise. Pulses softly while spinning.
+/// Centered target glyph — emoji for hunt items, the mission's material icon
+/// otherwise. Large and slightly transparent so the camera feed shows through.
 class _TargetBadge extends StatelessWidget {
   final String label;
   final MissionInfo info;
@@ -604,25 +601,11 @@ class _TargetBadge extends StatelessWidget {
     return AnimatedScale(
       duration: const Duration(milliseconds: 120),
       scale: spinning ? 0.94 : 1.0,
-      child: Container(
-        width: 96.w,
-        height: 96.w,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: info.iconBg.withAlpha(230),
-          border: Border.all(color: Colors.white, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(60),
-              blurRadius: 16,
-            ),
-          ],
-        ),
-        child: Center(
-          child: emoji != null
-              ? Text(emoji, style: TextStyle(fontSize: 48.sp))
-              : Icon(info.icon, color: info.iconColor, size: 48.sp),
-        ),
+      child: Opacity(
+        opacity: 0.78,
+        child: emoji != null
+            ? Text(emoji, style: TextStyle(fontSize: 130.sp))
+            : Icon(info.icon, color: Colors.white, size: 110.sp),
       ),
     );
   }
