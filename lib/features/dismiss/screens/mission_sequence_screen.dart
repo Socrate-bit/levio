@@ -13,7 +13,7 @@ import 'mission_start_screen.dart';
 /// Owns the [AlarmCascadeController] for the whole sequence. The controller
 /// is started the moment the user taps "Start" on the current mission-start
 /// screen and is finished when the final mission completes. If the user goes
-/// inactive for 20s on any in-progress mission, we pop back to the mission
+/// inactive for 60s on any in-progress mission, we pop back to the mission
 /// start screen and pause the suppression timer so bursts resume ringing.
 class MissionSequenceScreen extends StatefulWidget {
   final List<MissionConfig> missions;
@@ -40,6 +40,9 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
   late final AlarmCascadeController _cascade;
 
   late final List<MissionConfig> _resolvedMissions;
+  // Caches the randomly-picked target for hunt-style photo missions so an
+  // inactivity remount doesn't reroll a different object on the user.
+  final Map<int, String> _photoTargets = {};
 
   @override
   void initState() {
@@ -72,7 +75,15 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
     _cascade.start();
     setState(() => _inMission = true);
 
-    final config = _resolvedMissions[_currentIndex];
+    var config = _resolvedMissions[_currentIndex];
+    // If the user already saw a roulette pick for this mission and was bounced
+    // back by inactivity, hand back the same target as a single-item list so
+    // PhotoDismissScreen skips the roulette entirely.
+    final cachedTarget = _photoTargets[_currentIndex];
+    if (cachedTarget != null) {
+      config = config.copyWith(selectedItems: [cachedTarget]);
+    }
+    final missionIndex = _currentIndex;
     final screen = buildDismissScreen(
       config: config,
       alarmId: widget.alarmId,
@@ -81,6 +92,7 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
       manageAlarm: false,
       onProgress: _cascade.reportProgress,
       onComplete: _onMissionComplete,
+      onPhotoTargetChosen: (target) => _photoTargets[missionIndex] = target,
     );
 
     Navigator.of(context).push(
