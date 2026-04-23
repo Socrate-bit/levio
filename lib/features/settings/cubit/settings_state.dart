@@ -10,6 +10,7 @@ class SettingsState extends Equatable {
   final String defaultSoundId;
   final String defaultSoundName;
   final MissionType defaultMission;
+  final bool forceQuickAlarm;
 
   const SettingsState({
     this.themeMode = ThemeMode.light,
@@ -17,6 +18,7 @@ class SettingsState extends Equatable {
     this.defaultSoundId = 'default',
     this.defaultSoundName = 'Default',
     this.defaultMission = MissionType.none,
+    this.forceQuickAlarm = false,
   });
 
   SettingsState copyWith({
@@ -25,6 +27,7 @@ class SettingsState extends Equatable {
     String? defaultSoundId,
     String? defaultSoundName,
     MissionType? defaultMission,
+    bool? forceQuickAlarm,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
@@ -33,6 +36,7 @@ class SettingsState extends Equatable {
       defaultSoundId: defaultSoundId ?? this.defaultSoundId,
       defaultSoundName: defaultSoundName ?? this.defaultSoundName,
       defaultMission: defaultMission ?? this.defaultMission,
+      forceQuickAlarm: forceQuickAlarm ?? this.forceQuickAlarm,
     );
   }
 
@@ -43,5 +47,6 @@ class SettingsState extends Equatable {
         defaultSoundId,
         defaultSoundName,
         defaultMission,
+        forceQuickAlarm,
       ];
 }

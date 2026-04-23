@@ -103,6 +103,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       enableAudio: false,
     );
     await controller.initialize();
+    // Lock the camera preview so it doesn't rotate when the device tilts.
+    await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
     if (!mounted) return;
     setState(() => _controller = controller);
   }
@@ -225,11 +227,11 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         child: Stack(
           children: [
             Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const LevioBrandHeader(textColor: Colors.white),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 0),
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
                   child: Text(
                     l10n.dismissPhotoPrompt(targetLabel),
                     textAlign: TextAlign.center,
@@ -243,119 +245,110 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   ),
                 ),
 
-                SizedBox(height: 16.h),
-
-                Expanded(
+                Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(28.r),
-                      child: controller != null && controller.value.isInitialized
-                          ? Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                // Preserve camera aspect ratio to avoid
-                                // stretching pixels to fit the container.
-                                Center(
-                                  child: AspectRatio(
-                                    aspectRatio: controller.value.aspectRatio,
-                                    child: CameraPreview(controller),
-                                  ),
-                                ),
+                    child: controller != null &&
+                            controller.value.isInitialized &&
+                            controller.value.previewSize != null
+                        ? AspectRatio(
+                            aspectRatio: controller.value.previewSize!.height /
+                                controller.value.previewSize!.width,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(28.r),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  CameraPreview(controller),
 
-                                const DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    gradient: RadialGradient(
-                                      center: Alignment.center,
-                                      radius: 1.0,
-                                      colors: [
-                                        Colors.transparent,
-                                        Color(0x50000000),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                if (errorMessage != null)
-                                  Positioned(
-                                    top: 14.h,
-                                    left: 16.w,
-                                    right: 16.w,
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 7.h,
-                                        horizontal: 14.w,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFE53935).withAlpha(200),
-                                        borderRadius: BorderRadius.circular(12.r),
-                                      ),
-                                      child: Text(
-                                        errorMessage,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13.sp,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-                                if (_isValidating)
-                                  Container(
-                                    color: Colors.black54,
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const CircularProgressIndicator(
-                                            color: AppColors.orange,
-                                            strokeWidth: 2.5,
-                                          ),
-                                          SizedBox(height: 16.h),
-                                          Text(
-                                            l10n.dismissPhotoChecking(targetLabel.toLowerCase()),
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14.sp,
-                                              letterSpacing: 0.3,
-                                            ),
-                                          ),
+                                  DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      gradient: RadialGradient(
+                                        center: Alignment.center,
+                                        radius: 1.0,
+                                        colors: [
+                                          Colors.transparent,
+                                          Colors.black.withAlpha(80),
                                         ],
                                       ),
                                     ),
                                   ),
-                              ],
-                            )
-                          : ColoredBox(
-                              color: const Color(0xFF1A1A1A),
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const CircularProgressIndicator(
-                                      color: AppColors.orange,
-                                      strokeWidth: 2.5,
-                                    ),
-                                    SizedBox(height: 16.h),
-                                    Text(
-                                      l10n.dismissPhotoStarting,
-                                      style: TextStyle(
-                                        color: Colors.white54,
-                                        fontSize: 14.sp,
-                                        letterSpacing: 0.3,
+
+                                  if (errorMessage != null)
+                                    Positioned(
+                                      top: 14.h,
+                                      left: 16.w,
+                                      right: 16.w,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 7.h,
+                                          horizontal: 14.w,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.error.withAlpha(200),
+                                          borderRadius: BorderRadius.circular(12.r),
+                                        ),
+                                        child: Text(
+                                          errorMessage,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ],
-                                ),
+
+                                  if (_isValidating)
+                                    Container(
+                                      color: Colors.black54,
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const CircularProgressIndicator(
+                                              color: AppColors.orange,
+                                              strokeWidth: 2.5,
+                                            ),
+                                            SizedBox(height: 16.h),
+                                            Text(
+                                              l10n.dismissPhotoChecking(
+                                                  targetLabel.toLowerCase()),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14.sp,
+                                                letterSpacing: 0.3,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                    ),
+                          )
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const CircularProgressIndicator(
+                                color: AppColors.orange,
+                                strokeWidth: 2.5,
+                              ),
+                              SizedBox(height: 16.h),
+                              Text(
+                                l10n.dismissPhotoStarting,
+                                style: TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 14.sp,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
-
-                SizedBox(height: 20.h),
 
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
@@ -404,8 +397,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   ),
                 ),
 
-                SizedBox(height: 20.h),
-
                 GestureDetector(
                   onTap: _isValidating ? null : withHaptic(_captureAndValidate),
                   child: Container(
@@ -426,8 +417,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                     child: Icon(Icons.camera_alt, color: Colors.black, size: 32.sp),
                   ),
                 ),
-
-                SizedBox(height: 32.h),
               ],
             ),
             if (widget.isPreview)

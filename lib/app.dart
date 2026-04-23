@@ -126,16 +126,8 @@ class _DismissLoader extends StatelessWidget {
           );
         }
 
-        if (missions.length == 1) {
-          return buildDismissScreen(
-            config: missions.first,
-            alarmId: alarmId,
-            nativeAlarmId: nativeAlarmId,
-            alarmLabel: label,
-          );
-        }
-
-        // Multiple missions → sequence screen
+        // Always route through MissionSequenceScreen so the start screen is
+        // shown even for single-mission alarms.
         return MissionSequenceScreen(
           missions: missions,
           alarmId: alarmId,
