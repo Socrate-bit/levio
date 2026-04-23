@@ -50,9 +50,9 @@ class AlarmService {
           final originalId = (event['originalId'] as String?) ?? burstId;
           if (originalId == null) return;
 
-          // If the relative safety-net just rang with no .fixed bursts behind
-          // it (user ignored last week's cascade), plan bursts now so the user
-          // still gets the full 6-min pressure. No-op in every other case.
+          // If the master just rang with an under-filled burst queue (user
+          // ignored last week's cascade), top up to 20 now so the user still
+          // gets the full cascade pressure. No-op when the queue is full.
           AlarmChannel.primeCascadeIfNeeded(originalId).ignore();
 
           final firestoreEntry = await AlarmFirestoreService.getAlarm(originalId);

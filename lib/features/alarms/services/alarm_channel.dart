@@ -22,8 +22,8 @@ class AlarmChannel {
     return await _method.invokeMethod<bool>('requestAuthorization') ?? false;
   }
 
-  /// Schedules a one-shot **cascade** — 24 native alarms, 15s apart, all
-  /// sharing the returned `originalAlarmId`.
+  /// Schedules a one-shot cascade: 1 master (.fixed) + 20 .fixed bursts, 20s
+  /// apart, all sharing the returned `originalAlarmId`.
   static Future<String> scheduleOneShot({
     required int timestampMs,
     required String title,
@@ -41,9 +41,9 @@ class AlarmChannel {
     return id!;
   }
 
-  /// Schedules a repeating **cascade** — 24 native alarms, 15s apart, starting
-  /// at the next matching weekday at hour:minute. `weekdayMask` uses bit 0 =
-  /// Monday … bit 6 = Sunday.
+  /// Schedules a recurrent cascade: 1 master (.relative weekly) + 20 .fixed
+  /// bursts, 20s apart, starting at the next matching weekday at hour:minute.
+  /// `weekdayMask` uses bit 0 = Monday … bit 6 = Sunday.
   static Future<String> scheduleRepeating({
     required int weekdayMask,
     required int hour,
@@ -65,8 +65,9 @@ class AlarmChannel {
     return id!;
   }
 
-  /// Cancels every remaining burst of the cascade (including any alerting one)
-  /// and clears the saved config. Use on alarm delete or disable.
+  /// Full cancel: master + every burst + saved config. Use on alarm delete or
+  /// disable. For mission completion, prefer [cancelBurstsKeepMaster] so the
+  /// weekly master stays armed for next week.
   static Future<void> cancel(String id) async {
     try {
       await _method.invokeMethod('cancel', {'id': id});
@@ -76,9 +77,8 @@ class AlarmChannel {
     }
   }
 
-  /// Cancels a single burst within a cascade. Used by the in-app suppression
-  /// timer to silence the next upcoming (or currently alerting) burst while
-  /// the user is on the mission screen.
+  /// Cancels a single burst. Used by the suppression timer. Never cancels
+  /// the master.
   static Future<void> cancelBurst({
     required String originalId,
     required String burstId,
@@ -93,21 +93,43 @@ class AlarmChannel {
     }
   }
 
-  /// For recurrent alarms: cancels any remaining bursts and schedules a fresh
-  /// 24-burst cascade for the next matching weekday **strictly after today**.
-  /// No-op for one-shot alarms.
-  static Future<void> rescheduleForNextWeek(String originalId) async {
+  /// Mission success: silences the currently-alerting master (preserves the
+  /// weekly schedule for .relative, deletes the .fixed one-shot), cancels
+  /// every remaining burst. Master stays alive for recurrent alarms — follow
+  /// up with [rescheduleForNextFire] to queue the next 20 bursts.
+  static Future<void> cancelBurstsKeepMaster(String originalId) async {
     try {
-      await _method.invokeMethod('rescheduleForNextWeek', {'id': originalId});
+      await _method.invokeMethod('cancelBurstsKeepMaster', {'id': originalId});
     } on PlatformException catch (e) {
-      debugPrint('[AlarmChannel] rescheduleForNextWeek($originalId) failed: ${e.message}');
+      debugPrint('[AlarmChannel] cancelBurstsKeepMaster($originalId) failed: ${e.message}');
     }
   }
 
-  /// For recurrent alarms: if the `.relative(weekly)` safety-net burst is the
-  /// only thing left alive (all 23 `.fixed` bursts have fired/expired), schedule
-  /// a fresh set of `.fixed` bursts for the next matching weekday. Preserves
-  /// the originalId and the live `.relative` burst. No-op otherwise.
+  /// Silences only the master if it's currently alerting. Used on mission
+  /// mount to stop the master ring without touching the queued bursts.
+  static Future<void> dismissMasterRingIfAlerting(String originalId) async {
+    try {
+      await _method.invokeMethod('dismissMasterRingIfAlerting', {'id': originalId});
+    } on PlatformException catch (e) {
+      debugPrint('[AlarmChannel] dismissMasterRingIfAlerting($originalId) failed: ${e.message}');
+    }
+  }
+
+  /// For recurrent alarms: schedules a fresh set of 20 bursts for the next
+  /// matching weekday strictly after today. For one-shot alarms: purges the
+  /// saved config. Call after [cancelBurstsKeepMaster].
+  static Future<void> rescheduleForNextFire(String originalId) async {
+    try {
+      await _method.invokeMethod('rescheduleForNextFire', {'id': originalId});
+    } on PlatformException catch (e) {
+      debugPrint('[AlarmChannel] rescheduleForNextFire($originalId) failed: ${e.message}');
+    }
+  }
+
+  /// Tops up the burst queue to 20 when the cascade is under-filled. Invoked
+  /// on app open over a ringing alarm, on sync, and on ring events — no-op
+  /// if the queue is already full. Lock-guarded natively against overlapping
+  /// invocations for the same originalId.
   static Future<void> primeCascadeIfNeeded(String originalId) async {
     try {
       await _method.invokeMethod('primeCascadeIfNeeded', {'id': originalId});
@@ -116,8 +138,8 @@ class AlarmChannel {
     }
   }
 
-  /// Returns the next burst to act on for this cascade — either the currently
-  /// alerting burst, or the soonest-future scheduled one. Null if none.
+  /// Returns the next burst — alerting wins, else soonest-future scheduled.
+  /// Never returns the master. Null if no bursts remain.
   static Future<NextBurst?> getNextBurst(String originalId) async {
     final raw = await _method.invokeMapMethod<String, dynamic>('getNextBurst', {
       'id': originalId,
@@ -131,6 +153,20 @@ class AlarmChannel {
         ? tsRaw.toInt()
         : (tsRaw is int ? tsRaw : 0);
     return NextBurst(burstId: burstId, timestampMs: ts, isAlerting: isAlerting);
+  }
+
+  /// Returns the IDs of every burst firing within `windowMs` (including
+  /// currently-alerting bursts). Used by suppression to cancel all bursts in
+  /// a 10s window in one pass.
+  static Future<List<String>> getBurstsInWindow(
+    String originalId, {
+    int windowMs = 10000,
+  }) async {
+    final raw = await _method.invokeListMethod<String>('getBurstsInWindow', {
+      'id': originalId,
+      'windowMs': windowMs,
+    });
+    return raw ?? [];
   }
 
   /// Removes the saved config for a cascade (and any leftover bursts).
@@ -152,7 +188,8 @@ class AlarmChannel {
         .toList();
   }
 
-  /// Returns the `originalId` of any cascade whose burst is currently alerting.
+  /// Returns the `originalId` of any cascade whose burst OR master is
+  /// currently alerting.
   static Future<String?> getRingingId() async {
     return _method.invokeMethod<String?>('getRingingId');
   }
