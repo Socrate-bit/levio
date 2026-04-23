@@ -106,19 +106,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get daySaturdayFull => 'Saturday';
 
   @override
-  String get daySingleS => 'S';
+  String get daySingleSun => 'S';
 
   @override
-  String get daySingleM => 'M';
+  String get daySingleMon => 'M';
 
   @override
-  String get daySingleT => 'T';
+  String get daySingleTue => 'T';
 
   @override
-  String get daySingleW => 'W';
+  String get daySingleWed => 'W';
 
   @override
-  String get daySingleF => 'F';
+  String get daySingleThu => 'T';
+
+  @override
+  String get daySingleFri => 'F';
+
+  @override
+  String get daySingleSat => 'S';
 
   @override
   String get alarmFormSetTime => 'Set Time';
@@ -794,6 +800,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDeleteAllAlarms => 'Delete All Alarms';
+
+  @override
+  String get settingsForceQuickAlarm => 'Force 5s alarm on add';
 
   @override
   String get settingsLogout => 'Log out';

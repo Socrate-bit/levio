@@ -30,10 +30,11 @@ class MissionStartScreen extends StatelessWidget {
         child: Column(
           children: [
             const Spacer(),
-            Text('\u{1f31e}', style: TextStyle(fontSize: 80.sp)),
+            Image.asset('assets/icon.png', width: 130.w, height: 130.h),
             SizedBox(height: 24.h),
             Text(
               l10n.dismissMissionTimeToWakeUp,
+              maxLines: 2,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 28.sp,

@@ -284,35 +284,47 @@ abstract class AppLocalizations {
   /// **'Saturday'**
   String get daySaturdayFull;
 
-  /// No description provided for @daySingleS.
+  /// No description provided for @daySingleSun.
   ///
   /// In en, this message translates to:
   /// **'S'**
-  String get daySingleS;
+  String get daySingleSun;
 
-  /// No description provided for @daySingleM.
+  /// No description provided for @daySingleMon.
   ///
   /// In en, this message translates to:
   /// **'M'**
-  String get daySingleM;
+  String get daySingleMon;
 
-  /// No description provided for @daySingleT.
+  /// No description provided for @daySingleTue.
   ///
   /// In en, this message translates to:
   /// **'T'**
-  String get daySingleT;
+  String get daySingleTue;
 
-  /// No description provided for @daySingleW.
+  /// No description provided for @daySingleWed.
   ///
   /// In en, this message translates to:
   /// **'W'**
-  String get daySingleW;
+  String get daySingleWed;
 
-  /// No description provided for @daySingleF.
+  /// No description provided for @daySingleThu.
+  ///
+  /// In en, this message translates to:
+  /// **'T'**
+  String get daySingleThu;
+
+  /// No description provided for @daySingleFri.
   ///
   /// In en, this message translates to:
   /// **'F'**
-  String get daySingleF;
+  String get daySingleFri;
+
+  /// No description provided for @daySingleSat.
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get daySingleSat;
 
   /// No description provided for @alarmFormSetTime.
   ///
@@ -1627,6 +1639,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete All Alarms'**
   String get settingsDeleteAllAlarms;
+
+  /// No description provided for @settingsForceQuickAlarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Force 5s alarm on add'**
+  String get settingsForceQuickAlarm;
 
   /// No description provided for @settingsLogout.
   ///

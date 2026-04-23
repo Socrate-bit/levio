@@ -263,13 +263,13 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     final dayLabels = [
-      l10n.daySingleS,
-      l10n.daySingleM,
-      l10n.daySingleT,
-      l10n.daySingleW,
-      l10n.daySingleT,
-      l10n.daySingleF,
-      l10n.daySingleS,
+      l10n.daySingleSun,
+      l10n.daySingleMon,
+      l10n.daySingleTue,
+      l10n.daySingleWed,
+      l10n.daySingleThu,
+      l10n.daySingleFri,
+      l10n.daySingleSat,
     ];
     return Scaffold(
       backgroundColor: c.background,

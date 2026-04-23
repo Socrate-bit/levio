@@ -59,10 +59,23 @@ class HomeCubit extends Cubit<HomeState> {
     final startOfWeek = _startOfWeek(now);
     final todayIndex = now.weekday % 7; // 0=Sun
 
-    // Determine the first day index this week that counts (after first alarm creation)
+    // Determine the first day index this week that counts — the earliest of
+    // the first alarm created or the first session recorded.
+    // Sessions are ordered newest-first, so the last entry is the oldest.
+    final firstSessionDate =
+        _allSessions.isEmpty ? null : _allSessions.last.timestamp;
+    DateTime? firstActivityDate;
+    if (firstAlarmDate != null && firstSessionDate != null) {
+      firstActivityDate = firstAlarmDate.isBefore(firstSessionDate)
+          ? firstAlarmDate
+          : firstSessionDate;
+    } else {
+      firstActivityDate = firstAlarmDate ?? firstSessionDate;
+    }
+
     int firstCountableIndex = 0;
-    if (firstAlarmDate != null && firstAlarmDate.isAfter(startOfWeek)) {
-      firstCountableIndex = firstAlarmDate.weekday % 7;
+    if (firstActivityDate != null && firstActivityDate.isAfter(startOfWeek)) {
+      firstCountableIndex = firstActivityDate.weekday % 7;
     }
 
     final weekDays = List<DayStatus>.filled(7, DayStatus.none);
@@ -72,18 +85,25 @@ class HomeCubit extends Cubit<HomeState> {
       }
     }
 
-    // Count missed past days this week (exclude today and days before first alarm)
-    final yesterdayIndex = todayIndex > 0 ? todayIndex - 1 : -1;
-    int missedCount = 0;
-    for (int i = firstCountableIndex; i <= yesterdayIndex; i++) {
-      if (weekDays[i] == DayStatus.none) missedCount++;
-    }
-
-    // If ≤2 misses, mark them as frozen (streak held)
-    if (missedCount <= 2) {
-      for (int i = firstCountableIndex; i <= yesterdayIndex; i++) {
-        if (weekDays[i] == DayStatus.none) weekDays[i] = DayStatus.frozen;
+    // Freeze rules: a gap of missed days between two done days is frozen only
+    // if the gap is ≤2 and the week's freeze budget (max 2) still fits it.
+    // Misses before the first done day or after the last done day are never
+    // frozen — those break the streak. Today is included so a session
+    // completed today can close a gap behind it.
+    int freezesUsed = 0;
+    int prevDoneIndex = -1;
+    for (int i = firstCountableIndex; i <= todayIndex; i++) {
+      if (weekDays[i] != DayStatus.done) continue;
+      if (prevDoneIndex != -1) {
+        final gap = i - prevDoneIndex - 1;
+        if (gap > 0 && gap <= 2 && freezesUsed + gap <= 2) {
+          for (int j = prevDoneIndex + 1; j < i; j++) {
+            weekDays[j] = DayStatus.frozen;
+          }
+          freezesUsed += gap;
+        }
       }
+      prevDoneIndex = i;
     }
 
     if (isClosed) return;

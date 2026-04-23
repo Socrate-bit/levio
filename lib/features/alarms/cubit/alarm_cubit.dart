@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../subscription/services/analytics_service.dart';
 import '../../missions/models/mission.dart';
+import '../../settings/cubit/settings_cubit.dart';
 import '../../wakeup/services/history_service.dart';
 import '../data/sounds.dart';
 import '../services/alarm_channel.dart';
@@ -358,10 +360,14 @@ class AlarmCubit extends Cubit<AlarmState> {
   }
 
   Future<void> addAlarm(AppAlarmEntry entry) async {
+    final prefs = await SharedPreferences.getInstance();
+    final forceQuick = prefs.getBool(SettingsCubit.forceQuickAlarmKey) ?? false;
     final toSchedule = entry.copyWith(
-      dateTime: false
-          ? DateTime.now().add(const Duration(seconds: 10))
-          : _nextFutureDay(entry.dateTime),
+      dateTime: forceQuick
+          ? DateTime.now().add(const Duration(seconds: 5))
+          : kDebugMode
+              ? DateTime.now().add(const Duration(seconds: 10))
+              : _nextFutureDay(entry.dateTime),
     );
 
     final id = await _scheduleNative(toSchedule);

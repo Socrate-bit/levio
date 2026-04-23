@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
@@ -55,6 +55,8 @@ class SquatCubit extends Cubit<PushUpState> {
         imageFormatGroup: ImageFormatGroup.bgra8888,
       );
       await _camera!.initialize();
+      // Lock the camera preview so it doesn't rotate when the device tilts.
+      await _camera!.lockCaptureOrientation(DeviceOrientation.portraitUp);
 
       _phase = _Phase.no;
       _repCount = 0;

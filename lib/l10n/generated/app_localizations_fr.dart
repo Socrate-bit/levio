@@ -107,19 +107,25 @@ class AppLocalizationsFr extends AppLocalizations {
   String get daySaturdayFull => 'Samedi';
 
   @override
-  String get daySingleS => 'D';
+  String get daySingleSun => 'D';
 
   @override
-  String get daySingleM => 'L';
+  String get daySingleMon => 'L';
 
   @override
-  String get daySingleT => 'M';
+  String get daySingleTue => 'M';
 
   @override
-  String get daySingleW => 'M';
+  String get daySingleWed => 'M';
 
   @override
-  String get daySingleF => 'V';
+  String get daySingleThu => 'J';
+
+  @override
+  String get daySingleFri => 'V';
+
+  @override
+  String get daySingleSat => 'S';
 
   @override
   String get alarmFormSetTime => 'Régler l\'heure';
@@ -800,6 +806,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsDeleteAllAlarms => 'Supprimer toutes les alarmes';
+
+  @override
+  String get settingsForceQuickAlarm => 'Forcer alarme 5s à l\'ajout';
 
   @override
   String get settingsLogout => 'Se déconnecter';

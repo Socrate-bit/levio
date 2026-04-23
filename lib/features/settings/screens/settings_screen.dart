@@ -348,43 +348,68 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
               ]),
               SizedBox(height: 16.h),
-              if (kDebugMode) ...[
-                SizedBox(height: 16.h),
-                _SectionTitle(title: l10n.settingsAdmin),
-                _SettingsCard(children: [
-                  _ActionRow(
-                    icon: Icons.bug_report_outlined,
-                    label: l10n.settingsPrintAllAlarms,
-                    color: AppColors.orange,
-                    onTap: () =>
-                        context.read<AlarmCubit>().printActiveAlarms(),
-                  ),
-                  const _Divider(),
-                  _ActionRow(
-                    icon: Icons.list_alt_outlined,
-                    label: l10n.settingsPrintRawAlarms,
-                    color: AppColors.orange,
-                    onTap: () =>
-                        context.read<AlarmCubit>().printRawAlarms(),
-                  ),
-                  const _Divider(),
-                  _ActionRow(
-                    icon: Icons.storage_outlined,
-                    label: l10n.settingsPrintSharedPreferences,
-                    color: AppColors.orange,
-                    onTap: () =>
-                        context.read<SettingsCubit>().printSharedPrefs(),
-                  ),
-                  const _Divider(),
-                  _ActionRow(
-                    icon: Icons.delete_sweep_outlined,
-                    label: l10n.settingsDeleteAllAlarms,
-                    color: Colors.red,
-                    onTap: () => _deleteAllAlarms(context),
-                  ),
-                ]),
-                SizedBox(height: 16.h),
-              ],
+              BlocBuilder<SubscriptionCubit, SubscriptionState>(
+                buildWhen: (prev, next) => prev.userType != next.userType,
+                builder: (context, subState) {
+                  final showAdmin =
+                      subState.userType == UserType.admin;
+                  if (!showAdmin) return const SizedBox.shrink();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 16.h),
+                      _SectionTitle(title: l10n.settingsAdmin),
+                      BlocBuilder<SettingsCubit, SettingsState>(
+                        builder: (context, settings) =>
+                            _SettingsCard(children: [
+                          _ToggleRow(
+                            icon: Icons.bolt_outlined,
+                            label: l10n.settingsForceQuickAlarm,
+                            value: settings.forceQuickAlarm,
+                            onChanged: (_) => context
+                                .read<SettingsCubit>()
+                                .toggleForceQuickAlarm(),
+                          ),
+                        ]),
+                      ),
+                      SizedBox(height: 12.h),
+                      _SettingsCard(children: [
+                        _ActionRow(
+                          icon: Icons.bug_report_outlined,
+                          label: l10n.settingsPrintAllAlarms,
+                          color: AppColors.orange,
+                          onTap: () =>
+                              context.read<AlarmCubit>().printActiveAlarms(),
+                        ),
+                        const _Divider(),
+                        _ActionRow(
+                          icon: Icons.list_alt_outlined,
+                          label: l10n.settingsPrintRawAlarms,
+                          color: AppColors.orange,
+                          onTap: () =>
+                              context.read<AlarmCubit>().printRawAlarms(),
+                        ),
+                        const _Divider(),
+                        _ActionRow(
+                          icon: Icons.storage_outlined,
+                          label: l10n.settingsPrintSharedPreferences,
+                          color: AppColors.orange,
+                          onTap: () =>
+                              context.read<SettingsCubit>().printSharedPrefs(),
+                        ),
+                        const _Divider(),
+                        _ActionRow(
+                          icon: Icons.delete_sweep_outlined,
+                          label: l10n.settingsDeleteAllAlarms,
+                          color: Colors.red,
+                          onTap: () => _deleteAllAlarms(context),
+                        ),
+                      ]),
+                      SizedBox(height: 16.h),
+                    ],
+                  );
+                },
+              ),
               Center(
                 child: Text(
                   l10n.settingsVersion,

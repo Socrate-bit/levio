@@ -16,6 +16,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   static const _defaultSoundIdKey = 'default_sound_id';
   static const _defaultSoundNameKey = 'default_sound_name';
   static const _defaultMissionKey = 'default_mission';
+  static const forceQuickAlarmKey = 'force_quick_alarm';
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -26,6 +27,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     final missionStr = prefs.getString(_defaultMissionKey);
     final mission =
         missionStr != null ? missionTypeFromString(missionStr) : MissionType.none;
+    final forceQuickAlarm = prefs.getBool(forceQuickAlarmKey) ?? false;
 
     emit(SettingsState(
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
@@ -33,6 +35,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       defaultSoundId: soundId,
       defaultSoundName: soundName,
       defaultMission: mission,
+      forceQuickAlarm: forceQuickAlarm,
     ));
   }
 
@@ -68,6 +71,13 @@ class SettingsCubit extends Cubit<SettingsState> {
     await prefs.setString(_defaultMissionKey, type.name);
   }
 
+  Future<void> toggleForceQuickAlarm() async {
+    final next = !state.forceQuickAlarm;
+    emit(state.copyWith(forceQuickAlarm: next));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(forceQuickAlarmKey, next);
+  }
+
   /// Debug: dumps every SharedPreferences key/value.
   Future<void> printSharedPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -91,6 +101,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       prefs.remove(_defaultSoundIdKey),
       prefs.remove(_defaultSoundNameKey),
       prefs.remove(_defaultMissionKey),
+      prefs.remove(forceQuickAlarmKey),
     ]);
     emit(const SettingsState());
   }
