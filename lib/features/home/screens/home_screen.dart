@@ -67,13 +67,24 @@ class _HomeView extends StatelessWidget {
                           SizedBox(height: 24.h),
                           BlocBuilder<AlarmCubit, AlarmState>(
                             builder: (context, alarmState) {
-                              final alarms = [...alarmState.alarms]
-                                ..sort(
-                                  (a, b) => a.dateTime.compareTo(b.dateTime),
-                                );
-                              final next = alarms
+                              final now = DateTime.now();
+                              // Pick the enabled alarm whose next real fire
+                              // time is the earliest in the future, respecting
+                              // repeatDays / isOneTime.
+                              final upcoming = alarmState.alarms
                                   .where((a) => a.isEnabled)
-                                  .firstOrNull;
+                                  .map((a) => (
+                                        alarm: a,
+                                        fireAt: a.nextFireAt(now),
+                                      ))
+                                  .where((e) => e.fireAt != null)
+                                  .toList()
+                                ..sort(
+                                  (a, b) => a.fireAt!.compareTo(b.fireAt!),
+                                );
+                              final next = upcoming.isNotEmpty
+                                  ? upcoming.first.alarm
+                                  : null;
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -530,7 +541,9 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     final l10n = AppLocalizations.of(context);
     final alarm = widget.alarm;
     final now = DateTime.now();
-    final diff = alarm.dateTime.difference(now);
+    // Respect repeatDays / isOneTime when computing the countdown.
+    final fireAt = alarm.nextFireAt(now) ?? alarm.dateTime;
+    final diff = fireAt.difference(now);
     final hoursLeft = diff.inHours;
     final minsLeft = diff.inMinutes % 60;
     final timeStr = _formatTime(alarm.dateTime);

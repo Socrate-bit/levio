@@ -32,6 +32,7 @@ class _SignInStepState extends State<SignInStep> {
   bool _loading = false;
 
   Future<void> _showAuthDialog(String message) {
+    final l10n = AppLocalizations.of(context);
     return showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -39,7 +40,7 @@ class _SignInStepState extends State<SignInStep> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('OK'),
+            child: Text(l10n.generalOk),
           ),
         ],
       ),

@@ -64,8 +64,9 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
     final item = await addCustomSound(file.path!, file.name);
     if (item == null) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File too large (max 10 MB)')),
+          SnackBar(content: Text(l10n.soundPickerFileTooLarge)),
         );
       }
       return;
@@ -76,19 +77,23 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
 
   /// Delete a custom sound after user confirmation.
   Future<void> _confirmDelete(CustomSoundItem item) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Sound'),
-        content: Text('Remove "${item.name}"?'),
+        title: Text(l10n.soundPickerDeleteTitle),
+        content: Text(l10n.soundPickerDeleteContent(item.name)),
         actions: [
           TextButton(
             onPressed: withHaptic(() => Navigator.pop(ctx, false)),
-            child: const Text('Cancel'),
+            child: Text(l10n.generalCancel),
           ),
           TextButton(
             onPressed: withHaptic(() => Navigator.pop(ctx, true)),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(
+              l10n.generalDelete,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),

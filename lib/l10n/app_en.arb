@@ -752,5 +752,44 @@
   "generalSubmit": "Submit",
   "generalContinue": "Continue",
   "generalNone": "None",
-  "generalDefault": "Default"
+  "generalDefault": "Default",
+  "generalDelete": "Delete",
+
+  "onboardingUsualWakeTimeTitle": "What time do you usually get out of bed?",
+  "onboardingUsualWakeTimeSubtitle": "This helps us set a realistic first target.",
+  "onboardingIdealWakeTimeTitle": "What time do you want to\nbe up?",
+  "onboardingIdealWakeTimeSubtitle": "Your ideal daily wake up time.",
+  "onboardingTargetWakeTime": "Waking up at {time} is your target.",
+  "@onboardingTargetWakeTime": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "onboardingDeltaPerMorning": "+{delta} minutes every morning",
+  "@onboardingDeltaPerMorning": {
+    "placeholders": {
+      "delta": { "type": "int" }
+    }
+  },
+  "onboardingDeltaPerMonth": "+{hours} hours this month",
+  "@onboardingDeltaPerMonth": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "onboardingQuoteWinMorning": "If you win\nthe morning,\nyou win the day.",
+  "onboardingQuoteWinMorningAuthor": "— Tim Ferriss",
+  "onboardingSignInCreateTitle": "Create your account",
+  "onboardingSignInCreateSubtitle": "Save your progress and sync your plan.",
+  "onboardingSignInTitle": "Welcome back",
+  "onboardingSignInSubtitle": "Sign in to restore your plan.",
+
+  "soundPickerFileTooLarge": "File too large (max 10 MB)",
+  "soundPickerDeleteTitle": "Delete Sound",
+  "soundPickerDeleteContent": "Remove \"{name}\"?",
+  "@soundPickerDeleteContent": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  }
 }

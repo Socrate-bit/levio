@@ -3679,6 +3679,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default'**
   String get generalDefault;
+
+  /// No description provided for @generalDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get generalDelete;
+
+  /// No description provided for @onboardingUsualWakeTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What time do you usually get out of bed?'**
+  String get onboardingUsualWakeTimeTitle;
+
+  /// No description provided for @onboardingUsualWakeTimeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This helps us set a realistic first target.'**
+  String get onboardingUsualWakeTimeSubtitle;
+
+  /// No description provided for @onboardingIdealWakeTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What time do you want to\nbe up?'**
+  String get onboardingIdealWakeTimeTitle;
+
+  /// No description provided for @onboardingIdealWakeTimeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ideal daily wake up time.'**
+  String get onboardingIdealWakeTimeSubtitle;
+
+  /// No description provided for @onboardingTargetWakeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Waking up at {time} is your target.'**
+  String onboardingTargetWakeTime(String time);
+
+  /// No description provided for @onboardingDeltaPerMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'+{delta} minutes every morning'**
+  String onboardingDeltaPerMorning(int delta);
+
+  /// No description provided for @onboardingDeltaPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'+{hours} hours this month'**
+  String onboardingDeltaPerMonth(int hours);
+
+  /// No description provided for @onboardingQuoteWinMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'If you win\nthe morning,\nyou win the day.'**
+  String get onboardingQuoteWinMorning;
+
+  /// No description provided for @onboardingQuoteWinMorningAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'— Tim Ferriss'**
+  String get onboardingQuoteWinMorningAuthor;
+
+  /// No description provided for @onboardingSignInCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get onboardingSignInCreateTitle;
+
+  /// No description provided for @onboardingSignInCreateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your progress and sync your plan.'**
+  String get onboardingSignInCreateSubtitle;
+
+  /// No description provided for @onboardingSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get onboardingSignInTitle;
+
+  /// No description provided for @onboardingSignInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to restore your plan.'**
+  String get onboardingSignInSubtitle;
+
+  /// No description provided for @soundPickerFileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'File too large (max 10 MB)'**
+  String get soundPickerFileTooLarge;
+
+  /// No description provided for @soundPickerDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Sound'**
+  String get soundPickerDeleteTitle;
+
+  /// No description provided for @soundPickerDeleteContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\"?'**
+  String soundPickerDeleteContent(String name);
 }
 
 class _AppLocalizationsDelegate

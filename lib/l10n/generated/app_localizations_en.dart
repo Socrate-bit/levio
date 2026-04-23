@@ -1915,4 +1915,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get generalDefault => 'Default';
+
+  @override
+  String get generalDelete => 'Delete';
+
+  @override
+  String get onboardingUsualWakeTimeTitle =>
+      'What time do you usually get out of bed?';
+
+  @override
+  String get onboardingUsualWakeTimeSubtitle =>
+      'This helps us set a realistic first target.';
+
+  @override
+  String get onboardingIdealWakeTimeTitle => 'What time do you want to\nbe up?';
+
+  @override
+  String get onboardingIdealWakeTimeSubtitle =>
+      'Your ideal daily wake up time.';
+
+  @override
+  String onboardingTargetWakeTime(String time) {
+    return 'Waking up at $time is your target.';
+  }
+
+  @override
+  String onboardingDeltaPerMorning(int delta) {
+    return '+$delta minutes every morning';
+  }
+
+  @override
+  String onboardingDeltaPerMonth(int hours) {
+    return '+$hours hours this month';
+  }
+
+  @override
+  String get onboardingQuoteWinMorning =>
+      'If you win\nthe morning,\nyou win the day.';
+
+  @override
+  String get onboardingQuoteWinMorningAuthor => '— Tim Ferriss';
+
+  @override
+  String get onboardingSignInCreateTitle => 'Create your account';
+
+  @override
+  String get onboardingSignInCreateSubtitle =>
+      'Save your progress and sync your plan.';
+
+  @override
+  String get onboardingSignInTitle => 'Welcome back';
+
+  @override
+  String get onboardingSignInSubtitle => 'Sign in to restore your plan.';
+
+  @override
+  String get soundPickerFileTooLarge => 'File too large (max 10 MB)';
+
+  @override
+  String get soundPickerDeleteTitle => 'Delete Sound';
+
+  @override
+  String soundPickerDeleteContent(String name) {
+    return 'Remove \"$name\"?';
+  }
 }

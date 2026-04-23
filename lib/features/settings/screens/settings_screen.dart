@@ -15,7 +15,7 @@ import '../../alarms/screens/sound_picker_screen.dart';
 import '../../alarms/services/alarm_channel.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
 import '../../subscription/cubit/subscription_state.dart';
-import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
@@ -293,14 +293,16 @@ class _SettingsScreenState extends State<SettingsScreen>
                     label: l10n.settingsDefaultMission,
                     value: localizedMissionName(l10n, settings.defaultMission),
                     onTap: () async {
-                      final picked = await Navigator.push<MissionType>(
+                      final picked = await Navigator.push<MissionConfig>(
                         context,
                         MaterialPageRoute(
                           builder: (_) => const MissionPickerScreen(),
                         ),
                       );
                       if (picked != null && context.mounted) {
-                        context.read<SettingsCubit>().setDefaultMission(picked);
+                        context
+                            .read<SettingsCubit>()
+                            .setDefaultMission(picked.type);
                       }
                     },
                   ),
