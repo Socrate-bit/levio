@@ -147,6 +147,7 @@ questions:
 questions:
   - question: "Some checks failed ({Z} failures). What now?"
     options:
+      - "Check if each failures are real"
       - "Show full details"
       - "Push anyway (override)"
       - "Cancel"
