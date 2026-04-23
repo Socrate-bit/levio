@@ -150,9 +150,9 @@ class AlarmCubit extends Cubit<AlarmState> {
 
       try {
         // Purge any stale native config under the old id. This is the common
-        // case for recurrent alarms whose user slept through the full 6-min
-        // cascade: the burst UUIDs are gone but `levio_config_` and
-        // `levio_cascade_meta_` still linger in UserDefaults under `alarm.id`.
+        // case for recurrent alarms whose user slept through the full cascade:
+        // the burst UUIDs are gone but `levio_config_` still lingers in
+        // UserDefaults under `alarm.id`.
         try {
           await AlarmChannel.cleanupConfig(alarm.id);
         } catch (_) {}

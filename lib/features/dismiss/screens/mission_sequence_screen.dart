@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
+import '../../alarms/services/alarm_channel.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
@@ -12,7 +13,7 @@ import 'mission_start_screen.dart';
 /// Owns the [AlarmCascadeController] for the whole sequence. The controller
 /// is started the moment the user taps "Start" on the current mission-start
 /// screen and is finished when the final mission completes. If the user goes
-/// inactive for 60s on any in-progress mission, we pop back to the mission
+/// inactive for 20s on any in-progress mission, we pop back to the mission
 /// start screen and pause the suppression timer so bursts resume ringing.
 class MissionSequenceScreen extends StatefulWidget {
   final List<MissionConfig> missions;
@@ -48,6 +49,9 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
       alarmId: widget.alarmId,
       onInactivityTimeout: _onInactivityTimeout,
     );
+    // Top up the burst queue — if the user skipped prior cascades, only the
+    // master may be live when the app opens. No-op when the queue is full.
+    AlarmChannel.primeCascadeIfNeeded(widget.alarmId).ignore();
   }
 
   /// Resolves a random mission config to a concrete mission type.
@@ -101,7 +105,7 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
     }
   }
 
-  /// Fired by the cascade controller when the user has gone idle for 60s on
+  /// Fired by the cascade controller when the user has gone idle for 20s on
   /// an in-progress mission. Pops the mission screen, returns to the start
   /// screen for the CURRENT mission (same index — no previously-completed
   /// mission is redone), and lets bursts resume ringing until the user taps
