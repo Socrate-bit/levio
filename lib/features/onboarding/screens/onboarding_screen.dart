@@ -97,7 +97,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _back() {
-    if (_currentPage > 0 && _currentPage != 31) _goToPage(_currentPage - 1);
+    if (_currentPage > 0 && _currentPage != 31 && _currentPage != 32) {
+      _goToPage(_currentPage - 1);
+    }
   }
 
   String _formatTime(TimeOfDay t) =>
@@ -197,14 +199,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // PageView height stable; invisible on welcome & last page.
                   Opacity(
                     opacity:
-                        (_currentPage > 0 && _currentPage < _totalPages - 1)
-                        ? 1.0
-                        : 0.0,
+                        (_currentPage > 0 &&
+                                _currentPage < _totalPages - 1 &&
+                                _currentPage != 32)
+                            ? 1.0
+                            : 0.0,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
                       child: Row(
                         children: [
-                          if (_currentPage > 0 && _currentPage != 31)
+                          if (_currentPage > 0 &&
+                              _currentPage != 31 &&
+                              _currentPage != 32)
                             GestureDetector(
                               onTap: withHaptic(_back),
                               child: Container(
@@ -425,17 +431,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                               // 15: Time picker - usual wake time
                               TimePickerStep(
-                                title:
-                                    'What time do you usually get out of bed?',
-                                subtitle:
-                                    'This helps us set a realistic first target.',
+                                title: l10n.onboardingUsualWakeTimeTitle,
+                                subtitle: l10n.onboardingUsualWakeTimeSubtitle,
                                 time: state.usualWakeTime,
                                 onTimeChanged: cubit.setUsualWakeTime,
                               ),
                               // 16: Time picker - ideal wake time
                               TimePickerStep(
-                                title: 'What time do you want to\nbe up?',
-                                subtitle: 'Your ideal daily wake up time.',
+                                title: l10n.onboardingIdealWakeTimeTitle,
+                                subtitle: l10n.onboardingIdealWakeTimeSubtitle,
                                 time: state.idealWakeTime,
                                 onTimeChanged: cubit.setIdealWakeTime,
                               ),
@@ -451,7 +455,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     imagePlaceholder: Column(
                                       children: [
                                         Text(
-                                          'Waking up at ${_formatTime(target)} is your target.',
+                                          l10n.onboardingTargetWakeTime(
+                                            _formatTime(target),
+                                          ),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 28.sp,
@@ -463,7 +469,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                         if (delta > 0) ...[
                                           SizedBox(height: 16.h),
                                           Text(
-                                            '+$delta minutes every morning',
+                                            l10n.onboardingDeltaPerMorning(delta),
                                             style: TextStyle(
                                               fontSize: 18.sp,
                                               fontWeight: FontWeight.bold,
@@ -472,7 +478,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           ),
                                           SizedBox(height: 8.h),
                                           Text(
-                                            '+$monthHours hours this month',
+                                            l10n.onboardingDeltaPerMonth(monthHours),
                                             style: TextStyle(
                                               fontSize: 16.sp,
                                               color: c.textSecondary,
@@ -500,7 +506,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     ),
                                     SizedBox(height: 16.h),
                                     Text(
-                                      'If you win\nthe morning,\nyou win the day.',
+                                      l10n.onboardingQuoteWinMorning,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 28.sp,
@@ -511,7 +517,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     ),
                                     SizedBox(height: 16.h),
                                     Text(
-                                      '— Tim Ferriss',
+                                      l10n.onboardingQuoteWinMorningAuthor,
                                       style: TextStyle(
                                         fontSize: 17.sp,
                                         color: c.textSecondary,
@@ -662,6 +668,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                               // 33: Sign in — saves alarm + refreshes user type
                               SignInStep(
+                                title: l10n.onboardingSignInCreateTitle,
+                                subtitle:
+                                    l10n.onboardingSignInCreateSubtitle,
                                 onSkip: () async {
                                   final alarmCubit = context.read<AlarmCubit>();
                                   final subCubit =
@@ -753,6 +762,7 @@ class _StandaloneSignInScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -783,8 +793,8 @@ class _StandaloneSignInScreen extends StatelessWidget {
             ),
             Expanded(
               child: SignInStep(
-                title: 'Welcome back',
-                subtitle: 'Sign in to restore your plan.',
+                title: l10n.onboardingSignInTitle,
+                subtitle: l10n.onboardingSignInSubtitle,
                 onSkip: () => Navigator.of(context).pop(),
                 // After sign-in, pop. AuthWrapper reactively routes to
                 // AppGateWrapper because isInProgress is still false.

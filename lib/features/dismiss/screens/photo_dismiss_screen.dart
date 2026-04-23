@@ -194,14 +194,18 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     super.dispose();
   }
 
+  // Localized label for the actual target — the specific picked item when
+  // present, otherwise the generic mission-type target.
+  String _targetLabel(AppLocalizations l10n) => _targetObject.isNotEmpty
+      ? localizedItemName(l10n, _targetObject)
+      : localizedPhotoTarget(l10n, widget.missionType);
+
   String? _resolveError(AppLocalizations l10n) {
     switch (_errorType) {
       case _PhotoError.none:
         return null;
       case _PhotoError.notDetected:
-        return l10n.dismissPhotoNotDetected(
-          localizedPhotoTarget(l10n, widget.missionType).toLowerCase(),
-        );
+        return l10n.dismissPhotoNotDetected(_targetLabel(l10n).toLowerCase());
       case _PhotoError.other:
         return _rawError != null ? l10n.dismissPhotoError(_rawError!) : null;
     }
@@ -212,7 +216,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final controller = _controller;
     final l10n = AppLocalizations.of(context);
     final info = missionInfoFor(widget.missionType);
-    final targetLabel = _targetObject.isNotEmpty ? localizedItemName(l10n, _targetObject) : localizedPhotoTarget(l10n, widget.missionType);
+    final targetLabel = _targetLabel(l10n);
     final errorMessage = _resolveError(l10n);
 
     return Scaffold(
@@ -250,7 +254,14 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                           ? Stack(
                               fit: StackFit.expand,
                               children: [
-                                CameraPreview(controller),
+                                // Preserve camera aspect ratio to avoid
+                                // stretching pixels to fit the container.
+                                Center(
+                                  child: AspectRatio(
+                                    aspectRatio: controller.value.aspectRatio,
+                                    child: CameraPreview(controller),
+                                  ),
+                                ),
 
                                 const DecoratedBox(
                                   decoration: BoxDecoration(
@@ -304,7 +315,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                           ),
                                           SizedBox(height: 16.h),
                                           Text(
-                                            l10n.dismissPhotoChecking(localizedPhotoTarget(l10n, widget.missionType).toLowerCase()),
+                                            l10n.dismissPhotoChecking(targetLabel.toLowerCase()),
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 14.sp,

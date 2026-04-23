@@ -1955,4 +1955,70 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get generalDefault => 'Par défaut';
+
+  @override
+  String get generalDelete => 'Supprimer';
+
+  @override
+  String get onboardingUsualWakeTimeTitle =>
+      'À quelle heure sortez-vous habituellement du lit ?';
+
+  @override
+  String get onboardingUsualWakeTimeSubtitle =>
+      'Cela nous aide à fixer un premier objectif réaliste.';
+
+  @override
+  String get onboardingIdealWakeTimeTitle =>
+      'À quelle heure\nvoulez-vous vous lever ?';
+
+  @override
+  String get onboardingIdealWakeTimeSubtitle =>
+      'Votre heure de réveil idéale quotidienne.';
+
+  @override
+  String onboardingTargetWakeTime(String time) {
+    return 'Se réveiller à $time est votre objectif.';
+  }
+
+  @override
+  String onboardingDeltaPerMorning(int delta) {
+    return '+$delta minutes chaque matin';
+  }
+
+  @override
+  String onboardingDeltaPerMonth(int hours) {
+    return '+$hours heures ce mois-ci';
+  }
+
+  @override
+  String get onboardingQuoteWinMorning =>
+      'Si tu gagnes\nle matin,\ntu gagnes la journée.';
+
+  @override
+  String get onboardingQuoteWinMorningAuthor => '— Tim Ferriss';
+
+  @override
+  String get onboardingSignInCreateTitle => 'Créez votre compte';
+
+  @override
+  String get onboardingSignInCreateSubtitle =>
+      'Sauvegardez votre progression et synchronisez votre plan.';
+
+  @override
+  String get onboardingSignInTitle => 'Ravis de vous revoir';
+
+  @override
+  String get onboardingSignInSubtitle =>
+      'Connectez-vous pour restaurer votre plan.';
+
+  @override
+  String get soundPickerFileTooLarge => 'Fichier trop volumineux (max 10 Mo)';
+
+  @override
+  String get soundPickerDeleteTitle => 'Supprimer le son';
+
+  @override
+  String soundPickerDeleteContent(String name) {
+    return 'Retirer « $name » ?';
+  }
 }

@@ -643,5 +643,24 @@
   "generalSubmit": "Soumettre",
   "generalContinue": "Continuer",
   "generalNone": "Aucun",
-  "generalDefault": "Par défaut"
+  "generalDefault": "Par défaut",
+  "generalDelete": "Supprimer",
+
+  "onboardingUsualWakeTimeTitle": "À quelle heure sortez-vous habituellement du lit ?",
+  "onboardingUsualWakeTimeSubtitle": "Cela nous aide à fixer un premier objectif réaliste.",
+  "onboardingIdealWakeTimeTitle": "À quelle heure\nvoulez-vous vous lever ?",
+  "onboardingIdealWakeTimeSubtitle": "Votre heure de réveil idéale quotidienne.",
+  "onboardingTargetWakeTime": "Se réveiller à {time} est votre objectif.",
+  "onboardingDeltaPerMorning": "+{delta} minutes chaque matin",
+  "onboardingDeltaPerMonth": "+{hours} heures ce mois-ci",
+  "onboardingQuoteWinMorning": "Si tu gagnes\nle matin,\ntu gagnes la journée.",
+  "onboardingQuoteWinMorningAuthor": "— Tim Ferriss",
+  "onboardingSignInCreateTitle": "Créez votre compte",
+  "onboardingSignInCreateSubtitle": "Sauvegardez votre progression et synchronisez votre plan.",
+  "onboardingSignInTitle": "Ravis de vous revoir",
+  "onboardingSignInSubtitle": "Connectez-vous pour restaurer votre plan.",
+
+  "soundPickerFileTooLarge": "Fichier trop volumineux (max 10 Mo)",
+  "soundPickerDeleteTitle": "Supprimer le son",
+  "soundPickerDeleteContent": "Retirer « {name} » ?"
 }

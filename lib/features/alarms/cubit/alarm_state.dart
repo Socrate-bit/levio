@@ -71,6 +71,35 @@ class AppAlarmEntry extends Equatable {
       ];
 }
 
+extension AppAlarmEntryFire on AppAlarmEntry {
+  /// Next real fire time in the future, respecting [repeatDays]/[isOneTime].
+  /// Returns null if the alarm has no upcoming fire.
+  DateTime? nextFireAt(DateTime now) {
+    if (!isEnabled) return null;
+    if (isOneTime) {
+      return dateTime.isAfter(now) ? dateTime : null;
+    }
+    // Scan up to 7 days ahead; day index uses Sun=0 … Sat=6.
+    for (int i = 0; i < 7; i++) {
+      final candidateDay = DateTime(now.year, now.month, now.day).add(
+        Duration(days: i),
+      );
+      final dayIndex = candidateDay.weekday % 7;
+      if (repeatDays.length > dayIndex && repeatDays[dayIndex]) {
+        final candidate = DateTime(
+          candidateDay.year,
+          candidateDay.month,
+          candidateDay.day,
+          dateTime.hour,
+          dateTime.minute,
+        );
+        if (candidate.isAfter(now)) return candidate;
+      }
+    }
+    return null;
+  }
+}
+
 class AlarmState extends Equatable {
   final List<AppAlarmEntry> alarms;
   final bool isLoading;
