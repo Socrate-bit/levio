@@ -365,9 +365,7 @@ class AlarmCubit extends Cubit<AlarmState> {
     final toSchedule = entry.copyWith(
       dateTime: forceQuick
           ? DateTime.now().add(const Duration(seconds: 5))
-          : kDebugMode
-              ? DateTime.now().add(const Duration(seconds: 10))
-              : _nextFutureDay(entry.dateTime),
+          : _nextFutureDay(entry.dateTime),
     );
 
     final id = await _scheduleNative(toSchedule);
