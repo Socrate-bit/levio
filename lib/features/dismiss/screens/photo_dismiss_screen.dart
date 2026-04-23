@@ -429,61 +429,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   ),
                 ),
 
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(12),
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 48.w,
-                        height: 48.h,
-                        decoration: BoxDecoration(
-                          color: info.iconBg,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Center(
-                          child: _targetObject.isNotEmpty
-                              ? Text(
-                                  emojiForItemLabel(_displayLabel) ?? '\u{2b50}',
-                                  style: TextStyle(fontSize: 22.sp),
-                                )
-                              : Icon(info.icon,
-                                  color: info.iconColor, size: 24.sp),
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            l10n.dismissPhotoTakePhoto,
-                            style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 10.sp,
-                              letterSpacing: 1.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
-                          Text(
-                            targetLabel,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
