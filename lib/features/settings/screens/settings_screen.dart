@@ -359,6 +359,14 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                   const _Divider(),
                   _ActionRow(
+                    icon: Icons.list_alt_outlined,
+                    label: l10n.settingsPrintRawAlarms,
+                    color: AppColors.orange,
+                    onTap: () =>
+                        context.read<AlarmCubit>().printRawAlarms(),
+                  ),
+                  const _Divider(),
+                  _ActionRow(
                     icon: Icons.storage_outlined,
                     label: l10n.settingsPrintSharedPreferences,
                     color: AppColors.orange,

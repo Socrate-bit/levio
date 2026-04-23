@@ -79,6 +79,42 @@ class AlarmCubit extends Cubit<AlarmState> {
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }
 
+  /// Debug: dumps every raw native AlarmKit alarm + per-cascade size & next
+  /// burst fire time. Useful to spot orphaned bursts, cascade under-fill, or
+  /// a master/burst mismatch that `printActiveAlarms` hides by grouping.
+  Future<void> printRawAlarms() async {
+    final raw = await AlarmChannel.getRawAlarms();
+    final cascades = await AlarmChannel.getAlarms();
+
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('[AlarmCubit] Raw AlarmKit alarms (${raw.length}):');
+    for (final a in raw) {
+      debugPrint('  • alarmId=${a['id']}  cascadeId=${a['originalId'] ?? '-'}');
+    }
+
+    debugPrint('[AlarmCubit] Cascades (${cascades.length}):');
+    for (final c in cascades) {
+      debugPrint('  • ${c['id']}');
+      debugPrint('      state            : ${c['state']}');
+      debugPrint('      masterId         : ${c['masterId'] ?? '-'}');
+      debugPrint('      masterAlive      : ${c['masterAlive']}');
+      debugPrint(
+        '      cascadeSize      : ${c['cascadeSize']} (live=${c['liveCascadeSize']})',
+      );
+      if (c['nextBurstId'] != null) {
+        final tsMs = (c['nextBurstTimestampMs'] as num?)?.toInt();
+        final dt =
+            tsMs != null ? DateTime.fromMillisecondsSinceEpoch(tsMs) : null;
+        debugPrint(
+          '      nextBurst        : ${c['nextBurstId']}  at=$dt  alerting=${c['nextBurstIsAlerting']}',
+        );
+      } else {
+        debugPrint('      nextBurst        : -');
+      }
+    }
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }
+
   /// Loads alarms from Firestore into state. Called on auth so the UI has
   /// data before the gated [sync] runs.
   Future<void> loadAlarm() async {

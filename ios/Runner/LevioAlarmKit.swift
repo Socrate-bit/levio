@@ -146,6 +146,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             getAlarmIds(result: result)
         case "getAlarms":
             getAlarms(result: result)
+        case "getRawAlarms":
+            getRawAlarms(result: result)
         case "getRingingId":
             getRingingId(result: result)
         case "cleanupConfig":
@@ -830,9 +832,11 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
             // Master state.
             var masterAlarm: Alarm?
+            var masterIdOut: String?
             if let masterIdString = defaults.string(forKey: "levio_master_\(originalId)"),
                let masterUUID = UUID(uuidString: masterIdString) {
                 masterAlarm = liveById[masterUUID]
+                masterIdOut = masterIdString
             }
 
             // Cascade state.
@@ -851,6 +855,87 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 switch alarm.state { case .scheduled: return false; @unknown default: return true }
             }
             info["state"] = anyAlerting ? "alerting" : "scheduled"
+            if let masterIdOut = masterIdOut { info["masterId"] = masterIdOut }
+            info["masterAlive"] = masterAlarm != nil
+            info["cascadeSize"] = cascade.count
+            info["liveCascadeSize"] = cascadeAlarms.count
+
+            // Soonest next-burst fire time (alerting wins, else earliest future
+            // scheduled). Mirrors getNextBurst so a single getAlarms round-trip
+            // is enough for debug dumps.
+            let nowMs = Date().timeIntervalSince1970 * 1000
+            if let alerting = cascade.first(where: { entry in
+                guard let uuid = UUID(uuidString: entry.id), let a = liveById[uuid] else { return false }
+                switch a.state { case .scheduled: return false; @unknown default: return true }
+            }) {
+                info["nextBurstId"] = alerting.id
+                info["nextBurstTimestampMs"] = nowMs
+                info["nextBurstIsAlerting"] = true
+            } else if let future = cascade
+                .filter({ entry in
+                    guard let uuid = UUID(uuidString: entry.id), liveById[uuid] != nil else { return false }
+                    return entry.ts > nowMs
+                })
+                .min(by: { $0.ts < $1.ts }) {
+                info["nextBurstId"] = future.id
+                info["nextBurstTimestampMs"] = future.ts
+                info["nextBurstIsAlerting"] = false
+            }
+
+            list.append(info)
+        }
+        result(list)
+    }
+
+    /// Debug dump of every native AlarmKit alarm (unfiltered by cascade
+    /// grouping), enriched with its role (master/burst/unknown) and the
+    /// originalId it belongs to via reverse lookup. Used by the admin
+    /// "Print raw AlarmKit alarms" button.
+    private func getRawAlarms(result: @escaping FlutterResult) {
+        guard let alarms = try? AlarmManager.shared.alarms else {
+            result([])
+            return
+        }
+        let defaults = UserDefaults.standard
+        var list: [[String: Any]] = []
+        for alarm in alarms {
+            let idString = alarm.id.uuidString
+            var info: [String: Any] = ["id": idString]
+
+            let isAlerting: Bool = {
+                switch alarm.state { case .scheduled: return false; @unknown default: return true }
+            }()
+            info["state"] = isAlerting ? "alerting" : "scheduled"
+
+            // Role + originalId via reverse lookups.
+            if let ownerId = defaults.string(forKey: "levio_master_owner_\(idString)") {
+                info["role"] = "master"
+                info["originalId"] = ownerId
+            } else if let ownerId = defaults.string(forKey: "levio_burst_\(idString)") {
+                info["role"] = "burst"
+                info["originalId"] = ownerId
+            } else {
+                info["role"] = "unknown"
+            }
+
+            // Schedule kind + details (alarm.schedule is Alarm.Schedule?).
+            if let schedule = alarm.schedule {
+                switch schedule {
+                case .fixed(let date):
+                    info["scheduleKind"] = "fixed"
+                    info["fixedTimestampMs"] = date.timeIntervalSince1970 * 1000
+                case .relative(let relative):
+                    info["scheduleKind"] = "relative"
+                    info["relativeHour"] = relative.time.hour
+                    info["relativeMinute"] = relative.time.minute
+                    info["relativeRepeats"] = "\(relative.repeats)"
+                @unknown default:
+                    info["scheduleKind"] = "unknown"
+                }
+            } else {
+                info["scheduleKind"] = "countdown-only"
+            }
+
             list.append(info)
         }
         result(list)

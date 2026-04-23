@@ -301,6 +301,7 @@
   "settingsTermsOfService": "Terms of Service",
   "settingsAdmin": "Admin (debug only)",
   "settingsPrintAllAlarms": "Print All Alarms",
+  "settingsPrintRawAlarms": "Print Raw AlarmKit Alarms",
   "settingsPrintSharedPreferences": "Print SharedPreferences",
   "settingsDeleteAllAlarms": "Delete All Alarms",
   "settingsLogout": "Log out",

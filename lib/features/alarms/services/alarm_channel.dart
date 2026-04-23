@@ -188,6 +188,16 @@ class AlarmChannel {
         .toList();
   }
 
+  /// Debug: returns every native AlarmKit alarm (unfiltered), enriched with
+  /// role (master/burst/unknown), originalId, and schedule details.
+  static Future<List<Map<String, dynamic>>> getRawAlarms() async {
+    final raw = await _method.invokeListMethod<Object?>('getRawAlarms') ?? [];
+    return raw
+        .whereType<Map>()
+        .map((m) => m.cast<String, dynamic>())
+        .toList();
+  }
+
   /// Returns the `originalId` of any cascade whose burst OR master is
   /// currently alerting.
   static Future<String?> getRingingId() async {
