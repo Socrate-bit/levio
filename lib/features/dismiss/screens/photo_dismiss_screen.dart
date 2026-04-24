@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -11,6 +12,7 @@ import '../../alarms/services/alarm_cascade_controller.dart';
 
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/item_picker_screen.dart';
+import '../../settings/cubit/settings_cubit.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -94,9 +96,21 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         ? widget.selectedItems!
         : _defaultItemsFor(widget.missionType);
     _candidates = List<String>.from(items);
-    _targetObject = _candidates.isNotEmpty
-        ? (List<String>.from(_candidates)..shuffle()).first
-        : '';
+
+    // Admin/UGC override: force the roulette to always land on this label,
+    // even if it wasn't in the user's selected items. Roulette still spins
+    // through the normal candidates so the reveal still feels random.
+    final forced = context.read<SettingsCubit>().state.forcedHuntTarget;
+    if (_candidates.isNotEmpty && forced != null && forced.isNotEmpty) {
+      _targetObject = forced;
+      if (!_candidates.contains(forced)) {
+        _candidates.add(forced);
+      }
+    } else {
+      _targetObject = _candidates.isNotEmpty
+          ? (List<String>.from(_candidates)..shuffle()).first
+          : '';
+    }
 
     // Notify the orchestrator so it can cache the pick and re-use it if the
     // mission gets remounted (e.g. inactivity timeout sends user back).
@@ -528,7 +542,9 @@ class _ViewfinderFrame extends StatelessWidget {
 
 /// Centered target glyph — emoji for hunt items, the mission's material icon
 /// otherwise. Large and slightly transparent so the camera feed shows through.
-class _TargetBadge extends StatelessWidget {
+/// When the roulette finishes ([spinning] goes false), plays a reveal animation:
+/// a scale bounce and a radial glow that pulses out behind the glyph.
+class _TargetBadge extends StatefulWidget {
   final String label;
   final MissionInfo info;
   final bool isHunt;
@@ -542,17 +558,117 @@ class _TargetBadge extends StatelessWidget {
   });
 
   @override
+  State<_TargetBadge> createState() => _TargetBadgeState();
+}
+
+class _TargetBadgeState extends State<_TargetBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _reveal;
+  // Bounce: 0 → 1.25 → 1.10 (settles slightly larger than original).
+  late final Animation<double> _scale;
+  // Glow halo: pulses in, then fades out.
+  late final Animation<double> _glow;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _reveal = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(
+          tween: Tween(begin: 0.94, end: 1.25)
+              .chain(CurveTween(curve: Curves.easeOutCubic)),
+          weight: 40),
+      TweenSequenceItem(
+          tween: Tween(begin: 1.25, end: 1.05)
+              .chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 30),
+      TweenSequenceItem(
+          tween: Tween(begin: 1.05, end: 1.10)
+              .chain(CurveTween(curve: Curves.easeOut)),
+          weight: 30),
+    ]).animate(_reveal);
+    _glow = TweenSequence<double>([
+      TweenSequenceItem(
+          tween: Tween(begin: 0.0, end: 1.0)
+              .chain(CurveTween(curve: Curves.easeOut)),
+          weight: 35),
+      TweenSequenceItem(
+          tween: Tween(begin: 1.0, end: 0.35)
+              .chain(CurveTween(curve: Curves.easeIn)),
+          weight: 65),
+    ]).animate(_reveal);
+    _opacity = Tween(begin: 0.78, end: 1.0).animate(
+      CurvedAnimation(parent: _reveal, curve: Curves.easeOut),
+    );
+    // If we're already on the final target (no spin), settle in final state.
+    if (!widget.spinning) _reveal.value = 1.0;
+  }
+
+  @override
+  void didUpdateWidget(_TargetBadge old) {
+    super.didUpdateWidget(old);
+    if (old.spinning && !widget.spinning) {
+      _reveal.forward(from: 0.0);
+    } else if (!old.spinning && widget.spinning) {
+      _reveal.value = 0.0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _reveal.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final emoji = isHunt ? (emojiForItemLabel(label) ?? '\u{2b50}') : null;
-    return AnimatedScale(
-      duration: const Duration(milliseconds: 120),
-      scale: spinning ? 0.94 : 1.0,
-      child: Opacity(
-        opacity: 0.78,
-        child: emoji != null
-            ? Text(emoji, style: TextStyle(fontSize: 130.sp))
-            : Icon(info.icon, color: Colors.white, size: 110.sp),
-      ),
+    final emoji =
+        widget.isHunt ? (emojiForItemLabel(widget.label) ?? '\u{2b50}') : null;
+    return AnimatedBuilder(
+      animation: _reveal,
+      builder: (context, _) {
+        final scale = widget.spinning ? 0.94 : _scale.value;
+        final opacity = widget.spinning ? 0.78 : _opacity.value;
+        final glow = widget.spinning ? 0.0 : _glow.value;
+        return Transform.scale(
+          scale: scale,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Glowing halo — radial gradient that pulses during the reveal.
+              if (glow > 0.0)
+                IgnorePointer(
+                  child: Container(
+                    width: 180.sp,
+                    height: 180.sp,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppColors.orange.withAlpha((180 * glow).round()),
+                          AppColors.orange.withAlpha((60 * glow).round()),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.0, 0.45, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+              Opacity(
+                opacity: opacity,
+                child: emoji != null
+                    ? Text(emoji, style: TextStyle(fontSize: 130.sp))
+                    : Icon(widget.info.icon,
+                        color: Colors.white, size: 110.sp),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

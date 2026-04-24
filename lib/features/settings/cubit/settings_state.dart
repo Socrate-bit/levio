@@ -11,6 +11,10 @@ class SettingsState extends Equatable {
   final String defaultSoundName;
   final MissionType defaultMission;
   final bool forceQuickAlarm;
+  // Admin/UGC only — forces the photo-hunt roulette to always land on this
+  // item label, regardless of which items are selected for the mission.
+  // null = random (default).
+  final String? forcedHuntTarget;
 
   const SettingsState({
     this.themeMode = ThemeMode.light,
@@ -19,6 +23,7 @@ class SettingsState extends Equatable {
     this.defaultSoundName = 'Default',
     this.defaultMission = MissionType.none,
     this.forceQuickAlarm = false,
+    this.forcedHuntTarget,
   });
 
   SettingsState copyWith({
@@ -28,6 +33,8 @@ class SettingsState extends Equatable {
     String? defaultSoundName,
     MissionType? defaultMission,
     bool? forceQuickAlarm,
+    String? forcedHuntTarget,
+    bool clearForcedHuntTarget = false,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
@@ -37,6 +44,8 @@ class SettingsState extends Equatable {
       defaultSoundName: defaultSoundName ?? this.defaultSoundName,
       defaultMission: defaultMission ?? this.defaultMission,
       forceQuickAlarm: forceQuickAlarm ?? this.forceQuickAlarm,
+      forcedHuntTarget:
+          clearForcedHuntTarget ? null : (forcedHuntTarget ?? this.forcedHuntTarget),
     );
   }
 
@@ -48,5 +57,6 @@ class SettingsState extends Equatable {
         defaultSoundName,
         defaultMission,
         forceQuickAlarm,
+        forcedHuntTarget,
       ];
 }

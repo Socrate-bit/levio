@@ -1646,6 +1646,54 @@ abstract class AppLocalizations {
   /// **'Force 5s alarm on add'**
   String get settingsForceQuickAlarm;
 
+  /// No description provided for @settingsForcedHuntTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Forced hunt target'**
+  String get settingsForcedHuntTarget;
+
+  /// No description provided for @settingsForcedHuntTargetNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Random'**
+  String get settingsForcedHuntTargetNone;
+
+  /// No description provided for @forcedHuntTargetPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forced hunt target'**
+  String get forcedHuntTargetPickerTitle;
+
+  /// No description provided for @forcedHuntTargetPickerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo-hunt roulette will still spin, but always land on this item.'**
+  String get forcedHuntTargetPickerSubtitle;
+
+  /// No description provided for @forcedHuntTargetPickerNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None (random)'**
+  String get forcedHuntTargetPickerNone;
+
+  /// No description provided for @forcedHuntTargetPickerObjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Objects'**
+  String get forcedHuntTargetPickerObjects;
+
+  /// No description provided for @forcedHuntTargetPickerPets.
+  ///
+  /// In en, this message translates to:
+  /// **'Pets'**
+  String get forcedHuntTargetPickerPets;
+
+  /// No description provided for @forcedHuntTargetPickerNature.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature'**
+  String get forcedHuntTargetPickerNature;
+
   /// No description provided for @settingsLogout.
   ///
   /// In en, this message translates to:

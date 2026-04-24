@@ -805,6 +805,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsForceQuickAlarm => 'Force 5s alarm on add';
 
   @override
+  String get settingsForcedHuntTarget => 'Forced hunt target';
+
+  @override
+  String get settingsForcedHuntTargetNone => 'Random';
+
+  @override
+  String get forcedHuntTargetPickerTitle => 'Forced hunt target';
+
+  @override
+  String get forcedHuntTargetPickerSubtitle =>
+      'The photo-hunt roulette will still spin, but always land on this item.';
+
+  @override
+  String get forcedHuntTargetPickerNone => 'None (random)';
+
+  @override
+  String get forcedHuntTargetPickerObjects => 'Objects';
+
+  @override
+  String get forcedHuntTargetPickerPets => 'Pets';
+
+  @override
+  String get forcedHuntTargetPickerNature => 'Nature';
+
+  @override
   String get settingsLogout => 'Log out';
 
   @override
