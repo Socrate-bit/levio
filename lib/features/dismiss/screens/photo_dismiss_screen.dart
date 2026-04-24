@@ -118,7 +118,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       widget.onTargetChosen?.call(_targetObject);
     }
 
-    // Roulette only runs when there are multiple candidates to reveal.
+    // Prime the initial badge label. The roulette itself is not kicked off
+    // until the camera preview is live (see _initCamera) so the spin doesn't
+    // play against a black placeholder while the hardware spins up.
     if (_candidates.length > 1) {
       // Start on any candidate that is not the target so the reveal isn't
       // spoiled on the very first frame.
@@ -126,8 +128,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         (c) => c != _targetObject,
         orElse: () => _candidates.first,
       );
-      _rouletteRunning = true;
-      _scheduleRouletteTick(0);
     } else {
       _displayLabel = _targetObject;
     }
@@ -185,6 +185,16 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
     if (!mounted) return;
     setState(() => _controller = controller);
+
+    // Kick off the roulette once the preview has rendered — starting it any
+    // earlier plays the spin against the loading spinner.
+    if (_candidates.length > 1 && !_rouletteRunning) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _rouletteRunning) return;
+        _rouletteRunning = true;
+        _scheduleRouletteTick(0);
+      });
+    }
   }
 
   Future<void> _captureAndValidate() async {

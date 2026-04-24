@@ -103,16 +103,19 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
   }
 
   void _onMissionComplete() {
-    Navigator.of(context).pop();
-
     if (_currentIndex + 1 < _resolvedMissions.length) {
-      // Next mission will restart suppression when the user taps Start.
+      // More missions coming — pop the current mission screen and advance to
+      // the next mission's start screen.
+      Navigator.of(context).pop();
       _cascade.stopSuppression();
       setState(() {
         _currentIndex++;
         _inMission = false;
       });
     } else {
+      // Last mission — skip popping back through MissionStartScreen. Go
+      // directly from the mission screen to the wakeup-complete screen so
+      // the user doesn't see a one-frame flash of the start screen.
       _finishSequence();
     }
   }
@@ -136,7 +139,10 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
     if (mounted) {
-      Navigator.of(context).pushReplacement(
+      // pushAndRemoveUntil sweeps the mission screen AND the orchestrator off
+      // the stack in one transition, so WakeupCompleteScreen animates in over
+      // the completed mission instead of a flash of MissionStartScreen.
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) => WakeupCompleteScreen(
             alarmId: widget.alarmId,
@@ -145,6 +151,7 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
             missionType: _resolvedMissions.first.type,
           ),
         ),
+        (route) => route.isFirst,
       );
     }
   }
