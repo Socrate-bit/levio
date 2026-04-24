@@ -17,6 +17,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   static const _defaultSoundNameKey = 'default_sound_name';
   static const _defaultMissionKey = 'default_mission';
   static const forceQuickAlarmKey = 'force_quick_alarm';
+  static const forcedHuntTargetKey = 'forced_hunt_target';
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -28,6 +29,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     final mission =
         missionStr != null ? missionTypeFromString(missionStr) : MissionType.none;
     final forceQuickAlarm = prefs.getBool(forceQuickAlarmKey) ?? false;
+    final forcedHuntTarget = prefs.getString(forcedHuntTargetKey);
 
     emit(SettingsState(
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
@@ -36,6 +38,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       defaultSoundName: soundName,
       defaultMission: mission,
       forceQuickAlarm: forceQuickAlarm,
+      forcedHuntTarget: forcedHuntTarget,
     ));
   }
 
@@ -78,6 +81,21 @@ class SettingsCubit extends Cubit<SettingsState> {
     await prefs.setBool(forceQuickAlarmKey, next);
   }
 
+  /// Admin/UGC: forces the photo-hunt roulette to always land on [label].
+  /// Pass null to clear and restore random selection.
+  Future<void> setForcedHuntTarget(String? label) async {
+    emit(state.copyWith(
+      forcedHuntTarget: label,
+      clearForcedHuntTarget: label == null,
+    ));
+    final prefs = await SharedPreferences.getInstance();
+    if (label == null) {
+      await prefs.remove(forcedHuntTargetKey);
+    } else {
+      await prefs.setString(forcedHuntTargetKey, label);
+    }
+  }
+
   /// Debug: dumps every SharedPreferences key/value.
   Future<void> printSharedPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -102,6 +120,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       prefs.remove(_defaultSoundNameKey),
       prefs.remove(_defaultMissionKey),
       prefs.remove(forceQuickAlarmKey),
+      prefs.remove(forcedHuntTargetKey),
     ]);
     emit(const SettingsState());
   }

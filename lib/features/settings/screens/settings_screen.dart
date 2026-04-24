@@ -20,6 +20,7 @@ import '../../missions/screens/mission_picker_screen.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
 import '../widgets/referral_code_dialog.dart';
+import 'forced_hunt_target_picker_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'terms_conditions_screen.dart';
 
@@ -351,9 +352,14 @@ class _SettingsScreenState extends State<SettingsScreen>
               BlocBuilder<SubscriptionCubit, SubscriptionState>(
                 buildWhen: (prev, next) => prev.userType != next.userType,
                 builder: (context, subState) {
-                  final showAdmin =
+                  // Creator tools: admin + UGC both get these for testing /
+                  // recording content (forced 5s alarm, forced hunt target).
+                  final showCreatorTools =
+                      subState.userType == UserType.admin ||
+                          subState.userType == UserType.ugc;
+                  final showAdminDebug =
                       subState.userType == UserType.admin;
-                  if (!showAdmin) return const SizedBox.shrink();
+                  if (!showCreatorTools) return const SizedBox.shrink();
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -370,41 +376,70 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 .read<SettingsCubit>()
                                 .toggleForceQuickAlarm(),
                           ),
+                          const _Divider(),
+                          _LinkRow(
+                            icon: Icons.my_location_outlined,
+                            label: l10n.settingsForcedHuntTarget,
+                            value: settings.forcedHuntTarget != null
+                                ? localizedItemName(
+                                    l10n, settings.forcedHuntTarget!)
+                                : l10n.settingsForcedHuntTargetNone,
+                            onTap: () async {
+                              final result =
+                                  await Navigator.push<String>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ForcedHuntTargetPickerScreen(
+                                    currentLabel: settings.forcedHuntTarget,
+                                  ),
+                                ),
+                              );
+                              if (result == null || !context.mounted) return;
+                              context
+                                  .read<SettingsCubit>()
+                                  .setForcedHuntTarget(
+                                      result.isEmpty ? null : result);
+                            },
+                          ),
                         ]),
                       ),
-                      SizedBox(height: 12.h),
-                      _SettingsCard(children: [
-                        _ActionRow(
-                          icon: Icons.bug_report_outlined,
-                          label: l10n.settingsPrintAllAlarms,
-                          color: AppColors.orange,
-                          onTap: () =>
-                              context.read<AlarmCubit>().printActiveAlarms(),
-                        ),
-                        const _Divider(),
-                        _ActionRow(
-                          icon: Icons.list_alt_outlined,
-                          label: l10n.settingsPrintRawAlarms,
-                          color: AppColors.orange,
-                          onTap: () =>
-                              context.read<AlarmCubit>().printRawAlarms(),
-                        ),
-                        const _Divider(),
-                        _ActionRow(
-                          icon: Icons.storage_outlined,
-                          label: l10n.settingsPrintSharedPreferences,
-                          color: AppColors.orange,
-                          onTap: () =>
-                              context.read<SettingsCubit>().printSharedPrefs(),
-                        ),
-                        const _Divider(),
-                        _ActionRow(
-                          icon: Icons.delete_sweep_outlined,
-                          label: l10n.settingsDeleteAllAlarms,
-                          color: Colors.red,
-                          onTap: () => _deleteAllAlarms(context),
-                        ),
-                      ]),
+                      if (showAdminDebug) ...[
+                        SizedBox(height: 12.h),
+                        _SettingsCard(children: [
+                          _ActionRow(
+                            icon: Icons.bug_report_outlined,
+                            label: l10n.settingsPrintAllAlarms,
+                            color: AppColors.orange,
+                            onTap: () => context
+                                .read<AlarmCubit>()
+                                .printActiveAlarms(),
+                          ),
+                          const _Divider(),
+                          _ActionRow(
+                            icon: Icons.list_alt_outlined,
+                            label: l10n.settingsPrintRawAlarms,
+                            color: AppColors.orange,
+                            onTap: () =>
+                                context.read<AlarmCubit>().printRawAlarms(),
+                          ),
+                          const _Divider(),
+                          _ActionRow(
+                            icon: Icons.storage_outlined,
+                            label: l10n.settingsPrintSharedPreferences,
+                            color: AppColors.orange,
+                            onTap: () => context
+                                .read<SettingsCubit>()
+                                .printSharedPrefs(),
+                          ),
+                          const _Divider(),
+                          _ActionRow(
+                            icon: Icons.delete_sweep_outlined,
+                            label: l10n.settingsDeleteAllAlarms,
+                            color: Colors.red,
+                            onTap: () => _deleteAllAlarms(context),
+                          ),
+                        ]),
+                      ],
                       SizedBox(height: 16.h),
                     ],
                   );
