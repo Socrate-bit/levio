@@ -5,6 +5,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../auth/auth_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
+import 'email_password_modal.dart';
 
 class SignInStep extends StatefulWidget {
   final VoidCallback onSkip;
@@ -69,6 +70,16 @@ class _SignInStepState extends State<SignInStep> {
       }
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleEmailAuth() async {
+    final ok = await showEmailPasswordModal(
+      context,
+      allowSignUp: !widget.blockNewAccounts,
+    );
+    if (ok == true && mounted) {
+      (widget.onSignInComplete ?? widget.onSkip)();
     }
   }
 
@@ -163,6 +174,18 @@ class _SignInStepState extends State<SignInStep> {
                   fontWeight: FontWeight.w600,
                   color: c.textPrimary,
                 ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16.h),
+          GestureDetector(
+            onTap: _loading ? null : withHaptic(_handleEmailAuth),
+            child: Text(
+              l10n.onboardingSignInEmail,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: c.textSecondary,
+                decoration: TextDecoration.underline,
               ),
             ),
           ),

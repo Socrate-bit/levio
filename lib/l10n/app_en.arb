@@ -609,6 +609,17 @@
   "onboardingAppleFailed": "Apple sign-in failed. Please try again.",
   "onboardingAccountNotFound": "No account found. Please complete onboarding to create one.",
 
+  "onboardingSignInEmail": "Sign in with email",
+  "onboardingEmailModalSignInTitle": "Sign in with email",
+  "onboardingEmailModalSignUpTitle": "Create account with email",
+  "onboardingEmailLabel": "Email",
+  "onboardingPasswordLabel": "Password",
+  "onboardingEmailNoAccount": "Don't have an account? ",
+  "onboardingEmailHasAccount": "Already have an account? ",
+  "onboardingEmailSignUpAction": "Sign up",
+  "onboardingEmailSignInAction": "Sign in",
+  "onboardingEmailEmptyError": "Please enter your email and password.",
+
   "onboardingDayPickerTitle": "Which days should Levio ring?",
   "onboardingDayPickerSubtitle": "Pick the days you want to lock in.",
 

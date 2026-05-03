@@ -1581,6 +1581,37 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucun compte trouvé. Veuillez d\'abord créer un compte via l\'inscription.';
 
   @override
+  String get onboardingSignInEmail => 'Se connecter avec un email';
+
+  @override
+  String get onboardingEmailModalSignInTitle => 'Se connecter avec un email';
+
+  @override
+  String get onboardingEmailModalSignUpTitle => 'Créer un compte par email';
+
+  @override
+  String get onboardingEmailLabel => 'Email';
+
+  @override
+  String get onboardingPasswordLabel => 'Mot de passe';
+
+  @override
+  String get onboardingEmailNoAccount => 'Vous n\'avez pas de compte ? ';
+
+  @override
+  String get onboardingEmailHasAccount => 'Vous avez déjà un compte ? ';
+
+  @override
+  String get onboardingEmailSignUpAction => 'S\'inscrire';
+
+  @override
+  String get onboardingEmailSignInAction => 'Se connecter';
+
+  @override
+  String get onboardingEmailEmptyError =>
+      'Veuillez saisir votre email et votre mot de passe.';
+
+  @override
   String get onboardingDayPickerTitle => 'Quels jours Levio doit-il sonner ?';
 
   @override
