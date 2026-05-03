@@ -198,6 +198,7 @@ class AuthService {
     }
 
     await user.delete();
+    await _auth.signOut();
   }
 
   static Future<void> _deleteUserFirestoreData(String uid) async {
