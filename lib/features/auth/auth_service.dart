@@ -16,6 +16,15 @@ class AccountNotFoundAuthException implements Exception {
   const AccountNotFoundAuthException();
 }
 
+/// Thrown when an email/password sign-in or sign-up fails with a known
+/// Firebase auth code. [message] is a user-facing string that callers can
+/// surface directly without inspecting [code].
+class EmailAuthException implements Exception {
+  final String code;
+  final String message;
+  const EmailAuthException(this.code, this.message);
+}
+
 class AuthService {
   static final _auth = FirebaseAuth.instance;
   static bool _googleInitialized = false;
@@ -83,6 +92,59 @@ class AuthService {
     await _enforceExistingAccount(result, blockNewAccounts);
     AnalyticsService.capture(AnalyticsService.signIn, {'method': 'apple'});
     return result;
+  }
+
+  static Future<UserCredential> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final result = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      AnalyticsService.capture(AnalyticsService.signIn, {'method': 'email'});
+      return result;
+    } on FirebaseAuthException catch (e) {
+      throw EmailAuthException(e.code, _emailErrorMessage(e.code));
+    }
+  }
+
+  static Future<UserCredential> signUpWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final result = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      AnalyticsService.capture(AnalyticsService.signIn, {'method': 'email'});
+      return result;
+    } on FirebaseAuthException catch (e) {
+      throw EmailAuthException(e.code, _emailErrorMessage(e.code));
+    }
+  }
+
+  static String _emailErrorMessage(String code) {
+    switch (code) {
+      case 'invalid-email':
+        return 'That email address is not valid.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'user-not-found':
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Wrong email or password.';
+      case 'email-already-in-use':
+        return 'An account already exists for that email.';
+      case 'weak-password':
+        return 'Password should be at least 6 characters.';
+      case 'network-request-failed':
+        return 'Network error. Check your connection and try again.';
+      default:
+        return 'Sign-in failed. Please try again.';
+    }
   }
 
   /// If [block] is true and Firebase just provisioned a new account, undo it

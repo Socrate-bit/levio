@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
+import 'email_password_modal.dart';
 
 class WelcomeStep extends StatelessWidget {
   final VoidCallback onBuildPlan;
@@ -105,6 +106,21 @@ class WelcomeStep extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Center(
+              child: GestureDetector(
+                onTap: withHaptic(
+                    () => showEmailPasswordModal(context, allowSignUp: false)),
+                child: Text(
+                  l10n.onboardingSignInEmail,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    color: c.textSecondary,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),

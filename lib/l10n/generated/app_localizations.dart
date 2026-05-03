@@ -3032,6 +3032,66 @@ abstract class AppLocalizations {
   /// **'No account found. Please complete onboarding to create one.'**
   String get onboardingAccountNotFound;
 
+  /// No description provided for @onboardingSignInEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with email'**
+  String get onboardingSignInEmail;
+
+  /// No description provided for @onboardingEmailModalSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with email'**
+  String get onboardingEmailModalSignInTitle;
+
+  /// No description provided for @onboardingEmailModalSignUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account with email'**
+  String get onboardingEmailModalSignUpTitle;
+
+  /// No description provided for @onboardingEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get onboardingEmailLabel;
+
+  /// No description provided for @onboardingPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get onboardingPasswordLabel;
+
+  /// No description provided for @onboardingEmailNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? '**
+  String get onboardingEmailNoAccount;
+
+  /// No description provided for @onboardingEmailHasAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? '**
+  String get onboardingEmailHasAccount;
+
+  /// No description provided for @onboardingEmailSignUpAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get onboardingEmailSignUpAction;
+
+  /// No description provided for @onboardingEmailSignInAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get onboardingEmailSignInAction;
+
+  /// No description provided for @onboardingEmailEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email and password.'**
+  String get onboardingEmailEmptyError;
+
   /// No description provided for @onboardingDayPickerTitle.
   ///
   /// In en, this message translates to:

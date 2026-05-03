@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 enum SubscriptionGateStatus { unknown, active, inactive }
 
-enum UserType { admin, ugc, normal }
+enum UserType { admin, ugc, apple, normal }
 
 UserType userTypeFromString(String? s) {
   switch (s) {
@@ -10,6 +10,8 @@ UserType userTypeFromString(String? s) {
       return UserType.admin;
     case 'ugc':
       return UserType.ugc;
+    case 'apple':
+      return UserType.apple;
     default:
       return UserType.normal;
   }
@@ -33,9 +35,11 @@ class SubscriptionState extends Equatable {
   bool get isActive => status == SubscriptionGateStatus.active;
   bool get isInactive => status == SubscriptionGateStatus.inactive;
 
-  /// Admin and UGC users skip the paywall.
+  /// Admin, UGC, and Apple users skip the paywall.
   bool get skipsPaywall =>
-      userType == UserType.admin || userType == UserType.ugc;
+      userType == UserType.admin ||
+      userType == UserType.ugc ||
+      userType == UserType.apple;
 
   /// True when the user can use gated features (admin/ugc OR active sub).
   bool get hasAccess => skipsPaywall || isActive;
