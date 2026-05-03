@@ -12,6 +12,7 @@ import '../../auth/auth_service.dart';
 Future<bool?> showEmailPasswordModal(
   BuildContext context, {
   bool allowSignUp = true,
+  bool initialSignUpMode = false,
 }) {
   return showModalBottomSheet<bool>(
     context: context,
@@ -20,13 +21,14 @@ Future<bool?> showEmailPasswordModal(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
     ),
-    builder: (_) => _EmailPasswordSheet(allowSignUp: allowSignUp),
+    builder: (_) => _EmailPasswordSheet(allowSignUp: allowSignUp, initialSignUpMode: initialSignUpMode),
   );
 }
 
 class _EmailPasswordSheet extends StatefulWidget {
   final bool allowSignUp;
-  const _EmailPasswordSheet({required this.allowSignUp});
+  final bool initialSignUpMode;
+  const _EmailPasswordSheet({required this.allowSignUp, required this.initialSignUpMode});
 
   @override
   State<_EmailPasswordSheet> createState() => _EmailPasswordSheetState();
@@ -38,6 +40,12 @@ class _EmailPasswordSheetState extends State<_EmailPasswordSheet> {
   bool _signUpMode = false;
   bool _loading = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _signUpMode = widget.initialSignUpMode;
+  }
 
   @override
   void dispose() {

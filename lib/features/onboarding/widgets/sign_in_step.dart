@@ -77,6 +77,7 @@ class _SignInStepState extends State<SignInStep> {
     final ok = await showEmailPasswordModal(
       context,
       allowSignUp: !widget.blockNewAccounts,
+      initialSignUpMode: !widget.blockNewAccounts,
     );
     if (ok == true && mounted) {
       (widget.onSignInComplete ?? widget.onSkip)();
