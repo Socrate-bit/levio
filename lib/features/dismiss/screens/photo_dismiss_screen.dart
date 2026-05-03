@@ -82,8 +82,33 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   // Roulette tick delays (ms) — start fast, decelerate, dramatic last beat.
   // Total ≈ 6.5s — long enough to feel like a draw, short enough not to bore.
   static const _rouletteDelays = <int>[
-    70, 70, 70, 80, 80, 90, 100, 110, 120, 140, 160, 180, 210, 240, 280,
-    320, 380, 460, 560, 700, 880, 1100,
+    70,
+    70,
+    70,
+    70,
+    70,
+    70,
+    70,
+    70,
+    80,
+    80,
+    80,
+    80,
+    90,
+    90,
+    100,
+    110,
+    120,
+    140,
+    160,
+    180,
+    210,
+    240,
+    280,
+    320,
+    380,
+    460,
+    560,
   ];
 
   @override
@@ -92,7 +117,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
     // Determine target object for hunt missions
-    final items = (widget.selectedItems != null && widget.selectedItems!.isNotEmpty)
+    final items =
+        (widget.selectedItems != null && widget.selectedItems!.isNotEmpty)
         ? widget.selectedItems!
         : _defaultItemsFor(widget.missionType);
     _candidates = List<String>.from(items);
@@ -215,12 +241,14 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       final image = await controller.takePicture();
       final imageBytes = await image.readAsBytes();
 
-      final model = FirebaseAI.googleAI()
-          .generativeModel(model: 'gemini-2.5-flash-lite');
+      final model = FirebaseAI.googleAI().generativeModel(
+        model: 'gemini-2.5-flash-lite',
+      );
 
       final String prompt;
       if (_targetObject.isNotEmpty) {
-        prompt = 'Does this image clearly show a $_targetObject? Reply with only YES or NO.';
+        prompt =
+            'Does this image clearly show a $_targetObject? Reply with only YES or NO.';
       } else {
         prompt = geminiPromptFor(widget.missionType);
       }
@@ -338,11 +366,13 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: controller != null &&
+                    child:
+                        controller != null &&
                             controller.value.isInitialized &&
                             controller.value.previewSize != null
                         ? AspectRatio(
-                            aspectRatio: controller.value.previewSize!.height /
+                            aspectRatio:
+                                controller.value.previewSize!.height /
                                 controller.value.previewSize!.width,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(28.r),
@@ -390,7 +420,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: AppColors.error.withAlpha(200),
-                                          borderRadius: BorderRadius.circular(12.r),
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
                                         ),
                                         child: Text(
                                           errorMessage,
@@ -418,7 +450,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                             SizedBox(height: 16.h),
                                             Text(
                                               l10n.dismissPhotoChecking(
-                                                  targetLabel.toLowerCase()),
+                                                targetLabel.toLowerCase(),
+                                              ),
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 14.sp,
@@ -476,8 +509,11 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                             ),
                           ],
                         ),
-                        child: Icon(Icons.camera_alt,
-                            color: c.background, size: 32.sp),
+                        child: Icon(
+                          Icons.camera_alt,
+                          color: c.background,
+                          size: 32.sp,
+                        ),
                       ),
                     ),
                     SizedBox(height: 12.h),
@@ -538,10 +574,7 @@ class _ViewfinderFrame extends StatelessWidget {
         borderRadius: BorderRadius.circular(40.r),
         border: Border.all(color: Colors.white70, width: 3),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(40),
-            blurRadius: 18,
-          ),
+          BoxShadow(color: Colors.black.withAlpha(40), blurRadius: 18),
         ],
       ),
       alignment: Alignment.center,
@@ -589,31 +622,47 @@ class _TargetBadgeState extends State<_TargetBadge>
     );
     _scale = TweenSequence<double>([
       TweenSequenceItem(
-          tween: Tween(begin: 0.94, end: 1.25)
-              .chain(CurveTween(curve: Curves.easeOutCubic)),
-          weight: 40),
+        tween: Tween(
+          begin: 0.94,
+          end: 1.25,
+        ).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 40,
+      ),
       TweenSequenceItem(
-          tween: Tween(begin: 1.25, end: 1.05)
-              .chain(CurveTween(curve: Curves.easeInOut)),
-          weight: 30),
+        tween: Tween(
+          begin: 1.25,
+          end: 1.05,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 30,
+      ),
       TweenSequenceItem(
-          tween: Tween(begin: 1.05, end: 1.10)
-              .chain(CurveTween(curve: Curves.easeOut)),
-          weight: 30),
+        tween: Tween(
+          begin: 1.05,
+          end: 1.10,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 30,
+      ),
     ]).animate(_reveal);
     _glow = TweenSequence<double>([
       TweenSequenceItem(
-          tween: Tween(begin: 0.0, end: 1.0)
-              .chain(CurveTween(curve: Curves.easeOut)),
-          weight: 35),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 35,
+      ),
       TweenSequenceItem(
-          tween: Tween(begin: 1.0, end: 0.35)
-              .chain(CurveTween(curve: Curves.easeIn)),
-          weight: 65),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.35,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 65,
+      ),
     ]).animate(_reveal);
-    _opacity = Tween(begin: 0.78, end: 1.0).animate(
-      CurvedAnimation(parent: _reveal, curve: Curves.easeOut),
-    );
+    _opacity = Tween(
+      begin: 0.78,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _reveal, curve: Curves.easeOut));
     // If we're already on the final target (no spin), settle in final state.
     if (!widget.spinning) _reveal.value = 1.0;
   }
@@ -636,8 +685,9 @@ class _TargetBadgeState extends State<_TargetBadge>
 
   @override
   Widget build(BuildContext context) {
-    final emoji =
-        widget.isHunt ? (emojiForItemLabel(widget.label) ?? '\u{2b50}') : null;
+    final emoji = widget.isHunt
+        ? (emojiForItemLabel(widget.label) ?? '\u{2b50}')
+        : null;
     return AnimatedBuilder(
       animation: _reveal,
       builder: (context, _) {
@@ -672,8 +722,7 @@ class _TargetBadgeState extends State<_TargetBadge>
                 opacity: opacity,
                 child: emoji != null
                     ? Text(emoji, style: TextStyle(fontSize: 130.sp))
-                    : Icon(widget.info.icon,
-                        color: Colors.white, size: 110.sp),
+                    : Icon(widget.info.icon, color: Colors.white, size: 110.sp),
               ),
             ],
           ),
