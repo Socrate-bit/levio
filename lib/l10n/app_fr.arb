@@ -521,6 +521,17 @@
   "onboardingAppleFailed": "Échec de la connexion Apple. Veuillez réessayer.",
   "onboardingAccountNotFound": "Aucun compte trouvé. Veuillez d'abord créer un compte via l'inscription.",
 
+  "onboardingSignInEmail": "Se connecter avec un email",
+  "onboardingEmailModalSignInTitle": "Se connecter avec un email",
+  "onboardingEmailModalSignUpTitle": "Créer un compte par email",
+  "onboardingEmailLabel": "Email",
+  "onboardingPasswordLabel": "Mot de passe",
+  "onboardingEmailNoAccount": "Vous n'avez pas de compte ? ",
+  "onboardingEmailHasAccount": "Vous avez déjà un compte ? ",
+  "onboardingEmailSignUpAction": "S'inscrire",
+  "onboardingEmailSignInAction": "Se connecter",
+  "onboardingEmailEmptyError": "Veuillez saisir votre email et votre mot de passe.",
+
   "onboardingDayPickerTitle": "Quels jours Levio doit-il sonner ?",
   "onboardingDayPickerSubtitle": "Choisissez les jours à verrouiller.",
 

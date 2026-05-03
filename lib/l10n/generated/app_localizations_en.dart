@@ -1560,6 +1560,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'No account found. Please complete onboarding to create one.';
 
   @override
+  String get onboardingSignInEmail => 'Sign in with email';
+
+  @override
+  String get onboardingEmailModalSignInTitle => 'Sign in with email';
+
+  @override
+  String get onboardingEmailModalSignUpTitle => 'Create account with email';
+
+  @override
+  String get onboardingEmailLabel => 'Email';
+
+  @override
+  String get onboardingPasswordLabel => 'Password';
+
+  @override
+  String get onboardingEmailNoAccount => 'Don\'t have an account? ';
+
+  @override
+  String get onboardingEmailHasAccount => 'Already have an account? ';
+
+  @override
+  String get onboardingEmailSignUpAction => 'Sign up';
+
+  @override
+  String get onboardingEmailSignInAction => 'Sign in';
+
+  @override
+  String get onboardingEmailEmptyError =>
+      'Please enter your email and password.';
+
+  @override
   String get onboardingDayPickerTitle => 'Which days should Levio ring?';
 
   @override
