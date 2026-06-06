@@ -6,16 +6,20 @@ import '../../../shared/theme/app_theme.dart';
 
 class TimePickerStep extends StatefulWidget {
   final String title;
+  // Use subtitle for a static string, subtitleBuilder for one that tracks the
+  // selected time (e.g. "Your alarm will ring at HH:mm").
   final String? subtitle;
-  final TimeOfDay time;
-  final ValueChanged<TimeOfDay> onTimeChanged;
+  final String Function(TimeOfDay)? subtitleBuilder;
+  // Notifier is updated locally on every scroll tick; the parent reads its
+  // value once on Continue instead of emitting a Bloc state per tick.
+  final ValueNotifier<TimeOfDay> notifier;
 
   const TimePickerStep({
     super.key,
     required this.title,
     this.subtitle,
-    required this.time,
-    required this.onTimeChanged,
+    this.subtitleBuilder,
+    required this.notifier,
   });
 
   @override
@@ -29,9 +33,10 @@ class _TimePickerStepState extends State<TimePickerStep> {
   @override
   void initState() {
     super.initState();
-    _hourController = FixedExtentScrollController(initialItem: widget.time.hour);
+    _hourController =
+        FixedExtentScrollController(initialItem: widget.notifier.value.hour);
     _minuteController =
-        FixedExtentScrollController(initialItem: widget.time.minute);
+        FixedExtentScrollController(initialItem: widget.notifier.value.minute);
   }
 
   @override
@@ -62,21 +67,33 @@ class _TimePickerStepState extends State<TimePickerStep> {
               height: 1.2,
             ),
           ),
-          if (widget.subtitle != null) ...[
+          if (widget.subtitle != null || widget.subtitleBuilder != null) ...[
             SizedBox(height: 8.h),
-            Text(
-              widget.subtitle!,
-              style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
-            ),
+            if (widget.subtitleBuilder != null)
+              ValueListenableBuilder<TimeOfDay>(
+                valueListenable: widget.notifier,
+                builder: (_, time, _) => Text(
+                  widget.subtitleBuilder!(time),
+                  style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
+                ),
+              )
+            else
+              Text(
+                widget.subtitle!,
+                style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
+              ),
           ],
           const Spacer(),
           Center(
-            child: Text(
-              _formatTime(widget.time),
-              style: TextStyle(
-                fontSize: 64.sp,
-                fontWeight: FontWeight.bold,
-                color: c.textPrimary,
+            child: ValueListenableBuilder<TimeOfDay>(
+              valueListenable: widget.notifier,
+              builder: (_, time, _) => Text(
+                _formatTime(time),
+                style: TextStyle(
+                  fontSize: 64.sp,
+                  fontWeight: FontWeight.bold,
+                  color: c.textPrimary,
+                ),
               ),
             ),
           ),
@@ -90,8 +107,9 @@ class _TimePickerStepState extends State<TimePickerStep> {
                     scrollController: _hourController,
                     itemExtent: 40.h,
                     onSelectedItemChanged: (index) {
-                      widget.onTimeChanged(
-                        TimeOfDay(hour: index, minute: widget.time.minute),
+                      widget.notifier.value = TimeOfDay(
+                        hour: index,
+                        minute: widget.notifier.value.minute,
                       );
                     },
                     children: List.generate(
@@ -111,8 +129,9 @@ class _TimePickerStepState extends State<TimePickerStep> {
                     scrollController: _minuteController,
                     itemExtent: 40.h,
                     onSelectedItemChanged: (index) {
-                      widget.onTimeChanged(
-                        TimeOfDay(hour: widget.time.hour, minute: index),
+                      widget.notifier.value = TimeOfDay(
+                        hour: widget.notifier.value.hour,
+                        minute: index,
                       );
                     },
                     children: List.generate(

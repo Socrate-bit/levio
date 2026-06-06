@@ -11,16 +11,16 @@ struct LevioAlarmMetadata: AlarmMetadata {}
 
 // MARK: - Cascade constants
 
-/// Each Levio alarm is 1 master + 20 .fixed bursts at 20s spacing = 6m40s of
-/// ringing coverage if the user ignores every ring. The master fires on the
-/// scheduled hour:minute (weekly for recurrent, one-shot fixed for one-time)
-/// and its Stop button re-adds a +5s nudge burst so the cascade only
-/// intensifies when the user actively hits Stop.
-private let kBurstCount = 20
-private let kBurstIntervalSeconds: TimeInterval = 20
+/// Each Levio alarm is 1 master + 30 .fixed bursts with escalating spacing
+/// (10s for bursts 1–10, 20s for 11–20, 30s for 21–30 = ~10m of coverage).
+/// The master fires on the scheduled hour:minute (weekly for recurrent,
+/// one-shot fixed for one-time) and its Stop button re-adds a +5s nudge burst
+/// so the cascade only intensifies when the user actively hits Stop.
+private let kBurstCount = 30
+private let kBurstIntervalSeconds: TimeInterval = 10
 /// Delay of the extra nudge burst scheduled when the user taps Stop on the
 /// master's lock-screen button.
-private let kMasterStopNudgeDelaySeconds: TimeInterval = 5
+private let kMasterStopNudgeDelaySeconds: TimeInterval = 3
 
 // MARK: - Stream Handler
 
@@ -655,15 +655,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let nowMs = Date().timeIntervalSince1970 * 1000
         let lastLiveTs = liveBursts.map { $0.ts }.max()
         let baseMs = baseDate.timeIntervalSince1970 * 1000
-        var nextFireMs = max(
-            lastLiveTs.map { $0 + kBurstIntervalSeconds * 1000 } ?? baseMs + kBurstIntervalSeconds * 1000,
-            nowMs + kBurstIntervalSeconds * 1000
-        )
+        var prevFireMs = max(lastLiveTs ?? baseMs, nowMs)
         var alive = liveBursts
         var scheduledCount = 0
         for i in 0..<needed {
-            let fire = Date(timeIntervalSince1970: nextFireMs / 1000)
-            nextFireMs += kBurstIntervalSeconds * 1000
+            let cascadeIndex = liveBursts.count + i + 1
+            prevFireMs += intervalForBurst(at: cascadeIndex) * 1000
+            let fire = Date(timeIntervalSince1970: prevFireMs / 1000)
             let burstId = UUID()
             let cfg = makeBurstConfig(
                 burstId: burstId,
@@ -673,7 +671,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 secondaryLabel: secondaryLabel,
                 schedule: .fixed(fire),
                 soundName: soundName,
-                stopReschedules: false
+                stopReschedules: true
             )
             do {
                 _ = try await AlarmManager.shared.schedule(id: burstId, configuration: cfg)
@@ -1073,8 +1071,10 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             }
         }
 
+        var cumulativeOffset: TimeInterval = 0
         for i in 1...burstCount {
-            let fire = masterDate.addingTimeInterval(Double(i) * kBurstIntervalSeconds)
+            cumulativeOffset += intervalForBurst(at: i)
+            let fire = masterDate.addingTimeInterval(cumulativeOffset)
             if fire <= Date() { continue } // skip past slots (e.g., priming from history)
             let burstId = UUID()
             let cfg = makeBurstConfig(
@@ -1085,7 +1085,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 secondaryLabel: secondaryLabel,
                 schedule: .fixed(fire),
                 soundName: soundName,
-                stopReschedules: false
+                stopReschedules: true
             )
             do {
                 _ = try await AlarmManager.shared.schedule(id: burstId, configuration: cfg)
@@ -1111,12 +1111,19 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         return result
     }
 
+    /// Spacing for burst at 1-indexed `index`: increases by `kBurstIntervalSeconds`
+    /// every 10 bursts (10s for 1–10, 20s for 11–20, 30s for 21–30, …).
+    private func intervalForBurst(at index: Int) -> TimeInterval {
+        let group = (index - 1) / 10
+        return Double(group + 1) * kBurstIntervalSeconds
+    }
+
     /// Builds the AlarmKit configuration. When `stopReschedules` is true the
-    /// Stop button runs StopRescheduleOpenAppIntent (stops the master ring AND
-    /// schedules a +5s nudge burst); otherwise the Stop button is pure open-app.
-    /// Master and post-Stop nudge bursts both use `stopReschedules: true`;
-    /// regular cascade bursts use `stopReschedules: false` (the cascade is
-    /// silenced app-side via `cancelBurstsKeepMaster`).
+    /// Stop button (including the lock-screen slide) runs
+    /// StopRescheduleOpenAppIntent, which silences the current alarm AND
+    /// schedules a +5s nudge burst. All alarms (master and cascade bursts) use
+    /// `stopReschedules: true` so sliding Stop on any ring always re-arms a
+    /// nudge immediately.
     fileprivate func makeBurstConfig(
         burstId: UUID,
         originalId: UUID,

@@ -46,8 +46,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
 
+  // Local notifiers for the three time pickers. Updated on every scroll tick
+  // without touching the Bloc, then flushed to the cubit on Continue.
+  late final ValueNotifier<TimeOfDay> _usualWakeNotifier;
+  late final ValueNotifier<TimeOfDay> _idealWakeNotifier;
+  late final ValueNotifier<TimeOfDay> _alarmTimeNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _usualWakeNotifier = ValueNotifier(const TimeOfDay(hour: 7, minute: 30));
+    _idealWakeNotifier = ValueNotifier(const TimeOfDay(hour: 7, minute: 0));
+    _alarmTimeNotifier = ValueNotifier(const TimeOfDay(hour: 7, minute: 0));
+  }
+
   @override
   void dispose() {
+    _usualWakeNotifier.dispose();
+    _idealWakeNotifier.dispose();
+    _alarmTimeNotifier.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -78,6 +95,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingState state,
     OnboardingCubit cubit,
   ) async {
+    // Flush time picker local state to cubit before advancing.
+    if (_currentPage == 15) {
+      cubit.setUsualWakeTime(_usualWakeNotifier.value);
+    } else if (_currentPage == 16) {
+      cubit.setIdealWakeTime(_idealWakeNotifier.value);
+      // Sync alarm time notifier so page 21 opens at the ideal wake time.
+      _alarmTimeNotifier.value = _idealWakeNotifier.value;
+    } else if (_currentPage == 21) {
+      cubit.setAlarmTime(_alarmTimeNotifier.value);
+    }
     // Referral step: validate any entered code before advancing.
     if (_currentPage == 26) {
       final code = state.referralCode.trim();
@@ -433,15 +460,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               TimePickerStep(
                                 title: l10n.onboardingUsualWakeTimeTitle,
                                 subtitle: l10n.onboardingUsualWakeTimeSubtitle,
-                                time: state.usualWakeTime,
-                                onTimeChanged: cubit.setUsualWakeTime,
+                                notifier: _usualWakeNotifier,
                               ),
                               // 16: Time picker - ideal wake time
                               TimePickerStep(
                                 title: l10n.onboardingIdealWakeTimeTitle,
                                 subtitle: l10n.onboardingIdealWakeTimeSubtitle,
-                                time: state.idealWakeTime,
-                                onTimeChanged: cubit.setIdealWakeTime,
+                                notifier: _idealWakeNotifier,
                               ),
                               // 17: Info - Target time with delta
                               Builder(
@@ -563,18 +588,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 },
                               ),
                               // 21: Alarm time picker
-                              Builder(
-                                builder: (context) {
-                                  final alarmTime = state.alarmTime;
-                                  final l10n = AppLocalizations.of(context);
-                                  return TimePickerStep(
-                                    title: l10n.onboardingTimePickerTitle,
-                                    subtitle:
-                                        l10n.onboardingTimePickerSubtitle(_formatTime(alarmTime)),
-                                    time: alarmTime,
-                                    onTimeChanged: cubit.setAlarmTime,
-                                  );
-                                },
+                              TimePickerStep(
+                                title: l10n.onboardingTimePickerTitle,
+                                subtitleBuilder: (t) =>
+                                    l10n.onboardingTimePickerSubtitle(
+                                        _formatTime(t)),
+                                notifier: _alarmTimeNotifier,
                               ),
                               // 22: Day picker
                               DayPickerStep(
@@ -733,15 +752,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 borderRadius: BorderRadius.circular(28.r),
                               ),
                             ),
-                            child: Text(
-                              _currentPage == 21
-                                  ? l10n.onboardingSetAlarmFor(
-                                      _formatTime(state.alarmTime),
-                                    )
-                                  : l10n.onboardingContinue,
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w600,
+                            child: ValueListenableBuilder<TimeOfDay>(
+                              valueListenable: _alarmTimeNotifier,
+                              builder: (_, alarmTime, _) => Text(
+                                _currentPage == 21
+                                    ? l10n.onboardingSetAlarmFor(
+                                        _formatTime(alarmTime),
+                                      )
+                                    : l10n.onboardingContinue,
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
