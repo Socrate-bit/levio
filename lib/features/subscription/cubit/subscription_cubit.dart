@@ -54,7 +54,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     }
   }
 
-  /// Identify user in Superwall + PostHog; load user_type + ensure
+  /// Identify user in Superwall + Mixpanel; load user_type + ensure
   /// superwallId exists in users/{uid} doc. Idempotent across rebuilds.
   Future<void> identifyUser(String uid) async {
     if (_lastIdentifiedUid == uid) return;
@@ -93,7 +93,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
   }
 
   /// Re-reads user_type from Firestore (e.g. after referral redemption). Does
-  /// not re-identify Superwall/PostHog.
+  /// not re-identify Superwall/Mixpanel.
   Future<void> refreshUserType() async {
     final uid = AuthService.uidOrNull;
     if (uid == null) return;
@@ -107,7 +107,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     }
   }
 
-  /// Reset Superwall + PostHog identity on logout.
+  /// Reset Superwall + Mixpanel identity on logout.
   Future<void> resetIdentity() async {
     try {
       await Superwall.shared.reset();

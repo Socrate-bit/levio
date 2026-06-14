@@ -32,7 +32,6 @@ dependencies:
   sign_in_with_apple: ^7.0.1
   crypto: ^3.0.7
   superwallkit_flutter: ^2.4.11
-  posthog_flutter: ^5.2.0
   uuid: ^4.5.1
   firebase_functions: ^0.0.1-dev
   cloud_functions: ^6.2.0
@@ -48,6 +47,8 @@ dependencies:
   mocktail: ^1.0.5
   bloc_test: ^10.0.0
   confetti: ^0.8.0
+  mixpanel_flutter: ^2.9.0
+  mixpanel_flutter_session_replay: ^0.1.0-beta.4
 
 dev_dependencies:
   flutter_test:
