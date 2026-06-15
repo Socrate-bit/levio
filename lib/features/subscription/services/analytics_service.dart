@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:mixpanel_flutter_session_replay/mixpanel_flutter_session_replay.dart';
 
 class AnalyticsService {
@@ -26,7 +27,22 @@ class AnalyticsService {
       final result = await MixpanelSessionReplay.initialize(
         token: _token,
         distinctId: distinctId,
-        options: const SessionReplayOptions(autoRecordSessionsPercent: 100.0),
+
+        options: const SessionReplayOptions(
+          autoRecordSessionsPercent: 100.0,
+          autoMaskedViews: {},
+          debugOptions: DebugOptions(
+            
+            overlayColors: DebugOverlayColors(
+              maskColor:
+                  Colors.red, // MixpanelMask and security-enforced regions
+              autoMaskColor:
+                  Colors.orange, // Auto-masked text and image regions
+              unmaskColor: Colors.green, // MixpanelUnmask regions
+              opacity: 0.5,
+            ),
+          ),
+        ),
       );
       if (result.success) sessionReplay = result.instance;
     } catch (e) {
