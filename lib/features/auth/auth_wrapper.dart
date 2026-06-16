@@ -44,23 +44,23 @@ class AuthWrapper extends StatelessWidget {
           context.read<SettingsCubit>().printSharedPrefs();
         });
 
-        return BlocBuilder<OnboardingCubit, OnboardingState>(
-          builder: (context, ob) {
-            if (!isAuth) {
-              // Logout / fresh install — wipe device-local state, then show
-              // onboarding. Fire-and-forget; safe to call repeatedly.
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.read<SubscriptionCubit>().resetIdentity();
-                context.read<SettingsCubit>().clearAll();
-                context.read<AlarmCubit>().cancelAllNative();
-              });
-              return const OnboardingScreen();
-            }
+        // Auth-only side effects — run once per auth state change, not on
+        // every onboarding step rebuild.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!isAuth) {
+            context.read<SubscriptionCubit>().resetIdentity();
+            context.read<SettingsCubit>().clearAll();
+            context.read<AlarmCubit>().cancelAllNative();
+          } else {
             context.read<SubscriptionCubit>().identifyUser(snap.data!.uid);
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.read<AlarmCubit>().loadAlarm();
-            });
-            if (ob.isInProgress) {
+            context.read<AlarmCubit>().loadAlarm();
+          }
+        });
+
+        return BlocBuilder<OnboardingCubit, OnboardingState>(
+          buildWhen: (prev, curr) => prev.isInProgress != curr.isInProgress,
+          builder: (context, ob) {
+            if (!isAuth || ob.isInProgress) {
               return const OnboardingScreen();
             }
             return AppGateWrapper(navigatorKey: navigatorKey);
