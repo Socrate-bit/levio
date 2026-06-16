@@ -7,6 +7,7 @@ import '../../../shared/utils/haptic_utils.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../data/sounds.dart';
 
 class SoundPickerScreen extends StatefulWidget {
@@ -52,8 +53,9 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
         type: FileType.custom,
         allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'ogg', 'aiff'],
       );
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SoundPickerScreen] file pick failed: $e');
+      AnalyticsService.trackError('SoundPickerScreen._uploadSound', e, st);
       return;
     } finally {
       _isPickingFile = false;
@@ -130,7 +132,8 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
       _player.onPlayerComplete.listen((_) {
         if (mounted) setState(() => _playingId = null);
       });
-    } catch (_) {
+    } catch (e, st) {
+      AnalyticsService.trackError('SoundPickerScreen._previewSound', e, st);
       if (mounted) setState(() => _playingId = null);
     }
   }

@@ -14,6 +14,7 @@ import '../../milestones/models/badge_model.dart';
 import '../../milestones/screens/badge_unlock_screen.dart';
 import '../../milestones/services/streak_service.dart';
 import '../../missions/models/mission.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../../wakeup/services/history_service.dart';
 import 'daily_quote_screen.dart';
 
@@ -112,7 +113,8 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
           );
         }
       }
-    } catch (_) {
+    } catch (e, st) {
+      AnalyticsService.trackError('WakeupCompleteScreen._processWakeup', e, st);
       if (mounted) setState(() => _loading = false);
     }
   }

@@ -124,8 +124,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       } else {
         emit(state.copyWith(referralStatus: ReferralStatus.valid));
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[OnboardingCubit] referral check failed: $e');
+      AnalyticsService.trackError('OnboardingCubit.checkReferralCode', e, st);
       emit(state.copyWith(referralStatus: ReferralStatus.invalid));
     }
   }
@@ -165,8 +166,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
     try {
       await alarmCubit.addAlarm(entry);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[OnboardingCubit] alarm creation failed: $e');
+      AnalyticsService.trackError('OnboardingCubit.completeOnboarding.addAlarm', e, st);
     }
 
     final keepRinging = state.keepAlarmDuringMission ?? false;
@@ -195,8 +197,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
             .collection('meta')
             .doc('onboarding')
             .set(data);
-      } catch (e) {
+      } catch (e, st) {
         debugPrint('[OnboardingCubit] survey save failed: $e');
+        AnalyticsService.trackError('OnboardingCubit.completeOnboarding.surveySave', e, st);
       }
     }
 
@@ -205,8 +208,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         state.referralCode.trim().isNotEmpty) {
       try {
         await ReferralService.redeemCode(state.referralCode.trim());
-      } catch (e) {
+      } catch (e, st) {
         debugPrint('[OnboardingCubit] referral redeem failed: $e');
+        AnalyticsService.trackError('OnboardingCubit.completeOnboarding.redeemCode', e, st);
       }
     }
     await subscriptionCubit.refreshUserType();

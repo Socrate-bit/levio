@@ -105,7 +105,8 @@ class AuthService {
       );
       AnalyticsService.capture(AnalyticsService.signIn, {'method': 'email'});
       return result;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, st) {
+      AnalyticsService.trackError('AuthService.signInWithEmail', e, st);
       throw EmailAuthException(e.code, _emailErrorMessage(e.code));
     }
   }
@@ -121,7 +122,8 @@ class AuthService {
       );
       AnalyticsService.capture(AnalyticsService.signIn, {'method': 'email'});
       return result;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, st) {
+      AnalyticsService.trackError('AuthService.signUpWithEmail', e, st);
       throw EmailAuthException(e.code, _emailErrorMessage(e.code));
     }
   }
@@ -158,8 +160,9 @@ class AuthService {
     if (result.additionalUserInfo?.isNewUser != true) return;
     try {
       await result.user?.delete();
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AuthService] Failed to delete orphan user: $e');
+      AnalyticsService.trackError('AuthService._enforceExistingAccount', e, st);
       await _auth.signOut();
     }
     throw const AccountNotFoundAuthException();
@@ -192,8 +195,9 @@ class AuthService {
     if (_googleInitialized) {
       try {
         await GoogleSignIn.instance.signOut();
-      } catch (e) {
+      } catch (e, st) {
         debugPrint('[AuthService] Google signOut during delete failed: $e');
+        AnalyticsService.trackError('AuthService.deleteAccount.googleSignOut', e, st);
       }
     }
 
@@ -209,15 +213,17 @@ class AuthService {
       for (final doc in snap.docs) {
         try {
           await doc.reference.delete();
-        } catch (e) {
+        } catch (e, st) {
           debugPrint('[AuthService] Failed to delete $name/${doc.id}: $e');
+          AnalyticsService.trackError('AuthService._deleteUserFirestoreData.doc', e, st);
         }
       }
     }
     try {
       await userRef.delete();
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AuthService] Failed to delete user doc: $e');
+      AnalyticsService.trackError('AuthService._deleteUserFirestoreData.userRef', e, st);
     }
   }
 

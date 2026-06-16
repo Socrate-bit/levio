@@ -22,8 +22,9 @@ class AlarmCubit extends Cubit<AlarmState> {
   Future<void> _init() async {
     try {
       await AlarmChannel.requestAuthorization();
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AlarmCubit] requestAuthorization failed: $e');
+      AnalyticsService.trackError('AlarmCubit._init', e, st);
     }
   }
 
@@ -123,8 +124,9 @@ class AlarmCubit extends Cubit<AlarmState> {
     try {
       final alarms = await AlarmFirestoreService.getAlarms();
       emit(state.copyWith(alarms: alarms));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AlarmCubit] loadAlarm failed: $e');
+      AnalyticsService.trackError('AlarmCubit.loadAlarm', e, st);
     }
   }
 
@@ -163,8 +165,9 @@ class AlarmCubit extends Cubit<AlarmState> {
           try {
             await AlarmChannel.cancel(alarm.id);
             await AlarmChannel.cleanupConfig(alarm.id);
-          } catch (e) {
+          } catch (e, st) {
             debugPrint('[AlarmCubit] disabled-cleanup failed for ${alarm.id}: $e');
+            AnalyticsService.trackError('AlarmCubit._reconcileWithNative.disabledCleanup', e, st);
           }
         }
         resolved.add(alarm);
@@ -195,14 +198,17 @@ class AlarmCubit extends Cubit<AlarmState> {
         // UserDefaults under `alarm.id`.
         try {
           await AlarmChannel.cleanupConfig(alarm.id);
-        } catch (_) {}
+        } catch (e, st) {
+          AnalyticsService.trackError('AlarmCubit._reconcileWithNative.cleanupConfig', e, st);
+        }
         final newId = await _scheduleNative(toSchedule);
         await AlarmFirestoreService.deleteAlarm(alarm.id);
         final rescheduled = toSchedule.copyWith(id: newId);
         await AlarmFirestoreService.saveAlarm(rescheduled);
         resolved.add(rescheduled);
-      } catch (e) {
+      } catch (e, st) {
         debugPrint('[AlarmCubit] sync reschedule failed for ${alarm.id}: $e');
+        AnalyticsService.trackError('AlarmCubit._reconcileWithNative.reschedule', e, st);
         resolved.add(alarm);
       }
     }
@@ -215,8 +221,9 @@ class AlarmCubit extends Cubit<AlarmState> {
       try {
         await AlarmChannel.cancel(nativeId);
         await AlarmChannel.cleanupConfig(nativeId);
-      } catch (e) {
+      } catch (e, st) {
         debugPrint('[AlarmCubit] orphan cleanup failed for $nativeId: $e');
+        AnalyticsService.trackError('AlarmCubit._reconcileWithNative.orphanCleanup', e, st);
       }
     }
 
@@ -230,8 +237,9 @@ class AlarmCubit extends Cubit<AlarmState> {
       if (!alarm.repeatDays.any((d) => d)) continue;
       try {
         await AlarmChannel.primeCascadeIfNeeded(alarm.id);
-      } catch (e) {
+      } catch (e, st) {
         debugPrint('[AlarmCubit] primeCascadeIfNeeded failed for ${alarm.id}: $e');
+        AnalyticsService.trackError('AlarmCubit._reconcileWithNative.primeCascade', e, st);
       }
     }
 
@@ -247,12 +255,14 @@ class AlarmCubit extends Cubit<AlarmState> {
         try {
           await AlarmChannel.cancel(id);
           await AlarmChannel.cleanupConfig(id);
-        } catch (e) {
+        } catch (e, st) {
           debugPrint('[AlarmCubit] cancelAllNative failed for $id: $e');
+          AnalyticsService.trackError('AlarmCubit.cancelAllNative.cancel', e, st);
         }
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AlarmCubit] cancelAllNative getAlarmIds failed: $e');
+      AnalyticsService.trackError('AlarmCubit.cancelAllNative.getAlarmIds', e, st);
     }
     emit(state.copyWith(alarms: const []));
   }
@@ -348,8 +358,9 @@ class AlarmCubit extends Cubit<AlarmState> {
           );
         }
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AlarmCubit] _markMissedAlarms failed: $e');
+      AnalyticsService.trackError('AlarmCubit._markMissedAlarms', e, st);
     }
   }
 
@@ -376,7 +387,8 @@ class AlarmCubit extends Cubit<AlarmState> {
 
     try {
       await AlarmFirestoreService.saveAlarm(saved);
-    } catch (e) {
+    } catch (e, st) {
+      AnalyticsService.trackError('AlarmCubit.addAlarm', e, st);
       emit(
         state.copyWith(alarms: state.alarms.where((a) => a.id != id).toList()),
       );
@@ -413,7 +425,8 @@ class AlarmCubit extends Cubit<AlarmState> {
 
       try {
         await AlarmFirestoreService.saveAlarm(disabledAlarm);
-      } catch (e) {
+      } catch (e, st) {
+        AnalyticsService.trackError('AlarmCubit.toggleAlarm.disable', e, st);
         emit(state.copyWith(alarms: previousAlarms));
         rethrow;
       }
@@ -421,6 +434,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         await AlarmChannel.cancel(id);
       } catch (e, stack) {
         debugPrint('[AlarmCubit] Failed to cancel alarm $id: $e\n$stack');
+        AnalyticsService.trackError('AlarmCubit.toggleAlarm.cancel', e, stack);
       }
     } else {
       final now = DateTime.now();
@@ -446,7 +460,8 @@ class AlarmCubit extends Cubit<AlarmState> {
       try {
         await AlarmFirestoreService.deleteAlarm(id);
         await AlarmFirestoreService.saveAlarm(rescheduled);
-      } catch (e) {
+      } catch (e, st) {
+        AnalyticsService.trackError('AlarmCubit.toggleAlarm.enable', e, st);
         await AlarmChannel.cancel(newId);
         emit(state.copyWith(alarms: previousAlarms));
         rethrow;
@@ -480,11 +495,14 @@ class AlarmCubit extends Cubit<AlarmState> {
     try {
       await AlarmFirestoreService.deleteAlarm(old.id);
       await AlarmFirestoreService.saveAlarm(saved);
-    } catch (e) {
+    } catch (e, st) {
+      AnalyticsService.trackError('AlarmCubit.editAlarm', e, st);
       await AlarmChannel.cancel(newId);
       try {
         await _scheduleNative(old);
-      } catch (_) {}
+      } catch (e2, st2) {
+        AnalyticsService.trackError('AlarmCubit.editAlarm.rollbackReschedule', e2, st2);
+      }
       emit(state.copyWith(alarms: previousAlarms));
       rethrow;
     }
@@ -501,8 +519,9 @@ class AlarmCubit extends Cubit<AlarmState> {
 
     try {
       await AlarmFirestoreService.deleteAlarm(id);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('Error deleting alarm with id $id: $e');
+      AnalyticsService.trackError('AlarmCubit.removeAlarm.delete', e, st);
       emit(state.copyWith(alarms: previousAlarms));
       return;
     }
@@ -510,8 +529,9 @@ class AlarmCubit extends Cubit<AlarmState> {
     try {
       await AlarmChannel.cancel(id);
       await AlarmChannel.cleanupConfig(id);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('Error cancelling/cleaning up alarm with id $id: $e');
+      AnalyticsService.trackError('AlarmCubit.removeAlarm.cancel', e, st);
     }
 
     AnalyticsService.capture(AnalyticsService.alarmDeleted, {'alarm_id': id});
@@ -593,17 +613,19 @@ class AlarmCubit extends Cubit<AlarmState> {
       );
       try {
         await AlarmFirestoreService.saveAlarm(disabled);
-      } catch (e) {
+      } catch (e, st) {
         debugPrint(
           '[AlarmCubit] disableAllForSubscription save failed ${alarm.id}: $e',
         );
+        AnalyticsService.trackError('AlarmCubit.disableAllForSubscription.save', e, st);
       }
       try {
         await AlarmChannel.cancel(alarm.id);
-      } catch (e) {
+      } catch (e, st) {
         debugPrint(
           '[AlarmCubit] disableAllForSubscription cancel failed ${alarm.id}: $e',
         );
+        AnalyticsService.trackError('AlarmCubit.disableAllForSubscription.cancel', e, st);
       }
     }
   }
@@ -633,10 +655,11 @@ class AlarmCubit extends Cubit<AlarmState> {
 
         await AlarmFirestoreService.deleteAlarm(alarm.id);
         await AlarmFirestoreService.saveAlarm(rescheduled);
-      } catch (e) {
+      } catch (e, st) {
         debugPrint(
           '[AlarmCubit] restoreSubscriptionDisabled failed ${alarm.id}: $e',
         );
+        AnalyticsService.trackError('AlarmCubit.restoreSubscriptionDisabled', e, st);
       }
     }
 

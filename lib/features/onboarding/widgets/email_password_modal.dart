@@ -5,6 +5,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../auth/auth_service.dart';
+import '../../subscription/services/analytics_service.dart';
 
 /// Shows a bottom sheet for email/password sign-in. When [allowSignUp] is true
 /// the sheet exposes a toggle to switch into sign-up mode. Returns true on
@@ -73,10 +74,12 @@ class _EmailPasswordSheetState extends State<_EmailPasswordSheet> {
         await AuthService.signInWithEmail(email: email, password: password);
       }
       if (mounted) Navigator.of(context).pop(true);
-    } on EmailAuthException catch (e) {
+    } on EmailAuthException catch (e, st) {
+      AnalyticsService.trackError('EmailPasswordModal._submit.emailAuth', e, st);
       if (mounted) setState(() => _error = e.message);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[EmailPasswordModal] auth failed: $e');
+      AnalyticsService.trackError('EmailPasswordModal._submit', e, st);
       if (mounted) {
         setState(() => _error = AppLocalizations.of(context).onboardingGoogleFailed);
       }

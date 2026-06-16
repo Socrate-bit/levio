@@ -9,6 +9,7 @@ import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 import 'pushup_state.dart';
 import '../../../shared/services/sound_service.dart';
+import '../../subscription/services/analytics_service.dart';
 
 enum _Phase { no, up, hdown, down }
 
@@ -72,6 +73,7 @@ class PushUpCubit extends Cubit<PushUpState> {
       await _camera!.startImageStream(_onCameraImage);
     } catch (e, st) {
       debugPrint('[PushUpCubit] startSession error: $e\n$st');
+      AnalyticsService.trackError('PushUpCubit.startSession', e, st);
       emit(const PushUpInitial());
     }
   }
@@ -191,8 +193,9 @@ class PushUpCubit extends Cubit<PushUpState> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[PushUpCubit] _processFrame error: $e');
+      AnalyticsService.trackError('PushUpCubit._processFrame', e, st);
     }
   }
 

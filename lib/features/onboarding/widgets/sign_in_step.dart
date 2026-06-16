@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../auth/auth_service.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import 'email_password_modal.dart';
@@ -55,14 +56,16 @@ class _SignInStepState extends State<SignInStep> {
         blockNewAccounts: widget.blockNewAccounts,
       );
       if (mounted) (widget.onSignInComplete ?? widget.onSkip)();
-    } on AccountNotFoundAuthException {
+    } on AccountNotFoundAuthException catch (e, st) {
+      AnalyticsService.trackError('SignInStep._handleGoogleSignIn.accountNotFound', e, st);
       if (mounted) {
         await _showAuthDialog(
           AppLocalizations.of(context).onboardingAccountNotFound,
         );
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SignInStep] Google sign-in failed: $e');
+      AnalyticsService.trackError('SignInStep._handleGoogleSignIn', e, st);
       if (mounted) {
         await _showAuthDialog(
           AppLocalizations.of(context).onboardingGoogleFailed,
@@ -91,14 +94,16 @@ class _SignInStepState extends State<SignInStep> {
         blockNewAccounts: widget.blockNewAccounts,
       );
       if (mounted) (widget.onSignInComplete ?? widget.onSkip)();
-    } on AccountNotFoundAuthException {
+    } on AccountNotFoundAuthException catch (e, st) {
+      AnalyticsService.trackError('SignInStep._handleAppleSignIn.accountNotFound', e, st);
       if (mounted) {
         await _showAuthDialog(
           AppLocalizations.of(context).onboardingAccountNotFound,
         );
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SignInStep] Apple sign-in failed: $e');
+      AnalyticsService.trackError('SignInStep._handleAppleSignIn', e, st);
       if (mounted) {
         await _showAuthDialog(
           AppLocalizations.of(context).onboardingAppleFailed,
@@ -199,8 +204,9 @@ class _SignInStepState extends State<SignInStep> {
                 setState(() => _loading = true);
                 try {
                   await AuthService.signInAnonymously();
-                } catch (e) {
+                } catch (e, st) {
                   debugPrint('[SignInStep] Anonymous sign-in failed: $e');
+                  AnalyticsService.trackError('SignInStep.signInAnonymously', e, st);
                 }
                 if (mounted) {
                   setState(() => _loading = false);
