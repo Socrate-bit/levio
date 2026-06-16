@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 
+import 'analytics_service.dart';
+
 /// Handles referral code validation and redemption.
 class ReferralService {
   static final _firestore = FirebaseFirestore.instance;
@@ -22,8 +24,9 @@ class ReferralService {
       if (type == null || numUse == null || maxUse == null) return null;
       if (numUse >= maxUse) return 'exhausted';
       return type;
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[ReferralService] validateCode failed: $e');
+      AnalyticsService.trackError('ReferralService.validateCode', e, st);
       return null;
     }
   }

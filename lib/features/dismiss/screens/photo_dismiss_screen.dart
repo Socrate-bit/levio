@@ -12,6 +12,7 @@ import '../../alarms/services/alarm_cascade_controller.dart';
 
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/item_picker_screen.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -266,7 +267,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       } else {
         setState(() => _errorType = _PhotoError.notDetected);
       }
-    } catch (e) {
+    } catch (e, st) {
+      AnalyticsService.trackError('PhotoDismissScreen._captureAndValidate', e, st);
       setState(() {
         _errorType = _PhotoError.other;
         _rawError = e.toString();

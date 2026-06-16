@@ -91,14 +91,16 @@ class _SettingsScreenState extends State<SettingsScreen>
     if (confirmed != true) return;
     try {
       await AuthService.deleteAccount();
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, st) {
       debugPrint('[SettingsScreen] deleteAccount failed: ${e.code}');
+      AnalyticsService.trackError('SettingsScreen._confirmDeleteAccount.firebaseAuth', e, st);
       final msg = e.code == 'requires-recent-login'
           ? l10n.settingsDeleteAccountReauthRequired
           : l10n.settingsDeleteAccountError;
       messenger.showSnackBar(SnackBar(content: Text(msg)));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SettingsScreen] deleteAccount failed: $e');
+      AnalyticsService.trackError('SettingsScreen._confirmDeleteAccount', e, st);
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.settingsDeleteAccountError)),
       );

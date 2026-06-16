@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../subscription/services/analytics_service.dart';
 import 'alarm_channel.dart';
 
 /// Manages the cascade while a mission is on screen.
@@ -92,13 +93,15 @@ class AlarmCascadeController {
     stopSuppression();
     try {
       await AlarmChannel.cancelBurstsKeepMaster(alarmId);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AlarmCascadeController] cancelBurstsKeepMaster failed for $alarmId: $e');
+      AnalyticsService.trackError('AlarmCascadeController.finish.cancelBursts', e, st);
     }
     try {
       await AlarmChannel.rescheduleForNextFire(alarmId);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AlarmCascadeController] rescheduleForNextFire failed for $alarmId: $e');
+      AnalyticsService.trackError('AlarmCascadeController.finish.reschedule', e, st);
     }
   }
 
@@ -121,8 +124,9 @@ class AlarmCascadeController {
       for (final burstId in ids) {
         await AlarmChannel.cancelBurst(originalId: alarmId, burstId: burstId);
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[AlarmCascadeController] suppressWindow failed: $e');
+      AnalyticsService.trackError('AlarmCascadeController._suppressWindow', e, st);
     }
   }
 

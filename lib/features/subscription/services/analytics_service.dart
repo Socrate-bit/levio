@@ -86,6 +86,24 @@ class AnalyticsService {
     await capture(screenView, {'screen': name});
   }
 
+  // Track a caught error/exception. Call from catch blocks only.
+  static Future<void> trackError(
+    String source,
+    Object error, [
+    StackTrace? stackTrace,
+  ]) async {
+    try {
+      _mixpanel?.track(errorOccurred, properties: {
+        'source': source,
+        'error': error.toString(),
+        'error_type': error.runtimeType.toString(),
+        if (stackTrace != null) 'stack_trace': stackTrace.toString(),
+      });
+    } catch (e) {
+      debugPrint('[AnalyticsService] trackError failed: $e');
+    }
+  }
+
   // Auth
   static const signIn = 'sign_in';
   static const signOut = 'sign_out';
@@ -129,6 +147,9 @@ class AnalyticsService {
   // Navigation
   static const navTabSelected = 'nav_tab_selected';
   static const screenView = 'screen_view';
+
+  // Errors
+  static const errorOccurred = 'error_occurred';
 
   // Settings
   static const settingsNotificationsToggled = 'settings_notifications_toggled';

@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../features/subscription/services/analytics_service.dart';
+
 /// Central sound service for the app.
 ///
 /// Usage: `SoundService.instance.playRepBell()`
@@ -20,8 +22,9 @@ class SoundService {
     try {
       await _repPlayer.stop();
       await _repPlayer.play(AssetSource('sounds/bell.mp3'));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SoundService] playRepBell error: $e');
+      AnalyticsService.trackError('SoundService.playRepBell', e, st);
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../auth/auth_service.dart';
+import '../../subscription/services/analytics_service.dart';
 
 /// Persists user-created custom objects and affirmations in Firestore.
 ///
@@ -22,8 +23,9 @@ class CustomItemsService {
       final snap = await _doc().get();
       if (!snap.exists) return [];
       return List<String>.from(snap.data()?['affirmations'] ?? []);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[CustomItemsService] getCustomAffirmations error: $e');
+      AnalyticsService.trackError('CustomItemsService.getCustomAffirmations', e, st);
       return [];
     }
   }
@@ -33,8 +35,9 @@ class CustomItemsService {
       await _doc().set({
         'affirmations': FieldValue.arrayUnion([text]),
       }, SetOptions(merge: true));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[CustomItemsService] addCustomAffirmation error: $e');
+      AnalyticsService.trackError('CustomItemsService.addCustomAffirmation', e, st);
     }
   }
 
@@ -43,8 +46,9 @@ class CustomItemsService {
       await _doc().set({
         'affirmations': FieldValue.arrayRemove([text]),
       }, SetOptions(merge: true));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[CustomItemsService] removeCustomAffirmation error: $e');
+      AnalyticsService.trackError('CustomItemsService.removeCustomAffirmation', e, st);
     }
   }
 
@@ -55,8 +59,9 @@ class CustomItemsService {
       final snap = await _doc().get();
       if (!snap.exists) return [];
       return List<String>.from(snap.data()?['objects'] ?? []);
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[CustomItemsService] getCustomObjects error: $e');
+      AnalyticsService.trackError('CustomItemsService.getCustomObjects', e, st);
       return [];
     }
   }
@@ -66,8 +71,9 @@ class CustomItemsService {
       await _doc().set({
         'objects': FieldValue.arrayUnion([text]),
       }, SetOptions(merge: true));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[CustomItemsService] addCustomObject error: $e');
+      AnalyticsService.trackError('CustomItemsService.addCustomObject', e, st);
     }
   }
 
@@ -76,8 +82,9 @@ class CustomItemsService {
       await _doc().set({
         'objects': FieldValue.arrayRemove([text]),
       }, SetOptions(merge: true));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[CustomItemsService] removeCustomObject error: $e');
+      AnalyticsService.trackError('CustomItemsService.removeCustomObject', e, st);
     }
   }
 }

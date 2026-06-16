@@ -7,6 +7,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../alarms/data/sounds.dart';
+import '../../subscription/services/analytics_service.dart';
 
 class SoundPickerStep extends StatefulWidget {
   final String selectedId;
@@ -46,7 +47,8 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
       _player.onPlayerComplete.listen((_) {
         if (mounted) setState(() => _playingId = null);
       });
-    } catch (_) {
+    } catch (e, st) {
+      AnalyticsService.trackError('SoundPickerStep._previewSound', e, st);
       if (mounted) setState(() => _playingId = null);
     }
   }

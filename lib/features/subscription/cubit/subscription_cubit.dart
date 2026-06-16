@@ -26,8 +26,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
       _superwallSub = Superwall.shared.subscriptionStatus.listen(
         _handleSuperwall,
       );
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SubscriptionCubit] subscriptionStatus listen failed: $e');
+      AnalyticsService.trackError('SubscriptionCubit._listenSuperwall', e, st);
     }
   }
 
@@ -77,8 +78,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
 
       try {
         await Superwall.shared.identify(superwallId);
-      } catch (e) {
+      } catch (e, st) {
         debugPrint('[SubscriptionCubit] Superwall.identify failed: $e');
+        AnalyticsService.trackError('SubscriptionCubit.identifyUser.superwallIdentify', e, st);
       }
       await AnalyticsService.identify(uid);
 
@@ -86,8 +88,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
         userType: userTypeFromString(typeStr),
         isLoaded: true,
       ));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SubscriptionCubit] identifyUser failed: $e');
+      AnalyticsService.trackError('SubscriptionCubit.identifyUser', e, st);
       emit(state.copyWith(isLoaded: true));
     }
   }
@@ -102,8 +105,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
       final typeStr = doc.data()?['user_type'] as String?;
       emit(state.copyWith(userType: userTypeFromString(typeStr)));
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SubscriptionCubit] refreshUserType failed: $e');
+      AnalyticsService.trackError('SubscriptionCubit.refreshUserType', e, st);
     }
   }
 
@@ -111,8 +115,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
   Future<void> resetIdentity() async {
     try {
       await Superwall.shared.reset();
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SubscriptionCubit] Superwall.reset failed: $e');
+      AnalyticsService.trackError('SubscriptionCubit.resetIdentity', e, st);
     }
     await AnalyticsService.reset();
     _lastIdentifiedUid = null;
@@ -152,8 +157,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
         AnalyticsService.referralRedeemSuccess,
         {'user_type': userType},
       );
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SubscriptionCubit] redeemReferralCode failed: $e');
+      AnalyticsService.trackError('SubscriptionCubit.redeemReferralCode', e, st);
       emit(state.copyWith(redeemStatus: ReferralRedeemStatus.error));
       AnalyticsService.capture(
         AnalyticsService.referralRedeemFailed,
