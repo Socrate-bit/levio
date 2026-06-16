@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../subscription/services/analytics_service.dart';
 import '../models/badge_model.dart';
 import '../services/streak_service.dart';
 import 'milestones_state.dart';
@@ -32,7 +33,8 @@ class MilestonesCubit extends Cubit<MilestonesState> {
         achievementBadges: achievementBadges,
         loading: false,
       ));
-    } catch (_) {
+    } catch (e, st) {
+      AnalyticsService.trackError('MilestonesCubit.load', e, st);
       emit(state.copyWith(loading: false));
     }
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../../subscription/services/analytics_service.dart';
+
 /// Info about a burst within a cascade.
 class NextBurst {
   final String burstId;
@@ -71,8 +73,9 @@ class AlarmChannel {
   static Future<void> cancel(String id) async {
     try {
       await _method.invokeMethod('cancel', {'id': id});
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, st) {
       debugPrint('[AlarmChannel] cancel($id) failed — code=${e.code} | message=${e.message}');
+      AnalyticsService.trackError('AlarmChannel.cancel', e, st);
       rethrow;
     }
   }
@@ -88,8 +91,9 @@ class AlarmChannel {
         'originalId': originalId,
         'burstId': burstId,
       });
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, st) {
       debugPrint('[AlarmChannel] cancelBurst($originalId/$burstId) failed: ${e.message}');
+      AnalyticsService.trackError('AlarmChannel.cancelBurst', e, st);
     }
   }
 
@@ -100,8 +104,9 @@ class AlarmChannel {
   static Future<void> cancelBurstsKeepMaster(String originalId) async {
     try {
       await _method.invokeMethod('cancelBurstsKeepMaster', {'id': originalId});
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, st) {
       debugPrint('[AlarmChannel] cancelBurstsKeepMaster($originalId) failed: ${e.message}');
+      AnalyticsService.trackError('AlarmChannel.cancelBurstsKeepMaster', e, st);
     }
   }
 
@@ -110,8 +115,9 @@ class AlarmChannel {
   static Future<void> dismissMasterRingIfAlerting(String originalId) async {
     try {
       await _method.invokeMethod('dismissMasterRingIfAlerting', {'id': originalId});
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, st) {
       debugPrint('[AlarmChannel] dismissMasterRingIfAlerting($originalId) failed: ${e.message}');
+      AnalyticsService.trackError('AlarmChannel.dismissMasterRingIfAlerting', e, st);
     }
   }
 
@@ -121,8 +127,9 @@ class AlarmChannel {
   static Future<void> rescheduleForNextFire(String originalId) async {
     try {
       await _method.invokeMethod('rescheduleForNextFire', {'id': originalId});
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, st) {
       debugPrint('[AlarmChannel] rescheduleForNextFire($originalId) failed: ${e.message}');
+      AnalyticsService.trackError('AlarmChannel.rescheduleForNextFire', e, st);
     }
   }
 
@@ -133,8 +140,9 @@ class AlarmChannel {
   static Future<void> primeCascadeIfNeeded(String originalId) async {
     try {
       await _method.invokeMethod('primeCascadeIfNeeded', {'id': originalId});
-    } on PlatformException catch (e) {
+    } on PlatformException catch (e, st) {
       debugPrint('[AlarmChannel] primeCascadeIfNeeded($originalId) failed: ${e.message}');
+      AnalyticsService.trackError('AlarmChannel.primeCascadeIfNeeded', e, st);
     }
   }
 

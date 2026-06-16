@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../subscription/services/analytics_service.dart';
+
 class AlarmSoundItem {
   final String id;
   final String name;
@@ -289,8 +291,9 @@ Future<void> deleteCustomSound(String id) async {
       final path = await customSoundFilePath(item.fileName);
       final file = File(path);
       if (file.existsSync()) await file.delete();
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[sounds] failed to delete file: $e');
+      AnalyticsService.trackError('sounds.deleteCustomSound', e, st);
     }
   }
   list.removeWhere((s) => s.id == id);

@@ -10,6 +10,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 import '../data/affirmations.dart';
 import '../../missions/models/mission.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -117,8 +118,9 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
         }
         localeId = match?.localeId;
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[SpeechDismissScreen] locale lookup failed: $e');
+      AnalyticsService.trackError('SpeechDismissScreen.localeLookup', e, st);
     }
     if (mounted) {
       setState(() {
