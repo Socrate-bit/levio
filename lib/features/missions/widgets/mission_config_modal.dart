@@ -65,7 +65,8 @@ Future<MissionConfig?> showMissionConfigModal(
   // Missions with no config
   if (info.type == MissionType.skyPhoto ||
       info.type == MissionType.makeBed ||
-      info.type == MissionType.touchGrass) {
+      info.type == MissionType.touchGrass ||
+      info.type == MissionType.spinningWheel) {
     return MissionConfig(type: info.type);
   }
 

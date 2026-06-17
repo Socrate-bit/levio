@@ -18,6 +18,7 @@ import 'features/dismiss/screens/photo_dismiss_screen.dart';
 import 'features/dismiss/screens/shake_dismiss_screen.dart';
 import 'features/dismiss/screens/simple_dismiss_screen.dart';
 import 'features/dismiss/screens/speech_dismiss_screen.dart';
+import 'features/dismiss/screens/spinning_wheel_dismiss_screen.dart';
 import 'features/dismiss/screens/squat_dismiss_screen.dart';
 import 'features/missions/models/mission.dart';
 import 'features/missions/models/mission_config.dart';
@@ -232,6 +233,16 @@ Widget buildDismissScreen({
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
         repCount: config.repCount ?? 10,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.spinningWheel:
+      return SpinningWheelDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
         onComplete: onComplete,
         onProgress: onProgress,
         manageAlarm: manageAlarm,

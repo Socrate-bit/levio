@@ -165,6 +165,8 @@
   "missionAffirmationDesc": "Read an affirmation out loud",
   "missionRandom": "Random",
   "missionRandomDesc": "Surprise mission each morning",
+  "missionSpinningWheel": "Spin to Win",
+  "missionSpinningWheelDesc": "Spin the wheel and land on travel",
   "missionNone": "No mission",
   "missionNoneDesc": "Simple alarm with no task",
 
@@ -456,6 +458,10 @@
 
   "dismissStopAlarm": "Stop Alarm",
   "dismissShakePrompt": "Shake your phone to stop the alarm",
+  "dismissSpinningWheelPrompt": "Flick to spin the wheel",
+  "dismissSpinningWheelFlickHarder": "Flick harder to spin!",
+  "dismissSpinningWheelWin": "You won a trip! ✈️",
+  "slotTravel": "Travel",
   "dismissMathProgress": "{current} / {total}",
   "@dismissMathProgress": {
     "placeholders": {

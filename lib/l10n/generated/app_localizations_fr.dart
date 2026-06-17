@@ -439,6 +439,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionRandomDesc => 'Mission surprise chaque matin';
 
   @override
+  String get missionSpinningWheel => 'Tourne pour gagner';
+
+  @override
+  String get missionSpinningWheelDesc =>
+      'Fais tourner la roue et tombe sur le voyage';
+
+  @override
   String get missionNone => 'Pas de mission';
 
   @override
@@ -1227,6 +1234,18 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get dismissShakePrompt =>
       'Secouez votre téléphone pour arrêter l\'alarme';
+
+  @override
+  String get dismissSpinningWheelPrompt => 'Lance la roue d\'un geste';
+
+  @override
+  String get dismissSpinningWheelFlickHarder => 'Lance plus fort !';
+
+  @override
+  String get dismissSpinningWheelWin => 'Tu as gagné un voyage ! ✈️';
+
+  @override
+  String get slotTravel => 'Voyage';
 
   @override
   String dismissMathProgress(int current, int total) {

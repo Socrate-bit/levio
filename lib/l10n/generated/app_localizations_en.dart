@@ -434,6 +434,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionRandomDesc => 'Surprise mission each morning';
 
   @override
+  String get missionSpinningWheel => 'Spin to Win';
+
+  @override
+  String get missionSpinningWheelDesc => 'Spin the wheel and land on travel';
+
+  @override
   String get missionNone => 'No mission';
 
   @override
@@ -1215,6 +1221,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dismissShakePrompt => 'Shake your phone to stop the alarm';
+
+  @override
+  String get dismissSpinningWheelPrompt => 'Flick to spin the wheel';
+
+  @override
+  String get dismissSpinningWheelFlickHarder => 'Flick harder to spin!';
+
+  @override
+  String get dismissSpinningWheelWin => 'You won a trip! ✈️';
+
+  @override
+  String get slotTravel => 'Travel';
 
   @override
   String dismissMathProgress(int current, int total) {

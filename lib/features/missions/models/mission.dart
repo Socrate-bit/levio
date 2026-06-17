@@ -14,6 +14,7 @@ enum MissionType {
   touchGrass,
   affirmation,
   random,
+  spinningWheel,
 }
 
 enum MissionCategory { all, trending, hunts, physical }
@@ -145,6 +146,15 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF8E8E93),
     iconBg: Color(0xFFF2F2F7),
     icon: Icons.casino,
+    category: MissionCategory.trending,
+  ),
+  MissionInfo(
+    type: MissionType.spinningWheel,
+    name: 'Spin to Win',
+    description: 'Spin the wheel and land on travel',
+    iconColor: Color(0xFF1E9E8A),
+    iconBg: Color(0xFFE3F6F2),
+    icon: Icons.airplanemode_active,
     category: MissionCategory.trending,
   ),
 ];

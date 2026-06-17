@@ -926,6 +926,18 @@ abstract class AppLocalizations {
   /// **'Surprise mission each morning'**
   String get missionRandomDesc;
 
+  /// No description provided for @missionSpinningWheel.
+  ///
+  /// In en, this message translates to:
+  /// **'Spin to Win'**
+  String get missionSpinningWheel;
+
+  /// No description provided for @missionSpinningWheelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Spin the wheel and land on travel'**
+  String get missionSpinningWheelDesc;
+
   /// No description provided for @missionNone.
   ///
   /// In en, this message translates to:
@@ -2419,6 +2431,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shake your phone to stop the alarm'**
   String get dismissShakePrompt;
+
+  /// No description provided for @dismissSpinningWheelPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Flick to spin the wheel'**
+  String get dismissSpinningWheelPrompt;
+
+  /// No description provided for @dismissSpinningWheelFlickHarder.
+  ///
+  /// In en, this message translates to:
+  /// **'Flick harder to spin!'**
+  String get dismissSpinningWheelFlickHarder;
+
+  /// No description provided for @dismissSpinningWheelWin.
+  ///
+  /// In en, this message translates to:
+  /// **'You won a trip! ✈️'**
+  String get dismissSpinningWheelWin;
+
+  /// No description provided for @slotTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get slotTravel;
 
   /// No description provided for @dismissMathProgress.
   ///

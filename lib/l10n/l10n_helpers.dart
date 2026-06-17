@@ -28,6 +28,8 @@ String localizedMissionName(AppLocalizations l10n, MissionType type) {
       return l10n.missionAffirmation;
     case MissionType.random:
       return l10n.missionRandom;
+    case MissionType.spinningWheel:
+      return l10n.missionSpinningWheel;
     case MissionType.none:
       return l10n.missionNone;
   }
@@ -60,6 +62,8 @@ String localizedMissionDesc(AppLocalizations l10n, MissionType type) {
       return l10n.missionAffirmationDesc;
     case MissionType.random:
       return l10n.missionRandomDesc;
+    case MissionType.spinningWheel:
+      return l10n.missionSpinningWheelDesc;
     case MissionType.none:
       return l10n.missionNoneDesc;
   }
