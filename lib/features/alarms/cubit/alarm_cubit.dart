@@ -688,6 +688,8 @@ class AlarmCubit extends Cubit<AlarmState> {
         return 'function';
       case MissionType.random:
         return 'dice.fill';
+      case MissionType.spinningWheel:
+        return 'airplane';
     }
   }
 }
