@@ -147,6 +147,8 @@
   "missionAffirmationDesc": "Lisez une affirmation à voix haute",
   "missionRandom": "Aléatoire",
   "missionRandomDesc": "Mission surprise chaque matin",
+  "missionSpinningWheel": "Tourne pour gagner",
+  "missionSpinningWheelDesc": "Fais tourner la roue et tombe sur le voyage",
   "missionNone": "Pas de mission",
   "missionNoneDesc": "Alarme simple sans tâche",
 
@@ -414,6 +416,10 @@
 
   "dismissStopAlarm": "Arrêter l'alarme",
   "dismissShakePrompt": "Secouez votre téléphone pour arrêter l'alarme",
+  "dismissSpinningWheelPrompt": "Lance la roue d'un geste",
+  "dismissSpinningWheelFlickHarder": "Lance plus fort !",
+  "dismissSpinningWheelWin": "Tu as gagné un voyage ! ✈️",
+  "slotTravel": "Voyage",
   "dismissMathProgress": "{current} / {total}",
   "dismissMathWrong": "Faux — réessayez !",
   "dismissMathConfirm": "Confirmer",
