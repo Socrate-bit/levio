@@ -458,9 +458,12 @@
 
   "dismissStopAlarm": "Stop Alarm",
   "dismissShakePrompt": "Shake your phone to stop the alarm",
+  "dismissSpinningWheelTitle": "Win a travel with Levio",
   "dismissSpinningWheelPrompt": "Flick to spin the wheel",
   "dismissSpinningWheelFlickHarder": "Flick harder to spin!",
   "dismissSpinningWheelWin": "You won a trip! ✈️",
+  "dismissSpinningWheelMissed": "Better luck tomorrow!",
+  "dismissSpinningWheelAlreadyUsed": "You already spun today. Come back tomorrow! ✈️",
   "slotTravel": "Travel",
   "dismissMathProgress": "{current} / {total}",
   "@dismissMathProgress": {

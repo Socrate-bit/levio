@@ -3,22 +3,20 @@ import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
-import '../../missions/models/mission.dart';
-import '../../wakeup/screens/wakeup_complete_screen.dart';
+import '../../settings/cubit/settings_cubit.dart';
+import '../../settings/cubit/settings_state.dart';
+import '../../wakeup/services/history_service.dart';
 import '../widgets/levio_brand_header.dart';
 
-/// Number of slots on the prize wheel.
-const int _kSlots = 8;
+/// Haptic tick divisions per revolution — controls how many clicks are felt while spinning.
+const int _kSlots = 100;
 
-/// The single winning slot. Slot 0 is centred at the top pointer when the
-/// wheel rotation is a multiple of 2π, so aligning the travel slot means
-/// landing on a rotation ≡ 0 (mod 2π).
-const int _kWinningSlot = 0;
 
 /// "Spin to Win" mission: flick the wheel and it lands on the ✈️ Travel slot,
 /// celebrates, and dismisses the alarm. A single flick is all it takes — the
@@ -31,6 +29,7 @@ class SpinningWheelDismissScreen extends StatefulWidget {
   final VoidCallback? onProgress;
   final bool manageAlarm;
   final bool isPreview;
+  final bool showCloseButton;
 
   const SpinningWheelDismissScreen({
     super.key,
@@ -41,6 +40,7 @@ class SpinningWheelDismissScreen extends StatefulWidget {
     this.onProgress,
     this.manageAlarm = true,
     this.isPreview = false,
+    this.showCloseButton = false,
   });
 
   @override
@@ -53,9 +53,9 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
   static const double _sweep = 2 * pi / _kSlots;
 
   final _wheelKey = GlobalKey();
-  final _startTime = DateTime.now();
-  final _confetti =
-      ConfettiController(duration: const Duration(milliseconds: 600));
+  final _confetti = ConfettiController(
+    duration: const Duration(milliseconds: 600),
+  );
   final _rng = Random();
 
   late final AnimationController _spinController;
@@ -68,6 +68,8 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
   bool _hasSpun = false;
   bool _won = false;
   bool _flickHarder = false;
+  bool _spunAndMissed = false;
+  bool _alreadyUsed = false;
 
   @override
   void initState() {
@@ -81,6 +83,12 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
     if (widget.manageAlarm && !widget.isPreview) {
       _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
+    if (!widget.isPreview) _checkAlreadyUsed();
+  }
+
+  Future<void> _checkAlreadyUsed() async {
+    final used = await HistoryService.hasSpinToWinUsedToday();
+    if (mounted) setState(() => _alreadyUsed = used);
   }
 
   // Returns the touch angle around the wheel centre, or null if not laid out.
@@ -93,7 +101,7 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
   }
 
   void _onPanStart(DragStartDetails d) {
-    if (_hasSpun) return;
+    if (_hasSpun || _alreadyUsed) return;
     _lastDragAngle = _angleTo(d.globalPosition);
   }
 
@@ -111,7 +119,7 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
   }
 
   void _onPanEnd(DragEndDetails d) {
-    if (_hasSpun) return;
+    if (_hasSpun || _alreadyUsed) return;
     _lastDragAngle = null;
     final speed = d.velocity.pixelsPerSecond.distance;
     // Too weak to spin — nudge the user to flick harder, keep the spin available.
@@ -123,24 +131,34 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
     _launchSpin(speed);
   }
 
-  // Animate the wheel to rest on the travel slot, with turns scaled by flick speed.
+  // Animate the wheel with physics-based spin; landing angle depends on spin mode.
   void _launchSpin(double speed) {
     _hasSpun = true;
     setState(() => _flickHarder = false);
+    // Mark this trial as used immediately — one spin per day regardless of result.
+    HistoryService.markSpinToWinUsed(widget.alarmId);
 
     final turns = (3 + speed / 900).clamp(3.0, 7.0).round();
-    // Small intra-slot jitter so it doesn't always stop dead-centre, but stays
-    // within the travel slot (|jitter| < _sweep / 2).
-    final jitter = (_rng.nextDouble() - 0.5) * _sweep * 0.7;
     final start = _rotation;
     final fullTurns = (start / (2 * pi)).ceil() + turns;
-    final target = fullTurns * 2 * pi + (_kWinningSlot * _sweep) + jitter;
+    final spinMode = context.read<SettingsCubit>().state.spinMode;
+    final target = switch (spinMode) {
+      SpinMode.alwaysWin =>
+        // Land within the winning slot (jitter stays inside half-sweep).
+        fullTurns * 2 * pi + (_rng.nextDouble() - 0.5) * _sweep * 0.7,
+      SpinMode.neverWin =>
+        // Land anywhere outside the winning slot.
+        fullTurns * 2 * pi + _sweep / 2 + _rng.nextDouble() * (2 * pi - _sweep),
+      SpinMode.normal =>
+        fullTurns * 2 * pi + _rng.nextDouble() * 2 * pi,
+    };
 
     _spinAnim = Tween<double>(begin: start, end: target).animate(
       CurvedAnimation(parent: _spinController, curve: Curves.easeOutCubic),
     );
-    _spinController.duration =
-        Duration(milliseconds: (2600 + turns * 200).round());
+    _spinController.duration = Duration(
+      milliseconds: (2600 + turns * 200).round(),
+    );
     _spinController.forward(from: 0);
   }
 
@@ -168,40 +186,22 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
 
   void _onSpinComplete() {
     HapticFeedback.heavyImpact();
-    _confetti.play();
-    setState(() => _won = true);
-    Future.delayed(const Duration(milliseconds: 1300), () {
-      if (mounted) _dismiss();
-    });
-  }
 
-  Future<void> _dismiss() async {
-    if (widget.isPreview) {
-      if (mounted) Navigator.of(context).pop();
-      return;
-    }
+    // Win if the wheel stopped within the travel slot (slot 0, centred at 0 mod 2π).
+    final normalized = _rotation % (2 * pi);
+    final halfSweep = _sweep / 2;
+    final landed = normalized < halfSweep || normalized > (2 * pi - halfSweep);
 
-    if (widget.onComplete != null) {
-      widget.onComplete!();
-      return;
-    }
-
-    await _cascade?.finish();
-
-    final elapsed = DateTime.now().difference(_startTime).inSeconds;
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => WakeupCompleteScreen(
-            alarmId: widget.alarmId,
-            nativeAlarmId: widget.nativeAlarmId,
-            timeTakenSeconds: elapsed,
-            missionType: MissionType.spinningWheel,
-          ),
-        ),
-      );
+    if (landed) {
+      _confetti.play();
+      setState(() => _won = true);
+      // No auto-close — user exits via the ✕ button.
+    } else {
+      // One trial only — wheel stays, user closes via ✕.
+      setState(() => _spunAndMissed = true);
     }
   }
+
 
   @override
   void dispose() {
@@ -216,7 +216,8 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    final wheelSize = 300.w;
+    final wheelSize = 400.w;
+    final wheelSizeD = 310.w;
 
     return Scaffold(
       backgroundColor: c.background,
@@ -230,8 +231,24 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        // Wheel + fixed pointer + spin gesture
+                        Text(
+                          '🏝️',
+                          style: TextStyle(fontSize: 36.sp),
+                        ),
+                        SizedBox(height: 10.h),
+                        Text(
+                          l10n.dismissSpinningWheelTitle,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.bold,
+                            color: c.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 80.h),
+                        // Wheel + fixed overlay + spin gesture
                         GestureDetector(
                           onPanStart: _onPanStart,
                           onPanUpdate: _onPanUpdate,
@@ -243,35 +260,23 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
-                                Transform.rotate(
-                                  angle: _rotation,
-                                  child: CustomPaint(
-                                    size: Size(wheelSize, wheelSize),
-                                    painter: _WheelPainter(
-                                      travelLabel: l10n.slotTravel,
-                                      hubColor: c.card,
+                                // Spinning disc image on top
+                                Transform.translate(
+                                  offset: Offset(0, -17.h),
+                                  child: Transform.rotate(
+                                    angle: _rotation,
+                                    child: Image.asset(
+                                      'assets/wheel_moving.png',
+                                      width: wheelSizeD,
+                                      height: wheelSizeD,
                                     ),
                                   ),
                                 ),
-                                // Centre hub
-                                Container(
-                                  width: 44.w,
-                                  height: 44.w,
-                                  decoration: BoxDecoration(
-                                    color: c.card,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: AppColors.orange, width: 3),
-                                  ),
-                                ),
-                                // Fixed pointer at the top, biting into the wheel
-                                Positioned(
-                                  top: -10.h,
-                                  child: Icon(
-                                    Icons.arrow_drop_down,
-                                    size: 48.sp,
-                                    color: AppColors.orange,
-                                  ),
+                                // Fixed frame / background image
+                                Image.asset(
+                                  'assets/wheel_static.png',
+                                  width: wheelSize,
+                                  height: wheelSize,
                                 ),
                               ],
                             ),
@@ -279,19 +284,21 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
                         ),
                         SizedBox(height: 32.h),
                         Text(
-                          _won
-                              ? l10n.dismissSpinningWheelWin
-                              : _flickHarder
-                                  ? l10n.dismissSpinningWheelFlickHarder
-                                  : l10n.dismissSpinningWheelPrompt,
-                          maxLines: 2,
+                          _alreadyUsed
+                              ? l10n.dismissSpinningWheelAlreadyUsed
+                              : _won
+                                  ? l10n.dismissSpinningWheelWin
+                                  : _spunAndMissed
+                                      ? l10n.dismissSpinningWheelMissed
+                                      : _flickHarder
+                                          ? l10n.dismissSpinningWheelFlickHarder
+                                          : l10n.dismissSpinningWheelPrompt,
+                          maxLines: 3,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontWeight: _won ? FontWeight.bold : FontWeight.w400,
-                            color: _won
-                                ? AppColors.orange
-                                : c.textSecondary,
+                            color: _won ? AppColors.orange : c.textSecondary,
                           ),
                         ),
                       ],
@@ -322,13 +329,15 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
                 ],
               ),
             ),
-            // Preview close button
-            if (widget.isPreview)
+            // Close button (preview or post-success bonus)
+            if (widget.isPreview || widget.showCloseButton)
               Positioned(
                 top: 16.h,
                 right: 16.w,
                 child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () => widget.isPreview
+                      ? Navigator.of(context).pop()
+                      : Navigator.of(context).popUntil((r) => r.isFirst),
                   child: Container(
                     width: 36.w,
                     height: 36.h,
@@ -345,99 +354,4 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
       ),
     );
   }
-}
-
-/// Paints the prize wheel: [_kSlots] wedges with the travel slot highlighted,
-/// laid out so slot 0 is centred at the top (12 o'clock) at rotation 0.
-class _WheelPainter extends CustomPainter {
-  final String travelLabel;
-  final Color hubColor;
-
-  // Dud-slot colors, cycled across the non-winning wedges.
-  static const _dudColors = <Color>[
-    Color(0xFF5B8DEF),
-    Color(0xFF7B61FF),
-    Color(0xFFCC4DAA),
-    Color(0xFFE07B3A),
-    Color(0xFF3DAD6F),
-    Color(0xFF8E8E93),
-    Color(0xFFE05C5C),
-  ];
-  static const _travelColor = Color(0xFFFFC107);
-
-  _WheelPainter({required this.travelLabel, required this.hubColor});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final radius = size.width / 2;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    const sweep = 2 * pi / _kSlots;
-
-    final border = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..color = Colors.white;
-
-    var dudCursor = 0;
-    for (var i = 0; i < _kSlots; i++) {
-      // Slot i centred at canvas angle -π/2 + i*sweep (top = -π/2).
-      final centerAngle = -pi / 2 + i * sweep;
-      final startAngle = centerAngle - sweep / 2;
-      final isTravel = i == _kWinningSlot;
-      final fill = Paint()
-        ..style = PaintingStyle.fill
-        ..color = isTravel
-            ? _travelColor
-            : _dudColors[dudCursor++ % _dudColors.length];
-
-      canvas.drawArc(rect, startAngle, sweep, true, fill);
-      canvas.drawArc(rect, startAngle, sweep, true, border);
-
-      if (isTravel) {
-        _drawTravelLabel(canvas, center, radius, centerAngle);
-      }
-    }
-
-    // Outer rim
-    canvas.drawCircle(
-      center,
-      radius - 1,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 4
-        ..color = Colors.white,
-    );
-  }
-
-  // Draws "✈️ + label" along the travel wedge bisector, rotated to read radially.
-  void _drawTravelLabel(
-      Canvas canvas, Offset center, double radius, double centerAngle) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: '✈️\n$travelLabel',
-        style: const TextStyle(
-          color: Colors.black87,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          height: 1.1,
-        ),
-      ),
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    )..layout();
-
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    canvas.rotate(centerAngle + pi / 2);
-    // Position toward the rim along the (now vertical) bisector.
-    final dy = -(radius * 0.62);
-    canvas.translate(0, dy);
-    tp.paint(canvas, Offset(-tp.width / 2, -tp.height / 2));
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant _WheelPainter oldDelegate) =>
-      oldDelegate.travelLabel != travelLabel || oldDelegate.hubColor != hubColor;
 }

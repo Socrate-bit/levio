@@ -148,15 +148,6 @@ const allMissions = <MissionInfo>[
     icon: Icons.casino,
     category: MissionCategory.trending,
   ),
-  MissionInfo(
-    type: MissionType.spinningWheel,
-    name: 'Spin to Win',
-    description: 'Spin the wheel and land on travel',
-    iconColor: Color(0xFF1E9E8A),
-    iconBg: Color(0xFFE3F6F2),
-    icon: Icons.airplanemode_active,
-    category: MissionCategory.trending,
-  ),
 ];
 
 const _noneInfo = MissionInfo(

@@ -24,6 +24,12 @@ import 'forced_hunt_target_picker_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'terms_conditions_screen.dart';
 
+const _spinModeLabels = {
+  SpinMode.normal: 'Normal',
+  SpinMode.alwaysWin: 'Always Win',
+  SpinMode.neverWin: 'Never Win',
+};
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -104,6 +110,27 @@ class _SettingsScreenState extends State<SettingsScreen>
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.settingsDeleteAccountError)),
       );
+    }
+  }
+
+  Future<void> _pickSpinMode(BuildContext context, SpinMode current) async {
+    final picked = await showDialog<SpinMode>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: const Text('Spin Mode'),
+        children: SpinMode.values.map((mode) {
+          return ListTile(
+            title: Text(_spinModeLabels[mode]!),
+            trailing: mode == current
+                ? const Icon(Icons.check, color: AppColors.orange)
+                : null,
+            onTap: () => Navigator.of(dialogContext).pop(mode),
+          );
+        }).toList(),
+      ),
+    );
+    if (picked != null && context.mounted) {
+      context.read<SettingsCubit>().setSpinMode(picked);
     }
   }
 
@@ -377,6 +404,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                             onChanged: (_) => context
                                 .read<SettingsCubit>()
                                 .toggleForceQuickAlarm(),
+                          ),
+                          const _Divider(),
+                          _LinkRow(
+                            icon: Icons.casino_outlined,
+                            label: 'Spin Mode',
+                            value: _spinModeLabels[settings.spinMode],
+                            onTap: () => _pickSpinMode(context, settings.spinMode),
                           ),
                           const _Divider(),
                           _LinkRow(

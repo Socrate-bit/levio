@@ -37,6 +37,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   late List<MissionConfig> _missions;
   late String _soundId;
   late String _soundName;
+  late bool _spinToWin;
 
   bool get _isEditing => widget.alarm != null;
 
@@ -55,6 +56,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _missions = List.from(a.missions);
       _soundId = a.soundId;
       _soundName = _soundIdToName(a.soundId);
+      _spinToWin = a.spinToWin;
     } else {
       // Create mode: use saved defaults from settings
       final alarmCount = context.read<AlarmCubit>().state.alarms.length;
@@ -68,6 +70,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
           : [];
       _soundId = settings.defaultSoundId;
       _soundName = settings.defaultSoundName;
+      _spinToWin = false;
     }
   }
 
@@ -588,6 +591,53 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   ],
                 ),
               ),
+              SizedBox(height: 12.h),
+              // Spin to Win bonus
+              _FormCard(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40.w,
+                      height: 40.h,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE3F6F2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Text('✈️', style: TextStyle(fontSize: 20)),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Spin to Win',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: c.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            'Win a travel after your mission',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              color: c.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _spinToWin,
+                      activeThumbColor: AppColors.orange,
+                      onChanged: (v) => setState(() => _spinToWin = v),
+                    ),
+                  ],
+                ),
+              ),
                     SizedBox(height: 32.h),
                   ],
                 ),
@@ -696,6 +746,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       soundId: _soundId,
       repeatDays: _repeatDays,
       isOneTime: !_isScheduled,
+      spinToWin: _spinToWin,
     );
 
     final cubit = context.read<AlarmCubit>();

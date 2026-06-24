@@ -8,6 +8,7 @@ class WakeupSession {
   final MissionType? missionType;
   final String soundId;
   final bool completed;
+  final bool spinToWinUsed;
 
   const WakeupSession({
     required this.id,
@@ -17,6 +18,7 @@ class WakeupSession {
     this.missionType,
     this.soundId = 'default',
     this.completed = true,
+    this.spinToWinUsed = false,
   });
 
   Map<String, dynamic> toFirestore() => {
@@ -26,6 +28,7 @@ class WakeupSession {
         'missionType': missionType?.name,
         'soundId': soundId,
         'completed': completed,
+        if (spinToWinUsed) 'spinToWinUsed': true,
       };
 
   factory WakeupSession.fromFirestore(String id, Map<String, dynamic> data) {
@@ -40,6 +43,7 @@ class WakeupSession {
       missionType: missionStr != null ? missionTypeFromString(missionStr) : null,
       soundId: (data['soundId'] as String?) ?? 'default',
       completed: (data['completed'] as bool?) ?? true, // legacy docs are completed
+      spinToWinUsed: (data['spinToWinUsed'] as bool?) ?? false,
     );
   }
 }

@@ -18,6 +18,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   static const _defaultMissionKey = 'default_mission';
   static const forceQuickAlarmKey = 'force_quick_alarm';
   static const forcedHuntTargetKey = 'forced_hunt_target';
+  static const _spinModeKey = 'spin_mode';
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -30,6 +31,11 @@ class SettingsCubit extends Cubit<SettingsState> {
         missionStr != null ? missionTypeFromString(missionStr) : MissionType.none;
     final forceQuickAlarm = prefs.getBool(forceQuickAlarmKey) ?? false;
     final forcedHuntTarget = prefs.getString(forcedHuntTargetKey);
+    final spinModeStr = prefs.getString(_spinModeKey);
+    final spinMode = spinModeStr != null
+        ? SpinMode.values.firstWhere((e) => e.name == spinModeStr,
+            orElse: () => SpinMode.neverWin)
+        : SpinMode.neverWin;
 
     emit(SettingsState(
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
@@ -39,6 +45,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       defaultMission: mission,
       forceQuickAlarm: forceQuickAlarm,
       forcedHuntTarget: forcedHuntTarget,
+      spinMode: spinMode,
     ));
   }
 
@@ -81,6 +88,12 @@ class SettingsCubit extends Cubit<SettingsState> {
     await prefs.setBool(forceQuickAlarmKey, next);
   }
 
+  Future<void> setSpinMode(SpinMode mode) async {
+    emit(state.copyWith(spinMode: mode));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_spinModeKey, mode.name);
+  }
+
   /// Admin/UGC: forces the photo-hunt roulette to always land on [label].
   /// Pass null to clear and restore random selection.
   Future<void> setForcedHuntTarget(String? label) async {
@@ -121,6 +134,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       prefs.remove(_defaultMissionKey),
       prefs.remove(forceQuickAlarmKey),
       prefs.remove(forcedHuntTargetKey),
+      prefs.remove(_spinModeKey),
     ]);
     emit(const SettingsState());
   }

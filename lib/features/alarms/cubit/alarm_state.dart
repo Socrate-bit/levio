@@ -16,6 +16,9 @@ class AppAlarmEntry extends Equatable {
   final bool isOneTime;
   final DateTime createdAt;
   final bool disabledBySubscription;
+  // Whether a Spin to Win wheel appears after the dismiss mission completes.
+  // At most one alarm per user may have this enabled.
+  final bool spinToWin;
 
   AppAlarmEntry({
     required this.id,
@@ -27,6 +30,7 @@ class AppAlarmEntry extends Equatable {
     this.isEnabled = true,
     this.isOneTime = false,
     this.disabledBySubscription = false,
+    this.spinToWin = false,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -40,6 +44,7 @@ class AppAlarmEntry extends Equatable {
     bool? isEnabled,
     bool? isOneTime,
     bool? disabledBySubscription,
+    bool? spinToWin,
     DateTime? createdAt,
   }) =>
       AppAlarmEntry(
@@ -53,6 +58,7 @@ class AppAlarmEntry extends Equatable {
         isOneTime: isOneTime ?? this.isOneTime,
         disabledBySubscription:
             disabledBySubscription ?? this.disabledBySubscription,
+        spinToWin: spinToWin ?? this.spinToWin,
         createdAt: createdAt ?? this.createdAt,
       );
 
@@ -67,6 +73,7 @@ class AppAlarmEntry extends Equatable {
         isEnabled,
         isOneTime,
         disabledBySubscription,
+        spinToWin,
         createdAt,
       ];
 }

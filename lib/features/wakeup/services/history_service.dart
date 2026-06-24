@@ -152,6 +152,33 @@ class HistoryService {
     return sessions.isEmpty ? null : sessions.first;
   }
 
+  /// Records that the Spin to Win wheel was used today for [alarmId].
+  /// Finds the most recent session for the alarm today and sets spinToWinUsed.
+  static Future<void> markSpinToWinUsed(String alarmId) async {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final snap = await _sessions
+        .where('alarmId', isEqualTo: alarmId)
+        .where('timestamp', isGreaterThanOrEqualTo: startOfDay.millisecondsSinceEpoch)
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .get();
+    if (snap.docs.isEmpty) return;
+    await snap.docs.first.reference.update({'spinToWinUsed': true});
+  }
+
+  /// Returns true if the Spin to Win wheel has already been used today.
+  static Future<bool> hasSpinToWinUsedToday() async {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final sessions = await getSessions(
+      limit: 50,
+      since: startOfDay,
+      includeIncomplete: true,
+    );
+    return sessions.any((s) => s.spinToWinUsed);
+  }
+
   /// Returns the most recent pending (incomplete) session for the given alarm,
   /// or null if none exists.
   static Future<WakeupSession?> getPendingSession(String alarmId) async {

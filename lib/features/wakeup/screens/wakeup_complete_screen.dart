@@ -10,6 +10,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
+import '../../dismiss/screens/spinning_wheel_dismiss_screen.dart';
 import '../../milestones/models/badge_model.dart';
 import '../../milestones/screens/badge_unlock_screen.dart';
 import '../../milestones/services/streak_service.dart';
@@ -23,6 +24,7 @@ class WakeupCompleteScreen extends StatefulWidget {
   final String nativeAlarmId;
   final int timeTakenSeconds;
   final MissionType? missionType;
+  final bool spinToWin;
 
   const WakeupCompleteScreen({
     super.key,
@@ -30,6 +32,7 @@ class WakeupCompleteScreen extends StatefulWidget {
     required this.nativeAlarmId,
     required this.timeTakenSeconds,
     this.missionType,
+    this.spinToWin = false,
   });
 
   @override
@@ -202,9 +205,33 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                   ),
                   SizedBox(height: 24.h),
                   ElevatedButton(
-                    onPressed: withHaptic(() =>
-                        Navigator.of(context).popUntil((route) => route.isFirst)),
-                    child: Text(l10n.wakeupContinue),
+                    onPressed: withHaptic(() {
+                      if (widget.spinToWin) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => SpinningWheelDismissScreen(
+                            alarmId: widget.alarmId,
+                            nativeAlarmId: widget.nativeAlarmId,
+                            manageAlarm: false,
+                            showCloseButton: true,
+                            onComplete: () => Navigator.of(context)
+                                .popUntil((r) => r.isFirst),
+                          ),
+                        ));
+                      } else {
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
+                      }
+                    }),
+                    child: widget.spinToWin
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(l10n.wakeupContinue),
+                              const SizedBox(width: 6),
+                              const Text('✈️'),
+                            ],
+                          )
+                        : Text(l10n.wakeupContinue),
                   ),
                   SizedBox(height: 16.h),
                 ],

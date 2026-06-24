@@ -20,6 +20,7 @@ class AlarmFirestoreService {
         'isEnabled': entry.isEnabled,
         'isOneTime': entry.isOneTime,
         'disabledBySubscription': entry.disabledBySubscription,
+        'spinToWin': entry.spinToWin,
         'createdAtMs': entry.createdAt.millisecondsSinceEpoch,
       });
 
@@ -52,6 +53,7 @@ class AlarmFirestoreService {
       isEnabled: d['isEnabled'] as bool? ?? true,
       isOneTime: d['isOneTime'] as bool? ?? false,
       disabledBySubscription: d['disabledBySubscription'] as bool? ?? false,
+      spinToWin: d['spinToWin'] as bool? ?? false,
       createdAt: d['createdAtMs'] != null
           ? DateTime.fromMillisecondsSinceEpoch(d['createdAtMs'] as int)
           : null,

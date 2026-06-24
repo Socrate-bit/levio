@@ -416,9 +416,12 @@
 
   "dismissStopAlarm": "Arrêter l'alarme",
   "dismissShakePrompt": "Secouez votre téléphone pour arrêter l'alarme",
+  "dismissSpinningWheelTitle": "Gagne un voyage avec Levio",
   "dismissSpinningWheelPrompt": "Lance la roue d'un geste",
   "dismissSpinningWheelFlickHarder": "Lance plus fort !",
   "dismissSpinningWheelWin": "Tu as gagné un voyage ! ✈️",
+  "dismissSpinningWheelMissed": "Meilleure chance demain !",
+  "dismissSpinningWheelAlreadyUsed": "Tu as déjà tourné aujourd'hui. Reviens demain ! ✈️",
   "slotTravel": "Voyage",
   "dismissMathProgress": "{current} / {total}",
   "dismissMathWrong": "Faux — réessayez !",

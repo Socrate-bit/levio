@@ -370,6 +370,32 @@ class AlarmCubit extends Cubit<AlarmState> {
     return dt.add(Duration(days: now.difference(dt).inDays + 1));
   }
 
+  /// Clears spinToWin from every alarm except [excludeId].
+  /// Called whenever an alarm with spinToWin=true is saved to enforce the
+  /// one-per-user constraint.
+  Future<void> _clearSpinToWinExcept(String excludeId) async {
+    final toClear = state.alarms
+        .where((a) => a.id != excludeId && a.spinToWin)
+        .toList();
+    if (toClear.isEmpty) return;
+
+    emit(state.copyWith(
+      alarms: state.alarms.map((a) {
+        if (a.id == excludeId || !a.spinToWin) return a;
+        return a.copyWith(spinToWin: false);
+      }).toList(),
+    ));
+
+    for (final alarm in toClear) {
+      try {
+        await AlarmFirestoreService.saveAlarm(alarm.copyWith(spinToWin: false));
+      } catch (e, st) {
+        debugPrint('[AlarmCubit] Failed to clear spinToWin on ${alarm.id}: $e');
+        AnalyticsService.trackError('AlarmCubit._clearSpinToWinExcept', e, st);
+      }
+    }
+  }
+
   Future<void> addAlarm(AppAlarmEntry entry) async {
     final prefs = await SharedPreferences.getInstance();
     final forceQuick = prefs.getBool(SettingsCubit.forceQuickAlarmKey) ?? false;
@@ -406,6 +432,8 @@ class AlarmCubit extends Cubit<AlarmState> {
       'repeats': saved.repeatDays.where((d) => d).length,
       'sound_id': saved.soundId,
     });
+
+    if (saved.spinToWin) await _clearSpinToWinExcept(saved.id);
   }
 
   Future<void> toggleAlarm(String id, bool enabled) async {
@@ -508,6 +536,8 @@ class AlarmCubit extends Cubit<AlarmState> {
     }
 
     AnalyticsService.capture(AnalyticsService.alarmUpdated);
+
+    if (saved.spinToWin) await _clearSpinToWinExcept(saved.id);
   }
 
   Future<void> removeAlarm(String id) async {

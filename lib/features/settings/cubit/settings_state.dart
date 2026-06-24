@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../missions/models/mission.dart';
 
+enum SpinMode { normal, alwaysWin, neverWin }
+
 /// All app-level preferences (theme, defaults, behaviour toggles).
 class SettingsState extends Equatable {
   final ThemeMode themeMode;
@@ -15,6 +17,7 @@ class SettingsState extends Equatable {
   // item label, regardless of which items are selected for the mission.
   // null = random (default).
   final String? forcedHuntTarget;
+  final SpinMode spinMode;
 
   const SettingsState({
     this.themeMode = ThemeMode.light,
@@ -24,6 +27,7 @@ class SettingsState extends Equatable {
     this.defaultMission = MissionType.none,
     this.forceQuickAlarm = false,
     this.forcedHuntTarget,
+    this.spinMode = SpinMode.neverWin,
   });
 
   SettingsState copyWith({
@@ -35,6 +39,7 @@ class SettingsState extends Equatable {
     bool? forceQuickAlarm,
     String? forcedHuntTarget,
     bool clearForcedHuntTarget = false,
+    SpinMode? spinMode,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
@@ -46,6 +51,7 @@ class SettingsState extends Equatable {
       forceQuickAlarm: forceQuickAlarm ?? this.forceQuickAlarm,
       forcedHuntTarget:
           clearForcedHuntTarget ? null : (forcedHuntTarget ?? this.forcedHuntTarget),
+      spinMode: spinMode ?? this.spinMode,
     );
   }
 
@@ -58,5 +64,6 @@ class SettingsState extends Equatable {
         defaultMission,
         forceQuickAlarm,
         forcedHuntTarget,
+        spinMode,
       ];
 }

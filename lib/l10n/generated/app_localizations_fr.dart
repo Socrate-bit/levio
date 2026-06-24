@@ -1236,6 +1236,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Secouez votre téléphone pour arrêter l\'alarme';
 
   @override
+  String get dismissSpinningWheelTitle => 'Gagne un voyage avec Levio';
+
+  @override
   String get dismissSpinningWheelPrompt => 'Lance la roue d\'un geste';
 
   @override
@@ -1243,6 +1246,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dismissSpinningWheelWin => 'Tu as gagné un voyage ! ✈️';
+
+  @override
+  String get dismissSpinningWheelMissed => 'Meilleure chance demain !';
+
+  @override
+  String get dismissSpinningWheelAlreadyUsed =>
+      'Tu as déjà tourné aujourd\'hui. Reviens demain ! ✈️';
 
   @override
   String get slotTravel => 'Voyage';
