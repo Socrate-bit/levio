@@ -594,6 +594,23 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "onboardingSleepPlanTitle": "Votre routine de sommeil",
+  "onboardingSleepRoutineHeader": "VOTRE ROUTINE DE SOMMEIL",
+  "onboardingSleepBedtime": "Rappel de coucher à {time}",
+  "@onboardingSleepBedtime": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "onboardingSleepBlocked": "Applis bloquées {start}–{end}",
+  "@onboardingSleepBlocked": {
+    "placeholders": {
+      "start": { "type": "String" },
+      "end": { "type": "String" }
+    }
+  },
+  "onboardingSleepWindDown": "Routine de détente",
+  "onboardingSignatureSleepSubtitle": "Je m'engage à suivre ma routine de sommeil et à me lever à {time}.",
+  "@onboardingSignatureSleepSubtitle": {
+    "placeholders": { "time": { "type": "String" } }
+  },
   "onboardingContinue": "Continuer",
   "onboardingSetAlarmFor": "Régler l'alarme à {time}",
   "onboardingAlarmDuringMission": "Jouer l'alarme pendant la mission ?",

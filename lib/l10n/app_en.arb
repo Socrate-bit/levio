@@ -685,6 +685,23 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "onboardingSleepPlanTitle": "Your sleep routine",
+  "onboardingSleepRoutineHeader": "YOUR SLEEP ROUTINE",
+  "onboardingSleepBedtime": "Bedtime reminder at {time}",
+  "@onboardingSleepBedtime": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "onboardingSleepBlocked": "Apps blocked {start}–{end}",
+  "@onboardingSleepBlocked": {
+    "placeholders": {
+      "start": { "type": "String" },
+      "end": { "type": "String" }
+    }
+  },
+  "onboardingSleepWindDown": "Wind-down routine",
+  "onboardingSignatureSleepSubtitle": "I commit to following my sleep routine and rising at {time}.",
+  "@onboardingSignatureSleepSubtitle": {
+    "placeholders": { "time": { "type": "String" } }
+  },
   "onboardingContinue": "Continue",
   "onboardingSetAlarmFor": "Set alarm for {time}",
   "@onboardingSetAlarmFor": {

@@ -1758,6 +1758,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingSleepPlanTitle => 'Votre routine de sommeil';
 
   @override
+  String get onboardingSleepRoutineHeader => 'VOTRE ROUTINE DE SOMMEIL';
+
+  @override
+  String onboardingSleepBedtime(String time) {
+    return 'Rappel de coucher à $time';
+  }
+
+  @override
+  String onboardingSleepBlocked(String start, String end) {
+    return 'Applis bloquées $start–$end';
+  }
+
+  @override
+  String get onboardingSleepWindDown => 'Routine de détente';
+
+  @override
+  String onboardingSignatureSleepSubtitle(String time) {
+    return 'Je m\'engage à suivre ma routine de sommeil et à me lever à $time.';
+  }
+
+  @override
   String get onboardingContinue => 'Continuer';
 
   @override

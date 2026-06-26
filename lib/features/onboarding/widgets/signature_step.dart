@@ -8,11 +8,13 @@ import '../../../shared/utils/haptic_utils.dart';
 
 class SignatureStep extends StatefulWidget {
   final String alarmTimeText;
+  final bool hasSleep;
   final VoidCallback onCommit;
 
   const SignatureStep({
     super.key,
     required this.alarmTimeText,
+    this.hasSleep = false,
     required this.onCommit,
   });
 
@@ -60,7 +62,9 @@ class _SignatureStepState extends State<SignatureStep> {
           ),
           SizedBox(height: 12.h),
           Text(
-            l10n.onboardingSignatureSubtitle(widget.alarmTimeText),
+            widget.hasSleep
+                ? l10n.onboardingSignatureSleepSubtitle(widget.alarmTimeText)
+                : l10n.onboardingSignatureSubtitle(widget.alarmTimeText),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
           ),

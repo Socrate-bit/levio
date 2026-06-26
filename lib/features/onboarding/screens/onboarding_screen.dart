@@ -82,7 +82,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _goToPage(int page) async {
-    final wasOnWelcome = _currentPage == 0;
+    final from = _currentPage;
+    final wasOnWelcome = from == 0;
     setState(() => _currentPage = page);
     // PageView doesn't contain the welcome page, so its index = page - 1.
     if (page >= 1) {
@@ -91,6 +92,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _pageController.jumpToPage(0);
         });
+      } else if ((page - from).abs() > 1) {
+        // The move skips over hidden pages; animating would flash them past,
+        // so jump straight to the target instead.
+        _pageController.jumpToPage(page - 1);
       } else {
         await _pageController.animateToPage(
           page - 1,
@@ -855,6 +860,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 38: Signature
                               SignatureStep(
                                 alarmTimeText: _formatTime(state.alarmTime),
+                                hasSleep: state.wantsSleepAlarm == true,
                                 onCommit: _next,
                               ),
                               // 39: Loading
@@ -870,6 +876,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 soundId: state.soundId,
                                 repeatDays: state.repeatDays,
                                 hasSleep: state.wantsSleepAlarm == true,
+                                sleepTime: state.sleepTime,
+                                relaxingActivities: state.relaxingActivities,
+                                blockApps: state.wantsScreenBlock == true,
                               ),
                               // 41: Sign in — saves alarm + refreshes user type
                               SignInStep(
