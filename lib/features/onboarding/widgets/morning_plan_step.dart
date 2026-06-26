@@ -11,6 +11,7 @@ class MorningPlanStep extends StatelessWidget {
   final MissionType mission;
   final String soundId;
   final List<bool> repeatDays;
+  final bool hasSleep;
 
   const MorningPlanStep({
     super.key,
@@ -18,6 +19,7 @@ class MorningPlanStep extends StatelessWidget {
     required this.mission,
     required this.soundId,
     required this.repeatDays,
+    this.hasSleep = false,
   });
 
   String _fmt(TimeOfDay t) =>
@@ -39,7 +41,9 @@ class MorningPlanStep extends StatelessWidget {
           Text('⭐⭐⭐⭐⭐', style: TextStyle(fontSize: 22.sp)),
           SizedBox(height: 12.h),
           Text(
-            l10n.onboardingMorningPlanTitle,
+            hasSleep
+                ? l10n.onboardingSleepPlanTitle
+                : l10n.onboardingMorningPlanTitle,
             style: TextStyle(
               fontSize: 28.sp,
               fontWeight: FontWeight.bold,

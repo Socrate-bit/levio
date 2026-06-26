@@ -3299,7 +3299,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingBlockStartSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Apps stay blocked until your wake-up time.'**
+  /// **'Apps stay blocked until 20 min after you wake up. This is the default — you can change it later in Settings.'**
   String get onboardingBlockStartSubtitle;
 
   /// No description provided for @onboardingRelaxEduTitle.
@@ -3325,6 +3325,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a few activities for your bedtime routine.'**
   String get onboardingRelaxActivitiesSubtitle;
+
+  /// No description provided for @onboardingRelaxActivitiesChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your wind-down routine'**
+  String get onboardingRelaxActivitiesChoose;
+
+  /// No description provided for @onboardingRelaxActivitiesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} activities chosen'**
+  String onboardingRelaxActivitiesCount(int count);
+
+  /// No description provided for @onboardingSleepPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your sleep routine'**
+  String get onboardingSleepPlanTitle;
 
   /// No description provided for @onboardingContinue.
   ///

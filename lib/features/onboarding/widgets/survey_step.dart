@@ -6,6 +6,7 @@ import '../../../shared/utils/haptic_utils.dart';
 
 class SurveyStep extends StatelessWidget {
   final String question;
+  final String? subtitle;
   final List<String> options;
   final String? selectedOption;
   final ValueChanged<String> onSelected;
@@ -14,6 +15,7 @@ class SurveyStep extends StatelessWidget {
   const SurveyStep({
     super.key,
     required this.question,
+    this.subtitle,
     required this.options,
     required this.selectedOption,
     required this.onSelected,
@@ -38,6 +40,13 @@ class SurveyStep extends StatelessWidget {
               height: 1.2,
             ),
           ),
+          if (subtitle != null) ...[
+            SizedBox(height: 8.h),
+            Text(
+              subtitle!,
+              style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
+            ),
+          ],
           SizedBox(height: 24.h),
           ...options.asMap().entries.map((entry) {
             final index = entry.key;

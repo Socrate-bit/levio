@@ -583,11 +583,17 @@
   "onboardingScreenEduBody": "Scroller tard décale votre horloge interne et réduit le sommeil profond. Bloquer les applis distrayantes le soir protège votre repos.",
   "onboardingBlockApps": "Bloquer les applis distrayantes pendant le sommeil ?",
   "onboardingBlockStartTitle": "Quand le blocage doit-il commencer ?",
-  "onboardingBlockStartSubtitle": "Les applis restent bloquées jusqu'à votre réveil.",
+  "onboardingBlockStartSubtitle": "Les applis restent bloquées jusqu'à 20 min après votre réveil. C'est la valeur par défaut — vous pourrez la modifier plus tard dans les Réglages.",
   "onboardingRelaxEduTitle": "Remplacez les écrans par du calme",
   "onboardingRelaxEduBody": "Échangez le scroll contre une courte routine de détente. Votre alarme de coucher vous guidera.",
   "onboardingRelaxActivitiesTitle": "Qu'est-ce qui vous aide à décompresser ?",
   "onboardingRelaxActivitiesSubtitle": "Choisissez quelques activités pour votre routine du soir.",
+  "onboardingRelaxActivitiesChoose": "Choisissez votre routine de détente",
+  "onboardingRelaxActivitiesCount": "{count} activités choisies",
+  "@onboardingRelaxActivitiesCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "onboardingSleepPlanTitle": "Votre routine de sommeil",
   "onboardingContinue": "Continuer",
   "onboardingSetAlarmFor": "Régler l'alarme à {time}",
   "onboardingAlarmDuringMission": "Jouer l'alarme pendant la mission ?",

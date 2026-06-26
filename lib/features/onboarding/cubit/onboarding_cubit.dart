@@ -139,10 +139,12 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     );
   }
 
-  void toggleRelaxingActivity(String label) {
-    final next = List<String>.from(state.relaxingActivities);
-    if (!next.remove(label)) next.add(label);
-    emit(state.copyWith(relaxingActivities: next));
+  void setRelaxingActivities(List<String> activities) {
+    emit(state.copyWith(relaxingActivities: activities));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'relaxing_activities', 'count': activities.length},
+    );
   }
 
   void setSound(String id, String name) {
@@ -246,6 +248,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           isEnabled: true,
           isOneTime: !state.repeatDays.any((d) => d),
           isSleep: true,
+          // Bedtime reminder notification on by default.
+          reminderEnabled: true,
         );
         await alarmCubit.addAlarm(sleepEntry);
       }
@@ -259,13 +263,15 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       try {
         final start =
             state.wantsSleepAlarm == true ? state.sleepTime : state.screenBlockStart;
+        // Keep blocking 20 min past wake-up so the user can't immediately scroll.
+        final endTotal = (alarmTime.hour * 60 + alarmTime.minute + 20) % (24 * 60);
         // create() supplies a fresh id; override the window + repeat days.
         final schedule = ScreenTimeSchedule.create().copyWith(
           repeatDays: state.repeatDays,
           startHour: start.hour,
           startMinute: start.minute,
-          endHour: alarmTime.hour,
-          endMinute: alarmTime.minute,
+          endHour: endTotal ~/ 60,
+          endMinute: endTotal % 60,
         );
         await screenTimeCubit.setEnabled(true);
         await screenTimeCubit.addSchedule(schedule);

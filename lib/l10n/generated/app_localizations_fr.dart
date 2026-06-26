@@ -1728,7 +1728,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingBlockStartSubtitle =>
-      'Les applis restent bloquées jusqu\'à votre réveil.';
+      'Les applis restent bloquées jusqu\'à 20 min après votre réveil. C\'est la valeur par défaut — vous pourrez la modifier plus tard dans les Réglages.';
 
   @override
   String get onboardingRelaxEduTitle => 'Remplacez les écrans par du calme';
@@ -1744,6 +1744,18 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get onboardingRelaxActivitiesSubtitle =>
       'Choisissez quelques activités pour votre routine du soir.';
+
+  @override
+  String get onboardingRelaxActivitiesChoose =>
+      'Choisissez votre routine de détente';
+
+  @override
+  String onboardingRelaxActivitiesCount(int count) {
+    return '$count activités choisies';
+  }
+
+  @override
+  String get onboardingSleepPlanTitle => 'Votre routine de sommeil';
 
   @override
   String get onboardingContinue => 'Continuer';
