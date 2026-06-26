@@ -4409,8 +4409,14 @@ abstract class AppLocalizations {
   /// No description provided for @screenTimeUnlockCountdownTitle.
   ///
   /// In en, this message translates to:
-  /// **'Stay focused'**
+  /// **'You can unlock in'**
   String get screenTimeUnlockCountdownTitle;
+
+  /// No description provided for @screenTimeUnlockReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You can unlock now'**
+  String get screenTimeUnlockReadyTitle;
 
   /// No description provided for @screenTimeUnlockCountdownHint.
   ///

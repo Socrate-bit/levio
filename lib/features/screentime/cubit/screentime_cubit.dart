@@ -213,14 +213,23 @@ class ScreenTimeCubit extends Cubit<ScreenTimeState> with WidgetsBindingObserver
     final next = state.unlockCountdown - 1;
     if (next <= 0) {
       _unlockTimer?.cancel();
-      emit(state.copyWith(
-        unlockInProgress: false,
-        unlockCountdown: 0,
-        controlsUnlocked: true,
-      ));
+      // Countdown complete: the unlock button becomes available but nothing
+      // unlocks automatically — the user must tap it (see [confirmUnlock]).
+      emit(state.copyWith(unlockCountdown: 0));
     } else {
       emit(state.copyWith(unlockCountdown: next));
     }
+  }
+
+  /// User tapped the unlock button after the countdown finished.
+  void confirmUnlock() {
+    if (!state.unlockReady) return;
+    _unlockTimer?.cancel();
+    emit(state.copyWith(
+      controlsUnlocked: true,
+      unlockInProgress: false,
+      unlockCountdown: 0,
+    ));
   }
 
   /// User dismissed the countdown dialog without finishing.
@@ -247,8 +256,9 @@ class ScreenTimeCubit extends Cubit<ScreenTimeState> with WidgetsBindingObserver
   // ignore: avoid_renaming_method_parameters
   void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
     if (lifecycleState != AppLifecycleState.resumed && state.unlockInProgress) {
-      // Strict, sleep-protective: any loss of focus restarts the 30s timer.
-      emit(state.copyWith(unlockCountdown: kUnlockCountdownSeconds));
+      // Strict, sleep-protective: any loss of focus restarts the full countdown
+      // (even after it had finished and was awaiting the unlock tap).
+      startUnlockCountdown();
     }
   }
 
