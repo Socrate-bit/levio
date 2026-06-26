@@ -9,6 +9,11 @@ class WakeupSession {
   final String soundId;
   final bool completed;
 
+  /// True when this alarm was silently dismissed because another alarm ringing
+  /// at the same time had its mission completed. These don't count toward
+  /// totalWakeups (one physical wake-up, not several).
+  final bool autoDismissed;
+
   const WakeupSession({
     required this.id,
     this.alarmId,
@@ -17,6 +22,7 @@ class WakeupSession {
     this.missionType,
     this.soundId = 'default',
     this.completed = true,
+    this.autoDismissed = false,
   });
 
   Map<String, dynamic> toFirestore() => {
@@ -26,6 +32,7 @@ class WakeupSession {
         'missionType': missionType?.name,
         'soundId': soundId,
         'completed': completed,
+        'autoDismissed': autoDismissed,
       };
 
   factory WakeupSession.fromFirestore(String id, Map<String, dynamic> data) {
@@ -40,6 +47,7 @@ class WakeupSession {
       missionType: missionStr != null ? missionTypeFromString(missionStr) : null,
       soundId: (data['soundId'] as String?) ?? 'default',
       completed: (data['completed'] as bool?) ?? true, // legacy docs are completed
+      autoDismissed: (data['autoDismissed'] as bool?) ?? false,
     );
   }
 }

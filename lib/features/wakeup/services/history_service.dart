@@ -70,6 +70,45 @@ class HistoryService {
     }
   }
 
+  /// Records an alarm that was silently swept because another alarm ringing at
+  /// the same time had its mission completed. Marked completed so it doesn't
+  /// linger as pending, and flagged `autoDismissed` so it doesn't increment
+  /// totalWakeups. Reuses the alarm's existing pending session if one exists.
+  static Future<void> recordAutoDismissedSession({
+    required String alarmId,
+    MissionType? missionType,
+    String soundId = 'default',
+  }) async {
+    final pending = await getPendingSession(alarmId);
+    if (pending != null) {
+      await _sessions.doc(pending.id).update({
+        'completed': true,
+        'autoDismissed': true,
+      });
+    } else {
+      final now = DateTime.now();
+      final session = WakeupSession(
+        id: '',
+        alarmId: alarmId,
+        timestamp: now,
+        timeTakenSeconds: 0,
+        missionType: missionType,
+        soundId: soundId,
+        completed: true,
+        autoDismissed: true,
+      );
+      await _sessions.doc(now.millisecondsSinceEpoch.toString()).set(
+            session.toFirestore(),
+          );
+    }
+    AnalyticsService.capture(AnalyticsService.alarmRingDismissed, {
+      'alarm_id': alarmId,
+      'mission_type': missionType?.name ?? 'none',
+      'completed': true,
+      'auto_dismissed': true,
+    });
+  }
+
   /// Creates a missed session (completed: false) for an alarm that was never dismissed.
   static Future<String> createMissedSession({
     required String alarmId,
@@ -99,10 +138,15 @@ class HistoryService {
   /// Returns up to [limit] sessions ordered newest-first.
   /// By default only returns completed sessions. Pass [includeIncomplete: true]
   /// to include pending/missed sessions.
+  ///
+  /// Auto-dismissed sessions (alarms silently swept by another alarm's mission)
+  /// are excluded by default so they never reach stats. Pass
+  /// [includeAutoDismissed: true] for the history log or the missed-alarm check.
   static Future<List<WakeupSession>> getSessions({
     int limit = 50,
     DateTime? since,
     bool includeIncomplete = false,
+    bool includeAutoDismissed = false,
   }) async {
     var query = _sessions
         .orderBy('timestamp', descending: true)
@@ -116,10 +160,13 @@ class HistoryService {
     }
 
     final snap = await query.get();
-    final sessions = snap.docs
+    var sessions = snap.docs
         .map((d) => WakeupSession.fromFirestore(d.id, d.data()))
         .toList();
 
+    if (!includeAutoDismissed) {
+      sessions = sessions.where((s) => !s.autoDismissed).toList();
+    }
     if (!includeIncomplete) {
       return sessions.where((s) => s.completed).toList();
     }
@@ -166,7 +213,8 @@ class HistoryService {
     return WakeupSession.fromFirestore(doc.id, doc.data());
   }
 
-  /// Real-time stream of completed sessions, newest-first.
+  /// Real-time stream of sessions, newest-first. Excludes auto-dismissed
+  /// sessions so the stats screens (insights, home) never count them.
   static Stream<List<WakeupSession>> watchSessions({int limit = 500}) {
     return _sessions
         .orderBy('timestamp', descending: true)
@@ -174,6 +222,7 @@ class HistoryService {
         .snapshots()
         .map((snap) => snap.docs
             .map((d) => WakeupSession.fromFirestore(d.id, d.data()))
+            .where((s) => !s.autoDismissed)
             .toList());
   }
 }

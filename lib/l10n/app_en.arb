@@ -69,6 +69,19 @@
   "@alarmFormMissionIndex": {
     "placeholders": { "index": { "type": "int" } }
   },
+  "alarmFormWakeUp": "Wake up",
+  "alarmFormSleep": "Sleep",
+  "alarmFormRingStyle": "Ring style",
+  "alarmFormGentle": "Gentle",
+  "alarmFormLoud": "Loud",
+  "alarmFormReminder": "Bedtime reminder",
+  "alarmFormReminderHint": "Get notified before the alarm rings",
+  "alarmFormReminderBefore": "{minutes} min before",
+  "@alarmFormReminderBefore": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "reminderNotificationTitle": "Time to wind down",
+  "reminderNotificationBody": "Your bedtime alarm is coming up",
 
   "soundPickerTitle": "Alarm Sound",
   "soundPickerYourSounds": "Your Sounds",
@@ -163,17 +176,49 @@
   "missionTouchGrassDesc": "Take a photo of the grass",
   "missionAffirmation": "Affirmation",
   "missionAffirmationDesc": "Read an affirmation out loud",
+  "missionRoutine": "Routine",
+  "missionRoutineDesc": "Complete your checklist of steps",
+  "missionBreathing": "Breathing",
+  "missionBreathingDesc": "Follow a guided breathing exercise",
+  "missionGratefulness": "Gratefulness",
+  "missionGratefulnessDesc": "Answer 3 questions to start positive",
+  "missionMeditation": "Meditation",
+  "missionMeditationDesc": "Listen to a 2-minute guided meditation",
+  "missionBed": "Bed",
+  "missionBedDesc": "Take a photo of your bed",
   "missionRandom": "Random",
   "missionRandomDesc": "Surprise mission each morning",
   "missionNone": "No mission",
   "missionNoneDesc": "Simple alarm with no task",
 
+  "routinePickerTitle": "Build Your Routine",
+  "routinePickerSubtitle": "Pick the steps to complete. Tap ＋ to add your own.",
+  "routineAddStep": "Add a step",
+  "routineValidate": "Validate Routine",
+  "routineStepsCount": "{count} steps",
+  "@routineStepsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "routineTapToComplete": "Tap each step as you complete it",
+  "routineDrinkWater": "Drink a glass of water",
+  "routineDimLight": "Dim your light",
+  "routineCloseComputer": "Close your computer",
+  "routineBrushTeeth": "Brush your teeth",
+  "routinePrepareClothes": "Prepare your clothes",
+  "routineTodoList": "Todo list for next day",
+  "routineJournaling": "Journaling",
+  "routineBreathing": "Breathing",
+  "routineRead": "Read",
+
   "photoTargetSky": "the sky",
   "photoTargetMadeBed": "your made bed",
+  "photoTargetBed": "your bed",
   "photoTargetGrass": "grass",
 
   "missionPickerTitle": "Choose Mission",
   "missionPickerAll": "All",
+  "missionPickerWakeup": "Wake-up",
+  "missionPickerSleep": "Sleep",
   "missionPickerTrending": "Trending",
   "missionPickerHunts": "Hunts",
   "missionPickerPhysical": "Physical",
@@ -181,6 +226,8 @@
 
   "missionConfigNumberOfShakes": "Number of shakes",
   "missionConfigNumberOfReps": "Number of reps",
+  "missionConfigNumberOfRounds": "Number of rounds",
+  "missionConfigMinutes": "Minimum minutes",
   "missionConfigNumberOfProblems": "Number of problems",
   "missionConfigDifficulty": "Difficulty",
   "missionConfigEasy": "Easy",
@@ -188,6 +235,41 @@
   "missionConfigHard": "Hard",
   "missionConfigChoose": "Choose This Mission",
   "missionConfigNumberOfAffirmations": "Number of affirmations",
+
+  "breathingPhaseInhale": "Breathe in",
+  "breathingPhaseExhale": "Breathe out",
+  "breathingPhaseHold": "Hold",
+  "breathingRoundLabel": "Round {current} of {total}",
+  "@breathingRoundLabel": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "gratefulnessQuestion1": "What are you grateful for today?",
+  "gratefulnessQuestion2": "What is something good that happened recently?",
+  "gratefulnessQuestion3": "What are you looking forward to today?",
+  "gratefulnessProgress": "{current} / {total}",
+  "@gratefulnessProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "gratefulnessHint": "Type your answer…",
+  "gratefulnessNext": "Next",
+  "gratefulnessFinish": "Finish",
+
+  "meditationTitle": "Meditation",
+  "meditationInstruction": "Close your eyes and follow the guided meditation.",
+  "meditationRetry": "Tap to retry",
+  "meditationFinishIn": "Finish in {time}",
+  "@meditationFinishIn": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
 
   "itemPickerSelectItems": "Select Items",
   "itemPickerRandomItem": "A random item will be chosen each morning",
@@ -290,6 +372,8 @@
   },
   "settingsAccount": "Account",
   "settingsUserType": "User Type",
+  "settingsCopyUserId": "Copy User ID",
+  "settingsUserIdCopied": "User ID copied to clipboard",
   "settingsEnterReferralCode": "Enter Referral Code",
   "settingsApp": "App",
   "settingsNotifications": "Notifications",
@@ -850,5 +934,20 @@
   "screenTimeUnlockConfirmProceed": "Unlock anyway",
   "screenTimeUnlockCountdownTitle": "Stay focused",
   "screenTimeUnlockCountdownHint": "Keep Levio open. Leaving the app restarts the timer.",
-  "screenTimeAuthDenied": "Screen Time access is required. Enable it for Levio in iOS Settings."
+  "screenTimeAuthDenied": "Screen Time access is required. Enable it for Levio in iOS Settings.",
+  "osUpdateRequiredTitle": "Let's get you updated 🚀",
+  "osUpdateRequiredBody": "Levio's alarms run on Apple's newest tech, so your iPhone needs the latest iOS to wake you up. It only takes a few minutes:",
+  "osUpdateStep1": "Open the Settings app",
+  "osUpdateStep2": "Go to General → Software Update",
+  "osUpdateStep3": "Install the update, then hop back into Levio",
+  "osUpdateButton": "Got it",
+  "alarmPermissionTitle": "Your alarm won't ring ⏰",
+  "alarmPermissionBody": "Levio doesn't have permission to set alarms, so it can't wake you up. Tap below and choose \"Allow\" so your alarm actually rings.",
+  "alarmPermissionDeniedBody": "Alarm access is turned off, so your alarms won't ring. Here's how to switch it back on in Settings:",
+  "alarmPermissionStep1": "Open Settings and find Levio",
+  "alarmPermissionStep2": "Tap the alarms toggle",
+  "alarmPermissionStep3": "Come back and you're all set",
+  "alarmPermissionEnable": "Enable alarms",
+  "alarmPermissionOpenSettings": "Open Settings",
+  "alarmPermissionNotNow": "Maybe later"
 }

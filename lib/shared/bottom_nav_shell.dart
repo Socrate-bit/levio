@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:levio/features/alarms/services/alarm_readiness_guard.dart';
 import 'package:liquid_glass_bar/liquid_glass_bar.dart';
 import 'theme/app_theme.dart';
 import 'utils/haptic_utils.dart';
@@ -38,15 +39,17 @@ class BottomNavShellState extends State<BottomNavShell> {
   void _selectTab(int index) {
     if (index == _index) return;
     setState(() => _index = index);
-    AnalyticsService.capture(
-      AnalyticsService.navTabSelected,
-      {'tab': _tabNames[index], 'index': index},
-    );
+    AnalyticsService.capture(AnalyticsService.navTabSelected, {
+      'tab': _tabNames[index],
+      'index': index,
+    });
   }
 
   void navigateTo(int index) => _selectTab(index);
 
-  void _openAlarmForm(BuildContext context) {
+  void _openAlarmForm(BuildContext context) async {
+    if (!await AlarmReadinessGuard.check(context)) return;
+    if (!context.mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -82,7 +85,7 @@ class BottomNavShellState extends State<BottomNavShell> {
                   activeColor: AppColors.orange,
                   inactiveColor: c.textSecondary,
                   borderRadius: 28.r,
-                  height: 52.h,
+                  height: 60.h,
                   iconSize: 24.sp,
                   selectedIconScale: 1.15,
                   animationDuration: const Duration(milliseconds: 250),
@@ -127,7 +130,6 @@ class BottomNavShellState extends State<BottomNavShell> {
             Padding(
               padding: EdgeInsets.only(right: 24.w, left: 6.w),
               child: _AddAlarmCircleButton(
-
                 onTap: () => _openAlarmForm(context),
               ),
             ),
@@ -147,8 +149,8 @@ class _AddAlarmCircleButton extends StatelessWidget {
     return GestureDetector(
       onTap: withMediumHaptic(onTap),
       child: Container(
-        width: 64.w,
-        height: 64.h,
+        width: 74.w,
+        height: 74.h,
         decoration: const BoxDecoration(
           color: AppColors.orange,
           shape: BoxShape.circle,

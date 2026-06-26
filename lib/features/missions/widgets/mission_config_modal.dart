@@ -12,6 +12,7 @@ import '../models/mission_config.dart';
 import 'affirmation_picker_screen.dart';
 import 'item_picker_screen.dart';
 import 'random_pool_picker_screen.dart';
+import 'routine_picker_screen.dart';
 
 /// Shows a bottom sheet to configure a mission. Returns a [MissionConfig] or
 /// null if cancelled.
@@ -46,6 +47,22 @@ Future<MissionConfig?> showMissionConfigModal(
     );
   }
 
+  if (info.type == MissionType.routine) {
+    final selected = await Navigator.push<List<String>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoutinePickerScreen(
+          preselected: existing?.selectedItems,
+        ),
+      ),
+    );
+    if (selected == null) return null;
+    return MissionConfig(
+      type: info.type,
+      selectedItems: selected.isEmpty ? null : selected,
+    );
+  }
+
   if (info.type == MissionType.random) {
     final pool = await Navigator.push<List<MissionType>>(
       context,
@@ -65,7 +82,9 @@ Future<MissionConfig?> showMissionConfigModal(
   // Missions with no config
   if (info.type == MissionType.skyPhoto ||
       info.type == MissionType.makeBed ||
-      info.type == MissionType.touchGrass) {
+      info.type == MissionType.bedPhoto ||
+      info.type == MissionType.touchGrass ||
+      info.type == MissionType.gratefulness) {
     return MissionConfig(type: info.type);
   }
 
@@ -141,6 +160,8 @@ class _ConfigSheetState extends State<_ConfigSheet> {
   late int _repCount;
   late MathDifficulty _mathDifficulty;
   late int _mathProblemCount;
+  late int _breathingRounds;
+  late int _meditationMinutes;
 
   @override
   void initState() {
@@ -156,8 +177,10 @@ class _ConfigSheetState extends State<_ConfigSheet> {
       default:
         _repCount = e?.repCount ?? 5;
     }
-    _mathDifficulty = e?.mathDifficulty ?? MathDifficulty.easy;
+    _mathDifficulty = e?.mathDifficulty ?? MathDifficulty.medium;
     _mathProblemCount = e?.mathProblemCount ?? 3;
+    _breathingRounds = e?.breathingRounds ?? 3;
+    _meditationMinutes = e?.meditationMinutes ?? 2;
   }
 
   MissionConfig _buildConfig() {
@@ -171,6 +194,16 @@ class _ConfigSheetState extends State<_ConfigSheet> {
           type: widget.info.type,
           mathDifficulty: _mathDifficulty,
           mathProblemCount: _mathProblemCount,
+        );
+      case MissionType.breathing:
+        return MissionConfig(
+          type: widget.info.type,
+          breathingRounds: _breathingRounds,
+        );
+      case MissionType.meditation:
+        return MissionConfig(
+          type: widget.info.type,
+          meditationMinutes: _meditationMinutes,
         );
       default:
         return MissionConfig(type: widget.info.type);
@@ -202,6 +235,8 @@ class _ConfigSheetState extends State<_ConfigSheet> {
     final isRep = widget.info.type == MissionType.pushUps ||
         widget.info.type == MissionType.squats ||
         widget.info.type == MissionType.shakePhone;
+    final isBreathing = widget.info.type == MissionType.breathing;
+    final isMeditation = widget.info.type == MissionType.meditation;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -251,6 +286,38 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               min: 1,
               max: 100,
               onChanged: (v) => setState(() => _repCount = v),
+            ),
+            SizedBox(height: 24.h),
+          ],
+
+          // Breathing rounds stepper
+          if (isBreathing) ...[
+            Text(
+              l10n.missionConfigNumberOfRounds,
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+            ),
+            SizedBox(height: 12.h),
+            _Stepper(
+              value: _breathingRounds,
+              min: 1,
+              max: 10,
+              onChanged: (v) => setState(() => _breathingRounds = v),
+            ),
+            SizedBox(height: 24.h),
+          ],
+
+          // Meditation minimum-time stepper (minutes)
+          if (isMeditation) ...[
+            Text(
+              l10n.missionConfigMinutes,
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+            ),
+            SizedBox(height: 12.h),
+            _Stepper(
+              value: _meditationMinutes,
+              min: 1,
+              max: 30,
+              onChanged: (v) => setState(() => _meditationMinutes = v),
             ),
             SizedBox(height: 24.h),
           ],

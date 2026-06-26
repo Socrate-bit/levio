@@ -29,9 +29,9 @@ class SquatCubit extends Cubit<PushUpState> {
   // Counting — angle-based (knee joint)
   _Phase _phase = _Phase.no;
   int _repCount = 0;
-  static const double _kneeUpAngle = 160.0;   // straight (standing)
-  static const double _kneeDownAngle = 90.0; // fully squatted
-  static const double _kneeHalfAngle = 150.0; // halfway down
+  static const double _kneeUpAngle = 170.0;   // straight (standing)
+  static const double _kneeDownAngle = 155.0; // squatted (relaxed depth)
+  static const double _kneeHalfAngle = 169.0; // halfway down
 
   Future<void> startSession() async {
     emit(const CameraLoading());

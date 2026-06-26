@@ -57,6 +57,16 @@
   "alarmFormUpdateAlarm": "Modifier l'alarme",
   "alarmFormSaveAlarm": "Enregistrer l'alarme",
   "alarmFormMissionIndex": "Mission {index}",
+  "alarmFormWakeUp": "Réveil",
+  "alarmFormSleep": "Sommeil",
+  "alarmFormRingStyle": "Type de sonnerie",
+  "alarmFormGentle": "Douce",
+  "alarmFormLoud": "Forte",
+  "alarmFormReminder": "Rappel du coucher",
+  "alarmFormReminderHint": "Soyez notifié avant que l'alarme sonne",
+  "alarmFormReminderBefore": "{minutes} min avant",
+  "reminderNotificationTitle": "Il est temps de vous détendre",
+  "reminderNotificationBody": "Votre alarme du coucher approche",
 
   "soundPickerTitle": "Son de l'alarme",
   "soundPickerYourSounds": "Vos sons",
@@ -145,17 +155,46 @@
   "missionTouchGrassDesc": "Prenez une photo de l'herbe",
   "missionAffirmation": "Affirmation",
   "missionAffirmationDesc": "Lisez une affirmation à voix haute",
+  "missionRoutine": "Routine",
+  "missionRoutineDesc": "Complétez votre liste d'étapes",
+  "missionBreathing": "Respiration",
+  "missionBreathingDesc": "Suivez un exercice de respiration guidé",
+  "missionGratefulness": "Gratitude",
+  "missionGratefulnessDesc": "Répondez à 3 questions pour bien commencer",
+  "missionMeditation": "Méditation",
+  "missionMeditationDesc": "Écoutez une méditation guidée de 2 minutes",
+  "missionBed": "Lit",
+  "missionBedDesc": "Prenez une photo de votre lit",
   "missionRandom": "Aléatoire",
   "missionRandomDesc": "Mission surprise chaque matin",
   "missionNone": "Pas de mission",
   "missionNoneDesc": "Alarme simple sans tâche",
 
+  "routinePickerTitle": "Composez votre routine",
+  "routinePickerSubtitle": "Choisissez les étapes à compléter. Touchez ＋ pour ajouter la vôtre.",
+  "routineAddStep": "Ajouter une étape",
+  "routineValidate": "Valider la routine",
+  "routineStepsCount": "{count} étapes",
+  "routineTapToComplete": "Touchez chaque étape une fois complétée",
+  "routineDrinkWater": "Boire un verre d'eau",
+  "routineDimLight": "Tamiser la lumière",
+  "routineCloseComputer": "Fermer votre ordinateur",
+  "routineBrushTeeth": "Se brosser les dents",
+  "routinePrepareClothes": "Préparer vos vêtements",
+  "routineTodoList": "Liste de tâches pour demain",
+  "routineJournaling": "Journal intime",
+  "routineBreathing": "Respiration",
+  "routineRead": "Lire",
+
   "photoTargetSky": "le ciel",
   "photoTargetMadeBed": "votre lit fait",
+  "photoTargetBed": "votre lit",
   "photoTargetGrass": "l'herbe",
 
   "missionPickerTitle": "Choisir une mission",
   "missionPickerAll": "Tout",
+  "missionPickerWakeup": "Réveil",
+  "missionPickerSleep": "Sommeil",
   "missionPickerTrending": "Tendance",
   "missionPickerHunts": "Chasses",
   "missionPickerPhysical": "Physique",
@@ -163,6 +202,8 @@
 
   "missionConfigNumberOfShakes": "Nombre de secousses",
   "missionConfigNumberOfReps": "Nombre de répétitions",
+  "missionConfigNumberOfRounds": "Nombre de cycles",
+  "missionConfigMinutes": "Minutes minimum",
   "missionConfigNumberOfProblems": "Nombre de problèmes",
   "missionConfigDifficulty": "Difficulté",
   "missionConfigEasy": "Facile",
@@ -170,6 +211,41 @@
   "missionConfigHard": "Difficile",
   "missionConfigChoose": "Choisir cette mission",
   "missionConfigNumberOfAffirmations": "Nombre d'affirmations",
+
+  "breathingPhaseInhale": "Inspirez",
+  "breathingPhaseExhale": "Expirez",
+  "breathingPhaseHold": "Retenez",
+  "breathingRoundLabel": "Cycle {current} sur {total}",
+  "@breathingRoundLabel": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "gratefulnessQuestion1": "Pour quoi êtes-vous reconnaissant aujourd'hui ?",
+  "gratefulnessQuestion2": "Quelle bonne chose vous est arrivée récemment ?",
+  "gratefulnessQuestion3": "Qu'attendez-vous avec impatience aujourd'hui ?",
+  "gratefulnessProgress": "{current} / {total}",
+  "@gratefulnessProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "gratefulnessHint": "Écrivez votre réponse…",
+  "gratefulnessNext": "Suivant",
+  "gratefulnessFinish": "Terminer",
+
+  "meditationTitle": "Méditation",
+  "meditationInstruction": "Fermez les yeux et suivez la méditation guidée.",
+  "meditationRetry": "Touchez pour réessayer",
+  "meditationFinishIn": "Terminer dans {time}",
+  "@meditationFinishIn": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
 
   "itemPickerSelectItems": "Sélectionner les objets",
   "itemPickerRandomItem": "Un objet aléatoire sera choisi chaque matin",
@@ -260,6 +336,8 @@
   "settingsAccountType": "Type de compte : {type}",
   "settingsAccount": "Compte",
   "settingsUserType": "Type d'utilisateur",
+  "settingsCopyUserId": "Copier l'identifiant utilisateur",
+  "settingsUserIdCopied": "Identifiant utilisateur copié dans le presse-papiers",
   "settingsEnterReferralCode": "Entrer un code de parrainage",
   "settingsApp": "Application",
   "settingsNotifications": "Notifications",
@@ -712,5 +790,20 @@
   "screenTimeUnlockConfirmProceed": "Déverrouiller quand même",
   "screenTimeUnlockCountdownTitle": "Restez concentré",
   "screenTimeUnlockCountdownHint": "Gardez Levio ouvert. Quitter l'appli redémarre le minuteur.",
-  "screenTimeAuthDenied": "L'accès au Temps d'écran est requis. Activez-le pour Levio dans les Réglages iOS."
+  "screenTimeAuthDenied": "L'accès au Temps d'écran est requis. Activez-le pour Levio dans les Réglages iOS.",
+  "osUpdateRequiredTitle": "Passons à la mise à jour 🚀",
+  "osUpdateRequiredBody": "Les alarmes de Levio utilisent les dernières technologies d'Apple : votre iPhone a donc besoin de la version la plus récente d'iOS pour vous réveiller. Ça ne prend que quelques minutes :",
+  "osUpdateStep1": "Ouvrez l'app Réglages",
+  "osUpdateStep2": "Allez dans Général → Mise à jour logicielle",
+  "osUpdateStep3": "Installez la mise à jour, puis revenez sur Levio",
+  "osUpdateButton": "C'est compris",
+  "alarmPermissionTitle": "Votre alarme ne sonnera pas ⏰",
+  "alarmPermissionBody": "Levio n'a pas la permission de programmer des alarmes, il ne peut donc pas vous réveiller. Touchez ci-dessous et choisissez « Autoriser » pour que votre alarme sonne vraiment.",
+  "alarmPermissionDeniedBody": "L'accès aux alarmes est désactivé, vos alarmes ne sonneront donc pas. Voici comment le réactiver dans Réglages :",
+  "alarmPermissionStep1": "Ouvrez Réglages et trouvez Levio",
+  "alarmPermissionStep2": "Activez l'option des alarmes",
+  "alarmPermissionStep3": "Revenez, et tout est prêt",
+  "alarmPermissionEnable": "Activer les alarmes",
+  "alarmPermissionOpenSettings": "Ouvrir les Réglages",
+  "alarmPermissionNotNow": "Plus tard"
 }

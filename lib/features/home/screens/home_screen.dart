@@ -8,6 +8,7 @@ import '../../../shared/utils/haptic_utils.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../alarms/screens/alarm_form_screen.dart';
+import '../../alarms/services/alarm_readiness_guard.dart';
 import '../../alarms/screens/sound_picker_screen.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
@@ -254,7 +255,7 @@ class _WeekRow extends StatelessWidget {
                 SizedBox(height: 6.h),
                 Container(
                   width: 42.w,
-                  height: 42.h,
+                  height: 42.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: status == DayStatus.done
@@ -283,7 +284,7 @@ class _WeekRow extends StatelessWidget {
           // Past done: solid orange circle
           circle = Container(
             width: 42.w,
-            height: 42.h,
+            height: 42.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.orange, width: 2),
@@ -303,7 +304,7 @@ class _WeekRow extends StatelessWidget {
           // Frozen: solid blue circle
           circle = Container(
             width: 42.w,
-            height: 42.h,
+            height: 42.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.blue, width: 2.5),
@@ -323,7 +324,7 @@ class _WeekRow extends StatelessWidget {
           // Future: plain light solid circle
           circle = Container(
             width: 42.w,
-            height: 42.h,
+            height: 42.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: c.textSecondary.withAlpha(50), width: 2.5),
@@ -349,7 +350,7 @@ class _WeekRow extends StatelessWidget {
             ),
             child: SizedBox(
               width: 42.w,
-              height: 42.h,
+              height: 42.w,
               child: Center(
                 child: Text(
                   dayNum,
@@ -433,15 +434,21 @@ class _NoAlarmCard extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
-      onTap: withHaptic(() => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: context.read<AlarmCubit>(),
-            child: const AlarmFormScreen(),
+      onTap: withHaptic(() async {
+        // Block creation when the device can't actually run alarms; the guard
+        // surfaces the OS-update / permission dialog instead.
+        if (!await AlarmReadinessGuard.check(context)) return;
+        if (!context.mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+              value: context.read<AlarmCubit>(),
+              child: const AlarmFormScreen(),
+            ),
           ),
-        ),
-      )),
+        );
+      }),
       child: Container(
         padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
@@ -613,8 +620,12 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                 Switch(
                   value: alarm.isEnabled,
                   activeThumbColor: c.purpleDeep,
-                  onChanged: withHapticValue((val) =>
-                      context.read<AlarmCubit>().toggleAlarm(alarm.id, val)),
+                  onChanged: withHapticValue((val) async {
+                    // Activating: ensure the device can ring before scheduling.
+                    if (val && !await AlarmReadinessGuard.check(context)) return;
+                    if (!context.mounted) return;
+                    context.read<AlarmCubit>().toggleAlarm(alarm.id, val);
+                  }),
                 ),
               ],
             ),
@@ -792,8 +803,14 @@ class _AlarmCard extends StatelessWidget {
                   child: Switch(
                     value: alarm.isEnabled,
                     activeThumbColor: c.purpleDeep,
-                    onChanged: withHapticValue((val) =>
-                        context.read<AlarmCubit>().toggleAlarm(alarm.id, val)),
+                    onChanged: withHapticValue((val) async {
+                      // Activating: ensure the device can ring before scheduling.
+                      if (val && !await AlarmReadinessGuard.check(context)) {
+                        return;
+                      }
+                      if (!context.mounted) return;
+                      context.read<AlarmCubit>().toggleAlarm(alarm.id, val);
+                    }),
                   ),
                 ),
               ],
@@ -820,7 +837,7 @@ class _AlarmCard extends StatelessWidget {
                   onTap: withHaptic(() =>
                       context.read<AlarmCubit>().removeAlarm(alarm.id)),
                   child: Icon(Icons.delete_outline,
-                      size: 24.sp, color: c.textSecondary.withAlpha(140)),
+                      size: 32.sp, color: c.textSecondary.withAlpha(140)),
                 ),
               ],
             ),

@@ -16,7 +16,7 @@ class LevioBrandHeader extends StatelessWidget {
 
     final color = textColor ?? AppColors.of(context).textPrimary;
     return Padding(
-      padding: EdgeInsets.only(top: 16.h, bottom: 8.h),
+      padding: EdgeInsets.only(top: 16.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

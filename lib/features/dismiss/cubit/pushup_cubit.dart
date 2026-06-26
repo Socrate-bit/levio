@@ -30,8 +30,8 @@ class PushUpCubit extends Cubit<PushUpState> {
   _Phase _phase = _Phase.no;
   int _repCount = 0;
   static const double _armsUpAngle = 175.0;
-  static const double _armsDownAngle = 140.0;
-  static const double _armsHalfAngle = 170.0;
+  static const double _armsDownAngle = 165.0; // relaxed depth
+  static const double _armsHalfAngle = 174.0;
 
   Future<void> startSession() async {
     emit(const CameraLoading());

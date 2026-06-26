@@ -178,6 +178,38 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get alarmFormWakeUp => 'Réveil';
+
+  @override
+  String get alarmFormSleep => 'Sommeil';
+
+  @override
+  String get alarmFormRingStyle => 'Type de sonnerie';
+
+  @override
+  String get alarmFormGentle => 'Douce';
+
+  @override
+  String get alarmFormLoud => 'Forte';
+
+  @override
+  String get alarmFormReminder => 'Rappel du coucher';
+
+  @override
+  String get alarmFormReminderHint => 'Soyez notifié avant que l\'alarme sonne';
+
+  @override
+  String alarmFormReminderBefore(int minutes) {
+    return '$minutes min avant';
+  }
+
+  @override
+  String get reminderNotificationTitle => 'Il est temps de vous détendre';
+
+  @override
+  String get reminderNotificationBody => 'Votre alarme du coucher approche';
+
+  @override
   String get soundPickerTitle => 'Son de l\'alarme';
 
   @override
@@ -433,6 +465,38 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionAffirmationDesc => 'Lisez une affirmation à voix haute';
 
   @override
+  String get missionRoutine => 'Routine';
+
+  @override
+  String get missionRoutineDesc => 'Complétez votre liste d\'étapes';
+
+  @override
+  String get missionBreathing => 'Respiration';
+
+  @override
+  String get missionBreathingDesc => 'Suivez un exercice de respiration guidé';
+
+  @override
+  String get missionGratefulness => 'Gratitude';
+
+  @override
+  String get missionGratefulnessDesc =>
+      'Répondez à 3 questions pour bien commencer';
+
+  @override
+  String get missionMeditation => 'Méditation';
+
+  @override
+  String get missionMeditationDesc =>
+      'Écoutez une méditation guidée de 2 minutes';
+
+  @override
+  String get missionBed => 'Lit';
+
+  @override
+  String get missionBedDesc => 'Prenez une photo de votre lit';
+
+  @override
   String get missionRandom => 'Aléatoire';
 
   @override
@@ -445,10 +509,61 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionNoneDesc => 'Alarme simple sans tâche';
 
   @override
+  String get routinePickerTitle => 'Composez votre routine';
+
+  @override
+  String get routinePickerSubtitle =>
+      'Choisissez les étapes à compléter. Touchez ＋ pour ajouter la vôtre.';
+
+  @override
+  String get routineAddStep => 'Ajouter une étape';
+
+  @override
+  String get routineValidate => 'Valider la routine';
+
+  @override
+  String routineStepsCount(int count) {
+    return '$count étapes';
+  }
+
+  @override
+  String get routineTapToComplete => 'Touchez chaque étape une fois complétée';
+
+  @override
+  String get routineDrinkWater => 'Boire un verre d\'eau';
+
+  @override
+  String get routineDimLight => 'Tamiser la lumière';
+
+  @override
+  String get routineCloseComputer => 'Fermer votre ordinateur';
+
+  @override
+  String get routineBrushTeeth => 'Se brosser les dents';
+
+  @override
+  String get routinePrepareClothes => 'Préparer vos vêtements';
+
+  @override
+  String get routineTodoList => 'Liste de tâches pour demain';
+
+  @override
+  String get routineJournaling => 'Journal intime';
+
+  @override
+  String get routineBreathing => 'Respiration';
+
+  @override
+  String get routineRead => 'Lire';
+
+  @override
   String get photoTargetSky => 'le ciel';
 
   @override
   String get photoTargetMadeBed => 'votre lit fait';
+
+  @override
+  String get photoTargetBed => 'votre lit';
 
   @override
   String get photoTargetGrass => 'l\'herbe';
@@ -458,6 +573,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get missionPickerAll => 'Tout';
+
+  @override
+  String get missionPickerWakeup => 'Réveil';
+
+  @override
+  String get missionPickerSleep => 'Sommeil';
 
   @override
   String get missionPickerTrending => 'Tendance';
@@ -476,6 +597,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get missionConfigNumberOfReps => 'Nombre de répétitions';
+
+  @override
+  String get missionConfigNumberOfRounds => 'Nombre de cycles';
+
+  @override
+  String get missionConfigMinutes => 'Minutes minimum';
 
   @override
   String get missionConfigNumberOfProblems => 'Nombre de problèmes';
@@ -497,6 +624,61 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get missionConfigNumberOfAffirmations => 'Nombre d\'affirmations';
+
+  @override
+  String get breathingPhaseInhale => 'Inspirez';
+
+  @override
+  String get breathingPhaseExhale => 'Expirez';
+
+  @override
+  String get breathingPhaseHold => 'Retenez';
+
+  @override
+  String breathingRoundLabel(int current, int total) {
+    return 'Cycle $current sur $total';
+  }
+
+  @override
+  String get gratefulnessQuestion1 =>
+      'Pour quoi êtes-vous reconnaissant aujourd\'hui ?';
+
+  @override
+  String get gratefulnessQuestion2 =>
+      'Quelle bonne chose vous est arrivée récemment ?';
+
+  @override
+  String get gratefulnessQuestion3 =>
+      'Qu\'attendez-vous avec impatience aujourd\'hui ?';
+
+  @override
+  String gratefulnessProgress(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get gratefulnessHint => 'Écrivez votre réponse…';
+
+  @override
+  String get gratefulnessNext => 'Suivant';
+
+  @override
+  String get gratefulnessFinish => 'Terminer';
+
+  @override
+  String get meditationTitle => 'Méditation';
+
+  @override
+  String get meditationInstruction =>
+      'Fermez les yeux et suivez la méditation guidée.';
+
+  @override
+  String get meditationRetry => 'Touchez pour réessayer';
+
+  @override
+  String meditationFinishIn(String time) {
+    return 'Terminer dans $time';
+  }
 
   @override
   String get itemPickerSelectItems => 'Sélectionner les objets';
@@ -758,6 +940,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsUserType => 'Type d\'utilisateur';
+
+  @override
+  String get settingsCopyUserId => 'Copier l\'identifiant utilisateur';
+
+  @override
+  String get settingsUserIdCopied =>
+      'Identifiant utilisateur copié dans le presse-papiers';
 
   @override
   String get settingsEnterReferralCode => 'Entrer un code de parrainage';
@@ -2179,4 +2368,53 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get screenTimeAuthDenied =>
       'L\'accès au Temps d\'écran est requis. Activez-le pour Levio dans les Réglages iOS.';
+
+  @override
+  String get osUpdateRequiredTitle => 'Passons à la mise à jour 🚀';
+
+  @override
+  String get osUpdateRequiredBody =>
+      'Les alarmes de Levio utilisent les dernières technologies d\'Apple : votre iPhone a donc besoin de la version la plus récente d\'iOS pour vous réveiller. Ça ne prend que quelques minutes :';
+
+  @override
+  String get osUpdateStep1 => 'Ouvrez l\'app Réglages';
+
+  @override
+  String get osUpdateStep2 => 'Allez dans Général → Mise à jour logicielle';
+
+  @override
+  String get osUpdateStep3 =>
+      'Installez la mise à jour, puis revenez sur Levio';
+
+  @override
+  String get osUpdateButton => 'C\'est compris';
+
+  @override
+  String get alarmPermissionTitle => 'Votre alarme ne sonnera pas ⏰';
+
+  @override
+  String get alarmPermissionBody =>
+      'Levio n\'a pas la permission de programmer des alarmes, il ne peut donc pas vous réveiller. Touchez ci-dessous et choisissez « Autoriser » pour que votre alarme sonne vraiment.';
+
+  @override
+  String get alarmPermissionDeniedBody =>
+      'L\'accès aux alarmes est désactivé, vos alarmes ne sonneront donc pas. Voici comment le réactiver dans Réglages :';
+
+  @override
+  String get alarmPermissionStep1 => 'Ouvrez Réglages et trouvez Levio';
+
+  @override
+  String get alarmPermissionStep2 => 'Activez l\'option des alarmes';
+
+  @override
+  String get alarmPermissionStep3 => 'Revenez, et tout est prêt';
+
+  @override
+  String get alarmPermissionEnable => 'Activer les alarmes';
+
+  @override
+  String get alarmPermissionOpenSettings => 'Ouvrir les Réglages';
+
+  @override
+  String get alarmPermissionNotNow => 'Plus tard';
 }

@@ -31,17 +31,17 @@ class AnalyticsService {
         options: const SessionReplayOptions(
           autoRecordSessionsPercent: 100.0,
           autoMaskedViews: {},
-          debugOptions: DebugOptions(
+          // debugOptions: DebugOptions(
             
-            overlayColors: DebugOverlayColors(
-              maskColor:
-                  Colors.red, // MixpanelMask and security-enforced regions
-              autoMaskColor:
-                  Colors.orange, // Auto-masked text and image regions
-              unmaskColor: Colors.green, // MixpanelUnmask regions
-              opacity: 0.5,
-            ),
-          ),
+          //   overlayColors: DebugOverlayColors(
+          //     maskColor:
+          //         Colors.red, // MixpanelMask and security-enforced regions
+          //     autoMaskColor:
+          //         Colors.orange, // Auto-masked text and image regions
+          //     unmaskColor: Colors.green, // MixpanelUnmask regions
+          //     opacity: 0.5,
+          //   ),
+          // ),
         ),
       );
       if (result.success) sessionReplay = result.instance;
@@ -84,6 +84,18 @@ class AnalyticsService {
   // Track a screen view from the navigator observer.
   static Future<void> trackScreen(String name) async {
     await capture(screenView, {'screen': name});
+  }
+
+  // Persist an answer on the user's Mixpanel People profile and register it as
+  // a super property so it rides along with every subsequent event (enables
+  // segmentation by age, gender, etc.).
+  static Future<void> setUserProperty(String name, Object value) async {
+    try {
+      _mixpanel?.getPeople().set(name, value);
+      _mixpanel?.registerSuperProperties({name: value});
+    } catch (e) {
+      debugPrint('[AnalyticsService] setUserProperty $name failed: $e');
+    }
   }
 
   // Track a caught error/exception. Call from catch blocks only.

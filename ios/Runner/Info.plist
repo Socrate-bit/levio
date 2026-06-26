@@ -2,6 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
+		<key>branch_key</key>
+		<string>key_live_jCwUeO0BFmNNYHqmvrMl3bcpAspdGHv7</string>
+		<key>branch_universal_link_domains</key>
+		<array>
+			<string>ckort.app.link</string>
+			<string>ckort-alternate.app.link</string>
+		</array>
+		<!-- App Tracking Transparency: shown before Branch initializes so the
+		     IDFA can be used for TikTok ad attribution if the user consents. -->
+		<key>NSUserTrackingUsageDescription</key>
+		<string>Levio uses your data to measure ad performance and attribute installs, so we can improve the app and show you more relevant content.</string>
+		<!-- Flutter 3.27+ enables deep linking by default; disable it so Branch
+		     (not Flutter's router) handles incoming universal links. -->
+		<key>FlutterDeepLinkingEnabled</key>
+		<false/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>CFBundleURLTypes</key>

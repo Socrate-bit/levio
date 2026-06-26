@@ -38,6 +38,10 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     );
   }
 
+  // Formats a TimeOfDay as HH:mm for analytics properties.
+  String _formatTime(TimeOfDay t) =>
+      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
   void answerSurvey(String key, String value) {
     emit(state.copyWith(
       surveyAnswers: {...state.surveyAnswers, key: value},
@@ -46,6 +50,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       AnalyticsService.onboardingStep,
       {'step_name': 'survey_$key', 'value': value},
     );
+    // Persist the answer on the user profile (e.g. ageRange, gender).
+    AnalyticsService.setUserProperty(key, value);
   }
 
   void setUsualWakeTime(TimeOfDay time) {
@@ -54,6 +60,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       AnalyticsService.onboardingStep,
       {'step_name': 'usual_wake_time'},
     );
+    AnalyticsService.setUserProperty('usual_wake_time', _formatTime(time));
   }
 
   void setIdealWakeTime(TimeOfDay time) {
@@ -62,6 +69,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       AnalyticsService.onboardingStep,
       {'step_name': 'ideal_wake_time'},
     );
+    AnalyticsService.setUserProperty('ideal_wake_time', _formatTime(time));
   }
 
   void setAlarmTime(TimeOfDay time) {
@@ -70,6 +78,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       AnalyticsService.onboardingStep,
       {'step_name': 'alarm_time'},
     );
+    AnalyticsService.setUserProperty('alarm_time', _formatTime(time));
   }
 
   void setMission(MissionType mission) {
@@ -78,6 +87,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       AnalyticsService.onboardingStep,
       {'step_name': 'mission', 'mission': mission.name},
     );
+    AnalyticsService.setUserProperty('mission', mission.name);
   }
 
   void setKeepAlarmDuringMission(bool value) {
@@ -86,6 +96,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       AnalyticsService.onboardingStep,
       {'step_name': 'alarm_during_mission', 'keep_ringing': value},
     );
+    AnalyticsService.setUserProperty('keep_alarm_during_mission', value);
   }
 
   void setSound(String id, String name) {
@@ -94,6 +105,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       AnalyticsService.onboardingStep,
       {'step_name': 'sound', 'sound_id': id},
     );
+    AnalyticsService.setUserProperty('sound_id', id);
   }
 
   void toggleDay(int index) {
@@ -165,6 +177,12 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     );
 
     try {
+      // Delete any existing alarms first so re-running completeOnboarding
+      // (e.g. skip then sign-in) doesn't create duplicate alarms.
+      final existingIds = alarmCubit.state.alarms.map((a) => a.id).toList();
+      for (final id in existingIds) {
+        await alarmCubit.removeAlarm(id);
+      }
       await alarmCubit.addAlarm(entry);
     } catch (e, st) {
       debugPrint('[OnboardingCubit] alarm creation failed: $e');

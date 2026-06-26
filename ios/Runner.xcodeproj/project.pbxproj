@@ -20,6 +20,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A12080192F8967E7002E71A3 /* AlarmIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12080172F8967E7002E71A3 /* AlarmIntents.swift */; };
 		A120801A2F8967E7002E71A3 /* LevioAlarmKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12080182F8967E7002E71A3 /* LevioAlarmKit.swift */; };
+		A1DE355A2FED8B3B00FD0EB3 /* branch.json in Resources */ = {isa = PBXBuildFile; fileRef = A1DE35592FED8B3B00FD0EB3 /* branch.json */; };
 		E3B3C5028E7F1DA093F02990 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6F45F2FB6DDFECB5F529E18D /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -94,6 +95,7 @@
 		A12080182F8967E7002E71A3 /* LevioAlarmKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevioAlarmKit.swift; sourceTree = "<group>"; };
 		A135F0522F87DFAA0058A35A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		A135F0542F87DFAA0058A35A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		A1DE35592FED8B3B00FD0EB3 /* branch.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = branch.json; sourceTree = "<group>"; };
 		A1E70F332F92CD6800404E0A /* RunnerDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunnerDebug.entitlements; sourceTree = "<group>"; };
 		A1E70F342F92E2E400404E0A /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		B7758EDA77F5899CFA1415BD /* Pods-RunnerTests.debug-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-prod.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-prod.xcconfig"; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				A1DE35592FED8B3B00FD0EB3 /* branch.json */,
 				A1E70F342F92E2E400404E0A /* Runner.entitlements */,
 				A1E70F332F92CD6800404E0A /* RunnerDebug.entitlements */,
 				A12080172F8967E7002E71A3 /* AlarmIntents.swift */,
@@ -328,6 +331,7 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				E3B3C5028E7F1DA093F02990 /* GoogleService-Info.plist in Resources */,
+				A1DE355A2FED8B3B00FD0EB3 /* branch.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

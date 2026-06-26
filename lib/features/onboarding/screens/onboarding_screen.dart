@@ -6,6 +6,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/loading_barrier.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../missions/models/mission.dart';
 import '../../settings/cubit/settings_cubit.dart';
@@ -45,6 +46,9 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
+  // Blocks the UI with a spinner while the sign-in step finalizes onboarding
+  // (alarm creation, Firestore writes, user-type refresh).
+  bool _finalizing = false;
 
   // Local notifiers for the three time pickers. Updated on every scroll tick
   // without touching the Bloc, then flushed to the cubit on Continue.
@@ -91,6 +95,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _next() => _goToPage(_currentPage + 1);
 
+  // Finalizes onboarding after the sign-in step (whether the user signed in or
+  // skipped), showing a blocking spinner while the async work runs.
+  Future<void> _finalizeSignInStep() async {
+    final cubit = context.read<OnboardingCubit>();
+    final alarmCubit = context.read<AlarmCubit>();
+    final subCubit = context.read<SubscriptionCubit>();
+    final settingsCubit = context.read<SettingsCubit>();
+    setState(() => _finalizing = true);
+    try {
+      await cubit.completeOnboarding(alarmCubit, subCubit, settingsCubit);
+    } finally {
+      if (mounted) {
+        setState(() => _finalizing = false);
+        _next();
+      }
+    }
+  }
+
   Future<void> _handleContinuePress(
     OnboardingState state,
     OnboardingCubit cubit,
@@ -124,7 +146,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _back() {
-    if (_currentPage > 0 && _currentPage != 31 && _currentPage != 32) {
+    if (_currentPage > 0 &&
+        _currentPage != 31 &&
+        _currentPage != 32 &&
+        _currentPage != 34 &&
+        _currentPage != 35) {
       _goToPage(_currentPage - 1);
     }
   }
@@ -218,7 +244,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
           return Scaffold(
             backgroundColor: c.background,
-            body: SafeArea(
+            body: Stack(
+              children: [
+                SafeArea(
               bottom: false,
               child: Column(
                 children: [
@@ -237,7 +265,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         children: [
                           if (_currentPage > 0 &&
                               _currentPage != 31 &&
-                              _currentPage != 32)
+                              _currentPage != 32 &&
+                              _currentPage != 34 &&
+                              _currentPage != 35)
                             GestureDetector(
                               onTap: withHaptic(_back),
                               child: Container(
@@ -690,32 +720,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 title: l10n.onboardingSignInCreateTitle,
                                 subtitle:
                                     l10n.onboardingSignInCreateSubtitle,
-                                onSkip: () async {
-                                  final alarmCubit = context.read<AlarmCubit>();
-                                  final subCubit =
-                                      context.read<SubscriptionCubit>();
-                                  final settingsCubit =
-                                      context.read<SettingsCubit>();
-                                  await cubit.completeOnboarding(
-                                    alarmCubit,
-                                    subCubit,
-                                    settingsCubit,
-                                  );
-                                  if (mounted) _next();
-                                },
-                                onSignInComplete: () async {
-                                  final alarmCubit = context.read<AlarmCubit>();
-                                  final subCubit =
-                                      context.read<SubscriptionCubit>();
-                                  final settingsCubit =
-                                      context.read<SettingsCubit>();
-                                  await cubit.completeOnboarding(
-                                    alarmCubit,
-                                    subCubit,
-                                    settingsCubit,
-                                  );
-                                  if (mounted) _next();
-                                },
+                                onSkip: _finalizeSignInStep,
+                                onSignInComplete: _finalizeSignInStep,
                               ),
                               // 34: Paywall - Try for free
                               PaywallStep(onContinue: _next),
@@ -772,6 +778,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                 ],
               ),
+            ),
+                if (_finalizing)
+                  const Positioned.fill(child: LoadingBarrier()),
+              ],
             ),
           );
         });

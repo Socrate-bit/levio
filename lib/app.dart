@@ -11,10 +11,15 @@ import 'package:mixpanel_flutter_session_replay/mixpanel_flutter_session_replay.
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_firestore_service.dart';
+import 'features/alarms/services/alarm_service.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
+import 'features/dismiss/screens/breathing_mission_screen.dart';
+import 'features/dismiss/screens/gratefulness_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
+import 'features/dismiss/screens/meditation_dismiss_screen.dart';
 import 'features/dismiss/screens/mission_sequence_screen.dart';
 import 'features/dismiss/screens/photo_dismiss_screen.dart';
+import 'features/dismiss/screens/routine_dismiss_screen.dart';
 import 'features/dismiss/screens/shake_dismiss_screen.dart';
 import 'features/dismiss/screens/simple_dismiss_screen.dart';
 import 'features/dismiss/screens/speech_dismiss_screen.dart';
@@ -60,7 +65,10 @@ class LevioApp extends StatelessWidget {
               supportedLocales: AppLocalizations.supportedLocales,
               locale: DevicePreview.locale(context),
               navigatorKey: navigatorKey,
-              navigatorObservers: [AnalyticsRouteObserver()],
+              navigatorObservers: [
+                AnalyticsRouteObserver(),
+                DismissRouteObserver(),
+              ],
               builder: (context, child) => DevicePreview.appBuilder(
                 context,
                 GestureDetector(
@@ -78,6 +86,7 @@ class LevioApp extends StatelessWidget {
                   final label = args['label'] ?? 'Alarm #1';
 
                   return MaterialPageRoute(
+                    settings: settings,
                     builder: (_) => _DismissLoader(
                       alarmId: alarmId,
                       nativeAlarmId: nativeAlarmId,
@@ -190,7 +199,7 @@ Widget buildDismissScreen({
         alarmId: alarmId,
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
-        difficulty: config.mathDifficulty ?? MathDifficulty.easy,
+        difficulty: config.mathDifficulty ?? MathDifficulty.medium,
         problemCount: config.mathProblemCount ?? 3,
         onComplete: onComplete,
         onProgress: onProgress,
@@ -199,6 +208,7 @@ Widget buildDismissScreen({
       );
     case MissionType.skyPhoto:
     case MissionType.makeBed:
+    case MissionType.bedPhoto:
     case MissionType.objectHunt:
     case MissionType.petHunt:
     case MissionType.natureHunt:
@@ -228,12 +238,55 @@ Widget buildDismissScreen({
         manageAlarm: manageAlarm,
         isPreview: isPreview,
       );
+    case MissionType.routine:
+      return RoutineDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        items: config.selectedItems,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
     case MissionType.squats:
       return SquatDismissScreen(
         alarmId: alarmId,
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
         repCount: config.repCount ?? 10,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.breathing:
+      return BreathingMissionScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        rounds: config.breathingRounds ?? 3,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.gratefulness:
+      return GratefulnessDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.meditation:
+      return MeditationDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        minMinutes: config.meditationMinutes ?? 2,
         onComplete: onComplete,
         onProgress: onProgress,
         manageAlarm: manageAlarm,

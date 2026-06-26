@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../subscription/services/analytics_service.dart';
 import '../../missions/models/mission.dart';
@@ -9,6 +10,7 @@ import '../../wakeup/services/history_service.dart';
 import '../data/sounds.dart';
 import '../services/alarm_channel.dart';
 import '../services/alarm_firestore_service.dart';
+import '../services/notification_service.dart';
 import 'alarm_state.dart';
 
 class AlarmCubit extends Cubit<AlarmState> {
@@ -243,6 +245,12 @@ class AlarmCubit extends Cubit<AlarmState> {
       }
     }
 
+    // Reconcile pre-alarm reminders for sleep alarms (best-effort, keyed to the
+    // resolved ids so a sync-time reschedule moves the reminder too).
+    for (final alarm in resolved) {
+      NotificationService.syncReminder(alarm).ignore();
+    }
+
     emit(state.copyWith(alarms: resolved));
   }
 
@@ -275,10 +283,13 @@ class AlarmCubit extends Cubit<AlarmState> {
       final alarms = state.alarms;
       final sevenDaysAgo = DateTime(now.year, now.month, now.day - 7);
 
+      // Include auto-dismissed sessions: those alarms did fire, so they must
+      // not be re-recorded as missed.
       final recentSessions = await HistoryService.getSessions(
         limit: 500,
         since: sevenDaysAgo,
         includeIncomplete: true,
+        includeAutoDismissed: true,
       );
 
       for (final alarm in alarms) {
@@ -374,13 +385,28 @@ class AlarmCubit extends Cubit<AlarmState> {
     final prefs = await SharedPreferences.getInstance();
     final forceQuick = prefs.getBool(SettingsCubit.forceQuickAlarmKey) ?? false;
     final toSchedule = entry.copyWith(
+      isOneTime: forceQuick,
       dateTime: forceQuick
           ? DateTime.now().add(const Duration(seconds: 5))
           : _nextFutureDay(entry.dateTime),
     );
 
-    final id = await _scheduleNative(toSchedule);
-    final saved = toSchedule.copyWith(id: id);
+    // Schedule natively. If AlarmKit fails, still persist to Firestore under a
+    // local id but mark it disabled so the UI shows it as inactive; the user
+    // can re-enable to retry scheduling.
+    String id;
+    var scheduled = true;
+    try {
+      id = await _scheduleNative(toSchedule);
+    } catch (e, st) {
+      debugPrint(
+        '[AlarmCubit] addAlarm native schedule failed, saving as disabled: $e',
+      );
+      AnalyticsService.trackError('AlarmCubit.addAlarm.scheduleNative', e, st);
+      id = const Uuid().v4();
+      scheduled = false;
+    }
+    final saved = toSchedule.copyWith(id: id, isEnabled: scheduled);
 
     // Optimistic: show in UI immediately
     emit(state.copyWith(alarms: [...state.alarms, saved]));
@@ -396,15 +422,31 @@ class AlarmCubit extends Cubit<AlarmState> {
       rethrow;
     }
 
-    final firstMission = saved.missions.isNotEmpty
-        ? saved.missions.first.type.name
-        : 'none';
+    // Best-effort pre-alarm reminder for sleep alarms.
+    NotificationService.syncReminder(saved).ignore();
+
+    final firstConfig =
+        saved.missions.isNotEmpty ? saved.missions.first : null;
     AnalyticsService.capture(AnalyticsService.alarmCreated, {
-      'mission_type': firstMission,
+      'mission_type': firstConfig?.type.name ?? 'none',
       'mission_count': saved.missions.length,
       'is_one_time': saved.isOneTime,
       'repeats': saved.repeatDays.where((d) => d).length,
       'sound_id': saved.soundId,
+      // Picked objects + per-mission settings of the configured mission.
+      if (firstConfig?.repCount != null) 'rep_count': firstConfig!.repCount!,
+      if (firstConfig?.mathDifficulty != null)
+        'math_difficulty': firstConfig!.mathDifficulty!.name,
+      if (firstConfig?.mathProblemCount != null)
+        'math_problem_count': firstConfig!.mathProblemCount!,
+      if (firstConfig?.selectedItems != null)
+        'selected_items': firstConfig!.selectedItems!,
+      if (firstConfig?.selectedAffirmations != null)
+        'selected_affirmations': firstConfig!.selectedAffirmations!,
+      if (firstConfig?.affirmationCount != null)
+        'affirmation_count': firstConfig!.affirmationCount!,
+      if (firstConfig?.randomPool != null)
+        'random_pool': firstConfig!.randomPool!.map((t) => t.name).toList(),
     });
   }
 
@@ -436,6 +478,8 @@ class AlarmCubit extends Cubit<AlarmState> {
         debugPrint('[AlarmCubit] Failed to cancel alarm $id: $e\n$stack');
         AnalyticsService.trackError('AlarmCubit.toggleAlarm.cancel', e, stack);
       }
+      // Disabled alarm — drop any pending reminder.
+      NotificationService.cancelReminder(id).ignore();
     } else {
       final now = DateTime.now();
       final toSchedule = alarm.copyWith(
@@ -466,6 +510,9 @@ class AlarmCubit extends Cubit<AlarmState> {
         emit(state.copyWith(alarms: previousAlarms));
         rethrow;
       }
+      // Re-enabled under a new id — move the reminder across.
+      NotificationService.cancelReminder(id).ignore();
+      NotificationService.syncReminder(rescheduled).ignore();
     }
 
     AnalyticsService.capture(AnalyticsService.alarmToggled, {
@@ -507,6 +554,10 @@ class AlarmCubit extends Cubit<AlarmState> {
       rethrow;
     }
 
+    // Reminder follows the new id (the doc was re-created with newId).
+    NotificationService.cancelReminder(old.id).ignore();
+    NotificationService.syncReminder(saved).ignore();
+
     AnalyticsService.capture(AnalyticsService.alarmUpdated);
   }
 
@@ -533,6 +584,8 @@ class AlarmCubit extends Cubit<AlarmState> {
       debugPrint('Error cancelling/cleaning up alarm with id $id: $e');
       AnalyticsService.trackError('AlarmCubit.removeAlarm.cancel', e, st);
     }
+
+    NotificationService.cancelReminder(id).ignore();
 
     AnalyticsService.capture(AnalyticsService.alarmDeleted, {'alarm_id': id});
     AnalyticsService.capture(AnalyticsService.alarmStopped, {'alarm_id': id});
@@ -573,6 +626,9 @@ class AlarmCubit extends Cubit<AlarmState> {
 
     final isRecurrent = !entry.isOneTime && entry.repeatDays.any((d) => d);
 
+    // Gentle sleep alarms fire a single alert with no burst cascade.
+    final burstCount = entry.gentle ? 0 : AlarmChannel.defaultBurstCount;
+
     if (isRecurrent) {
       return AlarmChannel.scheduleRepeating(
         weekdayMask: AlarmChannel.toWeekdayMask(entry.repeatDays),
@@ -582,6 +638,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         sfSymbol: sfSymbol,
         secondaryLabel: secondaryLabel,
         soundPath: soundPath,
+        burstCount: burstCount,
       );
     } else {
       return AlarmChannel.scheduleOneShot(
@@ -590,6 +647,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         sfSymbol: sfSymbol,
         secondaryLabel: secondaryLabel,
         soundPath: soundPath,
+        burstCount: burstCount,
       );
     }
   }
@@ -677,6 +735,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         return 'figure.strengthtraining.traditional';
       case MissionType.skyPhoto:
       case MissionType.makeBed:
+      case MissionType.bedPhoto:
       case MissionType.objectHunt:
       case MissionType.petHunt:
       case MissionType.natureHunt:
@@ -684,8 +743,16 @@ class AlarmCubit extends Cubit<AlarmState> {
         return 'camera.fill';
       case MissionType.affirmation:
         return 'mic.fill';
+      case MissionType.breathing:
+        return 'wind';
+      case MissionType.gratefulness:
+        return 'heart.fill';
+      case MissionType.meditation:
+        return 'figure.mind.and.body';
       case MissionType.math:
         return 'function';
+      case MissionType.routine:
+        return 'checklist';
       case MissionType.random:
         return 'dice.fill';
     }

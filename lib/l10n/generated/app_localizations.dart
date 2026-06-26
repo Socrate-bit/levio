@@ -416,6 +416,66 @@ abstract class AppLocalizations {
   /// **'Mission {index}'**
   String alarmFormMissionIndex(int index);
 
+  /// No description provided for @alarmFormWakeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake up'**
+  String get alarmFormWakeUp;
+
+  /// No description provided for @alarmFormSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get alarmFormSleep;
+
+  /// No description provided for @alarmFormRingStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ring style'**
+  String get alarmFormRingStyle;
+
+  /// No description provided for @alarmFormGentle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle'**
+  String get alarmFormGentle;
+
+  /// No description provided for @alarmFormLoud.
+  ///
+  /// In en, this message translates to:
+  /// **'Loud'**
+  String get alarmFormLoud;
+
+  /// No description provided for @alarmFormReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Bedtime reminder'**
+  String get alarmFormReminder;
+
+  /// No description provided for @alarmFormReminderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified before the alarm rings'**
+  String get alarmFormReminderHint;
+
+  /// No description provided for @alarmFormReminderBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min before'**
+  String alarmFormReminderBefore(int minutes);
+
+  /// No description provided for @reminderNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to wind down'**
+  String get reminderNotificationTitle;
+
+  /// No description provided for @reminderNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bedtime alarm is coming up'**
+  String get reminderNotificationBody;
+
   /// No description provided for @soundPickerTitle.
   ///
   /// In en, this message translates to:
@@ -914,6 +974,66 @@ abstract class AppLocalizations {
   /// **'Read an affirmation out loud'**
   String get missionAffirmationDesc;
 
+  /// No description provided for @missionRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Routine'**
+  String get missionRoutine;
+
+  /// No description provided for @missionRoutineDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your checklist of steps'**
+  String get missionRoutineDesc;
+
+  /// No description provided for @missionBreathing.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathing'**
+  String get missionBreathing;
+
+  /// No description provided for @missionBreathingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow a guided breathing exercise'**
+  String get missionBreathingDesc;
+
+  /// No description provided for @missionGratefulness.
+  ///
+  /// In en, this message translates to:
+  /// **'Gratefulness'**
+  String get missionGratefulness;
+
+  /// No description provided for @missionGratefulnessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer 3 questions to start positive'**
+  String get missionGratefulnessDesc;
+
+  /// No description provided for @missionMeditation.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation'**
+  String get missionMeditation;
+
+  /// No description provided for @missionMeditationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to a 2-minute guided meditation'**
+  String get missionMeditationDesc;
+
+  /// No description provided for @missionBed.
+  ///
+  /// In en, this message translates to:
+  /// **'Bed'**
+  String get missionBed;
+
+  /// No description provided for @missionBedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo of your bed'**
+  String get missionBedDesc;
+
   /// No description provided for @missionRandom.
   ///
   /// In en, this message translates to:
@@ -938,6 +1058,96 @@ abstract class AppLocalizations {
   /// **'Simple alarm with no task'**
   String get missionNoneDesc;
 
+  /// No description provided for @routinePickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build Your Routine'**
+  String get routinePickerTitle;
+
+  /// No description provided for @routinePickerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the steps to complete. Tap ＋ to add your own.'**
+  String get routinePickerSubtitle;
+
+  /// No description provided for @routineAddStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a step'**
+  String get routineAddStep;
+
+  /// No description provided for @routineValidate.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate Routine'**
+  String get routineValidate;
+
+  /// No description provided for @routineStepsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} steps'**
+  String routineStepsCount(int count);
+
+  /// No description provided for @routineTapToComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap each step as you complete it'**
+  String get routineTapToComplete;
+
+  /// No description provided for @routineDrinkWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink a glass of water'**
+  String get routineDrinkWater;
+
+  /// No description provided for @routineDimLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Dim your light'**
+  String get routineDimLight;
+
+  /// No description provided for @routineCloseComputer.
+  ///
+  /// In en, this message translates to:
+  /// **'Close your computer'**
+  String get routineCloseComputer;
+
+  /// No description provided for @routineBrushTeeth.
+  ///
+  /// In en, this message translates to:
+  /// **'Brush your teeth'**
+  String get routineBrushTeeth;
+
+  /// No description provided for @routinePrepareClothes.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare your clothes'**
+  String get routinePrepareClothes;
+
+  /// No description provided for @routineTodoList.
+  ///
+  /// In en, this message translates to:
+  /// **'Todo list for next day'**
+  String get routineTodoList;
+
+  /// No description provided for @routineJournaling.
+  ///
+  /// In en, this message translates to:
+  /// **'Journaling'**
+  String get routineJournaling;
+
+  /// No description provided for @routineBreathing.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathing'**
+  String get routineBreathing;
+
+  /// No description provided for @routineRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get routineRead;
+
   /// No description provided for @photoTargetSky.
   ///
   /// In en, this message translates to:
@@ -949,6 +1159,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'your made bed'**
   String get photoTargetMadeBed;
+
+  /// No description provided for @photoTargetBed.
+  ///
+  /// In en, this message translates to:
+  /// **'your bed'**
+  String get photoTargetBed;
 
   /// No description provided for @photoTargetGrass.
   ///
@@ -967,6 +1183,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All'**
   String get missionPickerAll;
+
+  /// No description provided for @missionPickerWakeup.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake-up'**
+  String get missionPickerWakeup;
+
+  /// No description provided for @missionPickerSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get missionPickerSleep;
 
   /// No description provided for @missionPickerTrending.
   ///
@@ -1003,6 +1231,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Number of reps'**
   String get missionConfigNumberOfReps;
+
+  /// No description provided for @missionConfigNumberOfRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of rounds'**
+  String get missionConfigNumberOfRounds;
+
+  /// No description provided for @missionConfigMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum minutes'**
+  String get missionConfigMinutes;
 
   /// No description provided for @missionConfigNumberOfProblems.
   ///
@@ -1045,6 +1285,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Number of affirmations'**
   String get missionConfigNumberOfAffirmations;
+
+  /// No description provided for @breathingPhaseInhale.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathe in'**
+  String get breathingPhaseInhale;
+
+  /// No description provided for @breathingPhaseExhale.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathe out'**
+  String get breathingPhaseExhale;
+
+  /// No description provided for @breathingPhaseHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold'**
+  String get breathingPhaseHold;
+
+  /// No description provided for @breathingRoundLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {current} of {total}'**
+  String breathingRoundLabel(int current, int total);
+
+  /// No description provided for @gratefulnessQuestion1.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you grateful for today?'**
+  String get gratefulnessQuestion1;
+
+  /// No description provided for @gratefulnessQuestion2.
+  ///
+  /// In en, this message translates to:
+  /// **'What is something good that happened recently?'**
+  String get gratefulnessQuestion2;
+
+  /// No description provided for @gratefulnessQuestion3.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you looking forward to today?'**
+  String get gratefulnessQuestion3;
+
+  /// No description provided for @gratefulnessProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} / {total}'**
+  String gratefulnessProgress(int current, int total);
+
+  /// No description provided for @gratefulnessHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your answer…'**
+  String get gratefulnessHint;
+
+  /// No description provided for @gratefulnessNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get gratefulnessNext;
+
+  /// No description provided for @gratefulnessFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get gratefulnessFinish;
+
+  /// No description provided for @meditationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation'**
+  String get meditationTitle;
+
+  /// No description provided for @meditationInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Close your eyes and follow the guided meditation.'**
+  String get meditationInstruction;
+
+  /// No description provided for @meditationRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to retry'**
+  String get meditationRetry;
+
+  /// No description provided for @meditationFinishIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish in {time}'**
+  String meditationFinishIn(String time);
 
   /// No description provided for @itemPickerSelectItems.
   ///
@@ -1543,6 +1873,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'User Type'**
   String get settingsUserType;
+
+  /// No description provided for @settingsCopyUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy User ID'**
+  String get settingsCopyUserId;
+
+  /// No description provided for @settingsUserIdCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID copied to clipboard'**
+  String get settingsUserIdCopied;
 
   /// No description provided for @settingsEnterReferralCode.
   ///
@@ -4069,6 +4411,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Screen Time access is required. Enable it for Levio in iOS Settings.'**
   String get screenTimeAuthDenied;
+
+  /// No description provided for @osUpdateRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s get you updated 🚀'**
+  String get osUpdateRequiredTitle;
+
+  /// No description provided for @osUpdateRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Levio\'s alarms run on Apple\'s newest tech, so your iPhone needs the latest iOS to wake you up. It only takes a few minutes:'**
+  String get osUpdateRequiredBody;
+
+  /// No description provided for @osUpdateStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Settings app'**
+  String get osUpdateStep1;
+
+  /// No description provided for @osUpdateStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to General → Software Update'**
+  String get osUpdateStep2;
+
+  /// No description provided for @osUpdateStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Install the update, then hop back into Levio'**
+  String get osUpdateStep3;
+
+  /// No description provided for @osUpdateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get osUpdateButton;
+
+  /// No description provided for @alarmPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your alarm won\'t ring ⏰'**
+  String get alarmPermissionTitle;
+
+  /// No description provided for @alarmPermissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Levio doesn\'t have permission to set alarms, so it can\'t wake you up. Tap below and choose \"Allow\" so your alarm actually rings.'**
+  String get alarmPermissionBody;
+
+  /// No description provided for @alarmPermissionDeniedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm access is turned off, so your alarms won\'t ring. Here\'s how to switch it back on in Settings:'**
+  String get alarmPermissionDeniedBody;
+
+  /// No description provided for @alarmPermissionStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings and find Levio'**
+  String get alarmPermissionStep1;
+
+  /// No description provided for @alarmPermissionStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the alarms toggle'**
+  String get alarmPermissionStep2;
+
+  /// No description provided for @alarmPermissionStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back and you\'re all set'**
+  String get alarmPermissionStep3;
+
+  /// No description provided for @alarmPermissionEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable alarms'**
+  String get alarmPermissionEnable;
+
+  /// No description provided for @alarmPermissionOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get alarmPermissionOpenSettings;
+
+  /// No description provided for @alarmPermissionNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe later'**
+  String get alarmPermissionNotNow;
 }
 
 class _AppLocalizationsDelegate

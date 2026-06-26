@@ -11,12 +11,13 @@ struct LevioAlarmMetadata: AlarmMetadata {}
 
 // MARK: - Cascade constants
 
-/// Each Levio alarm is 1 master + 30 .fixed bursts with escalating spacing
-/// (10s for bursts 1–10, 20s for 11–20, 30s for 21–30 = ~10m of coverage).
+/// Each Levio alarm is 1 master + 40 .fixed bursts with escalating spacing
+/// (10s for bursts 1–10, 20s for 11–20, 30s for 21–30, then a supplementary
+/// 1m for 31–40 = ~20m of coverage).
 /// The master fires on the scheduled hour:minute (weekly for recurrent,
 /// one-shot fixed for one-time) and its Stop button re-adds a +5s nudge burst
 /// so the cascade only intensifies when the user actively hits Stop.
-private let kBurstCount = 30
+private let kBurstCount = 40
 private let kBurstIntervalSeconds: TimeInterval = 10
 /// Delay of the extra nudge burst scheduled when the user taps Stop on the
 /// master's lock-screen button.
@@ -122,6 +123,10 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         switch call.method {
         case "requestAuthorization":
             Task { await requestAuthorization(result: result) }
+        case "getAuthorizationStatus":
+            getAuthorizationStatus(result: result)
+        case "openAppSettings":
+            openAppSettings(result: result)
         case "scheduleOneShot":
             Task { await scheduleOneShotCascade(call: call, result: result) }
         case "scheduleRepeating":
@@ -150,6 +155,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             getRawAlarms(result: result)
         case "getRingingId":
             getRingingId(result: result)
+        case "getRingingAlarms":
+            getRingingAlarms(result: result)
         case "cleanupConfig":
             cleanupConfig(call: call, result: result)
         default:
@@ -168,6 +175,29 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         }
     }
 
+    /// Returns the current authorization state without prompting:
+    /// "authorized" / "denied" / "notDetermined".
+    private func getAuthorizationStatus(result: @escaping FlutterResult) {
+        switch AlarmManager.shared.authorizationState {
+        case .authorized: result("authorized")
+        case .denied: result("denied")
+        case .notDetermined: result("notDetermined")
+        @unknown default: result("notDetermined")
+        }
+    }
+
+    /// Opens the system Settings page for this app (used when authorization was
+    /// previously denied and the system prompt won't reappear).
+    private func openAppSettings(result: @escaping FlutterResult) {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else {
+            result(false)
+            return
+        }
+        DispatchQueue.main.async {
+            UIApplication.shared.open(url) { success in result(success) }
+        }
+    }
+
     // MARK: - Schedule One-Shot Cascade
 
     /// Schedules a one-shot master (.fixed) + 20 .fixed bursts at 20s spacing.
@@ -183,6 +213,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
         let soundPath = args["soundPath"] as? String
+        // Gentle alarms pass 0 → master alert only, no burst cascade.
+        let burstCount = args["burstCount"] as? Int ?? kBurstCount
         let originalId = UUID()
         let masterDate = Date(timeIntervalSince1970: timestampMs / 1000)
         let soundName = prepareSoundFile(soundPath: soundPath)
@@ -192,7 +224,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
             isOneShot: true,
             timestampMs: timestampMs,
-            soundPath: soundPath
+            soundPath: soundPath,
+            burstCount: burstCount
         )
 
         let scheduled = await scheduleMasterAndBursts(
@@ -205,7 +238,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            soundName: soundName
+            soundName: soundName,
+            burstCount: burstCount
         )
 
         if scheduled {
@@ -233,6 +267,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
         let soundPath = args["soundPath"] as? String
+        // Gentle alarms pass 0 → master alert only, no burst cascade.
+        let burstCount = args["burstCount"] as? Int ?? kBurstCount
         let originalId = UUID()
         let soundName = prepareSoundFile(soundPath: soundPath)
 
@@ -246,7 +282,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
             isOneShot: false,
             weekdayMask: mask, hour: hour, minute: minute,
-            soundPath: soundPath
+            soundPath: soundPath,
+            burstCount: burstCount
         )
 
         let scheduled = await scheduleMasterAndBursts(
@@ -259,7 +296,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            soundName: soundName
+            soundName: soundName,
+            burstCount: burstCount
         )
 
         if scheduled {
@@ -433,6 +471,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
         let soundPath = config["soundPath"] as? String
         let soundName = prepareSoundFile(soundPath: soundPath)
+        // Honor the per-cascade burst count (gentle alarms store 0).
+        let burstCount = config["burstCount"] as? Int ?? kBurstCount
 
         // "Strictly after today" so we never double-fire on the same day.
         let startOfTomorrow = Calendar.current.startOfDay(
@@ -450,7 +490,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
             soundName: soundName,
-            burstCount: kBurstCount,
+            burstCount: burstCount,
             replaceCascade: true
         )
 
@@ -607,7 +647,10 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             guard let uuid = UUID(uuidString: entry.id) else { return false }
             return liveIds.contains(uuid)
         }
-        let needed = kBurstCount - liveBursts.count
+        // Honor the per-cascade burst count — gentle alarms store 0, so this
+        // yields needed <= 0 and priming never refills a cascade for them.
+        let targetBurstCount = activeConfig["burstCount"] as? Int ?? kBurstCount
+        let needed = targetBurstCount - liveBursts.count
         guard needed > 0 else {
             result(nil)
             return
@@ -960,6 +1003,46 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         result(originalId)
     }
 
+    // MARK: - Get Ringing Alarms (native id + originalId)
+
+    /// Returns every currently-alerting alarm as `{id, originalId}` where `id`
+    /// is the native AlarmKit UUID of the alarm that's physically ringing and
+    /// `originalId` is the cascade it belongs to. Suppression uses `id` to
+    /// spare the burst that's actually ringing and `originalId` to cancel the
+    /// rest of that cascade. Unlike `getRingingId`, this exposes the native id
+    /// so the ringing burst can be matched against `getBurstsInWindow` output.
+    private func getRingingAlarms(result: @escaping FlutterResult) {
+        guard let alarms = try? AlarmManager.shared.alarms else {
+            result([])
+            return
+        }
+        let defaults = UserDefaults.standard
+        var list: [[String: Any]] = []
+        for alarm in alarms {
+            let isAlerting: Bool = {
+                switch alarm.state { case .scheduled: return false; @unknown default: return true }
+            }()
+            guard isAlerting else { continue }
+            let idString = alarm.id.uuidString
+            let originalId = defaults.string(forKey: "levio_burst_\(idString)")
+                ?? defaults.string(forKey: "levio_master_owner_\(idString)")
+                ?? idString
+            // Fire time so the caller can keep the alarm that rang most
+            // recently. Bursts are `.fixed`; a `.relative` master has no fixed
+            // date, so fall back to 0 (a fresh burst always outranks it).
+            var firedAtMs = 0.0
+            if let schedule = alarm.schedule, case .fixed(let date) = schedule {
+                firedAtMs = date.timeIntervalSince1970 * 1000
+            }
+            list.append([
+                "id": idString,
+                "originalId": originalId,
+                "firedAtMs": firedAtMs,
+            ])
+        }
+        result(list)
+    }
+
     // MARK: - Cleanup Config
 
     private func cleanupConfig(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -994,7 +1077,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         title: String,
         sfSymbol: String,
         secondaryLabel: String,
-        soundName: String?
+        soundName: String?,
+        burstCount: Int = kBurstCount
     ) async -> Bool {
         let defaults = UserDefaults.standard
         let masterId = UUID()
@@ -1038,7 +1122,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
             soundName: soundName,
-            burstCount: kBurstCount,
+            burstCount: burstCount,
             replaceCascade: true
         )
         return masterOK
@@ -1069,6 +1153,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 }
                 defaults.removeObject(forKey: "levio_burst_\(entry.id)")
             }
+        }
+
+        // Gentle alarms request 0 bursts — persist the (now empty) cascade and
+        // skip the loop entirely (a `1...0` range would trap at runtime).
+        guard burstCount >= 1 else {
+            saveCascade(originalId: originalId.uuidString, cascade: cascade)
+            return
         }
 
         var cumulativeOffset: TimeInterval = 0
@@ -1112,8 +1203,11 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
     }
 
     /// Spacing for burst at 1-indexed `index`: increases by `kBurstIntervalSeconds`
-    /// every 10 bursts (10s for 1–10, 20s for 11–20, 30s for 21–30, …).
+    /// every 10 bursts (10s for 1–10, 20s for 11–20, 30s for 21–30). Bursts
+    /// 31–40 are a supplementary band spaced 1m apart, extending coverage to
+    /// ~20m without flattening the dense early escalation.
     private func intervalForBurst(at index: Int) -> TimeInterval {
+        if index > 30 { return 60 }
         let group = (index - 1) / 10
         return Double(group + 1) * kBurstIntervalSeconds
     }
@@ -1187,13 +1281,17 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         weekdayMask: Int = 0,
         hour: Int = 0,
         minute: Int = 0,
-        soundPath: String? = nil
+        soundPath: String? = nil,
+        burstCount: Int = kBurstCount
     ) {
         var config: [String: Any] = [
             "title": title,
             "sfSymbol": sfSymbol,
             "secondaryLabel": secondaryLabel,
             "isOneShot": isOneShot,
+            // Per-cascade burst count. Gentle alarms store 0 so priming and
+            // rescheduling never refill a burst cascade for them.
+            "burstCount": burstCount,
             // Recorded at schedule time so priming can detect a tz shift and
             // regenerate the .fixed bursts (which are absolute and don't adapt
             // to timezone changes like the .relative weekly master does).

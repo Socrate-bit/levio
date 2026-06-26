@@ -4,6 +4,7 @@ import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
+import '../../alarms/services/alarm_readiness_guard.dart';
 import '../../alarms/services/alarm_service.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
@@ -22,6 +23,14 @@ class AppGateWrapper extends StatefulWidget {
 }
 
 class _AppGateWrapperState extends State<AppGateWrapper> {
+  /// Whether the device can run Levio alarms (supported iOS + authorization).
+  /// While false, a tap-catching overlay re-pops the readiness dialog on every
+  /// tap until the user resolves it. Assumed ready until proven otherwise.
+  bool _alarmReady = true;
+
+  /// Guards against stacking the readiness dialog on rapid taps.
+  bool _readinessDialogOpen = false;
+
   @override
   void initState() {
     super.initState();
@@ -36,8 +45,22 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
       if (!mounted) return;
       if (context.read<SubscriptionCubit>().state.hasAccess) {
         context.read<AlarmCubit>().sync();
+        _checkAlarmReadiness();
       }
     });
+  }
+
+  /// Surfaces the OS-update / alarm-permission dialog while the device isn't
+  /// ready, then reflects the (re-evaluated) readiness into [_alarmReady] so
+  /// the gating overlay shows/hides accordingly. No-op if already showing.
+  Future<void> _checkAlarmReadiness() async {
+    if (_readinessDialogOpen || !mounted) return;
+    _readinessDialogOpen = true;
+    await AlarmReadinessGuard.ensure(context);
+    _readinessDialogOpen = false;
+    if (!mounted) return;
+    final ready = await AlarmReadinessGuard.isReady();
+    if (mounted) setState(() => _alarmReady = ready);
   }
 
   @override
@@ -55,6 +78,7 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
         if (sub.hasAccess) {
           alarmCubit.restoreSubscriptionDisabled();
           alarmCubit.sync();
+          _checkAlarmReadiness();
         } else {
           alarmCubit.disableAllForSubscription();
         }
@@ -79,7 +103,20 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
               }
               if (sub.hasAccess) {
                 alarmCubit.restoreSubscriptionDisabled();
-                return const BottomNavShell();
+                if (_alarmReady) return const BottomNavShell();
+                // Device can't run alarms (old iOS / no permission): gate the
+                // app and re-pop the readiness dialog on every tap.
+                return Stack(
+                  children: [
+                    const BottomNavShell(),
+                    Positioned.fill(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _checkAlarmReadiness,
+                      ),
+                    ),
+                  ],
+                );
               }
 
               alarmCubit.disableAllForSubscription();

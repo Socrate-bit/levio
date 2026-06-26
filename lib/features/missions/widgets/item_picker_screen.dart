@@ -63,18 +63,6 @@ final objectHuntPickerData = ItemPickerData(
       ItemPickerItem('Backpack', '\u{1f392}'),
       ItemPickerItem('Headphones', '\u{1f3a7}'),
       ItemPickerItem('Shower', '\u{1f6bf}'),
-      ItemPickerItem('Tape', '\u{1f4ce}'),
-    ]),
-    ItemPickerSection(name: 'Fun Items', items: [
-      ItemPickerItem('Kim Kardashian', '\u{1f469}'),
-      ItemPickerItem('Snoop Dogg', '\u{1f468}'),
-      ItemPickerItem('Rubber Duck', '\u{1f986}'),
-      ItemPickerItem('Banana', '\u{1f34c}'),
-      ItemPickerItem('Pickle', '\u{1f952}'),
-      ItemPickerItem('Croc', '\u{1f40a}'),
-      ItemPickerItem('Lava Lamp', '\u{1f52e}'),
-      ItemPickerItem('Ping Pong Paddle', '\u{1f3d3}'),
-      ItemPickerItem('Egg', '\u{1f95a}'),
     ]),
   ],
 );
@@ -122,8 +110,6 @@ String _localizedSectionName(AppLocalizations l10n, String name) {
   switch (name) {
     case 'Household Items':
       return l10n.itemPickerHouseholdItems;
-    case 'Fun Items':
-      return l10n.itemPickerFunItems;
     case 'Custom Items':
       return l10n.itemPickerCustomItems;
     default:
