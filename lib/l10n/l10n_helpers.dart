@@ -26,6 +26,8 @@ String localizedMissionName(AppLocalizations l10n, MissionType type) {
       return l10n.missionTouchGrass;
     case MissionType.affirmation:
       return l10n.missionAffirmation;
+    case MissionType.routine:
+      return l10n.missionRoutine;
     case MissionType.breathing:
       return l10n.missionBreathing;
     case MissionType.gratefulness:
@@ -66,6 +68,8 @@ String localizedMissionDesc(AppLocalizations l10n, MissionType type) {
       return l10n.missionTouchGrassDesc;
     case MissionType.affirmation:
       return l10n.missionAffirmationDesc;
+    case MissionType.routine:
+      return l10n.missionRoutineDesc;
     case MissionType.breathing:
       return l10n.missionBreathingDesc;
     case MissionType.gratefulness:
@@ -439,7 +443,38 @@ String localizedItemName(AppLocalizations l10n, String item) {
       return l10n.natureStick;
     case 'Pinecone':
       return l10n.naturePinecone;
+    case 'Drink a glass of water':
+      return l10n.routineDrinkWater;
+    case 'Dim your light':
+      return l10n.routineDimLight;
+    case 'Close your computer':
+      return l10n.routineCloseComputer;
+    case 'Brush your teeth':
+      return l10n.routineBrushTeeth;
+    case 'Prepare your clothes':
+      return l10n.routinePrepareClothes;
+    case 'Todo list for next day':
+      return l10n.routineTodoList;
+    case 'Journaling':
+      return l10n.routineJournaling;
+    case 'Breathing':
+      return l10n.routineBreathing;
+    case 'Read':
+      return l10n.routineRead;
     default:
       return item;
   }
 }
+
+/// The built-in routine step labels (stored as plain strings in selectedItems).
+const routinePresetSteps = <String>[
+  'Drink a glass of water',
+  'Dim your light',
+  'Close your computer',
+  'Brush your teeth',
+  'Prepare your clothes',
+  'Todo list for next day',
+  'Journaling',
+  'Breathing',
+  'Read',
+];

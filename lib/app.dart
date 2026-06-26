@@ -19,6 +19,7 @@ import 'features/dismiss/screens/math_dismiss_screen.dart';
 import 'features/dismiss/screens/meditation_dismiss_screen.dart';
 import 'features/dismiss/screens/mission_sequence_screen.dart';
 import 'features/dismiss/screens/photo_dismiss_screen.dart';
+import 'features/dismiss/screens/routine_dismiss_screen.dart';
 import 'features/dismiss/screens/shake_dismiss_screen.dart';
 import 'features/dismiss/screens/simple_dismiss_screen.dart';
 import 'features/dismiss/screens/speech_dismiss_screen.dart';
@@ -230,6 +231,17 @@ Widget buildDismissScreen({
         alarmLabel: alarmLabel,
         selectedAffirmations: config.selectedAffirmations,
         affirmationCount: config.affirmationCount ?? 1,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.routine:
+      return RoutineDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        items: config.selectedItems,
         onComplete: onComplete,
         onProgress: onProgress,
         manageAlarm: manageAlarm,

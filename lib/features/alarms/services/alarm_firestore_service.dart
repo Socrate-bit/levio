@@ -20,6 +20,10 @@ class AlarmFirestoreService {
         'isEnabled': entry.isEnabled,
         'isOneTime': entry.isOneTime,
         'disabledBySubscription': entry.disabledBySubscription,
+        'isSleep': entry.isSleep,
+        'gentle': entry.gentle,
+        'reminderEnabled': entry.reminderEnabled,
+        'reminderMinutesBefore': entry.reminderMinutesBefore,
         'createdAtMs': entry.createdAt.millisecondsSinceEpoch,
       });
 
@@ -52,6 +56,10 @@ class AlarmFirestoreService {
       isEnabled: d['isEnabled'] as bool? ?? true,
       isOneTime: d['isOneTime'] as bool? ?? false,
       disabledBySubscription: d['disabledBySubscription'] as bool? ?? false,
+      isSleep: d['isSleep'] as bool? ?? false,
+      gentle: d['gentle'] as bool? ?? false,
+      reminderEnabled: d['reminderEnabled'] as bool? ?? false,
+      reminderMinutesBefore: d['reminderMinutesBefore'] as int? ?? 15,
       createdAt: d['createdAtMs'] != null
           ? DateTime.fromMillisecondsSinceEpoch(d['createdAtMs'] as int)
           : null,

@@ -71,11 +71,15 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
   }
 
   void _startMission() {
+    var config = _resolvedMissions[_currentIndex];
     // Mission has now officially "started" — fire up suppression + watchdog.
-    _cascade.start();
+    // The routine mission is self-paced: suppress the alarm but never bounce
+    // the user back to the start screen on inactivity.
+    _cascade.start(
+      enableInactivityWatchdog: config.type != MissionType.routine,
+    );
     setState(() => _inMission = true);
 
-    var config = _resolvedMissions[_currentIndex];
     // If the user already saw a roulette pick for this mission and was bounced
     // back by inactivity, hand back the same target as a single-item list so
     // PhotoDismissScreen skips the roulette entirely.

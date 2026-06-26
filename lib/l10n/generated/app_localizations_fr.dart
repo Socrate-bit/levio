@@ -178,6 +178,38 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get alarmFormWakeUp => 'Réveil';
+
+  @override
+  String get alarmFormSleep => 'Sommeil';
+
+  @override
+  String get alarmFormRingStyle => 'Type de sonnerie';
+
+  @override
+  String get alarmFormGentle => 'Douce';
+
+  @override
+  String get alarmFormLoud => 'Forte';
+
+  @override
+  String get alarmFormReminder => 'Rappel du coucher';
+
+  @override
+  String get alarmFormReminderHint => 'Soyez notifié avant que l\'alarme sonne';
+
+  @override
+  String alarmFormReminderBefore(int minutes) {
+    return '$minutes min avant';
+  }
+
+  @override
+  String get reminderNotificationTitle => 'Il est temps de vous détendre';
+
+  @override
+  String get reminderNotificationBody => 'Votre alarme du coucher approche';
+
+  @override
   String get soundPickerTitle => 'Son de l\'alarme';
 
   @override
@@ -433,6 +465,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionAffirmationDesc => 'Lisez une affirmation à voix haute';
 
   @override
+  String get missionRoutine => 'Routine';
+
+  @override
+  String get missionRoutineDesc => 'Complétez votre liste d\'étapes';
+
+  @override
   String get missionBreathing => 'Respiration';
 
   @override
@@ -469,6 +507,54 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get missionNoneDesc => 'Alarme simple sans tâche';
+
+  @override
+  String get routinePickerTitle => 'Composez votre routine';
+
+  @override
+  String get routinePickerSubtitle =>
+      'Choisissez les étapes à compléter. Touchez ＋ pour ajouter la vôtre.';
+
+  @override
+  String get routineAddStep => 'Ajouter une étape';
+
+  @override
+  String get routineValidate => 'Valider la routine';
+
+  @override
+  String routineStepsCount(int count) {
+    return '$count étapes';
+  }
+
+  @override
+  String get routineTapToComplete => 'Touchez chaque étape une fois complétée';
+
+  @override
+  String get routineDrinkWater => 'Boire un verre d\'eau';
+
+  @override
+  String get routineDimLight => 'Tamiser la lumière';
+
+  @override
+  String get routineCloseComputer => 'Fermer votre ordinateur';
+
+  @override
+  String get routineBrushTeeth => 'Se brosser les dents';
+
+  @override
+  String get routinePrepareClothes => 'Préparer vos vêtements';
+
+  @override
+  String get routineTodoList => 'Liste de tâches pour demain';
+
+  @override
+  String get routineJournaling => 'Journal intime';
+
+  @override
+  String get routineBreathing => 'Respiration';
+
+  @override
+  String get routineRead => 'Lire';
 
   @override
   String get photoTargetSky => 'le ciel';

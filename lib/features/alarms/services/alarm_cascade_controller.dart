@@ -47,7 +47,11 @@ class AlarmCascadeController {
   /// Starts the suppression timer and inactivity watchdog. Call when the user
   /// taps Start on the mission screen. Captures the `keep_alarm_during_mission`
   /// pref to choose between total silence and "keep one ringing". Idempotent.
-  Future<void> start() async {
+  ///
+  /// Pass [enableInactivityWatchdog] false to skip the watchdog entirely — used
+  /// by the routine mission, which the user completes at their own pace and must
+  /// never be bounced back to the start screen on inactivity.
+  Future<void> start({bool enableInactivityWatchdog = true}) async {
     if (_active || _disposed) return;
     final prefs = await SharedPreferences.getInstance();
     // Guard the async gap: finish()/dispose() may have run while we were
@@ -62,10 +66,12 @@ class AlarmCascadeController {
       const Duration(seconds: 5),
       (_) => _suppressWindow(),
     );
-    _watchdogTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _checkInactivity(),
-    );
+    if (enableInactivityWatchdog) {
+      _watchdogTimer = Timer.periodic(
+        const Duration(seconds: 5),
+        (_) => _checkInactivity(),
+      );
+    }
 
     // Immediate pass so concurrent cascades are silenced as soon as the
     // mission starts.
