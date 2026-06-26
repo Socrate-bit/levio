@@ -5,8 +5,8 @@ import UIKit
 // ShieldConfiguration extension target: defines what the custom blocker screen
 // looks like when the user opens a blocked app during a Levio window.
 //
-// NOTE: add this file to the Shield extension target in Xcode. The "Open Levio"
-// primary button is handled by ShieldActionExtension.swift.
+// NOTE: add this file to the Shield extension target in Xcode. The primary
+// button's tap is handled by ShieldActionExtension.swift.
 @available(iOS 16.0, *)
 class ShieldConfigurationExtension: ShieldConfigurationDataSource {
 
@@ -20,14 +20,15 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
                 color: .white
             ),
             subtitle: ShieldConfiguration.Label(
-                text: "This app is paused during your sleep window. Open Levio to manage it.",
+                text: "This app is paused during your sleep window.",
                 color: UIColor(white: 1, alpha: 0.7)
             ),
             primaryButtonLabel: ShieldConfiguration.Label(
-                text: "Open Levio",
+                text: "OK",
                 color: .white
             ),
-            primaryButtonBackgroundColor: UIColor(red: 1.0, green: 0.42, blue: 0.0, alpha: 1)
+            // Dark translucent fill to match Apple's default shield buttons.
+            primaryButtonBackgroundColor: UIColor(white: 1, alpha: 0.12)
         )
     }
 
