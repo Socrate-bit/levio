@@ -13,7 +13,10 @@ import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_firestore_service.dart';
 import 'features/alarms/services/alarm_service.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
+import 'features/dismiss/screens/breathing_mission_screen.dart';
+import 'features/dismiss/screens/gratefulness_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
+import 'features/dismiss/screens/meditation_dismiss_screen.dart';
 import 'features/dismiss/screens/mission_sequence_screen.dart';
 import 'features/dismiss/screens/photo_dismiss_screen.dart';
 import 'features/dismiss/screens/shake_dismiss_screen.dart';
@@ -202,6 +205,7 @@ Widget buildDismissScreen({
       );
     case MissionType.skyPhoto:
     case MissionType.makeBed:
+    case MissionType.bedPhoto:
     case MissionType.objectHunt:
     case MissionType.petHunt:
     case MissionType.natureHunt:
@@ -237,6 +241,37 @@ Widget buildDismissScreen({
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
         repCount: config.repCount ?? 10,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.breathing:
+      return BreathingMissionScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        rounds: config.breathingRounds ?? 3,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.gratefulness:
+      return GratefulnessDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.meditation:
+      return MeditationDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
         onComplete: onComplete,
         onProgress: onProgress,
         manageAlarm: manageAlarm,

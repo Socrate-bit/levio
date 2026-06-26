@@ -13,10 +13,16 @@ enum MissionType {
   natureHunt,
   touchGrass,
   affirmation,
+  breathing,
+  gratefulness,
+  meditation,
+  bedPhoto,
   random,
 }
 
-enum MissionCategory { all, trending, hunts, physical }
+/// Mission filter tabs ("ships"). `all` is the show-everything sentinel;
+/// `wakeup`/`sleep` are goal-based ships; the rest are functional groupings.
+enum MissionCategory { all, wakeup, sleep, trending, hunts, physical }
 
 class MissionInfo {
   final MissionType type;
@@ -25,7 +31,10 @@ class MissionInfo {
   final Color iconColor;
   final Color iconBg;
   final IconData icon;
-  final MissionCategory category;
+
+  /// Tabs this mission appears under — a mission can belong to a functional
+  /// group and one or more ships at once.
+  final List<MissionCategory> categories;
 
   const MissionInfo({
     required this.type,
@@ -34,7 +43,7 @@ class MissionInfo {
     required this.iconColor,
     required this.iconBg,
     required this.icon,
-    required this.category,
+    required this.categories,
   });
 }
 
@@ -46,7 +55,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFE05C5C),
     iconBg: Color(0xFFFDE8E8),
     icon: Icons.fitness_center,
-    category: MissionCategory.physical,
+    categories: [MissionCategory.physical, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.squats,
@@ -55,7 +64,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF3DAD6F),
     iconBg: Color(0xFFE5F5EC),
     icon: Icons.accessibility_new,
-    category: MissionCategory.physical,
+    categories: [MissionCategory.physical, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.shakePhone,
@@ -64,7 +73,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF5B8DEF),
     iconBg: Color(0xFFEAF0FD),
     icon: Icons.vibration,
-    category: MissionCategory.physical,
+    categories: [MissionCategory.physical, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.math,
@@ -73,7 +82,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF7B61FF),
     iconBg: Color(0xFFF0EDFF),
     icon: Icons.calculate,
-    category: MissionCategory.trending,
+    categories: [MissionCategory.trending, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.skyPhoto,
@@ -82,7 +91,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFE07B3A),
     iconBg: Color(0xFFFDF0E7),
     icon: Icons.wb_sunny,
-    category: MissionCategory.hunts,
+    categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.makeBed,
@@ -91,7 +100,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF7B61FF),
     iconBg: Color(0xFFF0EDFF),
     icon: Icons.bed,
-    category: MissionCategory.trending,
+    categories: [MissionCategory.trending, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.objectHunt,
@@ -100,7 +109,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF3DAD6F),
     iconBg: Color(0xFFE5F5EC),
     icon: Icons.search,
-    category: MissionCategory.hunts,
+    categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.petHunt,
@@ -109,7 +118,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFE07B3A),
     iconBg: Color(0xFFFDF0E7),
     icon: Icons.pets,
-    category: MissionCategory.hunts,
+    categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.natureHunt,
@@ -118,7 +127,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF3DAD6F),
     iconBg: Color(0xFFE5F5EC),
     icon: Icons.park,
-    category: MissionCategory.hunts,
+    categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.touchGrass,
@@ -127,7 +136,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF3DAD6F),
     iconBg: Color(0xFFE5F5EC),
     icon: Icons.grass,
-    category: MissionCategory.hunts,
+    categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.affirmation,
@@ -136,7 +145,47 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFCC4DAA),
     iconBg: Color(0xFFFAE7F5),
     icon: Icons.chat_bubble,
-    category: MissionCategory.trending,
+    categories: [
+      MissionCategory.trending,
+      MissionCategory.wakeup,
+      MissionCategory.sleep,
+    ],
+  ),
+  MissionInfo(
+    type: MissionType.breathing,
+    name: 'Breathing',
+    description: 'Follow a guided breathing exercise',
+    iconColor: Color(0xFF4A90D9),
+    iconBg: Color(0xFFE7F1FD),
+    icon: Icons.air,
+    categories: [MissionCategory.sleep],
+  ),
+  MissionInfo(
+    type: MissionType.gratefulness,
+    name: 'Gratefulness',
+    description: 'Answer 3 questions to start positive',
+    iconColor: Color(0xFFE0566B),
+    iconBg: Color(0xFFFDEAEA),
+    icon: Icons.favorite_border,
+    categories: [MissionCategory.wakeup, MissionCategory.sleep],
+  ),
+  MissionInfo(
+    type: MissionType.meditation,
+    name: 'Meditation',
+    description: 'Listen to a 2-minute guided meditation',
+    iconColor: Color(0xFF7B61FF),
+    iconBg: Color(0xFFF0EDFF),
+    icon: Icons.self_improvement,
+    categories: [MissionCategory.sleep],
+  ),
+  MissionInfo(
+    type: MissionType.bedPhoto,
+    name: 'Bed',
+    description: 'Take a photo of your bed',
+    iconColor: Color(0xFF5B8DEF),
+    iconBg: Color(0xFFEAF0FD),
+    icon: Icons.king_bed,
+    categories: [MissionCategory.sleep],
   ),
   MissionInfo(
     type: MissionType.random,
@@ -145,7 +194,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF8E8E93),
     iconBg: Color(0xFFF2F2F7),
     icon: Icons.casino,
-    category: MissionCategory.trending,
+    categories: [MissionCategory.trending],
   ),
 ];
 
@@ -156,7 +205,7 @@ const _noneInfo = MissionInfo(
   iconColor: Color(0xFF8E8E93),
   iconBg: Color(0xFFF2F2F7),
   icon: Icons.alarm,
-  category: MissionCategory.all,
+  categories: [MissionCategory.all],
 );
 
 MissionInfo missionInfoFor(MissionType type) =>
@@ -193,6 +242,7 @@ String geminiPromptFor(MissionType type) {
     case MissionType.skyPhoto:
       return 'Does this image clearly show an outdoor sky? Reply with only YES or NO.';
     case MissionType.makeBed:
+    case MissionType.bedPhoto:
       return 'Does this image clearly show a bed? Reply with only YES or NO.';
     case MissionType.objectHunt:
       return 'Does this image show a common household object clearly? Reply with only YES or NO.';

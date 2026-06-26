@@ -23,7 +23,7 @@ dependencies:
   cloud_firestore: ^6.2.0
   firebase_auth: ^6.3.0
   adaptive_platform_ui: ^0.1.104
-  audioplayers: ^6.6.0
+  audioplayers: ^6.7.1
   flutter_native_splash: ^2.4.7
   flutter_launcher_icons: ^0.14.4
   in_app_review: ^2.0.11
@@ -51,6 +51,7 @@ dependencies:
   mixpanel_flutter_session_replay: ^0.1.0-beta.4
   permission_handler: ^12.0.3
   flutter_branch_sdk: ^9.3.1
+  firebase_storage: ^13.4.3
 
 dev_dependencies:
   flutter_test:

@@ -28,6 +28,9 @@ class MissionConfig extends Equatable {
   /// Random pool — null/empty = all missions, 1 = that one, 2+ = random from pool.
   final List<MissionType>? randomPool;
 
+  /// Number of breathing rounds (default 3).
+  final int? breathingRounds;
+
   const MissionConfig({
     required this.type,
     this.repCount,
@@ -37,6 +40,7 @@ class MissionConfig extends Equatable {
     this.selectedAffirmations,
     this.affirmationCount,
     this.randomPool,
+    this.breathingRounds,
   });
 
   Map<String, dynamic> toMap() => {
@@ -50,6 +54,7 @@ class MissionConfig extends Equatable {
         if (affirmationCount != null) 'affirmationCount': affirmationCount,
         if (randomPool != null)
           'randomPool': randomPool!.map((t) => t.name).toList(),
+        if (breathingRounds != null) 'breathingRounds': breathingRounds,
       };
 
   factory MissionConfig.fromMap(Map<String, dynamic> m) {
@@ -78,6 +83,7 @@ class MissionConfig extends Equatable {
               ))
           .where((t) => t != MissionType.none)
           .toList(),
+      breathingRounds: m['breathingRounds'] as int?,
     );
   }
 
@@ -97,6 +103,8 @@ class MissionConfig extends Equatable {
     bool clearAffirmationCount = false,
     List<MissionType>? randomPool,
     bool clearRandomPool = false,
+    int? breathingRounds,
+    bool clearBreathingRounds = false,
   }) =>
       MissionConfig(
         type: type ?? this.type,
@@ -115,6 +123,9 @@ class MissionConfig extends Equatable {
             ? null
             : affirmationCount ?? this.affirmationCount,
         randomPool: clearRandomPool ? null : randomPool ?? this.randomPool,
+        breathingRounds: clearBreathingRounds
+            ? null
+            : breathingRounds ?? this.breathingRounds,
       );
 
   @override
@@ -127,5 +138,6 @@ class MissionConfig extends Equatable {
         selectedAffirmations,
         affirmationCount,
         randomPool,
+        breathingRounds,
       ];
 }

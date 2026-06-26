@@ -65,7 +65,10 @@ Future<MissionConfig?> showMissionConfigModal(
   // Missions with no config
   if (info.type == MissionType.skyPhoto ||
       info.type == MissionType.makeBed ||
-      info.type == MissionType.touchGrass) {
+      info.type == MissionType.bedPhoto ||
+      info.type == MissionType.touchGrass ||
+      info.type == MissionType.gratefulness ||
+      info.type == MissionType.meditation) {
     return MissionConfig(type: info.type);
   }
 
@@ -141,6 +144,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
   late int _repCount;
   late MathDifficulty _mathDifficulty;
   late int _mathProblemCount;
+  late int _breathingRounds;
 
   @override
   void initState() {
@@ -158,6 +162,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
     }
     _mathDifficulty = e?.mathDifficulty ?? MathDifficulty.medium;
     _mathProblemCount = e?.mathProblemCount ?? 3;
+    _breathingRounds = e?.breathingRounds ?? 3;
   }
 
   MissionConfig _buildConfig() {
@@ -171,6 +176,11 @@ class _ConfigSheetState extends State<_ConfigSheet> {
           type: widget.info.type,
           mathDifficulty: _mathDifficulty,
           mathProblemCount: _mathProblemCount,
+        );
+      case MissionType.breathing:
+        return MissionConfig(
+          type: widget.info.type,
+          breathingRounds: _breathingRounds,
         );
       default:
         return MissionConfig(type: widget.info.type);
@@ -202,6 +212,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
     final isRep = widget.info.type == MissionType.pushUps ||
         widget.info.type == MissionType.squats ||
         widget.info.type == MissionType.shakePhone;
+    final isBreathing = widget.info.type == MissionType.breathing;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -251,6 +262,22 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               min: 1,
               max: 100,
               onChanged: (v) => setState(() => _repCount = v),
+            ),
+            SizedBox(height: 24.h),
+          ],
+
+          // Breathing rounds stepper
+          if (isBreathing) ...[
+            Text(
+              l10n.missionConfigNumberOfRounds,
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+            ),
+            SizedBox(height: 12.h),
+            _Stepper(
+              value: _breathingRounds,
+              min: 1,
+              max: 10,
+              onChanged: (v) => setState(() => _breathingRounds = v),
             ),
             SizedBox(height: 24.h),
           ],

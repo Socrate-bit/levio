@@ -26,6 +26,14 @@ String localizedMissionName(AppLocalizations l10n, MissionType type) {
       return l10n.missionTouchGrass;
     case MissionType.affirmation:
       return l10n.missionAffirmation;
+    case MissionType.breathing:
+      return l10n.missionBreathing;
+    case MissionType.gratefulness:
+      return l10n.missionGratefulness;
+    case MissionType.meditation:
+      return l10n.missionMeditation;
+    case MissionType.bedPhoto:
+      return l10n.missionBed;
     case MissionType.random:
       return l10n.missionRandom;
     case MissionType.none:
@@ -58,6 +66,14 @@ String localizedMissionDesc(AppLocalizations l10n, MissionType type) {
       return l10n.missionTouchGrassDesc;
     case MissionType.affirmation:
       return l10n.missionAffirmationDesc;
+    case MissionType.breathing:
+      return l10n.missionBreathingDesc;
+    case MissionType.gratefulness:
+      return l10n.missionGratefulnessDesc;
+    case MissionType.meditation:
+      return l10n.missionMeditationDesc;
+    case MissionType.bedPhoto:
+      return l10n.missionBedDesc;
     case MissionType.random:
       return l10n.missionRandomDesc;
     case MissionType.none:
@@ -149,6 +165,8 @@ String localizedPhotoTarget(AppLocalizations l10n, MissionType type) {
       return l10n.photoTargetSky;
     case MissionType.makeBed:
       return l10n.photoTargetMadeBed;
+    case MissionType.bedPhoto:
+      return l10n.photoTargetBed;
     case MissionType.touchGrass:
       return l10n.photoTargetGrass;
     default:
