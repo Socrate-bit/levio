@@ -132,13 +132,7 @@ class MorningPlanStep extends StatelessWidget {
                     colors: c,
                   ),
                   _TimelineLine(colors: c),
-                  _TimelineItem(
-                    icon: Icons.self_improvement,
-                    label: l10n.onboardingSleepWindDownSteps(
-                        _activitiesLabel(l10n)),
-                    colors: c,
-                  ),
-                  _TimelineLine(colors: c),
+
                   if (blockApps) ...[
                     _TimelineItem(
                       icon: Icons.phonelink_lock,
