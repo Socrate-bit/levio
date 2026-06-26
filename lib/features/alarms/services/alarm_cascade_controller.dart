@@ -180,13 +180,18 @@ class AlarmCascadeController {
       // Suppress mode: silence every cascade. Keep-ringing mode: keep the one
       // currently ringing and silence the rest.
       if (!_keepRinging) {
-        await _suppressAllExcept(null);
+        await _suppressAllExcept();
         return;
       }
       final ringing = await AlarmChannel.getRingingAlarms();
       // Nothing ringing — let the next burst through instead of pre-cancelling.
       if (ringing.isEmpty) return;
-      await _suppressAllExcept(ringing.last.id);
+      // Keep the alarm that rang most recently (latest fire time), not just the
+      // last one in the list — list order doesn't track when each started.
+      final keep = ringing.reduce(
+        (a, b) => b.firedAtMs >= a.firedAtMs ? b : a,
+      );
+      await _suppressAllExcept(keepNativeId: keep.id);
     } catch (e, st) {
       debugPrint('[AlarmCascadeController] suppressWindow failed: $e');
       AnalyticsService.trackError(
@@ -198,7 +203,18 @@ class AlarmCascadeController {
   }
 
   /// Cancels every burst scheduled within the suppression window for each live
-  /// cascade except [keepId] and the one ringing right now.
+  /// cascade except the one ringing right now.
+  ///
+  /// [keepNativeId] is the native AlarmKit id of the alerting ring we keep
+  /// (matches both `getBurstsInWindow` output and each cascade's `masterId`),
+  /// or null in suppress mode where everything is silenced. It serves two
+  /// guards:
+  /// - Burst spare: a burst whose id equals [keepNativeId] is not cancelled.
+  /// - Master spare: a cascade's master is dismissed UNLESS that master is
+  ///   itself the alerting ring (`masterId == keepNativeId`). Comparing
+  ///   against `masterId` — not `originalId` — matters because a burst shares
+  ///   its cascade's `originalId`: when a burst is the ring, the master must
+  ///   still be silenced so only the burst keeps ringing.
   ///
   /// Enumerates *all* live cascades (via [AlarmChannel.getAlarms]) rather than
   /// only the currently-alerting ones, so a concurrent alarm sitting between
@@ -208,12 +224,16 @@ class AlarmCascadeController {
   /// ring off mid-alert; only its concurrents are silenced. Cancelling
   /// batch-wise (not just "the next one") keeps suppression robust when
   /// overlapping bursts have accumulated.
-  Future<void> _suppressAllExcept(String? keepId) async {
+  Future<void> _suppressAllExcept({String? keepNativeId}) async {
     final alarms = await AlarmChannel.getAlarms();
     for (final alarm in alarms) {
       final id = alarm['id'] as String?;
       if (id == null) continue;
-      if (id != keepId) {
+      // Dismiss the master unless it is itself the alerting ring — silencing
+      // it then would cut off the alert we keep. A burst ringing in this same
+      // cascade does NOT spare the master: only the burst should ring.
+      final masterId = alarm['masterId'] as String?;
+      if (masterId != keepNativeId) {
         await AlarmChannel.dismissMasterRingIfAlerting(id);
       }
       final burstIds = await AlarmChannel.getBurstsInWindow(
@@ -221,7 +241,7 @@ class AlarmCascadeController {
         windowMs: _suppressionWindowMs,
       );
       for (final burstId in burstIds) {
-        if (burstId == keepId) {
+        if (burstId == keepNativeId) {
           continue;
         }
         await AlarmChannel.cancelBurst(originalId: id, burstId: burstId);

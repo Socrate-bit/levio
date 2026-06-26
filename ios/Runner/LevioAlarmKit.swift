@@ -1004,7 +1004,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             return
         }
         let defaults = UserDefaults.standard
-        var list: [[String: String]] = []
+        var list: [[String: Any]] = []
         for alarm in alarms {
             let isAlerting: Bool = {
                 switch alarm.state { case .scheduled: return false; @unknown default: return true }
@@ -1014,7 +1014,18 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             let originalId = defaults.string(forKey: "levio_burst_\(idString)")
                 ?? defaults.string(forKey: "levio_master_owner_\(idString)")
                 ?? idString
-            list.append(["id": idString, "originalId": originalId])
+            // Fire time so the caller can keep the alarm that rang most
+            // recently. Bursts are `.fixed`; a `.relative` master has no fixed
+            // date, so fall back to 0 (a fresh burst always outranks it).
+            var firedAtMs = 0.0
+            if let schedule = alarm.schedule, case .fixed(let date) = schedule {
+                firedAtMs = date.timeIntervalSince1970 * 1000
+            }
+            list.append([
+                "id": idString,
+                "originalId": originalId,
+                "firedAtMs": firedAtMs,
+            ])
         }
         result(list)
     }

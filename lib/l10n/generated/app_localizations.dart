@@ -3965,19 +3965,19 @@ abstract class AppLocalizations {
   /// No description provided for @alarmPermissionTitle.
   ///
   /// In en, this message translates to:
-  /// **'Let\'s turn on your alarms 🔔'**
+  /// **'Your alarm won\'t ring ⏰'**
   String get alarmPermissionTitle;
 
   /// No description provided for @alarmPermissionBody.
   ///
   /// In en, this message translates to:
-  /// **'Levio needs your go-ahead to set alarms — that\'s how we\'ll actually get you up in the morning. Tap below and choose \"Allow\".'**
+  /// **'Levio doesn\'t have permission to set alarms, so it can\'t wake you up. Tap below and choose \"Allow\" so your alarm actually rings.'**
   String get alarmPermissionBody;
 
   /// No description provided for @alarmPermissionDeniedBody.
   ///
   /// In en, this message translates to:
-  /// **'Looks like alarm access is switched off right now. No worries — here\'s how to turn it back on:'**
+  /// **'Alarm access is turned off, so your alarms won\'t ring. Here\'s how to switch it back on in Settings:'**
   String get alarmPermissionDeniedBody;
 
   /// No description provided for @alarmPermissionStep1.

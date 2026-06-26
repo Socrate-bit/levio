@@ -25,14 +25,14 @@ class BranchService {
   static Future<void> init() async {
     if (_initialized) return;
     try {
+      // Initialize the native Branch SDK (deferred via branch.json).
+      await FlutterBranchSdk.init(enableLogging: kDebugMode);
+
       // iOS 14+: show the ATT prompt and wait for the user's response BEFORE
       // Branch initializes. (No-op / notSupported on non-iOS platforms.)
       if (Platform.isIOS) {
         await FlutterBranchSdk.requestTrackingAuthorization();
       }
-
-      // Initialize the native Branch SDK (deferred via branch.json).
-      await FlutterBranchSdk.init(enableLogging: kDebugMode);
 
       // Attach a session listener so Branch records the open and completes
       // attribution. Handler is intentionally minimal — no screen routing.
@@ -44,7 +44,7 @@ class BranchService {
       // TEMPORARY: validates the Branch integration end-to-end and prints the
       // result to the device console. REMOVE this line once integration is
       // confirmed passing (it must not ship to production).
-      FlutterBranchSdk.validateSDKIntegration();
+      // FlutterBranchSdk.validateSDKIntegration();
 
       _initialized = true;
     } catch (e) {

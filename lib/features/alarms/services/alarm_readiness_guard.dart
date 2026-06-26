@@ -35,6 +35,16 @@ class AlarmReadinessGuard {
     return status == AlarmAuthorizationStatus.authorized;
   }
 
+  /// Gate for create/activate actions: returns true when the device is ready,
+  /// otherwise surfaces the readiness dialog and returns false so the caller can
+  /// abort the action.
+  static Future<bool> check(BuildContext context) async {
+    if (await isReady()) return true;
+    if (!context.mounted) return false;
+    await ensure(context);
+    return false;
+  }
+
   /// Shows the relevant dialog when the device can't run Levio alarms. No-op on
   /// non-iOS platforms, or on a supported iOS with authorization already granted.
   static Future<void> ensure(BuildContext context) async {

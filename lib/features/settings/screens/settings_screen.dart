@@ -9,6 +9,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/loading_barrier.dart';
 import '../../auth/auth_service.dart';
 import '../../subscription/services/analytics_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
@@ -38,6 +39,8 @@ class _SettingsScreenState extends State<SettingsScreen>
   bool get wantKeepAlive => true;
 
   bool _notifications = true;
+  // Shows a blocking spinner while the account deletion request is in flight.
+  bool _deletingAccount = false;
 
   Future<void> _confirmLogout(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
@@ -90,18 +93,23 @@ class _SettingsScreenState extends State<SettingsScreen>
       ),
     );
     if (confirmed != true) return;
+    setState(() => _deletingAccount = true);
     try {
       await AuthService.deleteAccount();
+      // On success the auth state flips and AuthWrapper swaps this screen out,
+      // taking the spinner with it — no need to reset _deletingAccount.
     } on FirebaseAuthException catch (e, st) {
       debugPrint('[SettingsScreen] deleteAccount failed: ${e.code}');
       AnalyticsService.trackError('SettingsScreen._confirmDeleteAccount.firebaseAuth', e, st);
       final msg = e.code == 'requires-recent-login'
           ? l10n.settingsDeleteAccountReauthRequired
           : l10n.settingsDeleteAccountError;
+      if (mounted) setState(() => _deletingAccount = false);
       messenger.showSnackBar(SnackBar(content: Text(msg)));
     } catch (e, st) {
       debugPrint('[SettingsScreen] deleteAccount failed: $e');
       AnalyticsService.trackError('SettingsScreen._confirmDeleteAccount', e, st);
+      if (mounted) setState(() => _deletingAccount = false);
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.settingsDeleteAccountError)),
       );
@@ -138,7 +146,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
-      body: SafeArea(
+      body: Stack(
+        children: [
+          SafeArea(
         bottom: false,
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 120.h),
@@ -478,6 +488,10 @@ class _SettingsScreenState extends State<SettingsScreen>
             ],
           ),
         ),
+      ),
+          if (_deletingAccount)
+            const Positioned.fill(child: LoadingBarrier()),
+        ],
       ),
     );
   }

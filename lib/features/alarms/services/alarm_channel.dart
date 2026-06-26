@@ -23,7 +23,16 @@ class RingingAlarm {
   final String id;
   final String originalId;
 
-  const RingingAlarm({required this.id, required this.originalId});
+  /// Programmed fire time of this ring (ms since epoch). Lets callers keep the
+  /// alarm that rang most recently. 0 for a `.relative` master with no fixed
+  /// date.
+  final int firedAtMs;
+
+  const RingingAlarm({
+    required this.id,
+    required this.originalId,
+    this.firedAtMs = 0,
+  });
 }
 
 /// AlarmKit authorization state, mirrored from the native enum.
@@ -267,7 +276,12 @@ class AlarmChannel {
     return raw.whereType<Map>().map((m) {
       final c = m.cast<String, dynamic>();
       final id = c['id'] as String;
-      return RingingAlarm(id: id, originalId: c['originalId'] as String? ?? id);
+      final ts = c['firedAtMs'];
+      return RingingAlarm(
+        id: id,
+        originalId: c['originalId'] as String? ?? id,
+        firedAtMs: ts is num ? ts.toInt() : 0,
+      );
     }).toList();
   }
 

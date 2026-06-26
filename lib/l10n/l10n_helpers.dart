@@ -385,24 +385,6 @@ String localizedItemName(AppLocalizations l10n, String item) {
       return l10n.itemShower;
     case 'Tape':
       return l10n.itemTape;
-    case 'Kim Kardashian':
-      return l10n.itemKimKardashian;
-    case 'Snoop Dogg':
-      return l10n.itemSnoopDogg;
-    case 'Rubber Duck':
-      return l10n.itemRubberDuck;
-    case 'Banana':
-      return l10n.itemBanana;
-    case 'Pickle':
-      return l10n.itemPickle;
-    case 'Croc':
-      return l10n.itemCroc;
-    case 'Lava Lamp':
-      return l10n.itemLavaLamp;
-    case 'Ping Pong Paddle':
-      return l10n.itemPingPongPaddle;
-    case 'Egg':
-      return l10n.itemEgg;
     case 'Dog':
       return l10n.petDog;
     case 'Cat':

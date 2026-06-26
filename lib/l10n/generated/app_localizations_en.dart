@@ -2074,15 +2074,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get osUpdateButton => 'Got it';
 
   @override
-  String get alarmPermissionTitle => 'Let\'s turn on your alarms 🔔';
+  String get alarmPermissionTitle => 'Your alarm won\'t ring ⏰';
 
   @override
   String get alarmPermissionBody =>
-      'Levio needs your go-ahead to set alarms — that\'s how we\'ll actually get you up in the morning. Tap below and choose \"Allow\".';
+      'Levio doesn\'t have permission to set alarms, so it can\'t wake you up. Tap below and choose \"Allow\" so your alarm actually rings.';
 
   @override
   String get alarmPermissionDeniedBody =>
-      'Looks like alarm access is switched off right now. No worries — here\'s how to turn it back on:';
+      'Alarm access is turned off, so your alarms won\'t ring. Here\'s how to switch it back on in Settings:';
 
   @override
   String get alarmPermissionStep1 => 'Open Settings and find Levio';

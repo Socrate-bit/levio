@@ -2118,15 +2118,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get osUpdateButton => 'C\'est compris';
 
   @override
-  String get alarmPermissionTitle => 'Activons vos alarmes 🔔';
+  String get alarmPermissionTitle => 'Votre alarme ne sonnera pas ⏰';
 
   @override
   String get alarmPermissionBody =>
-      'Levio a besoin de votre accord pour programmer des alarmes — c\'est ainsi qu\'on vous réveillera le matin. Touchez ci-dessous et choisissez « Autoriser ».';
+      'Levio n\'a pas la permission de programmer des alarmes, il ne peut donc pas vous réveiller. Touchez ci-dessous et choisissez « Autoriser » pour que votre alarme sonne vraiment.';
 
   @override
   String get alarmPermissionDeniedBody =>
-      'On dirait que l\'accès aux alarmes est désactivé. Pas de souci, voici comment le réactiver :';
+      'L\'accès aux alarmes est désactivé, vos alarmes ne sonneront donc pas. Voici comment le réactiver dans Réglages :';
 
   @override
   String get alarmPermissionStep1 => 'Ouvrez Réglages et trouvez Levio';

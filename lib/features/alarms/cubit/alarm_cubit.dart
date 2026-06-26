@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../subscription/services/analytics_service.dart';
 import '../../missions/models/mission.dart';
@@ -377,13 +378,28 @@ class AlarmCubit extends Cubit<AlarmState> {
     final prefs = await SharedPreferences.getInstance();
     final forceQuick = prefs.getBool(SettingsCubit.forceQuickAlarmKey) ?? false;
     final toSchedule = entry.copyWith(
+      isOneTime: forceQuick,
       dateTime: forceQuick
           ? DateTime.now().add(const Duration(seconds: 5))
           : _nextFutureDay(entry.dateTime),
     );
 
-    final id = await _scheduleNative(toSchedule);
-    final saved = toSchedule.copyWith(id: id);
+    // Schedule natively. If AlarmKit fails, still persist to Firestore under a
+    // local id but mark it disabled so the UI shows it as inactive; the user
+    // can re-enable to retry scheduling.
+    String id;
+    var scheduled = true;
+    try {
+      id = await _scheduleNative(toSchedule);
+    } catch (e, st) {
+      debugPrint(
+        '[AlarmCubit] addAlarm native schedule failed, saving as disabled: $e',
+      );
+      AnalyticsService.trackError('AlarmCubit.addAlarm.scheduleNative', e, st);
+      id = const Uuid().v4();
+      scheduled = false;
+    }
+    final saved = toSchedule.copyWith(id: id, isEnabled: scheduled);
 
     // Optimistic: show in UI immediately
     emit(state.copyWith(alarms: [...state.alarms, saved]));
