@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/utils/haptic_utils.dart';
+import '../../../shared/widgets/day_selector_row.dart';
+import '../../../shared/widgets/time_picker_sheet.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
@@ -156,122 +158,9 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     }
   }
 
-  void _showTimePicker(AppColors c) {
-    final l10n = AppLocalizations.of(context);
-    var hour = _time.hour;
-    var minute = _time.minute;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: c.card,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-              child: Row(
-                children: [
-                  Text(
-                    l10n.alarmFormSetTime,
-                    style: TextStyle(
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.w600,
-                      color: c.textPrimary,
-                    ),
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: withHaptic(() {
-                      setState(
-                        () => _time = TimeOfDay(hour: hour, minute: minute),
-                      );
-                      Navigator.pop(ctx);
-                    }),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.orange,
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Text(
-                        l10n.alarmFormDone,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 200.h,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: CupertinoPicker(
-                      scrollController: FixedExtentScrollController(
-                        initialItem: hour,
-                      ),
-                      itemExtent: 40.h,
-                      onSelectedItemChanged: (i) => hour = i,
-                      children: List.generate(
-                        24,
-                        (i) => Center(
-                          child: Text(
-                            i.toString().padLeft(2, '0'),
-                            style: TextStyle(
-                              fontSize: 22.sp,
-                              color: c.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    ':',
-                    style: TextStyle(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.bold,
-                      color: c.textPrimary,
-                    ),
-                  ),
-                  Expanded(
-                    child: CupertinoPicker(
-                      scrollController: FixedExtentScrollController(
-                        initialItem: minute,
-                      ),
-                      itemExtent: 40.h,
-                      onSelectedItemChanged: (i) => minute = i,
-                      children: List.generate(
-                        60,
-                        (i) => Center(
-                          child: Text(
-                            i.toString().padLeft(2, '0'),
-                            style: TextStyle(
-                              fontSize: 22.sp,
-                              color: c.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  Future<void> _showTimePicker() async {
+    final picked = await showTimePickerSheet(context, initial: _time);
+    if (picked != null && mounted) setState(() => _time = picked);
   }
 
   /// Bottom-sheet picker for the reminder lead time (5–60 min, step 5).
@@ -359,15 +248,6 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    final dayLabels = [
-      l10n.daySingleSun,
-      l10n.daySingleMon,
-      l10n.daySingleTue,
-      l10n.daySingleWed,
-      l10n.daySingleThu,
-      l10n.daySingleFri,
-      l10n.daySingleSat,
-    ];
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
@@ -466,7 +346,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               SizedBox(height: 12.h),
               // Alarm time — opens CupertinoPicker modal
               _FormCard(
-                onTap: () => _showTimePicker(c),
+                onTap: _showTimePicker,
                 child: Row(
                   children: [
                     Text(
@@ -522,50 +402,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                       ),
                       SizedBox(height: 12.h),
-                      Row(
-                        children: List.generate(7, (i) {
-                          final selected = _repeatDays[i];
-                          return Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                left: i == 0 ? 0 : 4.w,
-                                right: i == 6 ? 0 : 4.w,
-                              ),
-                              child: GestureDetector(
-                                onTap: withHaptic(() {
-                                  setState(() {
-                                    _repeatDays = List.from(_repeatDays)
-                                      ..[i] = !selected;
-                                  });
-                                }),
-                                child: AspectRatio(
-                                  aspectRatio: 1,
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 150),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: selected
-                                          ? AppColors.orange
-                                          : c.background,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        dayLabels[i],
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.w600,
-                                          color: selected
-                                              ? Colors.white
-                                              : c.textSecondary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
+                      DaySelectorRow(
+                        days: _repeatDays,
+                        onChanged: (next) =>
+                            setState(() => _repeatDays = next),
                       ),
                     ],
                   ),

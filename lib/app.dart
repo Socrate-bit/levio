@@ -27,6 +27,7 @@ import 'features/dismiss/screens/squat_dismiss_screen.dart';
 import 'features/missions/models/mission.dart';
 import 'features/missions/models/mission_config.dart';
 import 'features/onboarding/cubit/onboarding_cubit.dart';
+import 'features/screentime/cubit/screentime_cubit.dart';
 import 'features/settings/cubit/settings_cubit.dart';
 import 'features/settings/cubit/settings_state.dart';
 import 'features/subscription/cubit/subscription_cubit.dart';
@@ -45,6 +46,7 @@ class LevioApp extends StatelessWidget {
         BlocProvider(create: (_) => AlarmCubit()),
         BlocProvider(create: (_) => SubscriptionCubit()),
         BlocProvider(create: (_) => OnboardingCubit()),
+        BlocProvider(create: (_) => ScreenTimeCubit()),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settings) => ScreenUtilInit(

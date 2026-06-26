@@ -900,6 +900,41 @@
     }
   },
 
+  "screenTimeTitle": "Screen Time",
+  "screenTimeSubtitle": "Block distracting apps during your sleep window.",
+  "screenTimeStatusInactive": "Inactive",
+  "screenTimeStatusActiveUntil": "Active until {time}",
+  "@screenTimeStatusActiveUntil": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "screenTimeStatusActiveIn": "Active in {duration}",
+  "@screenTimeStatusActiveIn": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "screenTimeActivated": "Activated",
+  "screenTimePickApps": "Apps to block",
+  "screenTimeAppsBlocked": "{count} apps blocked",
+  "@screenTimeAppsBlocked": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "screenTimeNoAppsSelected": "Choose apps to block",
+  "screenTimeSchedulesTitle": "Schedules",
+  "screenTimeAddSchedule": "Add",
+  "screenTimeNoSchedules": "No schedules yet. Add one to block apps on a recurring window.",
+  "screenTimeScheduleNew": "New schedule",
+  "screenTimeScheduleEdit": "Edit schedule",
+  "screenTimeStartTime": "Start",
+  "screenTimeEndTime": "End",
+  "screenTimeSaveSchedule": "Save schedule",
+  "screenTimeLockedHint": "Controls are locked while blocking is active to protect your sleep.",
+  "screenTimeUnlock": "Unlock controls",
+  "screenTimeUnlockConfirmTitle": "Are you really sure?",
+  "screenTimeUnlockConfirmBody": "Your sleep quality depends on this. Is unlocking truly vital right now? Will you be happy tomorrow that you gave in tonight? Stay strong — your future self is counting on you.",
+  "screenTimeUnlockConfirmCancel": "Keep it locked",
+  "screenTimeUnlockConfirmProceed": "Unlock anyway",
+  "screenTimeUnlockCountdownTitle": "Stay focused",
+  "screenTimeUnlockCountdownHint": "Keep Levio open. Leaving the app restarts the timer.",
+  "screenTimeAuthDenied": "Screen Time access is required. Enable it for Levio in iOS Settings.",
   "osUpdateRequiredTitle": "Let's get you updated 🚀",
   "osUpdateRequiredBody": "Levio's alarms run on Apple's newest tech, so your iPhone needs the latest iOS to wake you up. It only takes a few minutes:",
   "osUpdateStep1": "Open the Settings app",

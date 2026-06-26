@@ -2280,6 +2280,96 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get screenTimeTitle => 'Temps d\'écran';
+
+  @override
+  String get screenTimeSubtitle =>
+      'Bloquez les applis distrayantes pendant votre fenêtre de sommeil.';
+
+  @override
+  String get screenTimeStatusInactive => 'Inactif';
+
+  @override
+  String screenTimeStatusActiveUntil(String time) {
+    return 'Actif jusqu\'à $time';
+  }
+
+  @override
+  String screenTimeStatusActiveIn(String duration) {
+    return 'Actif dans $duration';
+  }
+
+  @override
+  String get screenTimeActivated => 'Activé';
+
+  @override
+  String get screenTimePickApps => 'Applis à bloquer';
+
+  @override
+  String screenTimeAppsBlocked(int count) {
+    return '$count applis bloquées';
+  }
+
+  @override
+  String get screenTimeNoAppsSelected => 'Choisir les applis à bloquer';
+
+  @override
+  String get screenTimeSchedulesTitle => 'Horaires';
+
+  @override
+  String get screenTimeAddSchedule => 'Ajouter';
+
+  @override
+  String get screenTimeNoSchedules =>
+      'Aucun horaire. Ajoutez-en un pour bloquer les applis sur une plage récurrente.';
+
+  @override
+  String get screenTimeScheduleNew => 'Nouvel horaire';
+
+  @override
+  String get screenTimeScheduleEdit => 'Modifier l\'horaire';
+
+  @override
+  String get screenTimeStartTime => 'Début';
+
+  @override
+  String get screenTimeEndTime => 'Fin';
+
+  @override
+  String get screenTimeSaveSchedule => 'Enregistrer l\'horaire';
+
+  @override
+  String get screenTimeLockedHint =>
+      'Les réglages sont verrouillés pendant le blocage pour protéger votre sommeil.';
+
+  @override
+  String get screenTimeUnlock => 'Déverrouiller';
+
+  @override
+  String get screenTimeUnlockConfirmTitle => 'Êtes-vous vraiment sûr ?';
+
+  @override
+  String get screenTimeUnlockConfirmBody =>
+      'Votre qualité de sommeil en dépend. Est-il vraiment vital de déverrouiller maintenant ? Serez-vous heureux demain d\'avoir cédé ce soir ? Restez fort — votre futur vous compte sur vous.';
+
+  @override
+  String get screenTimeUnlockConfirmCancel => 'Garder verrouillé';
+
+  @override
+  String get screenTimeUnlockConfirmProceed => 'Déverrouiller quand même';
+
+  @override
+  String get screenTimeUnlockCountdownTitle => 'Restez concentré';
+
+  @override
+  String get screenTimeUnlockCountdownHint =>
+      'Gardez Levio ouvert. Quitter l\'appli redémarre le minuteur.';
+
+  @override
+  String get screenTimeAuthDenied =>
+      'L\'accès au Temps d\'écran est requis. Activez-le pour Levio dans les Réglages iOS.';
+
+  @override
   String get osUpdateRequiredTitle => 'Passons à la mise à jour 🚀';
 
   @override
