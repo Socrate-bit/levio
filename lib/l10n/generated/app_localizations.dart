@@ -3242,6 +3242,90 @@ abstract class AppLocalizations {
   /// **'Get out of bed 5x faster with Levio vs on your own'**
   String get onboarding5xFaster;
 
+  /// No description provided for @onboardingSleepEduTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep timing is everything'**
+  String get onboardingSleepEduTitle;
+
+  /// No description provided for @onboardingSleepEduBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Going to bed at a consistent time is the single biggest lever for waking up rested. A bedtime cue makes it stick.'**
+  String get onboardingSleepEduBody;
+
+  /// No description provided for @onboardingWantSleepAlarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Want a bedtime alarm too?'**
+  String get onboardingWantSleepAlarm;
+
+  /// No description provided for @onboardingSleepTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When do you want to go to bed?'**
+  String get onboardingSleepTimeTitle;
+
+  /// No description provided for @onboardingSleepTimeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll nudge you when it\'s time to wind down.'**
+  String get onboardingSleepTimeSubtitle;
+
+  /// No description provided for @onboardingScreenEduTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Screens steal your sleep'**
+  String get onboardingScreenEduTitle;
+
+  /// No description provided for @onboardingScreenEduBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Late-night scrolling delays your body clock and cuts deep sleep. Blocking distracting apps at night protects your rest.'**
+  String get onboardingScreenEduBody;
+
+  /// No description provided for @onboardingBlockApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Block distracting apps during sleep?'**
+  String get onboardingBlockApps;
+
+  /// No description provided for @onboardingBlockStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When should blocking start?'**
+  String get onboardingBlockStartTitle;
+
+  /// No description provided for @onboardingBlockStartSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps stay blocked until your wake-up time.'**
+  String get onboardingBlockStartSubtitle;
+
+  /// No description provided for @onboardingRelaxEduTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace screens with calm'**
+  String get onboardingRelaxEduTitle;
+
+  /// No description provided for @onboardingRelaxEduBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap the scroll for a short wind-down routine. Your bedtime alarm will guide you through it.'**
+  String get onboardingRelaxEduBody;
+
+  /// No description provided for @onboardingRelaxActivitiesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What helps you wind down?'**
+  String get onboardingRelaxActivitiesTitle;
+
+  /// No description provided for @onboardingRelaxActivitiesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a few activities for your bedtime routine.'**
+  String get onboardingRelaxActivitiesSubtitle;
+
   /// No description provided for @onboardingContinue.
   ///
   /// In en, this message translates to:

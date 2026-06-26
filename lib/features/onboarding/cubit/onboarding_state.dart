@@ -18,6 +18,14 @@ class OnboardingState extends Equatable {
   final String referralCode;
   final ReferralStatus referralStatus;
   final bool? keepAlarmDuringMission;
+
+  // --- Sleep section (bedtime alarm + screen block + wind-down routine) ---
+  final bool? wantsSleepAlarm;
+  final TimeOfDay sleepTime;
+  final bool? wantsScreenBlock;
+  final TimeOfDay screenBlockStart;
+  final List<String> relaxingActivities;
+
   final bool isInProgress;
   final bool isComplete;
 
@@ -34,6 +42,11 @@ class OnboardingState extends Equatable {
     this.referralCode = '',
     this.referralStatus = ReferralStatus.none,
     this.keepAlarmDuringMission,
+    this.wantsSleepAlarm,
+    this.sleepTime = const TimeOfDay(hour: 22, minute: 30),
+    this.wantsScreenBlock,
+    this.screenBlockStart = const TimeOfDay(hour: 22, minute: 30),
+    this.relaxingActivities = const [],
     this.isInProgress = false,
     this.isComplete = false,
   });
@@ -62,6 +75,11 @@ class OnboardingState extends Equatable {
     String? referralCode,
     ReferralStatus? referralStatus,
     bool? keepAlarmDuringMission,
+    bool? wantsSleepAlarm,
+    TimeOfDay? sleepTime,
+    bool? wantsScreenBlock,
+    TimeOfDay? screenBlockStart,
+    List<String>? relaxingActivities,
     bool? isInProgress,
     bool? isComplete,
   }) =>
@@ -79,6 +97,11 @@ class OnboardingState extends Equatable {
         referralStatus: referralStatus ?? this.referralStatus,
         keepAlarmDuringMission:
             keepAlarmDuringMission ?? this.keepAlarmDuringMission,
+        wantsSleepAlarm: wantsSleepAlarm ?? this.wantsSleepAlarm,
+        sleepTime: sleepTime ?? this.sleepTime,
+        wantsScreenBlock: wantsScreenBlock ?? this.wantsScreenBlock,
+        screenBlockStart: screenBlockStart ?? this.screenBlockStart,
+        relaxingActivities: relaxingActivities ?? this.relaxingActivities,
         isInProgress: isInProgress ?? this.isInProgress,
         isComplete: isComplete ?? this.isComplete,
       );
@@ -97,6 +120,11 @@ class OnboardingState extends Equatable {
         referralCode,
         referralStatus,
         keepAlarmDuringMission,
+        wantsSleepAlarm,
+        sleepTime,
+        wantsScreenBlock,
+        screenBlockStart,
+        relaxingActivities,
         isInProgress,
         isComplete,
       ];

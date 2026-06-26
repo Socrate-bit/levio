@@ -9,8 +9,11 @@ import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
+import '../../screentime/cubit/screentime_cubit.dart';
+import '../../screentime/models/screentime_schedule.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import 'onboarding_state.dart';
 
 class OnboardingCubit extends Cubit<OnboardingState> {
@@ -99,6 +102,49 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     AnalyticsService.setUserProperty('keep_alarm_during_mission', value);
   }
 
+  // --- Sleep section setters ---
+
+  void setWantsSleepAlarm(bool value) {
+    emit(state.copyWith(wantsSleepAlarm: value));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'wants_sleep_alarm', 'value': value},
+    );
+    AnalyticsService.setUserProperty('wants_sleep_alarm', value);
+  }
+
+  void setSleepTime(TimeOfDay time) {
+    emit(state.copyWith(sleepTime: time));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'sleep_time'},
+    );
+    AnalyticsService.setUserProperty('sleep_time', _formatTime(time));
+  }
+
+  void setWantsScreenBlock(bool value) {
+    emit(state.copyWith(wantsScreenBlock: value));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'wants_screen_block', 'value': value},
+    );
+    AnalyticsService.setUserProperty('wants_screen_block', value);
+  }
+
+  void setScreenBlockStart(TimeOfDay time) {
+    emit(state.copyWith(screenBlockStart: time));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'step_name': 'screen_block_start'},
+    );
+  }
+
+  void toggleRelaxingActivity(String label) {
+    final next = List<String>.from(state.relaxingActivities);
+    if (!next.remove(label)) next.add(label);
+    emit(state.copyWith(relaxingActivities: next));
+  }
+
   void setSound(String id, String name) {
     emit(state.copyWith(soundId: id, soundName: name));
     AnalyticsService.capture(
@@ -150,24 +196,21 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     AlarmCubit alarmCubit,
     SubscriptionCubit subscriptionCubit,
     SettingsCubit settingsCubit,
+    ScreenTimeCubit screenTimeCubit,
   ) async {
     final alarmTime = state.alarmTime;
     final now = DateTime.now();
-    var scheduled = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      alarmTime.hour,
-      alarmTime.minute,
-    );
-    if (scheduled.isBefore(now)) {
-      scheduled = scheduled.add(const Duration(days: 1));
+    // Next future occurrence of a time-of-day.
+    DateTime nextOccurrence(TimeOfDay t) {
+      var dt = DateTime(now.year, now.month, now.day, t.hour, t.minute);
+      if (dt.isBefore(now)) dt = dt.add(const Duration(days: 1));
+      return dt;
     }
 
     final selectedMission = state.selectedMission;
     final entry = AppAlarmEntry(
       id: '',
-      dateTime: scheduled,
+      dateTime: nextOccurrence(alarmTime),
       missions: [MissionConfig(type: selectedMission)],
       name: 'Levio',
       soundId: state.soundId,
@@ -184,9 +227,53 @@ class OnboardingCubit extends Cubit<OnboardingState> {
         await alarmCubit.removeAlarm(id);
       }
       await alarmCubit.addAlarm(entry);
+
+      // Optional bedtime alarm whose mission is the wind-down routine built
+      // from the relaxing-activity chips.
+      if (state.wantsSleepAlarm == true) {
+        final steps = state.relaxingActivities.isNotEmpty
+            ? state.relaxingActivities
+            : routinePresetSteps;
+        final sleepEntry = AppAlarmEntry(
+          id: '',
+          dateTime: nextOccurrence(state.sleepTime),
+          missions: [
+            MissionConfig(type: MissionType.routine, selectedItems: steps),
+          ],
+          name: 'Levio',
+          soundId: state.soundId,
+          repeatDays: state.repeatDays,
+          isEnabled: true,
+          isOneTime: !state.repeatDays.any((d) => d),
+          isSleep: true,
+        );
+        await alarmCubit.addAlarm(sleepEntry);
+      }
     } catch (e, st) {
       debugPrint('[OnboardingCubit] alarm creation failed: $e');
       AnalyticsService.trackError('OnboardingCubit.completeOnboarding.addAlarm', e, st);
+    }
+
+    // Optional screen-time block from bedtime (or a picked start) to wake-up.
+    if (state.wantsScreenBlock == true) {
+      try {
+        final start =
+            state.wantsSleepAlarm == true ? state.sleepTime : state.screenBlockStart;
+        // create() supplies a fresh id; override the window + repeat days.
+        final schedule = ScreenTimeSchedule.create().copyWith(
+          repeatDays: state.repeatDays,
+          startHour: start.hour,
+          startMinute: start.minute,
+          endHour: alarmTime.hour,
+          endMinute: alarmTime.minute,
+        );
+        await screenTimeCubit.setEnabled(true);
+        await screenTimeCubit.addSchedule(schedule);
+      } catch (e, st) {
+        debugPrint('[OnboardingCubit] screen block creation failed: $e');
+        AnalyticsService.trackError(
+            'OnboardingCubit.completeOnboarding.screenBlock', e, st);
+      }
     }
 
     final keepRinging = state.keepAlarmDuringMission ?? false;
@@ -203,6 +290,10 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           'soundId': state.soundId,
           'repeatDays': state.repeatDays,
           'keepAlarmDuringMission': keepRinging,
+          'wantsSleepAlarm': state.wantsSleepAlarm ?? false,
+          'sleepTime': '${state.sleepTime.hour}:${state.sleepTime.minute}',
+          'wantsScreenBlock': state.wantsScreenBlock ?? false,
+          'relaxingActivities': state.relaxingActivities,
           'onboardingComplete': true,
           'completedAt': FieldValue.serverTimestamp(),
         };

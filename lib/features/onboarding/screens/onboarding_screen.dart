@@ -9,6 +9,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/loading_barrier.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../missions/models/mission.dart';
+import '../../screentime/cubit/screentime_cubit.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
 import '../cubit/onboarding_cubit.dart';
@@ -33,8 +34,9 @@ import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
 import '../widgets/time_picker_step.dart';
 import '../widgets/welcome_step.dart';
+import '../widgets/relaxing_activities_step.dart';
 
-const _totalPages = 36;
+const _totalPages = 44;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -55,6 +57,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   late final ValueNotifier<TimeOfDay> _usualWakeNotifier;
   late final ValueNotifier<TimeOfDay> _idealWakeNotifier;
   late final ValueNotifier<TimeOfDay> _alarmTimeNotifier;
+  late final ValueNotifier<TimeOfDay> _sleepTimeNotifier;
+  late final ValueNotifier<TimeOfDay> _blockStartNotifier;
 
   @override
   void initState() {
@@ -62,6 +66,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _usualWakeNotifier = ValueNotifier(const TimeOfDay(hour: 7, minute: 30));
     _idealWakeNotifier = ValueNotifier(const TimeOfDay(hour: 7, minute: 0));
     _alarmTimeNotifier = ValueNotifier(const TimeOfDay(hour: 7, minute: 0));
+    _sleepTimeNotifier = ValueNotifier(const TimeOfDay(hour: 22, minute: 30));
+    _blockStartNotifier = ValueNotifier(const TimeOfDay(hour: 22, minute: 30));
   }
 
   @override
@@ -69,6 +75,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _usualWakeNotifier.dispose();
     _idealWakeNotifier.dispose();
     _alarmTimeNotifier.dispose();
+    _sleepTimeNotifier.dispose();
+    _blockStartNotifier.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -93,7 +101,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _next() => _goToPage(_currentPage + 1);
+  // Ordered list of absolute page indices currently shown. Conditional
+  // sleep-section pages are skipped based on the user's answers so navigation
+  // and the progress bar treat the flow as if they don't exist.
+  List<int> _visiblePages(OnboardingState s) {
+    final pages = <int>[];
+    for (var i = 0; i < _totalPages; i++) {
+      // 27: bedtime picker — only when a bedtime alarm is wanted.
+      if (i == 27 && s.wantsSleepAlarm != true) continue;
+      // 30: block-start picker — only when blocking but no bedtime to derive it.
+      if (i == 30 &&
+          !(s.wantsScreenBlock == true && s.wantsSleepAlarm != true)) {
+        continue;
+      }
+      // 31/32: relaxing-activities education + chips — only with a bedtime alarm.
+      if ((i == 31 || i == 32) && s.wantsSleepAlarm != true) continue;
+      pages.add(i);
+    }
+    return pages;
+  }
+
+  double _progressFraction(OnboardingState s) {
+    final visible = _visiblePages(s);
+    if (visible.length <= 1) return 0;
+    final pos = visible.indexOf(_currentPage);
+    return pos <= 0 ? 0 : pos / (visible.length - 1);
+  }
+
+  bool _isLastPage(OnboardingState s) => _currentPage == _visiblePages(s).last;
+
+  void _next() {
+    final visible = _visiblePages(context.read<OnboardingCubit>().state);
+    final pos = visible.indexOf(_currentPage);
+    if (pos >= 0 && pos < visible.length - 1) _goToPage(visible[pos + 1]);
+  }
 
   // Finalizes onboarding after the sign-in step (whether the user signed in or
   // skipped), showing a blocking spinner while the async work runs.
@@ -102,9 +143,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final alarmCubit = context.read<AlarmCubit>();
     final subCubit = context.read<SubscriptionCubit>();
     final settingsCubit = context.read<SettingsCubit>();
+    final screenTimeCubit = context.read<ScreenTimeCubit>();
     setState(() => _finalizing = true);
     try {
-      await cubit.completeOnboarding(alarmCubit, subCubit, settingsCubit);
+      await cubit.completeOnboarding(
+          alarmCubit, subCubit, settingsCubit, screenTimeCubit);
     } finally {
       if (mounted) {
         setState(() => _finalizing = false);
@@ -126,9 +169,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _alarmTimeNotifier.value = _idealWakeNotifier.value;
     } else if (_currentPage == 21) {
       cubit.setAlarmTime(_alarmTimeNotifier.value);
+    } else if (_currentPage == 27) {
+      cubit.setSleepTime(_sleepTimeNotifier.value);
+    } else if (_currentPage == 30) {
+      cubit.setScreenBlockStart(_blockStartNotifier.value);
+    }
+    // Block-apps step: run the native Screen Time setup inline when opted in.
+    if (_currentPage == 29 && state.wantsScreenBlock == true) {
+      final stCubit = context.read<ScreenTimeCubit>();
+      final granted = await stCubit.requestAuthorizationIfNeeded();
+      if (!mounted) return;
+      if (granted) {
+        await stCubit.pickApps();
+        if (!mounted) return;
+      }
     }
     // Referral step: validate any entered code before advancing.
-    if (_currentPage == 26) {
+    if (_currentPage == 34) {
       final code = state.referralCode.trim();
       FocusScope.of(context).unfocus();
       if (code.isNotEmpty &&
@@ -139,20 +196,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       }
     }
     // Rating step triggers in-app review.
-    if (_currentPage == 28) {
+    if (_currentPage == 36) {
       InAppReview.instance.requestReview();
     }
     _next();
   }
 
   void _back() {
-    if (_currentPage > 0 &&
-        _currentPage != 31 &&
-        _currentPage != 32 &&
-        _currentPage != 34 &&
-        _currentPage != 35) {
-      _goToPage(_currentPage - 1);
+    // Pages that disallow going back (loading, morning plan, paywall, trial).
+    if (_currentPage == 39 ||
+        _currentPage == 40 ||
+        _currentPage == 42 ||
+        _currentPage == 43) {
+      return;
     }
+    final visible = _visiblePages(context.read<OnboardingCubit>().state);
+    final pos = visible.indexOf(_currentPage);
+    if (pos > 0) _goToPage(visible[pos - 1]);
   }
 
   String _formatTime(TimeOfDay t) =>
@@ -202,22 +262,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         return true;
       case 24:
         return state.keepAlarmDuringMission != null;
-      case 25:
+      // --- Sleep section ---
+      case 25: // info - sleep timing education
+        return true;
+      case 26: // want bedtime alarm?
+        return state.wantsSleepAlarm != null;
+      case 27: // bedtime picker
+        return true;
+      case 28: // info - screens disturb sleep
+        return true;
+      case 29: // block apps?
+        return state.wantsScreenBlock != null;
+      case 30: // block-start picker
+      case 31: // info - relaxing activities
+      case 32: // relaxing-activities chips (defaults to none)
+        return true;
+      // --- Shifted existing pages ---
+      case 33:
         return state.surveyAnswers.containsKey('heardFrom');
-      case 26: // referral — blocked when entered code is invalid/exhausted
+      case 34: // referral — blocked when entered code is invalid/exhausted
         return state.referralStatus != ReferralStatus.checking &&
             state.referralStatus != ReferralStatus.invalid &&
             state.referralStatus != ReferralStatus.exhausted;
-      case 27: // info (speedometer)
-        return true;
-      case 28: // rating
-      case 29: // notification — has own buttons
-      case 30: // signature — has own button
-      case 31: // loading — auto-advances
-      case 32: // morning plan summary
-      case 33: // sign in — has own buttons
-      case 34: // paywall — has own button
-      case 35: // trial reminder — has own button
+      case 35: // info (speedometer)
+      case 36: // rating
+      case 37: // notification — has own buttons
+      case 38: // signature — has own button
+      case 39: // loading — auto-advances
+      case 40: // morning plan summary
+      case 41: // sign in — has own buttons
+      case 42: // paywall — has own button
+      case 43: // trial reminder — has own button
         return true;
       default:
         return true;
@@ -227,12 +302,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // Pages that handle their own navigation (no shared Continue button)
   bool _hasOwnNavigation(int page) =>
       page == 0 ||
-      page == 29 ||
-      page == 30 ||
-      page == 31 ||
-      page == 33 ||
-      page == 34 ||
-      page == 35;
+      page == 37 ||
+      page == 38 ||
+      page == 39 ||
+      page == 41 ||
+      page == 42 ||
+      page == 43;
 
   @override
   Widget build(BuildContext context) {
@@ -255,8 +330,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Opacity(
                     opacity:
                         (_currentPage > 0 &&
-                                _currentPage < _totalPages - 1 &&
-                                _currentPage != 32)
+                                !_isLastPage(state) &&
+                                _currentPage != 40)
                             ? 1.0
                             : 0.0,
                     child: Padding(
@@ -264,10 +339,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Row(
                         children: [
                           if (_currentPage > 0 &&
-                              _currentPage != 31 &&
-                              _currentPage != 32 &&
-                              _currentPage != 34 &&
-                              _currentPage != 35)
+                              _currentPage != 39 &&
+                              _currentPage != 40 &&
+                              _currentPage != 42 &&
+                              _currentPage != 43)
                             GestureDetector(
                               onTap: withHaptic(_back),
                               child: Container(
@@ -291,7 +366,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(4.r),
                               child: LinearProgressIndicator(
-                                value: _currentPage / (_totalPages - 1),
+                                value: _progressFraction(state),
                                 backgroundColor: c.separator,
                                 valueColor: const AlwaysStoppedAnimation<Color>(
                                   AppColors.orange,
@@ -656,7 +731,86 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   );
                                 },
                               ),
-                              // 25: Where heard about us
+                              // 25: Info - sleep timing education
+                              InfoStep(
+                                title: l10n.onboardingSleepEduTitle,
+                                imagePlaceholder: Text(
+                                  '😴',
+                                  style: TextStyle(fontSize: 80.sp),
+                                ),
+                                bodyText: l10n.onboardingSleepEduBody,
+                              ),
+                              // 26: Want a bedtime alarm?
+                              Builder(
+                                builder: (context) {
+                                  final yes = l10n.onboardingYes;
+                                  final no = l10n.onboardingNo;
+                                  final v = state.wantsSleepAlarm;
+                                  return SurveyStep(
+                                    question: l10n.onboardingWantSleepAlarm,
+                                    options: [yes, no],
+                                    selectedOption:
+                                        v == null ? null : (v ? yes : no),
+                                    onSelected: (sel) =>
+                                        cubit.setWantsSleepAlarm(sel == yes),
+                                  );
+                                },
+                              ),
+                              // 27: Bedtime picker
+                              TimePickerStep(
+                                title: l10n.onboardingSleepTimeTitle,
+                                subtitle: l10n.onboardingSleepTimeSubtitle,
+                                notifier: _sleepTimeNotifier,
+                              ),
+                              // 28: Info - screens disturb sleep
+                              InfoStep(
+                                title: l10n.onboardingScreenEduTitle,
+                                imagePlaceholder: Text(
+                                  '📵',
+                                  style: TextStyle(fontSize: 80.sp),
+                                ),
+                                bodyText: l10n.onboardingScreenEduBody,
+                              ),
+                              // 29: Block apps during sleep?
+                              Builder(
+                                builder: (context) {
+                                  final yes = l10n.onboardingYes;
+                                  final no = l10n.onboardingNo;
+                                  final v = state.wantsScreenBlock;
+                                  return SurveyStep(
+                                    question: l10n.onboardingBlockApps,
+                                    options: [yes, no],
+                                    selectedOption:
+                                        v == null ? null : (v ? yes : no),
+                                    onSelected: (sel) =>
+                                        cubit.setWantsScreenBlock(sel == yes),
+                                  );
+                                },
+                              ),
+                              // 30: Block-start picker (no bedtime to derive it)
+                              TimePickerStep(
+                                title: l10n.onboardingBlockStartTitle,
+                                subtitle: l10n.onboardingBlockStartSubtitle,
+                                notifier: _blockStartNotifier,
+                              ),
+                              // 31: Info - replace screens with relaxing activities
+                              InfoStep(
+                                title: l10n.onboardingRelaxEduTitle,
+                                imagePlaceholder: Text(
+                                  '🧘',
+                                  style: TextStyle(fontSize: 80.sp),
+                                ),
+                                bodyText: l10n.onboardingRelaxEduBody,
+                              ),
+                              // 32: Relaxing-activities chips → routine mission
+                              RelaxingActivitiesStep(
+                                title: l10n.onboardingRelaxActivitiesTitle,
+                                subtitle:
+                                    l10n.onboardingRelaxActivitiesSubtitle,
+                                selected: state.relaxingActivities,
+                                onToggle: cubit.toggleRelaxingActivity,
+                              ),
+                              // 33: Where heard about us
                               SurveyStep(
                                 question: l10n.onboardingWhereHeard,
                                 options: [
@@ -682,40 +836,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 onSelected: (v) =>
                                     cubit.answerSurvey('heardFrom', v),
                               ),
-                              // 26: Referral code
+                              // 34: Referral code
                               ReferralStep(
                                 code: state.referralCode,
                                 status: state.referralStatus,
                                 onCodeChanged: cubit.setReferralCode,
                               ),
-                              // 27: Info - Speedometer
+                              // 35: Info - Speedometer
                               InfoStep(
                                 title: l10n.onboarding5xFaster,
                                 imagePlaceholder: const SpeedometerChart(),
                               ),
-                              // 28: Rating
+                              // 36: Rating
                               const RatingStep(),
-                              // 29: Notification permission
+                              // 37: Notification permission
                               NotificationStep(onNext: _next),
-                              // 30: Signature
+                              // 38: Signature
                               SignatureStep(
                                 alarmTimeText: _formatTime(state.alarmTime),
                                 onCommit: _next,
                               ),
-                              // 31: Loading
+                              // 39: Loading
                               LoadingStep(
                                 onComplete: () {
                                   if (mounted) _next();
                                 },
                               ),
-                              // 32: Morning plan summary
+                              // 40: Morning plan summary
                               MorningPlanStep(
                                 alarmTime: state.alarmTime,
                                 mission: state.selectedMission,
                                 soundId: state.soundId,
                                 repeatDays: state.repeatDays,
                               ),
-                              // 33: Sign in — saves alarm + refreshes user type
+                              // 41: Sign in — saves alarm + refreshes user type
                               SignInStep(
                                 title: l10n.onboardingSignInCreateTitle,
                                 subtitle:
@@ -723,9 +877,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 onSkip: _finalizeSignInStep,
                                 onSignInComplete: _finalizeSignInStep,
                               ),
-                              // 34: Paywall - Try for free
+                              // 42: Paywall - Try for free
                               PaywallStep(onContinue: _next),
-                              // 35: Trial reminder — finishes onboarding;
+                              // 43: Trial reminder — finishes onboarding;
                               // AuthWrapper reactively swaps to AppGateWrapper.
                               TrialReminderStep(
                                 onContinue: cubit.finishOnboarding,
