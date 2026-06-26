@@ -63,10 +63,8 @@ class _ScreenTimeDetailScreenState extends State<ScreenTimeDetailScreen> {
                         _AppsCard(state: state, locked: locked),
                         SizedBox(height: 16.h),
                         _SchedulesSection(state: state, locked: locked),
-                        if (locked) ...[
-                          SizedBox(height: 16.h),
-                          _UnlockSection(),
-                        ],
+                        SizedBox(height: 16.h),
+                        _UnlockSection(locked: locked),
                         SizedBox(height: 32.h),
                       ],
                     ),
@@ -464,28 +462,66 @@ class _ScheduleRow extends StatelessWidget {
   }
 }
 
-/// Shown only while controls are locked: an "Unlock" button that runs the
+/// The "Unlock" button is always present so its context stays mounted across
+/// the confirm dialog; it is only actionable (and red) while controls are
+/// locked, and rendered gray/disabled otherwise. Tapping it runs the
 /// discouraging confirmation + focus-locked countdown.
 class _UnlockSection extends StatelessWidget {
+  final bool locked;
+  const _UnlockSection({required this.locked});
+
+  /// First a centered confirmation ("do you really want to unlock?"), then the
+  /// focus-locked countdown dialog if the user proceeds.
   Future<void> _onUnlock(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<ScreenTimeCubit>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l10n.screenTimeUnlockConfirmTitle),
-        content: Text(l10n.screenTimeUnlockConfirmBody),
+        title: Text(
+          l10n.screenTimeUnlockConfirmTitle,
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          l10n.screenTimeUnlockConfirmBody,
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l10n.screenTimeUnlockConfirmCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              l10n.screenTimeUnlockConfirmProceed,
-              style: const TextStyle(color: AppColors.error),
-            ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Main, recommended action: keep the controls locked.
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.orange,
+                    minimumSize: Size(double.infinity, 48.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    l10n.screenTimeUnlockConfirmCancel,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 4.h),
+              // Discouraged action: unlock anyway.
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(
+                  l10n.screenTimeUnlockConfirmProceed,
+                  style: const TextStyle(color: AppColors.error),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -509,24 +545,28 @@ class _UnlockSection extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Column(
       children: [
-        Row(
-          children: [
-            Icon(Icons.lock, size: 16.sp, color: c.textSecondary),
-            SizedBox(width: 6.w),
-            Expanded(
-              child: Text(
-                l10n.screenTimeLockedHint,
-                style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
+        if (locked) ...[
+          Row(
+            children: [
+              Icon(Icons.lock, size: 16.sp, color: c.textSecondary),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Text(
+                  l10n.screenTimeLockedHint,
+                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
+                ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
+            ],
+          ),
+          SizedBox(height: 12.h),
+        ],
         OutlinedButton(
-          onPressed: withHaptic(() => _onUnlock(context)),
+          onPressed: locked ? withHaptic(() => _onUnlock(context)) : null,
           style: OutlinedButton.styleFrom(
             minimumSize: Size(double.infinity, 52.h),
-            side: BorderSide(color: AppColors.error.withAlpha(120)),
+            side: BorderSide(
+              color: locked ? AppColors.error.withAlpha(120) : c.separator,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14.r),
             ),
@@ -536,7 +576,7 @@ class _UnlockSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.error,
+              color: locked ? AppColors.error : c.textSecondary.withAlpha(120),
             ),
           ),
         ),

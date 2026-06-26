@@ -20,10 +20,10 @@ class RoutinePickerScreen extends StatefulWidget {
 }
 
 class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
-  late Set<String> _selected;
-  final _customCtrl = TextEditingController();
+  // Ordered list of chosen steps (shown as cards). A step in here is removed
+  // from the chip pool; deleting its card returns the chip.
+  late List<String> _selected;
   List<String> _customSteps = [];
-  bool _adding = false;
   bool _loading = true;
 
   /// All selectable labels (presets + persisted custom steps).
@@ -32,8 +32,9 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
   @override
   void initState() {
     super.initState();
-    // Preselect from the existing config; default to all presets on first use.
-    _selected = widget.preselected?.toSet() ?? routinePresetSteps.toSet();
+    // Start from the existing config when editing; otherwise nothing is
+    // pre-selected — every chip is available to add.
+    _selected = widget.preselected?.toList() ?? <String>[];
     _loadCustom();
   }
 
@@ -50,29 +51,76 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    _customCtrl.dispose();
-    super.dispose();
-  }
+  /// Opens a modal with a text field + button to name a new custom step,
+  /// instead of editing inline on a chip.
+  Future<void> _showAddCustomDialog() async {
+    final l10n = AppLocalizations.of(context);
+    final c = AppColors.of(context);
+    final ctrl = TextEditingController();
+    final text = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: c.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        title: Text(
+          l10n.routineAddStep,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w600),
+        ),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          style: TextStyle(fontSize: 15.sp, color: c.textPrimary),
+          decoration: InputDecoration(
+            hintText: l10n.routineAddStep,
+            hintStyle: TextStyle(color: c.textSecondary),
+            filled: true,
+            fillColor: c.background,
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14.r),
+              borderSide: BorderSide.none,
+            ),
+          ),
+          onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.generalCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.orange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            ),
+            child: Text(
+              l10n.screenTimeAddSchedule,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+    ctrl.dispose();
+    if (text == null || text.isEmpty) return;
 
-  void _addCustom() {
-    final text = _customCtrl.text.trim();
-    if (text.isEmpty) {
-      setState(() => _adding = false);
-      return;
-    }
-    if (!_customSteps.contains(text) && !routinePresetSteps.contains(text)) {
-      setState(() {
-        _customSteps.add(text);
-        _selected.add(text);
-      });
-      CustomItemsService.addCustomRoutineStep(text);
-    } else {
-      setState(() => _selected.add(text));
-    }
-    _customCtrl.clear();
-    setState(() => _adding = false);
+    final isNew =
+        !_customSteps.contains(text) && !routinePresetSteps.contains(text);
+    setState(() {
+      if (isNew) _customSteps.add(text);
+      // A new custom step goes straight into the routine as a card.
+      if (!_selected.contains(text)) _selected.add(text);
+    });
+    if (isNew) CustomItemsService.addCustomRoutineStep(text);
   }
 
   @override
@@ -139,29 +187,43 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
                     )
                   : SingleChildScrollView(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Wrap(
-                        spacing: 10.w,
-                        runSpacing: 10.h,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          for (final label in _allLabels)
-                            _Chip(
-                              label: localizedItemName(l10n, label),
-                              selected: _selected.contains(label),
-                              onTap: () => setState(() {
-                                if (!_selected.remove(label)) {
-                                  _selected.add(label);
-                                }
-                              }),
+                          // Chosen steps, in order, as removable cards.
+                          for (final (i, step) in _selected.indexed)
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10.h),
+                              child: _StepCard(
+                                index: i + 1,
+                                label: localizedItemName(l10n, step),
+                                onDelete: () =>
+                                    setState(() => _selected.remove(step)),
+                              ),
                             ),
-                          // Add-custom chip / inline field
-                          _adding
-                              ? _addField(c, l10n)
-                              : _Chip(
-                                  label: l10n.routineAddStep,
-                                  selected: false,
-                                  isAdd: true,
-                                  onTap: () => setState(() => _adding = true),
-                                ),
+                          if (_selected.isNotEmpty) SizedBox(height: 6.h),
+                          // Remaining chips (selected steps are pulled out) +
+                          // the add-custom chip / inline field.
+                          Wrap(
+                            spacing: 10.w,
+                            runSpacing: 10.h,
+                            children: [
+                              for (final label in _allLabels)
+                                if (!_selected.contains(label))
+                                  _Chip(
+                                    label: localizedItemName(l10n, label),
+                                    selected: false,
+                                    onTap: () =>
+                                        setState(() => _selected.add(label)),
+                                  ),
+                              _Chip(
+                                label: l10n.routineAddStep,
+                                selected: false,
+                                isAdd: true,
+                                onTap: _showAddCustomDialog,
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -199,33 +261,68 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
     );
   }
 
-  /// Inline text field shown in place of the "＋ Add" chip while typing.
-  Widget _addField(AppColors c, AppLocalizations l10n) {
-    return SizedBox(
-      width: 200.w,
-      child: TextField(
-        controller: _customCtrl,
-        autofocus: true,
-        style: TextStyle(fontSize: 14.sp, color: c.textPrimary),
-        decoration: InputDecoration(
-          isDense: true,
-          hintText: l10n.routineAddStep,
-          hintStyle: TextStyle(color: c.textSecondary),
-          filled: true,
-          fillColor: c.card,
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20.r),
-            borderSide: BorderSide.none,
+}
+
+/// A selected routine step shown as a card with its order number and a
+/// delete action that returns the step to the chip pool.
+class _StepCard extends StatelessWidget {
+  final int index;
+  final String label;
+  final VoidCallback onDelete;
+
+  const _StepCard({
+    required this.index,
+    required this.label,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: c.separator, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          // Order badge.
+          Container(
+            width: 26.w,
+            height: 26.w,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: AppColors.orange,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '$index',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
           ),
-          suffixIcon: GestureDetector(
-            onTap: withHaptic(_addCustom),
-            child: Icon(Icons.check, color: AppColors.orange, size: 20.sp),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
+                color: c.textPrimary,
+              ),
+            ),
           ),
-        ),
-        onSubmitted: (_) => _addCustom(),
-        onTapOutside: (_) => _addCustom(),
+          GestureDetector(
+            onTap: withHaptic(onDelete),
+            child: Icon(Icons.close, size: 20.sp, color: c.textSecondary),
+          ),
+        ],
       ),
     );
   }

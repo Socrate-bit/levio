@@ -26,9 +26,11 @@ class UnlockCountdownDialog extends StatelessWidget {
           prev.controlsUnlocked != curr.controlsUnlocked ||
           prev.unlockInProgress != curr.unlockInProgress,
       listener: (context, state) {
-        // Close when unlocked or when the countdown was cancelled externally.
+        // Close when unlocked or when the countdown was cancelled. A direct
+        // pop() is required: the PopScope(canPop: false) below blocks maybePop
+        // (it only guards the system back gesture / barrier, not our own close).
         if (state.controlsUnlocked || !state.unlockInProgress) {
-          Navigator.of(context).maybePop();
+          Navigator.of(context).pop();
         }
       },
       child: PopScope(
@@ -133,10 +135,11 @@ class UnlockCountdownDialog extends StatelessWidget {
                     ] else
                       SizedBox(height: 20.h),
                     TextButton(
-                      onPressed: withHaptic(() {
-                        context.read<ScreenTimeCubit>().cancelUnlock();
-                        Navigator.of(context).maybePop();
-                      }),
+                      // The BlocListener pops once unlockInProgress flips false;
+                      // popping here too would also dismiss the detail screen.
+                      onPressed: withHaptic(
+                        () => context.read<ScreenTimeCubit>().cancelUnlock(),
+                      ),
                       child: Text(
                         l10n.screenTimeUnlockConfirmCancel,
                         style: TextStyle(
