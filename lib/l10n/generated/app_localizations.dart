@@ -1286,6 +1286,18 @@ abstract class AppLocalizations {
   /// **'Number of affirmations'**
   String get missionConfigNumberOfAffirmations;
 
+  /// No description provided for @breathingMusicOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Music on'**
+  String get breathingMusicOn;
+
+  /// No description provided for @breathingMusicOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Music off'**
+  String get breathingMusicOff;
+
   /// No description provided for @breathingPhaseInhale.
   ///
   /// In en, this message translates to:

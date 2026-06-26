@@ -212,6 +212,8 @@
   "missionConfigChoose": "Choisir cette mission",
   "missionConfigNumberOfAffirmations": "Nombre d'affirmations",
 
+  "breathingMusicOn": "Musique activée",
+  "breathingMusicOff": "Musique coupée",
   "breathingPhaseInhale": "Inspirez",
   "breathingPhaseExhale": "Expirez",
   "breathingPhaseHold": "Retenez",
