@@ -45,6 +45,9 @@ class ScreenTimeState extends Equatable {
 
   bool get hasSelectedApps => selectedAppCount > 0;
 
+  /// The countdown has finished and the unlock button is now actionable.
+  bool get unlockReady => unlockInProgress && unlockCountdown <= 0;
+
   /// Whether any enabled schedule's window is currently open (and the feature
   /// is on with apps selected).
   bool get isActiveNow {

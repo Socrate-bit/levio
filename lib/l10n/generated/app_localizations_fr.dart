@@ -2365,7 +2365,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get screenTimeUnlockConfirmProceed => 'Déverrouiller quand même';
 
   @override
-  String get screenTimeUnlockCountdownTitle => 'Restez concentré';
+  String get screenTimeUnlockCountdownTitle => 'Tu peux déverrouiller dans';
+
+  @override
+  String get screenTimeUnlockReadyTitle => 'Tu peux déverrouiller maintenant';
 
   @override
   String get screenTimeUnlockCountdownHint =>
