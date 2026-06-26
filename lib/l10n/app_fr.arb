@@ -685,5 +685,32 @@
 
   "soundPickerFileTooLarge": "Fichier trop volumineux (max 10 Mo)",
   "soundPickerDeleteTitle": "Supprimer le son",
-  "soundPickerDeleteContent": "Retirer « {name} » ?"
+  "soundPickerDeleteContent": "Retirer « {name} » ?",
+
+  "screenTimeTitle": "Temps d'écran",
+  "screenTimeSubtitle": "Bloquez les applis distrayantes pendant votre fenêtre de sommeil.",
+  "screenTimeStatusInactive": "Inactif",
+  "screenTimeStatusActiveUntil": "Actif jusqu'à {time}",
+  "screenTimeStatusActiveIn": "Actif dans {duration}",
+  "screenTimeActivated": "Activé",
+  "screenTimePickApps": "Applis à bloquer",
+  "screenTimeAppsBlocked": "{count} applis bloquées",
+  "screenTimeNoAppsSelected": "Choisir les applis à bloquer",
+  "screenTimeSchedulesTitle": "Horaires",
+  "screenTimeAddSchedule": "Ajouter",
+  "screenTimeNoSchedules": "Aucun horaire. Ajoutez-en un pour bloquer les applis sur une plage récurrente.",
+  "screenTimeScheduleNew": "Nouvel horaire",
+  "screenTimeScheduleEdit": "Modifier l'horaire",
+  "screenTimeStartTime": "Début",
+  "screenTimeEndTime": "Fin",
+  "screenTimeSaveSchedule": "Enregistrer l'horaire",
+  "screenTimeLockedHint": "Les réglages sont verrouillés pendant le blocage pour protéger votre sommeil.",
+  "screenTimeUnlock": "Déverrouiller",
+  "screenTimeUnlockConfirmTitle": "Êtes-vous vraiment sûr ?",
+  "screenTimeUnlockConfirmBody": "Votre qualité de sommeil en dépend. Est-il vraiment vital de déverrouiller maintenant ? Serez-vous heureux demain d'avoir cédé ce soir ? Restez fort — votre futur vous compte sur vous.",
+  "screenTimeUnlockConfirmCancel": "Garder verrouillé",
+  "screenTimeUnlockConfirmProceed": "Déverrouiller quand même",
+  "screenTimeUnlockCountdownTitle": "Restez concentré",
+  "screenTimeUnlockCountdownHint": "Gardez Levio ouvert. Quitter l'appli redémarre le minuteur.",
+  "screenTimeAuthDenied": "L'accès au Temps d'écran est requis. Activez-le pour Levio dans les Réglages iOS."
 }

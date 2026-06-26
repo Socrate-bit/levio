@@ -3913,6 +3913,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove \"{name}\"?'**
   String soundPickerDeleteContent(String name);
+
+  /// No description provided for @screenTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen Time'**
+  String get screenTimeTitle;
+
+  /// No description provided for @screenTimeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block distracting apps during your sleep window.'**
+  String get screenTimeSubtitle;
+
+  /// No description provided for @screenTimeStatusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get screenTimeStatusInactive;
+
+  /// No description provided for @screenTimeStatusActiveUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Active until {time}'**
+  String screenTimeStatusActiveUntil(String time);
+
+  /// No description provided for @screenTimeStatusActiveIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Active in {duration}'**
+  String screenTimeStatusActiveIn(String duration);
+
+  /// No description provided for @screenTimeActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Activated'**
+  String get screenTimeActivated;
+
+  /// No description provided for @screenTimePickApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps to block'**
+  String get screenTimePickApps;
+
+  /// No description provided for @screenTimeAppsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} apps blocked'**
+  String screenTimeAppsBlocked(int count);
+
+  /// No description provided for @screenTimeNoAppsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose apps to block'**
+  String get screenTimeNoAppsSelected;
+
+  /// No description provided for @screenTimeSchedulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedules'**
+  String get screenTimeSchedulesTitle;
+
+  /// No description provided for @screenTimeAddSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get screenTimeAddSchedule;
+
+  /// No description provided for @screenTimeNoSchedules.
+  ///
+  /// In en, this message translates to:
+  /// **'No schedules yet. Add one to block apps on a recurring window.'**
+  String get screenTimeNoSchedules;
+
+  /// No description provided for @screenTimeScheduleNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New schedule'**
+  String get screenTimeScheduleNew;
+
+  /// No description provided for @screenTimeScheduleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit schedule'**
+  String get screenTimeScheduleEdit;
+
+  /// No description provided for @screenTimeStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get screenTimeStartTime;
+
+  /// No description provided for @screenTimeEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get screenTimeEndTime;
+
+  /// No description provided for @screenTimeSaveSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Save schedule'**
+  String get screenTimeSaveSchedule;
+
+  /// No description provided for @screenTimeLockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Controls are locked while blocking is active to protect your sleep.'**
+  String get screenTimeLockedHint;
+
+  /// No description provided for @screenTimeUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock controls'**
+  String get screenTimeUnlock;
+
+  /// No description provided for @screenTimeUnlockConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you really sure?'**
+  String get screenTimeUnlockConfirmTitle;
+
+  /// No description provided for @screenTimeUnlockConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your sleep quality depends on this. Is unlocking truly vital right now? Will you be happy tomorrow that you gave in tonight? Stay strong — your future self is counting on you.'**
+  String get screenTimeUnlockConfirmBody;
+
+  /// No description provided for @screenTimeUnlockConfirmCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it locked'**
+  String get screenTimeUnlockConfirmCancel;
+
+  /// No description provided for @screenTimeUnlockConfirmProceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock anyway'**
+  String get screenTimeUnlockConfirmProceed;
+
+  /// No description provided for @screenTimeUnlockCountdownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay focused'**
+  String get screenTimeUnlockCountdownTitle;
+
+  /// No description provided for @screenTimeUnlockCountdownHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Levio open. Leaving the app restarts the timer.'**
+  String get screenTimeUnlockCountdownHint;
+
+  /// No description provided for @screenTimeAuthDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen Time access is required. Enable it for Levio in iOS Settings.'**
+  String get screenTimeAuthDenied;
 }
 
 class _AppLocalizationsDelegate

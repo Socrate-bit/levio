@@ -19,5 +19,11 @@ import UIKit
         LevioAlarmKit.register(with: alarmRegistrar)
       }
     }
+
+    if #available(iOS 16.0, *) {
+      if let screenTimeRegistrar = engineBridge.pluginRegistry.registrar(forPlugin: "LevioScreenTime") {
+        LevioScreenTime.register(with: screenTimeRegistrar)
+      }
+    }
   }
 }

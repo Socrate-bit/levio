@@ -12,6 +12,7 @@ import '../../alarms/screens/sound_picker_screen.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
+import '../../screentime/widgets/screentime_chip.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/bottom_nav_shell.dart';
 import '../cubit/home_cubit.dart';
@@ -166,6 +167,8 @@ class _TopBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
+        const ScreenTimeChip(),
+        SizedBox(width: 8.w),
         GestureDetector(
           onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(1)),
           child: Container(

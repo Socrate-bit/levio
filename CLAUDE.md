@@ -46,7 +46,8 @@ Each feature follows: `cubit/` (state), `screens/` (UI), `services/` (data), `mo
 users/{uid}/
 ├── alarms/{alarmId}       # dateTimeMs, missionType, name, soundId, repeatDays, isEnabled, isOneTime, mathDifficulty, customObject?
 ├── sessions/{docId}       # alarmId, timestamp, timeTakenSeconds, missionType, soundId, completed
-└── meta/profile           # currentStreak, longestStreak, lastWakeupDate, totalWakeups, earnedBadgeIds[], usedSoundIds[], usedMissionTypeNames[]
+├── meta/profile           # currentStreak, longestStreak, lastWakeupDate, totalWakeups, earnedBadgeIds[], usedSoundIds[], usedMissionTypeNames[]
+└── meta/screentime        # enabled, schedules[] (id, enabled, repeatDays, startHour/Minute, endHour/Minute), updatedAtMs — blocked-app selection is NOT synced (device-local opaque tokens)
 ```
 Firebase project: `levio-ef67e`
 
