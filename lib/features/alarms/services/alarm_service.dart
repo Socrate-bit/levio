@@ -6,10 +6,45 @@ import 'alarm_channel.dart';
 import '../cubit/alarm_state.dart';
 import 'alarm_firestore_service.dart';
 
+/// Tracks whether the `/alarm-dismiss` route is currently anywhere on the
+/// navigator stack, backed by real navigator callbacks instead of a manually
+/// toggled flag. This stays correct even when several alarms ring at once.
+///
+/// Attach it via `navigatorObservers` in [MaterialApp].
+class DismissRouteObserver extends NavigatorObserver {
+  static const dismissRouteName = '/alarm-dismiss';
+
+  /// Mirror of the route names currently on the navigator stack (in order).
+  static final List<String?> _stack = [];
+
+  /// True while a dismiss screen is on the stack.
+  static bool get isDismissScreenActive => _stack.contains(dismissRouteName);
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _stack.add(route.settings.name);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _stack.remove(route.settings.name);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _stack.remove(route.settings.name);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    _stack.remove(oldRoute?.settings.name);
+    _stack.add(newRoute?.settings.name);
+  }
+}
+
 class AlarmService {
   static StreamSubscription? _subscription;
   static AppLifecycleListener? _lifecycleListener;
-  static bool _dismissScreenActive = false;
 
   // ---------------------------------------------------------------------------
   // Public API
@@ -42,7 +77,9 @@ class AlarmService {
         debugPrint('[AlarmService] stream event: $event');
 
         if (eventType == 'ring') {
-          if (_dismissScreenActive) return;
+          // Fast path — the authoritative guard is in _pushDismiss, which
+          // re-checks synchronously against the real navigator stack.
+          if (DismissRouteObserver.isDismissScreenActive) return;
 
           // Ring events carry the burst id (`id`) and the logical cascade id
           // (`originalId`). Prefer originalId for Firestore lookup.
@@ -69,8 +106,6 @@ class AlarmService {
             onRingBlocked?.call();
             return;
           }
-
-          _dismissScreenActive = true;
 
           final firstMission = firestoreEntry.missions.isNotEmpty
               ? firestoreEntry.missions.first
@@ -99,7 +134,7 @@ class AlarmService {
     _lifecycleListener = AppLifecycleListener(
       onResume: () async {
         debugPrint('[AlarmService] lifecycle: onResume');
-        if (_dismissScreenActive) return;
+        if (DismissRouteObserver.isDismissScreenActive) return;
 
         final ringing = await getRingingAlarm();
         if (ringing == null) return;
@@ -161,14 +196,25 @@ class AlarmService {
     GlobalKey<NavigatorState> navigatorKey,
     Map<String, String> args,
   ) {
-    _dismissScreenActive = true;
-    navigatorKey.currentState
-        ?.pushNamedAndRemoveUntil(
-          '/alarm-dismiss',
-          (route) => route.isFirst,
-          arguments: args,
-        )
-        .then((_) => _dismissScreenActive = false)
-        .catchError((_) => _dismissScreenActive = false);
+    final navigator = navigatorKey.currentState;
+    if (navigator == null) {
+      debugPrint('[AlarmService] _pushDismiss: navigator not ready — skipping');
+      return;
+    }
+
+    // Authoritative guard: never stack a second dismiss screen. Backed by the
+    // real navigator stack (DismissRouteObserver) and checked synchronously
+    // right before pushing, so two alarms ringing at once can't both push —
+    // the first push updates the observer before the second call runs.
+    if (DismissRouteObserver.isDismissScreenActive) {
+      debugPrint('[AlarmService] _pushDismiss: dismiss already active — skipping');
+      return;
+    }
+
+    navigator.pushNamedAndRemoveUntil(
+      '/alarm-dismiss',
+      (route) => route.isFirst,
+      arguments: args,
+    );
   }
 }

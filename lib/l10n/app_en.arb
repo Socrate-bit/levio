@@ -290,6 +290,8 @@
   },
   "settingsAccount": "Account",
   "settingsUserType": "User Type",
+  "settingsCopyUserId": "Copy User ID",
+  "settingsUserIdCopied": "User ID copied to clipboard",
   "settingsEnterReferralCode": "Enter Referral Code",
   "settingsApp": "App",
   "settingsNotifications": "Notifications",
@@ -814,5 +816,21 @@
     "placeholders": {
       "name": { "type": "String" }
     }
-  }
+  },
+
+  "osUpdateRequiredTitle": "Let's get you updated 🚀",
+  "osUpdateRequiredBody": "Levio's alarms run on Apple's newest tech, so your iPhone needs the latest iOS to wake you up. It only takes a few minutes:",
+  "osUpdateStep1": "Open the Settings app",
+  "osUpdateStep2": "Go to General → Software Update",
+  "osUpdateStep3": "Install the update, then hop back into Levio",
+  "osUpdateButton": "Got it",
+  "alarmPermissionTitle": "Let's turn on your alarms 🔔",
+  "alarmPermissionBody": "Levio needs your go-ahead to set alarms — that's how we'll actually get you up in the morning. Tap below and choose \"Allow\".",
+  "alarmPermissionDeniedBody": "Looks like alarm access is switched off right now. No worries — here's how to turn it back on:",
+  "alarmPermissionStep1": "Open Settings and find Levio",
+  "alarmPermissionStep2": "Tap the alarms toggle",
+  "alarmPermissionStep3": "Come back and you're all set",
+  "alarmPermissionEnable": "Enable alarms",
+  "alarmPermissionOpenSettings": "Open Settings",
+  "alarmPermissionNotNow": "Maybe later"
 }

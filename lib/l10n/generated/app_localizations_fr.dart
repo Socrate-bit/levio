@@ -760,6 +760,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsUserType => 'Type d\'utilisateur';
 
   @override
+  String get settingsCopyUserId => 'Copier l\'identifiant utilisateur';
+
+  @override
+  String get settingsUserIdCopied =>
+      'Identifiant utilisateur copié dans le presse-papiers';
+
+  @override
   String get settingsEnterReferralCode => 'Entrer un code de parrainage';
 
   @override
@@ -2089,4 +2096,53 @@ class AppLocalizationsFr extends AppLocalizations {
   String soundPickerDeleteContent(String name) {
     return 'Retirer « $name » ?';
   }
+
+  @override
+  String get osUpdateRequiredTitle => 'Passons à la mise à jour 🚀';
+
+  @override
+  String get osUpdateRequiredBody =>
+      'Les alarmes de Levio utilisent les dernières technologies d\'Apple : votre iPhone a donc besoin de la version la plus récente d\'iOS pour vous réveiller. Ça ne prend que quelques minutes :';
+
+  @override
+  String get osUpdateStep1 => 'Ouvrez l\'app Réglages';
+
+  @override
+  String get osUpdateStep2 => 'Allez dans Général → Mise à jour logicielle';
+
+  @override
+  String get osUpdateStep3 =>
+      'Installez la mise à jour, puis revenez sur Levio';
+
+  @override
+  String get osUpdateButton => 'C\'est compris';
+
+  @override
+  String get alarmPermissionTitle => 'Activons vos alarmes 🔔';
+
+  @override
+  String get alarmPermissionBody =>
+      'Levio a besoin de votre accord pour programmer des alarmes — c\'est ainsi qu\'on vous réveillera le matin. Touchez ci-dessous et choisissez « Autoriser ».';
+
+  @override
+  String get alarmPermissionDeniedBody =>
+      'On dirait que l\'accès aux alarmes est désactivé. Pas de souci, voici comment le réactiver :';
+
+  @override
+  String get alarmPermissionStep1 => 'Ouvrez Réglages et trouvez Levio';
+
+  @override
+  String get alarmPermissionStep2 => 'Activez l\'option des alarmes';
+
+  @override
+  String get alarmPermissionStep3 => 'Revenez, et tout est prêt';
+
+  @override
+  String get alarmPermissionEnable => 'Activer les alarmes';
+
+  @override
+  String get alarmPermissionOpenSettings => 'Ouvrir les Réglages';
+
+  @override
+  String get alarmPermissionNotNow => 'Plus tard';
 }

@@ -124,7 +124,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _back() {
-    if (_currentPage > 0 && _currentPage != 31 && _currentPage != 32) {
+    if (_currentPage > 0 &&
+        _currentPage != 31 &&
+        _currentPage != 32 &&
+        _currentPage != 34 &&
+        _currentPage != 35) {
       _goToPage(_currentPage - 1);
     }
   }
@@ -237,7 +241,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         children: [
                           if (_currentPage > 0 &&
                               _currentPage != 31 &&
-                              _currentPage != 32)
+                              _currentPage != 32 &&
+                              _currentPage != 34 &&
+                              _currentPage != 35)
                             GestureDetector(
                               onTap: withHaptic(_back),
                               child: Container(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:levio/app.dart';
 import 'package:levio/features/subscription/services/analytics_service.dart';
 import 'package:levio/firebase_options_dev.dart';
+import 'package:levio/shared/services/branch_service.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 
 final _navigatorKey = GlobalKey<NavigatorState>();
@@ -24,6 +26,14 @@ void main() async {
   Superwall.configure('pk_H0nPpphGj3awY7K1T2ngX', options: options);
 
   // FirebaseFunctions.instance.useFunctionsEmulator('192.168.1.69', 5001);
+
+  // Initialize Branch (requests ATT, then inits + listens for sessions) after
+  // the first frame. iOS only shows the ATT prompt when the app is in an
+  // active foreground state, so deferring to post-frame guarantees the prompt
+  // actually appears instead of silently resolving to notDetermined/denied.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(BranchService.init());
+  });
 
   runApp(
     // DevicePreview(

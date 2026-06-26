@@ -275,10 +275,13 @@ class AlarmCubit extends Cubit<AlarmState> {
       final alarms = state.alarms;
       final sevenDaysAgo = DateTime(now.year, now.month, now.day - 7);
 
+      // Include auto-dismissed sessions: those alarms did fire, so they must
+      // not be re-recorded as missed.
       final recentSessions = await HistoryService.getSessions(
         limit: 500,
         since: sevenDaysAgo,
         includeIncomplete: true,
+        includeAutoDismissed: true,
       );
 
       for (final alarm in alarms) {
@@ -396,15 +399,28 @@ class AlarmCubit extends Cubit<AlarmState> {
       rethrow;
     }
 
-    final firstMission = saved.missions.isNotEmpty
-        ? saved.missions.first.type.name
-        : 'none';
+    final firstConfig =
+        saved.missions.isNotEmpty ? saved.missions.first : null;
     AnalyticsService.capture(AnalyticsService.alarmCreated, {
-      'mission_type': firstMission,
+      'mission_type': firstConfig?.type.name ?? 'none',
       'mission_count': saved.missions.length,
       'is_one_time': saved.isOneTime,
       'repeats': saved.repeatDays.where((d) => d).length,
       'sound_id': saved.soundId,
+      // Picked objects + per-mission settings of the configured mission.
+      if (firstConfig?.repCount != null) 'rep_count': firstConfig!.repCount!,
+      if (firstConfig?.mathDifficulty != null)
+        'math_difficulty': firstConfig!.mathDifficulty!.name,
+      if (firstConfig?.mathProblemCount != null)
+        'math_problem_count': firstConfig!.mathProblemCount!,
+      if (firstConfig?.selectedItems != null)
+        'selected_items': firstConfig!.selectedItems!,
+      if (firstConfig?.selectedAffirmations != null)
+        'selected_affirmations': firstConfig!.selectedAffirmations!,
+      if (firstConfig?.affirmationCount != null)
+        'affirmation_count': firstConfig!.affirmationCount!,
+      if (firstConfig?.randomPool != null)
+        'random_pool': firstConfig!.randomPool!.map((t) => t.name).toList(),
     });
   }
 

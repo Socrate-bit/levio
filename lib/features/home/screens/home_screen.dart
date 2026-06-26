@@ -251,7 +251,7 @@ class _WeekRow extends StatelessWidget {
                 SizedBox(height: 6.h),
                 Container(
                   width: 42.w,
-                  height: 42.h,
+                  height: 42.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: status == DayStatus.done
@@ -280,7 +280,7 @@ class _WeekRow extends StatelessWidget {
           // Past done: solid orange circle
           circle = Container(
             width: 42.w,
-            height: 42.h,
+            height: 42.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.orange, width: 2),
@@ -300,7 +300,7 @@ class _WeekRow extends StatelessWidget {
           // Frozen: solid blue circle
           circle = Container(
             width: 42.w,
-            height: 42.h,
+            height: 42.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.blue, width: 2.5),
@@ -320,7 +320,7 @@ class _WeekRow extends StatelessWidget {
           // Future: plain light solid circle
           circle = Container(
             width: 42.w,
-            height: 42.h,
+            height: 42.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: c.textSecondary.withAlpha(50), width: 2.5),
@@ -346,7 +346,7 @@ class _WeekRow extends StatelessWidget {
             ),
             child: SizedBox(
               width: 42.w,
-              height: 42.h,
+              height: 42.w,
               child: Center(
                 child: Text(
                   dayNum,
@@ -817,7 +817,7 @@ class _AlarmCard extends StatelessWidget {
                   onTap: withHaptic(() =>
                       context.read<AlarmCubit>().removeAlarm(alarm.id)),
                   child: Icon(Icons.delete_outline,
-                      size: 24.sp, color: c.textSecondary.withAlpha(140)),
+                      size: 32.sp, color: c.textSecondary.withAlpha(140)),
                 ),
               ],
             ),

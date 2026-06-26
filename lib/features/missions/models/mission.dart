@@ -193,7 +193,7 @@ String geminiPromptFor(MissionType type) {
     case MissionType.skyPhoto:
       return 'Does this image clearly show an outdoor sky? Reply with only YES or NO.';
     case MissionType.makeBed:
-      return 'Does this image clearly show a made bed? Reply with only YES or NO.';
+      return 'Does this image clearly show a bed? Reply with only YES or NO.';
     case MissionType.objectHunt:
       return 'Does this image show a common household object clearly? Reply with only YES or NO.';
     case MissionType.petHunt:

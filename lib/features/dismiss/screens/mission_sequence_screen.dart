@@ -14,7 +14,7 @@ import 'mission_start_screen.dart';
 /// is started the moment the user taps "Start" on the current mission-start
 /// screen and is finished when the final mission completes. If the user goes
 /// inactive for 60s on any in-progress mission, we pop back to the mission
-/// start screen and pause the suppression timer so bursts resume ringing.
+/// start screen and stop the suppression timer so bursts resume ringing.
 class MissionSequenceScreen extends StatefulWidget {
   final List<MissionConfig> missions;
   final String alarmId;
@@ -138,7 +138,7 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
     await _cascade.finish();
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
-    if (mounted) {
+
       // pushAndRemoveUntil sweeps the mission screen AND the orchestrator off
       // the stack in one transition, so WakeupCompleteScreen animates in over
       // the completed mission instead of a flash of MissionStartScreen.
@@ -153,7 +153,7 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
         ),
         (route) => route.isFirst,
       );
-    }
+    
   }
 
   @override

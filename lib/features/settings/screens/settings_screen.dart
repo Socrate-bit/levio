@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -107,6 +108,18 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  // Copies the current Firebase UID to the clipboard.
+  Future<void> _copyUserId(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final uid = AuthService.uidOrNull;
+    if (uid == null) return;
+    await Clipboard.setData(ClipboardData(text: uid));
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.settingsUserIdCopied)),
+    );
+  }
+
   Future<void> _deleteAllAlarms(BuildContext context) async {
     final cubit = context.read<AlarmCubit>();
     final ids = await AlarmChannel.getAlarmIds();
@@ -199,6 +212,12 @@ class _SettingsScreenState extends State<SettingsScreen>
                     label: l10n.settingsUserType,
                     value: subState.userType.name,
                     onTap: () {},
+                  ),
+                  const _Divider(),
+                  _LinkRow(
+                    icon: Icons.copy_outlined,
+                    label: l10n.settingsCopyUserId,
+                    onTap: () => _copyUserId(context),
                   ),
                 ]),
               ),

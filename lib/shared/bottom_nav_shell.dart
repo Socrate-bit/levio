@@ -82,7 +82,7 @@ class BottomNavShellState extends State<BottomNavShell> {
                   activeColor: AppColors.orange,
                   inactiveColor: c.textSecondary,
                   borderRadius: 28.r,
-                  height: 52.h,
+                  height: 60.h,
                   iconSize: 24.sp,
                   selectedIconScale: 1.15,
                   animationDuration: const Duration(milliseconds: 250),
@@ -147,8 +147,8 @@ class _AddAlarmCircleButton extends StatelessWidget {
     return GestureDetector(
       onTap: withMediumHaptic(onTap),
       child: Container(
-        width: 64.w,
-        height: 64.h,
+        width: 74.w,
+        height: 74.h,
         decoration: const BoxDecoration(
           color: AppColors.orange,
           shape: BoxShape.circle,

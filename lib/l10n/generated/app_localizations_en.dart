@@ -754,6 +754,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsUserType => 'User Type';
 
   @override
+  String get settingsCopyUserId => 'Copy User ID';
+
+  @override
+  String get settingsUserIdCopied => 'User ID copied to clipboard';
+
+  @override
   String get settingsEnterReferralCode => 'Enter Referral Code';
 
   @override
@@ -2047,4 +2053,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String soundPickerDeleteContent(String name) {
     return 'Remove \"$name\"?';
   }
+
+  @override
+  String get osUpdateRequiredTitle => 'Let\'s get you updated 🚀';
+
+  @override
+  String get osUpdateRequiredBody =>
+      'Levio\'s alarms run on Apple\'s newest tech, so your iPhone needs the latest iOS to wake you up. It only takes a few minutes:';
+
+  @override
+  String get osUpdateStep1 => 'Open the Settings app';
+
+  @override
+  String get osUpdateStep2 => 'Go to General → Software Update';
+
+  @override
+  String get osUpdateStep3 => 'Install the update, then hop back into Levio';
+
+  @override
+  String get osUpdateButton => 'Got it';
+
+  @override
+  String get alarmPermissionTitle => 'Let\'s turn on your alarms 🔔';
+
+  @override
+  String get alarmPermissionBody =>
+      'Levio needs your go-ahead to set alarms — that\'s how we\'ll actually get you up in the morning. Tap below and choose \"Allow\".';
+
+  @override
+  String get alarmPermissionDeniedBody =>
+      'Looks like alarm access is switched off right now. No worries — here\'s how to turn it back on:';
+
+  @override
+  String get alarmPermissionStep1 => 'Open Settings and find Levio';
+
+  @override
+  String get alarmPermissionStep2 => 'Tap the alarms toggle';
+
+  @override
+  String get alarmPermissionStep3 => 'Come back and you\'re all set';
+
+  @override
+  String get alarmPermissionEnable => 'Enable alarms';
+
+  @override
+  String get alarmPermissionOpenSettings => 'Open Settings';
+
+  @override
+  String get alarmPermissionNotNow => 'Maybe later';
 }

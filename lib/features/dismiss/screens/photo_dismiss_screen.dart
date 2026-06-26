@@ -268,7 +268,11 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         setState(() => _errorType = _PhotoError.notDetected);
       }
     } catch (e, st) {
-      AnalyticsService.trackError('PhotoDismissScreen._captureAndValidate', e, st);
+      AnalyticsService.trackError(
+        'PhotoDismissScreen._captureAndValidate',
+        e,
+        st,
+      );
       setState(() {
         _errorType = _PhotoError.other;
         _rawError = e.toString();
@@ -347,6 +351,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         child: Stack(
           children: [
             Column(
+              spacing: 12.h,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const LevioBrandHeader(),
@@ -365,127 +370,131 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   ),
                 ),
 
-                Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child:
-                        controller != null &&
-                            controller.value.isInitialized &&
-                            controller.value.previewSize != null
-                        ? AspectRatio(
-                            aspectRatio:
-                                controller.value.previewSize!.height /
-                                controller.value.previewSize!.width,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(28.r),
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  CameraPreview(controller),
+                Flexible(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child:
+                          controller != null &&
+                              controller.value.isInitialized &&
+                              controller.value.previewSize != null
+                          ? AspectRatio(
+                              aspectRatio:
+                                  controller.value.previewSize!.height /
+                                  controller.value.previewSize!.width,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(28.r),
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    CameraPreview(controller),
 
-                                  DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      gradient: RadialGradient(
-                                        center: Alignment.center,
-                                        radius: 1.0,
-                                        colors: [
-                                          Colors.transparent,
-                                          Colors.black.withAlpha(80),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-
-                                  // Rounded viewfinder frame + centered target
-                                  // icon (emoji for hunts, material icon for
-                                  // sky/bed/grass) stacked on the camera feed.
-                                  Center(
-                                    child: _ViewfinderFrame(
-                                      child: _TargetBadge(
-                                        label: _displayLabel,
-                                        info: info,
-                                        isHunt: _targetObject.isNotEmpty,
-                                        spinning: _rouletteRunning,
-                                      ),
-                                    ),
-                                  ),
-
-                                  if (errorMessage != null)
-                                    Positioned(
-                                      top: 14.h,
-                                      left: 16.w,
-                                      right: 16.w,
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 7.h,
-                                          horizontal: 14.w,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.error.withAlpha(200),
-                                          borderRadius: BorderRadius.circular(
-                                            12.r,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          errorMessage,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                  if (_isValidating)
-                                    Container(
-                                      color: Colors.black54,
-                                      child: Center(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const CircularProgressIndicator(
-                                              color: AppColors.orange,
-                                              strokeWidth: 2.5,
-                                            ),
-                                            SizedBox(height: 16.h),
-                                            Text(
-                                              l10n.dismissPhotoChecking(
-                                                targetLabel.toLowerCase(),
-                                              ),
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14.sp,
-                                                letterSpacing: 0.3,
-                                              ),
-                                            ),
+                                    DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        gradient: RadialGradient(
+                                          center: Alignment.center,
+                                          radius: 1.0,
+                                          colors: [
+                                            Colors.transparent,
+                                            Colors.black.withAlpha(80),
                                           ],
                                         ),
                                       ),
                                     ),
-                                ],
-                              ),
-                            ),
-                          )
-                        : Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const CircularProgressIndicator(
-                                color: AppColors.orange,
-                                strokeWidth: 2.5,
-                              ),
-                              SizedBox(height: 16.h),
-                              Text(
-                                l10n.dismissPhotoStarting,
-                                style: TextStyle(
-                                  color: c.textSecondary,
-                                  fontSize: 14.sp,
-                                  letterSpacing: 0.3,
+
+                                    // Rounded viewfinder frame + centered target
+                                    // icon (emoji for hunts, material icon for
+                                    // sky/bed/grass) stacked on the camera feed.
+                                    Center(
+                                      child: _ViewfinderFrame(
+                                        child: _TargetBadge(
+                                          label: _displayLabel,
+                                          info: info,
+                                          isHunt: _targetObject.isNotEmpty,
+                                          spinning: _rouletteRunning,
+                                        ),
+                                      ),
+                                    ),
+
+                                    if (errorMessage != null)
+                                      Positioned(
+                                        top: 14.h,
+                                        left: 16.w,
+                                        right: 16.w,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 7.h,
+                                            horizontal: 14.w,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.error.withAlpha(
+                                              200,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12.r,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            errorMessage,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13.sp,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                    if (_isValidating)
+                                      Container(
+                                        color: Colors.black54,
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const CircularProgressIndicator(
+                                                color: AppColors.orange,
+                                                strokeWidth: 2.5,
+                                              ),
+                                              SizedBox(height: 16.h),
+                                              Text(
+                                                l10n.dismissPhotoChecking(
+                                                  targetLabel.toLowerCase(),
+                                                ),
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14.sp,
+                                                  letterSpacing: 0.3,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
+                            )
+                          : Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const CircularProgressIndicator(
+                                  color: AppColors.orange,
+                                  strokeWidth: 2.5,
+                                ),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  l10n.dismissPhotoStarting,
+                                  style: TextStyle(
+                                    color: c.textSecondary,
+                                    fontSize: 14.sp,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
                   ),
                 ),
 

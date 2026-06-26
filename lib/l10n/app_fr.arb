@@ -260,6 +260,8 @@
   "settingsAccountType": "Type de compte : {type}",
   "settingsAccount": "Compte",
   "settingsUserType": "Type d'utilisateur",
+  "settingsCopyUserId": "Copier l'identifiant utilisateur",
+  "settingsUserIdCopied": "Identifiant utilisateur copié dans le presse-papiers",
   "settingsEnterReferralCode": "Entrer un code de parrainage",
   "settingsApp": "Application",
   "settingsNotifications": "Notifications",
@@ -685,5 +687,21 @@
 
   "soundPickerFileTooLarge": "Fichier trop volumineux (max 10 Mo)",
   "soundPickerDeleteTitle": "Supprimer le son",
-  "soundPickerDeleteContent": "Retirer « {name} » ?"
+  "soundPickerDeleteContent": "Retirer « {name} » ?",
+
+  "osUpdateRequiredTitle": "Passons à la mise à jour 🚀",
+  "osUpdateRequiredBody": "Les alarmes de Levio utilisent les dernières technologies d'Apple : votre iPhone a donc besoin de la version la plus récente d'iOS pour vous réveiller. Ça ne prend que quelques minutes :",
+  "osUpdateStep1": "Ouvrez l'app Réglages",
+  "osUpdateStep2": "Allez dans Général → Mise à jour logicielle",
+  "osUpdateStep3": "Installez la mise à jour, puis revenez sur Levio",
+  "osUpdateButton": "C'est compris",
+  "alarmPermissionTitle": "Activons vos alarmes 🔔",
+  "alarmPermissionBody": "Levio a besoin de votre accord pour programmer des alarmes — c'est ainsi qu'on vous réveillera le matin. Touchez ci-dessous et choisissez « Autoriser ».",
+  "alarmPermissionDeniedBody": "On dirait que l'accès aux alarmes est désactivé. Pas de souci, voici comment le réactiver :",
+  "alarmPermissionStep1": "Ouvrez Réglages et trouvez Levio",
+  "alarmPermissionStep2": "Activez l'option des alarmes",
+  "alarmPermissionStep3": "Revenez, et tout est prêt",
+  "alarmPermissionEnable": "Activer les alarmes",
+  "alarmPermissionOpenSettings": "Ouvrir les Réglages",
+  "alarmPermissionNotNow": "Plus tard"
 }

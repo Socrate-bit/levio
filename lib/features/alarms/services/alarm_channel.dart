@@ -16,12 +16,57 @@ class NextBurst {
   });
 }
 
+/// A currently-alerting alarm: its native AlarmKit id plus the `originalId` of
+/// the cascade it belongs to. `id` is the actual ringing burst/master (matches
+/// `getBurstsInWindow` output); `originalId` is what `cancelBurst` needs.
+class RingingAlarm {
+  final String id;
+  final String originalId;
+
+  const RingingAlarm({required this.id, required this.originalId});
+}
+
+/// AlarmKit authorization state, mirrored from the native enum.
+enum AlarmAuthorizationStatus { authorized, denied, notDetermined }
+
 class AlarmChannel {
   static const _method = MethodChannel('levio/alarmkit');
   static const _events = EventChannel('levio/alarmkit/events');
 
   static Future<bool> requestAuthorization() async {
     return await _method.invokeMethod<bool>('requestAuthorization') ?? false;
+  }
+
+  /// Current authorization state without prompting. Returns [notDetermined]
+  /// when the native channel is unavailable (e.g. iOS < 26).
+  static Future<AlarmAuthorizationStatus> getAuthorizationStatus() async {
+    try {
+      final raw = await _method.invokeMethod<String>('getAuthorizationStatus');
+      switch (raw) {
+        case 'authorized':
+          return AlarmAuthorizationStatus.authorized;
+        case 'denied':
+          return AlarmAuthorizationStatus.denied;
+        default:
+          return AlarmAuthorizationStatus.notDetermined;
+      }
+    } on PlatformException catch (e, st) {
+      debugPrint('[AlarmChannel] getAuthorizationStatus failed: ${e.message}');
+      AnalyticsService.trackError('AlarmChannel.getAuthorizationStatus', e, st);
+      return AlarmAuthorizationStatus.notDetermined;
+    } on MissingPluginException {
+      return AlarmAuthorizationStatus.notDetermined;
+    }
+  }
+
+  /// Opens the system Settings page for this app.
+  static Future<void> openAppSettings() async {
+    try {
+      await _method.invokeMethod('openAppSettings');
+    } on PlatformException catch (e, st) {
+      debugPrint('[AlarmChannel] openAppSettings failed: ${e.message}');
+      AnalyticsService.trackError('AlarmChannel.openAppSettings', e, st);
+    }
   }
 
   /// Schedules a one-shot cascade: 1 master (.fixed) + 20 .fixed bursts, 20s
@@ -210,6 +255,30 @@ class AlarmChannel {
   /// currently alerting.
   static Future<String?> getRingingId() async {
     return _method.invokeMethod<String?>('getRingingId');
+  }
+
+  /// Returns every currently-alerting alarm with both its native AlarmKit id
+  /// and its cascade `originalId`. The native `id` lets suppression spare the
+  /// burst that's physically ringing (matched against [getBurstsInWindow])
+  /// while still cancelling the rest of that cascade via `originalId`.
+  static Future<List<RingingAlarm>>  getRingingAlarms() async {
+    final raw =
+        await _method.invokeListMethod<Object?>('getRingingAlarms') ?? [];
+    return raw.whereType<Map>().map((m) {
+      final c = m.cast<String, dynamic>();
+      final id = c['id'] as String;
+      return RingingAlarm(id: id, originalId: c['originalId'] as String? ?? id);
+    }).toList();
+  }
+
+  /// Returns the `originalId` of every cascade currently alerting. Used on
+  /// mission completion to sweep all alarms that rang at the same time.
+  static Future<List<String>> getRingingIds() async {
+    final alarms = await getAlarms();
+    return alarms
+        .where((a) => a['state'] == 'alerting')
+        .map((a) => a['id'] as String)
+        .toList();
   }
 
   static Stream<Map<Object?, Object?>> get events =>

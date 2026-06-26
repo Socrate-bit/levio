@@ -95,7 +95,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       case MissionType.shakePhone:
         return '${config.repCount ?? 15} shakes';
       case MissionType.math:
-        final diff = switch (config.mathDifficulty ?? MathDifficulty.easy) {
+        final diff = switch (config.mathDifficulty ?? MathDifficulty.medium) {
           MathDifficulty.easy => 'Easy',
           MathDifficulty.medium => 'Medium',
           MathDifficulty.hard => 'Hard',

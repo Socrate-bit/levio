@@ -11,6 +11,7 @@ import 'package:mixpanel_flutter_session_replay/mixpanel_flutter_session_replay.
 import 'features/alarms/cubit/alarm_cubit.dart';
 import 'features/alarms/cubit/alarm_state.dart';
 import 'features/alarms/services/alarm_firestore_service.dart';
+import 'features/alarms/services/alarm_service.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
 import 'features/dismiss/screens/mission_sequence_screen.dart';
@@ -58,7 +59,10 @@ class LevioApp extends StatelessWidget {
               supportedLocales: AppLocalizations.supportedLocales,
               locale: DevicePreview.locale(context),
               navigatorKey: navigatorKey,
-              navigatorObservers: [AnalyticsRouteObserver()],
+              navigatorObservers: [
+                AnalyticsRouteObserver(),
+                DismissRouteObserver(),
+              ],
               builder: (context, child) => DevicePreview.appBuilder(
                 context,
                 GestureDetector(
@@ -76,6 +80,7 @@ class LevioApp extends StatelessWidget {
                   final label = args['label'] ?? 'Alarm #1';
 
                   return MaterialPageRoute(
+                    settings: settings,
                     builder: (_) => _DismissLoader(
                       alarmId: alarmId,
                       nativeAlarmId: nativeAlarmId,
@@ -188,7 +193,7 @@ Widget buildDismissScreen({
         alarmId: alarmId,
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
-        difficulty: config.mathDifficulty ?? MathDifficulty.easy,
+        difficulty: config.mathDifficulty ?? MathDifficulty.medium,
         problemCount: config.mathProblemCount ?? 3,
         onComplete: onComplete,
         onProgress: onProgress,

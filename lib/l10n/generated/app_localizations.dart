@@ -1544,6 +1544,18 @@ abstract class AppLocalizations {
   /// **'User Type'**
   String get settingsUserType;
 
+  /// No description provided for @settingsCopyUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy User ID'**
+  String get settingsCopyUserId;
+
+  /// No description provided for @settingsUserIdCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID copied to clipboard'**
+  String get settingsUserIdCopied;
+
   /// No description provided for @settingsEnterReferralCode.
   ///
   /// In en, this message translates to:
@@ -3913,6 +3925,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove \"{name}\"?'**
   String soundPickerDeleteContent(String name);
+
+  /// No description provided for @osUpdateRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s get you updated 🚀'**
+  String get osUpdateRequiredTitle;
+
+  /// No description provided for @osUpdateRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Levio\'s alarms run on Apple\'s newest tech, so your iPhone needs the latest iOS to wake you up. It only takes a few minutes:'**
+  String get osUpdateRequiredBody;
+
+  /// No description provided for @osUpdateStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Settings app'**
+  String get osUpdateStep1;
+
+  /// No description provided for @osUpdateStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to General → Software Update'**
+  String get osUpdateStep2;
+
+  /// No description provided for @osUpdateStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Install the update, then hop back into Levio'**
+  String get osUpdateStep3;
+
+  /// No description provided for @osUpdateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get osUpdateButton;
+
+  /// No description provided for @alarmPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s turn on your alarms 🔔'**
+  String get alarmPermissionTitle;
+
+  /// No description provided for @alarmPermissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Levio needs your go-ahead to set alarms — that\'s how we\'ll actually get you up in the morning. Tap below and choose \"Allow\".'**
+  String get alarmPermissionBody;
+
+  /// No description provided for @alarmPermissionDeniedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks like alarm access is switched off right now. No worries — here\'s how to turn it back on:'**
+  String get alarmPermissionDeniedBody;
+
+  /// No description provided for @alarmPermissionStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings and find Levio'**
+  String get alarmPermissionStep1;
+
+  /// No description provided for @alarmPermissionStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the alarms toggle'**
+  String get alarmPermissionStep2;
+
+  /// No description provided for @alarmPermissionStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back and you\'re all set'**
+  String get alarmPermissionStep3;
+
+  /// No description provided for @alarmPermissionEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable alarms'**
+  String get alarmPermissionEnable;
+
+  /// No description provided for @alarmPermissionOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get alarmPermissionOpenSettings;
+
+  /// No description provided for @alarmPermissionNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe later'**
+  String get alarmPermissionNotNow;
 }
 
 class _AppLocalizationsDelegate

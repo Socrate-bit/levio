@@ -172,8 +172,11 @@ class _RepExerciseDismissViewState<C extends Cubit<PushUpState>>
                           color: Colors.black54,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.close,
-                            size: 18.sp, color: Colors.white),
+                        child: Icon(
+                          Icons.close,
+                          size: 18.sp,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -268,13 +271,17 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
       backgroundColor: c.background,
       body: SafeArea(
         child: Column(
+          spacing: 18.h,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const LevioBrandHeader(),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Text(
-                l10n.dismissRepPrompt(target, localizedMissionName(l10n, missionType)),
+                l10n.dismissRepPrompt(
+                  target,
+                  localizedMissionName(l10n, missionType),
+                ),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: c.textPrimary,
@@ -286,99 +293,103 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
               ),
             ),
 
-            Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: AspectRatio(
-                  aspectRatio: state.imageWidth / state.imageHeight,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28.r),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CameraPreview(state.camera),
+            Flexible(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: AspectRatio(
+                    aspectRatio: state.imageWidth / state.imageHeight,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28.r),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CameraPreview(state.camera),
 
-                        BlocSelector<
-                          C,
-                          PushUpState,
-                          (List<DetectedPose>, int, int)
-                        >(
-                          selector: (s) => s is SessionActive
-                              ? (s.poses, s.imageWidth, s.imageHeight)
-                              : (const [], 0, 0),
-                          builder: (context, data) {
-                            final (poses, imgW, imgH) = data;
-                            if (poses.isEmpty) return const SizedBox.shrink();
-                            return CustomPaint(
-                              painter: SkeletonPainter(
-                                poses: poses,
-                                imageWidth: imgW,
-                                imageHeight: imgH,
+                          BlocSelector<
+                            C,
+                            PushUpState,
+                            (List<DetectedPose>, int, int)
+                          >(
+                            selector: (s) => s is SessionActive
+                                ? (s.poses, s.imageWidth, s.imageHeight)
+                                : (const [], 0, 0),
+                            builder: (context, data) {
+                              final (poses, imgW, imgH) = data;
+                              if (poses.isEmpty) return const SizedBox.shrink();
+                              return CustomPaint(
+                                painter: SkeletonPainter(
+                                  poses: poses,
+                                  imageWidth: imgW,
+                                  imageHeight: imgH,
+                                ),
+                              );
+                            },
+                          ),
+
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: RadialGradient(
+                                center: Alignment.center,
+                                radius: 1.0,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withAlpha(80),
+                                ],
                               ),
-                            );
-                          },
-                        ),
-
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: RadialGradient(
-                              center: Alignment.center,
-                              radius: 1.0,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withAlpha(80),
-                              ],
                             ),
                           ),
-                        ),
 
-                        Positioned(
-                          top: 14.h,
-                          left: 16.w,
-                          right: 16.w,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 250),
-                            transitionBuilder: (child, animation) =>
-                                FadeTransition(
-                                  opacity: animation,
-                                  child: SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: const Offset(0, -0.4),
-                                      end: Offset.zero,
-                                    ).animate(animation),
-                                    child: child,
+                          Positioned(
+                            top: 14.h,
+                            left: 16.w,
+                            right: 16.w,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 250),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                    opacity: animation,
+                                    child: SlideTransition(
+                                      position: Tween<Offset>(
+                                        begin: const Offset(0, -0.4),
+                                        end: Offset.zero,
+                                      ).animate(animation),
+                                      child: child,
+                                    ),
                                   ),
-                                ),
-                            child: state.feedback != null
-                                ? Container(
-                                    key: ValueKey(state.feedback),
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 7.h,
-                                      horizontal: 14.w,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          state.feedbackType ==
-                                              FeedbackType.positive
-                                          ? AppColors.success.withAlpha(200)
-                                          : AppColors.error.withAlpha(200),
-                                      borderRadius: BorderRadius.circular(12.r),
-                                    ),
-                                    child: Text(
-                                      _feedbackText(context, state.feedback!),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13.sp,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.1,
+                              child: state.feedback != null
+                                  ? Container(
+                                      key: ValueKey(state.feedback),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 7.h,
+                                        horizontal: 14.w,
                                       ),
-                                    ),
-                                  )
-                                : const SizedBox(key: ValueKey('empty')),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            state.feedbackType ==
+                                                FeedbackType.positive
+                                            ? AppColors.success.withAlpha(200)
+                                            : AppColors.error.withAlpha(200),
+                                        borderRadius: BorderRadius.circular(
+                                          12.r,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        _feedbackText(context, state.feedback!),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.1,
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox(key: ValueKey('empty')),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -394,6 +405,7 @@ class _ActiveSessionView<C extends Cubit<PushUpState>> extends StatelessWidget {
               subtitleColor: c.textSecondary,
               trackColor: c.separator,
             ),
+            SizedBox(height: 0.h,)
           ],
         ),
       ),
@@ -426,8 +438,8 @@ class _RepCounter extends StatelessWidget {
     return ScaleTransition(
       scale: pulseAnimation,
       child: SizedBox(
-        width: 160.w,
-        height: 160.h,
+        width: 140.w,
+        height: 140.h,
         child: Stack(
           alignment: Alignment.center,
           children: [

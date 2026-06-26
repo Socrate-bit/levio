@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../shared/services/branch_service.dart';
 import '../../auth/auth_service.dart';
 import '../services/analytics_service.dart';
 import '../services/referral_service.dart';
@@ -50,6 +51,9 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
 
     if (!wasActive && mapped == SubscriptionGateStatus.active) {
       AnalyticsService.capture(AnalyticsService.subscriptionActivated);
+      // Branch conversion: fire START_TRIAL when the user first becomes active
+      // (trial start), so TikTok ad spend is attributed to this install.
+      BranchService.trackTrialStart();
     } else if (wasActive && mapped == SubscriptionGateStatus.inactive) {
       AnalyticsService.capture(AnalyticsService.subscriptionLost);
     }
@@ -82,7 +86,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
         debugPrint('[SubscriptionCubit] Superwall.identify failed: $e');
         AnalyticsService.trackError('SubscriptionCubit.identifyUser.superwallIdentify', e, st);
       }
-      await AnalyticsService.identify(uid);
+      await AnalyticsService.identify(superwallId);
 
       emit(state.copyWith(
         userType: userTypeFromString(typeStr),

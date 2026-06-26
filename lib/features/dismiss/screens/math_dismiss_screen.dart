@@ -66,8 +66,8 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
     final diff = widget.difficulty;
 
     final maxVal = switch (diff) {
-      MathDifficulty.easy => 10,
-      MathDifficulty.medium => 25,
+      MathDifficulty.easy => 25,
+      MathDifficulty.medium => 50,
       MathDifficulty.hard => 50,
     };
     final ops = switch (diff) {
@@ -86,33 +86,33 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
       // Build x, y, mid so division is always exact
       switch (opA) {
         case '+':
-          x = rng.nextInt(maxVal) + 1;
-          y = rng.nextInt(maxVal) + 1;
+          x = rng.nextInt(maxVal) + 5;
+          y = rng.nextInt(maxVal) + 5;
           mid = x + y;
         case '-':
-          x = rng.nextInt(maxVal) + 2;
-          y = rng.nextInt(x - 1) + 1;
+          x = rng.nextInt(maxVal) + 5;
+          y = rng.nextInt(x - 1) + 4;
           mid = x - y;
         case '\u00d7':
-          x = rng.nextInt(maxVal ~/ 2) + 2;
-          y = rng.nextInt(maxVal ~/ 2) + 2;
+          x = rng.nextInt(maxVal ~/ 5) + 2;
+          y = rng.nextInt(maxVal ~/ 5) + 2;
           mid = x * y;
         default: // ÷
-          y = rng.nextInt(maxVal ~/ 2) + 2;
-          mid = rng.nextInt(maxVal ~/ 2) + 1;
+          y = rng.nextInt(maxVal ~/ 5) + 2;
+          mid = rng.nextInt(maxVal ~/ 5) + 1;
           x = y * mid;
       }
 
       // Build z, answer so division is always exact
       switch (opB) {
         case '+':
-          z = rng.nextInt(maxVal) + 1;
+          z = rng.nextInt(maxVal) + 5;
           _answer = mid + z;
         case '-':
-          z = rng.nextInt(maxVal) + 1;
+          z = rng.nextInt(maxVal) + 5;
           _answer = mid - z;
         case '\u00d7':
-          z = rng.nextInt(maxVal ~/ 2) + 2;
+          z = rng.nextInt(maxVal ~/ 5) + 2;
           _answer = mid * z;
         default: // ÷
           final absMid = mid.abs();
@@ -137,21 +137,21 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
     _op = ops[rng.nextInt(ops.length)];
     switch (_op) {
       case '+':
-        _a = rng.nextInt(maxVal) + 1;
-        _b = rng.nextInt(maxVal) + 1;
+        _a = rng.nextInt(maxVal) + 5;
+        _b = rng.nextInt(maxVal) + 5;
         _answer = _a + _b;
       case '-':
-        _a = rng.nextInt(maxVal) + 1;
-        _b = rng.nextInt(_a) + 1;
+        _a = rng.nextInt(maxVal) + 5;
+        _b = rng.nextInt(_a) + 5;
         _answer = _a - _b;
       case '\u00f7':
         // Division: pick answer and divisor, compute dividend
-        _b = rng.nextInt(maxVal ~/ 2) + 2;
-        _answer = rng.nextInt(maxVal ~/ 2) + 1;
+        _b = rng.nextInt(maxVal ~/ 5) + 2;
+        _answer = rng.nextInt(maxVal ~/ 5) + 1;
         _a = _b * _answer;
       default: // ×
-        _a = rng.nextInt(maxVal ~/ 2) + 2;
-        _b = rng.nextInt(maxVal ~/ 2) + 2;
+        _a = rng.nextInt(maxVal ~/ 5) + 2;
+        _b = rng.nextInt(maxVal ~/ 5) + 2;
         _answer = _a * _b;
     }
     _problemText = '$_a $_op $_b = ?';

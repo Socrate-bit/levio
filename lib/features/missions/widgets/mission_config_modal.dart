@@ -156,7 +156,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
       default:
         _repCount = e?.repCount ?? 5;
     }
-    _mathDifficulty = e?.mathDifficulty ?? MathDifficulty.easy;
+    _mathDifficulty = e?.mathDifficulty ?? MathDifficulty.medium;
     _mathProblemCount = e?.mathProblemCount ?? 3;
   }
 
