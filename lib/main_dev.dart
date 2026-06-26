@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:levio/app.dart';
+import 'package:levio/features/alarms/services/notification_service.dart';
 import 'package:levio/features/subscription/services/analytics_service.dart';
 import 'package:levio/firebase_options_dev.dart';
 import 'package:levio/shared/services/branch_service.dart';
@@ -20,6 +21,7 @@ void main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AnalyticsService.init();
+  await NotificationService.init();
 
   // Match paywall locale to the device locale (e.g. "en_US", "fr_FR").
   final options = SuperwallOptions()..localeIdentifier = Platform.localeName;

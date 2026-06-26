@@ -17,6 +17,18 @@ class AppAlarmEntry extends Equatable {
   final DateTime createdAt;
   final bool disabledBySubscription;
 
+  /// Sleep (bedtime) alarm vs the default wake-up alarm.
+  final bool isSleep;
+
+  /// Gentle ring: a single AlarmKit alert with no burst cascade. Sleep-only.
+  final bool gentle;
+
+  /// Whether to fire a pre-alarm reminder notification. Sleep-only.
+  final bool reminderEnabled;
+
+  /// How many minutes before the alarm the reminder fires.
+  final int reminderMinutesBefore;
+
   AppAlarmEntry({
     required this.id,
     required this.dateTime,
@@ -27,6 +39,10 @@ class AppAlarmEntry extends Equatable {
     this.isEnabled = true,
     this.isOneTime = false,
     this.disabledBySubscription = false,
+    this.isSleep = false,
+    this.gentle = false,
+    this.reminderEnabled = false,
+    this.reminderMinutesBefore = 15,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -40,6 +56,10 @@ class AppAlarmEntry extends Equatable {
     bool? isEnabled,
     bool? isOneTime,
     bool? disabledBySubscription,
+    bool? isSleep,
+    bool? gentle,
+    bool? reminderEnabled,
+    int? reminderMinutesBefore,
     DateTime? createdAt,
   }) =>
       AppAlarmEntry(
@@ -53,6 +73,11 @@ class AppAlarmEntry extends Equatable {
         isOneTime: isOneTime ?? this.isOneTime,
         disabledBySubscription:
             disabledBySubscription ?? this.disabledBySubscription,
+        isSleep: isSleep ?? this.isSleep,
+        gentle: gentle ?? this.gentle,
+        reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+        reminderMinutesBefore:
+            reminderMinutesBefore ?? this.reminderMinutesBefore,
         createdAt: createdAt ?? this.createdAt,
       );
 
@@ -67,6 +92,10 @@ class AppAlarmEntry extends Equatable {
         isEnabled,
         isOneTime,
         disabledBySubscription,
+        isSleep,
+        gentle,
+        reminderEnabled,
+        reminderMinutesBefore,
         createdAt,
       ];
 }

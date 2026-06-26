@@ -13,6 +13,7 @@ enum MissionType {
   natureHunt,
   touchGrass,
   affirmation,
+  routine,
   random,
 }
 
@@ -136,6 +137,15 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFCC4DAA),
     iconBg: Color(0xFFFAE7F5),
     icon: Icons.chat_bubble,
+    category: MissionCategory.trending,
+  ),
+  MissionInfo(
+    type: MissionType.routine,
+    name: 'Routine',
+    description: 'Complete your checklist of steps',
+    iconColor: Color(0xFF2BA7A0),
+    iconBg: Color(0xFFE2F4F2),
+    icon: Icons.checklist,
     category: MissionCategory.trending,
   ),
   MissionInfo(

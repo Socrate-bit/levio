@@ -37,6 +37,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   late List<MissionConfig> _missions;
   late String _soundId;
   late String _soundName;
+  late bool _isSleep;
+  late bool _gentle;
+  late bool _reminderEnabled;
+  late int _reminderMinutes;
 
   bool get _isEditing => widget.alarm != null;
 
@@ -55,6 +59,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _missions = List.from(a.missions);
       _soundId = a.soundId;
       _soundName = _soundIdToName(a.soundId);
+      _isSleep = a.isSleep;
+      _gentle = a.gentle;
+      _reminderEnabled = a.reminderEnabled;
+      _reminderMinutes = a.reminderMinutesBefore;
     } else {
       // Create mode: use saved defaults from settings
       final alarmCount = context.read<AlarmCubit>().state.alarms.length;
@@ -68,6 +76,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
           : [];
       _soundId = settings.defaultSoundId;
       _soundName = settings.defaultSoundName;
+      _isSleep = false;
+      _gentle = false;
+      _reminderEnabled = false;
+      _reminderMinutes = 15;
     }
   }
 
@@ -113,6 +125,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       case MissionType.affirmation:
         final count = config.selectedAffirmations?.length ?? 0;
         return count > 0 ? '$count affirmations' : 'All affirmations';
+      case MissionType.routine:
+        final count =
+            config.selectedItems?.length ?? routinePresetSteps.length;
+        return AppLocalizations.of(context).routineStepsCount(count);
       case MissionType.random:
         final count = config.randomPool?.length ?? 0;
         return count == 0 ? 'All missions' : '$count in pool';
@@ -258,6 +274,87 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     );
   }
 
+  /// Bottom-sheet picker for the reminder lead time (5–60 min, step 5).
+  void _showReminderPicker(AppColors c) {
+    final l10n = AppLocalizations.of(context);
+    const options = [5, 10, 15, 20, 30, 45, 60];
+    var index = options.indexOf(_reminderMinutes);
+    if (index < 0) index = 2; // default to 15 min
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: c.card,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+              child: Row(
+                children: [
+                  Text(
+                    l10n.alarmFormReminder,
+                    style: TextStyle(
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w600,
+                      color: c.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: withHaptic(() => Navigator.pop(ctx)),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.orange,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Text(
+                        l10n.alarmFormDone,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 200.h,
+              child: CupertinoPicker(
+                scrollController:
+                    FixedExtentScrollController(initialItem: index),
+                itemExtent: 40.h,
+                onSelectedItemChanged: (i) =>
+                    setState(() => _reminderMinutes = options[i]),
+                children: options
+                    .map(
+                      (m) => Center(
+                        child: Text(
+                          l10n.alarmFormReminderBefore(m),
+                          style: TextStyle(
+                            fontSize: 22.sp,
+                            color: c.textPrimary,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -327,6 +424,31 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                 ),
               ),
               SizedBox(height: 16.h),
+              // Sleep / Wake-up kind toggle (sun / moon)
+              _FormCard(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _TogglePill(
+                        label: l10n.alarmFormWakeUp,
+                        icon: Icons.wb_sunny,
+                        selected: !_isSleep,
+                        onTap: () => setState(() => _isSleep = false),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: _TogglePill(
+                        label: l10n.alarmFormSleep,
+                        icon: Icons.nightlight_round,
+                        selected: _isSleep,
+                        onTap: () => setState(() => _isSleep = true),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 12.h),
               // Name field
               _FormCard(
                 child: TextField(
@@ -588,6 +710,115 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   ],
                 ),
               ),
+              // Sleep-only settings: ring style + bedtime reminder
+              if (_isSleep) ...[
+                SizedBox(height: 12.h),
+                _FormCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.alarmFormRingStyle,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          color: c.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _TogglePill(
+                              label: l10n.alarmFormGentle,
+                              selected: _gentle,
+                              onTap: () => setState(() => _gentle = true),
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: _TogglePill(
+                              label: l10n.alarmFormLoud,
+                              selected: !_gentle,
+                              onTap: () => setState(() => _gentle = false),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                _FormCard(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.alarmFormReminder,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: c.textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  l10n.alarmFormReminderHint,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    color: c.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: _reminderEnabled,
+                            activeTrackColor: AppColors.orange,
+                            onChanged: (v) =>
+                                setState(() => _reminderEnabled = v),
+                          ),
+                        ],
+                      ),
+                      if (_reminderEnabled)
+                        GestureDetector(
+                          onTap: withHaptic(() => _showReminderPicker(c)),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 12.h),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.notifications_active_outlined,
+                                  size: 20.sp,
+                                  color: c.textSecondary,
+                                ),
+                                SizedBox(width: 8.w),
+                                Text(
+                                  l10n.alarmFormReminderBefore(
+                                    _reminderMinutes,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    color: c.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: c.textSecondary,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
                     SizedBox(height: 32.h),
                   ],
                 ),
@@ -696,6 +927,11 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       soundId: _soundId,
       repeatDays: _repeatDays,
       isOneTime: !_isScheduled,
+      isSleep: _isSleep,
+      // Gentle ring and reminder only apply to sleep alarms.
+      gentle: _isSleep && _gentle,
+      reminderEnabled: _isSleep && _reminderEnabled,
+      reminderMinutesBefore: _reminderMinutes,
     );
 
     final cubit = context.read<AlarmCubit>();
@@ -736,16 +972,19 @@ class _TogglePill extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final IconData? icon;
 
   const _TogglePill({
     required this.label,
     required this.selected,
     required this.onTap,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final fg = selected ? Colors.white : c.textSecondary;
     return GestureDetector(
       onTap: withHaptic(onTap),
       child: AnimatedContainer(
@@ -756,13 +995,23 @@ class _TogglePill extends StatelessWidget {
           color: selected ? AppColors.orange : c.background,
           borderRadius: BorderRadius.circular(10.r),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : c.textSecondary,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 18.sp, color: fg),
+              SizedBox(width: 6.w),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+                color: fg,
+              ),
+            ),
+          ],
         ),
       ),
     );

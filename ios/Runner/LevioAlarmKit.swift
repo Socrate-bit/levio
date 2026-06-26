@@ -213,6 +213,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
         let soundPath = args["soundPath"] as? String
+        // Gentle alarms pass 0 → master alert only, no burst cascade.
+        let burstCount = args["burstCount"] as? Int ?? kBurstCount
         let originalId = UUID()
         let masterDate = Date(timeIntervalSince1970: timestampMs / 1000)
         let soundName = prepareSoundFile(soundPath: soundPath)
@@ -222,7 +224,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
             isOneShot: true,
             timestampMs: timestampMs,
-            soundPath: soundPath
+            soundPath: soundPath,
+            burstCount: burstCount
         )
 
         let scheduled = await scheduleMasterAndBursts(
@@ -235,7 +238,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            soundName: soundName
+            soundName: soundName,
+            burstCount: burstCount
         )
 
         if scheduled {
@@ -263,6 +267,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let sfSymbol = args["sfSymbol"] as? String ?? "alarm"
         let secondaryLabel = args["secondaryLabel"] as? String ?? "Open"
         let soundPath = args["soundPath"] as? String
+        // Gentle alarms pass 0 → master alert only, no burst cascade.
+        let burstCount = args["burstCount"] as? Int ?? kBurstCount
         let originalId = UUID()
         let soundName = prepareSoundFile(soundPath: soundPath)
 
@@ -276,7 +282,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title, sfSymbol: sfSymbol, secondaryLabel: secondaryLabel,
             isOneShot: false,
             weekdayMask: mask, hour: hour, minute: minute,
-            soundPath: soundPath
+            soundPath: soundPath,
+            burstCount: burstCount
         )
 
         let scheduled = await scheduleMasterAndBursts(
@@ -289,7 +296,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             title: title,
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
-            soundName: soundName
+            soundName: soundName,
+            burstCount: burstCount
         )
 
         if scheduled {
@@ -463,6 +471,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
         let soundPath = config["soundPath"] as? String
         let soundName = prepareSoundFile(soundPath: soundPath)
+        // Honor the per-cascade burst count (gentle alarms store 0).
+        let burstCount = config["burstCount"] as? Int ?? kBurstCount
 
         // "Strictly after today" so we never double-fire on the same day.
         let startOfTomorrow = Calendar.current.startOfDay(
@@ -480,7 +490,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
             soundName: soundName,
-            burstCount: kBurstCount,
+            burstCount: burstCount,
             replaceCascade: true
         )
 
@@ -637,7 +647,10 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             guard let uuid = UUID(uuidString: entry.id) else { return false }
             return liveIds.contains(uuid)
         }
-        let needed = kBurstCount - liveBursts.count
+        // Honor the per-cascade burst count — gentle alarms store 0, so this
+        // yields needed <= 0 and priming never refills a cascade for them.
+        let targetBurstCount = activeConfig["burstCount"] as? Int ?? kBurstCount
+        let needed = targetBurstCount - liveBursts.count
         guard needed > 0 else {
             result(nil)
             return
@@ -1064,7 +1077,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         title: String,
         sfSymbol: String,
         secondaryLabel: String,
-        soundName: String?
+        soundName: String?,
+        burstCount: Int = kBurstCount
     ) async -> Bool {
         let defaults = UserDefaults.standard
         let masterId = UUID()
@@ -1108,7 +1122,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             sfSymbol: sfSymbol,
             secondaryLabel: secondaryLabel,
             soundName: soundName,
-            burstCount: kBurstCount,
+            burstCount: burstCount,
             replaceCascade: true
         )
         return masterOK
@@ -1139,6 +1153,13 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
                 }
                 defaults.removeObject(forKey: "levio_burst_\(entry.id)")
             }
+        }
+
+        // Gentle alarms request 0 bursts — persist the (now empty) cascade and
+        // skip the loop entirely (a `1...0` range would trap at runtime).
+        guard burstCount >= 1 else {
+            saveCascade(originalId: originalId.uuidString, cascade: cascade)
+            return
         }
 
         var cumulativeOffset: TimeInterval = 0
@@ -1260,13 +1281,17 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         weekdayMask: Int = 0,
         hour: Int = 0,
         minute: Int = 0,
-        soundPath: String? = nil
+        soundPath: String? = nil,
+        burstCount: Int = kBurstCount
     ) {
         var config: [String: Any] = [
             "title": title,
             "sfSymbol": sfSymbol,
             "secondaryLabel": secondaryLabel,
             "isOneShot": isOneShot,
+            // Per-cascade burst count. Gentle alarms store 0 so priming and
+            // rescheduling never refill a burst cascade for them.
+            "burstCount": burstCount,
             // Recorded at schedule time so priming can detect a tz shift and
             // regenerate the .fixed bursts (which are absolute and don't adapt
             // to timezone changes like the .relative weekly master does).

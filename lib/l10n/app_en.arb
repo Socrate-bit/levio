@@ -69,6 +69,19 @@
   "@alarmFormMissionIndex": {
     "placeholders": { "index": { "type": "int" } }
   },
+  "alarmFormWakeUp": "Wake up",
+  "alarmFormSleep": "Sleep",
+  "alarmFormRingStyle": "Ring style",
+  "alarmFormGentle": "Gentle",
+  "alarmFormLoud": "Loud",
+  "alarmFormReminder": "Bedtime reminder",
+  "alarmFormReminderHint": "Get notified before the alarm rings",
+  "alarmFormReminderBefore": "{minutes} min before",
+  "@alarmFormReminderBefore": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "reminderNotificationTitle": "Time to wind down",
+  "reminderNotificationBody": "Your bedtime alarm is coming up",
 
   "soundPickerTitle": "Alarm Sound",
   "soundPickerYourSounds": "Your Sounds",
@@ -163,10 +176,31 @@
   "missionTouchGrassDesc": "Take a photo of the grass",
   "missionAffirmation": "Affirmation",
   "missionAffirmationDesc": "Read an affirmation out loud",
+  "missionRoutine": "Routine",
+  "missionRoutineDesc": "Complete your checklist of steps",
   "missionRandom": "Random",
   "missionRandomDesc": "Surprise mission each morning",
   "missionNone": "No mission",
   "missionNoneDesc": "Simple alarm with no task",
+
+  "routinePickerTitle": "Build Your Routine",
+  "routinePickerSubtitle": "Pick the steps to complete. Tap ＋ to add your own.",
+  "routineAddStep": "Add a step",
+  "routineValidate": "Validate Routine",
+  "routineStepsCount": "{count} steps",
+  "@routineStepsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "routineTapToComplete": "Tap each step as you complete it",
+  "routineDrinkWater": "Drink a glass of water",
+  "routineDimLight": "Dim your light",
+  "routineCloseComputer": "Close your computer",
+  "routineBrushTeeth": "Brush your teeth",
+  "routinePrepareClothes": "Prepare your clothes",
+  "routineTodoList": "Todo list for next day",
+  "routineJournaling": "Journaling",
+  "routineBreathing": "Breathing",
+  "routineRead": "Read",
 
   "photoTargetSky": "the sky",
   "photoTargetMadeBed": "your made bed",

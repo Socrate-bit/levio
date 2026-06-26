@@ -177,6 +177,38 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get alarmFormWakeUp => 'Wake up';
+
+  @override
+  String get alarmFormSleep => 'Sleep';
+
+  @override
+  String get alarmFormRingStyle => 'Ring style';
+
+  @override
+  String get alarmFormGentle => 'Gentle';
+
+  @override
+  String get alarmFormLoud => 'Loud';
+
+  @override
+  String get alarmFormReminder => 'Bedtime reminder';
+
+  @override
+  String get alarmFormReminderHint => 'Get notified before the alarm rings';
+
+  @override
+  String alarmFormReminderBefore(int minutes) {
+    return '$minutes min before';
+  }
+
+  @override
+  String get reminderNotificationTitle => 'Time to wind down';
+
+  @override
+  String get reminderNotificationBody => 'Your bedtime alarm is coming up';
+
+  @override
   String get soundPickerTitle => 'Alarm Sound';
 
   @override
@@ -428,6 +460,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionAffirmationDesc => 'Read an affirmation out loud';
 
   @override
+  String get missionRoutine => 'Routine';
+
+  @override
+  String get missionRoutineDesc => 'Complete your checklist of steps';
+
+  @override
   String get missionRandom => 'Random';
 
   @override
@@ -438,6 +476,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missionNoneDesc => 'Simple alarm with no task';
+
+  @override
+  String get routinePickerTitle => 'Build Your Routine';
+
+  @override
+  String get routinePickerSubtitle =>
+      'Pick the steps to complete. Tap ＋ to add your own.';
+
+  @override
+  String get routineAddStep => 'Add a step';
+
+  @override
+  String get routineValidate => 'Validate Routine';
+
+  @override
+  String routineStepsCount(int count) {
+    return '$count steps';
+  }
+
+  @override
+  String get routineTapToComplete => 'Tap each step as you complete it';
+
+  @override
+  String get routineDrinkWater => 'Drink a glass of water';
+
+  @override
+  String get routineDimLight => 'Dim your light';
+
+  @override
+  String get routineCloseComputer => 'Close your computer';
+
+  @override
+  String get routineBrushTeeth => 'Brush your teeth';
+
+  @override
+  String get routinePrepareClothes => 'Prepare your clothes';
+
+  @override
+  String get routineTodoList => 'Todo list for next day';
+
+  @override
+  String get routineJournaling => 'Journaling';
+
+  @override
+  String get routineBreathing => 'Breathing';
+
+  @override
+  String get routineRead => 'Read';
 
   @override
   String get photoTargetSky => 'the sky';
