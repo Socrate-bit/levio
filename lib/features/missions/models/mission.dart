@@ -13,6 +13,7 @@ enum MissionType {
   natureHunt,
   touchGrass,
   affirmation,
+  routine,
   breathing,
   gratefulness,
   meditation,
@@ -186,6 +187,15 @@ const allMissions = <MissionInfo>[
     iconBg: Color(0xFFEAF0FD),
     icon: Icons.king_bed,
     categories: [MissionCategory.sleep],
+  ),
+  MissionInfo(
+    type: MissionType.routine,
+    name: 'Routine',
+    description: 'Complete your checklist of steps',
+    iconColor: Color(0xFF2BA7A0),
+    iconBg: Color(0xFFE2F4F2),
+    icon: Icons.checklist,
+    categories: [MissionCategory.trending, MissionCategory.sleep],
   ),
   MissionInfo(
     type: MissionType.random,

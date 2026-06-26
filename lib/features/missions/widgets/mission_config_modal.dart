@@ -12,6 +12,7 @@ import '../models/mission_config.dart';
 import 'affirmation_picker_screen.dart';
 import 'item_picker_screen.dart';
 import 'random_pool_picker_screen.dart';
+import 'routine_picker_screen.dart';
 
 /// Shows a bottom sheet to configure a mission. Returns a [MissionConfig] or
 /// null if cancelled.
@@ -43,6 +44,22 @@ Future<MissionConfig?> showMissionConfigModal(
       selectedAffirmations:
           result.affirmations.isEmpty ? null : result.affirmations,
       affirmationCount: result.count,
+    );
+  }
+
+  if (info.type == MissionType.routine) {
+    final selected = await Navigator.push<List<String>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoutinePickerScreen(
+          preselected: existing?.selectedItems,
+        ),
+      ),
+    );
+    if (selected == null) return null;
+    return MissionConfig(
+      type: info.type,
+      selectedItems: selected.isEmpty ? null : selected,
     );
   }
 

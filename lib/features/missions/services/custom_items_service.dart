@@ -87,4 +87,29 @@ class CustomItemsService {
       AnalyticsService.trackError('CustomItemsService.removeCustomObject', e, st);
     }
   }
+
+  // ── Routine steps ──
+
+  static Future<List<String>> getCustomRoutineSteps() async {
+    try {
+      final snap = await _doc().get();
+      if (!snap.exists) return [];
+      return List<String>.from(snap.data()?['routineSteps'] ?? []);
+    } catch (e, st) {
+      debugPrint('[CustomItemsService] getCustomRoutineSteps error: $e');
+      AnalyticsService.trackError('CustomItemsService.getCustomRoutineSteps', e, st);
+      return [];
+    }
+  }
+
+  static Future<void> addCustomRoutineStep(String text) async {
+    try {
+      await _doc().set({
+        'routineSteps': FieldValue.arrayUnion([text]),
+      }, SetOptions(merge: true));
+    } catch (e, st) {
+      debugPrint('[CustomItemsService] addCustomRoutineStep error: $e');
+      AnalyticsService.trackError('CustomItemsService.addCustomRoutineStep', e, st);
+    }
+  }
 }

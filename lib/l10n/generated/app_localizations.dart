@@ -416,6 +416,66 @@ abstract class AppLocalizations {
   /// **'Mission {index}'**
   String alarmFormMissionIndex(int index);
 
+  /// No description provided for @alarmFormWakeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake up'**
+  String get alarmFormWakeUp;
+
+  /// No description provided for @alarmFormSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get alarmFormSleep;
+
+  /// No description provided for @alarmFormRingStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ring style'**
+  String get alarmFormRingStyle;
+
+  /// No description provided for @alarmFormGentle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle'**
+  String get alarmFormGentle;
+
+  /// No description provided for @alarmFormLoud.
+  ///
+  /// In en, this message translates to:
+  /// **'Loud'**
+  String get alarmFormLoud;
+
+  /// No description provided for @alarmFormReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Bedtime reminder'**
+  String get alarmFormReminder;
+
+  /// No description provided for @alarmFormReminderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified before the alarm rings'**
+  String get alarmFormReminderHint;
+
+  /// No description provided for @alarmFormReminderBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min before'**
+  String alarmFormReminderBefore(int minutes);
+
+  /// No description provided for @reminderNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to wind down'**
+  String get reminderNotificationTitle;
+
+  /// No description provided for @reminderNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bedtime alarm is coming up'**
+  String get reminderNotificationBody;
+
   /// No description provided for @soundPickerTitle.
   ///
   /// In en, this message translates to:
@@ -914,6 +974,18 @@ abstract class AppLocalizations {
   /// **'Read an affirmation out loud'**
   String get missionAffirmationDesc;
 
+  /// No description provided for @missionRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Routine'**
+  String get missionRoutine;
+
+  /// No description provided for @missionRoutineDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your checklist of steps'**
+  String get missionRoutineDesc;
+
   /// No description provided for @missionBreathing.
   ///
   /// In en, this message translates to:
@@ -985,6 +1057,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Simple alarm with no task'**
   String get missionNoneDesc;
+
+  /// No description provided for @routinePickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build Your Routine'**
+  String get routinePickerTitle;
+
+  /// No description provided for @routinePickerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the steps to complete. Tap ＋ to add your own.'**
+  String get routinePickerSubtitle;
+
+  /// No description provided for @routineAddStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a step'**
+  String get routineAddStep;
+
+  /// No description provided for @routineValidate.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate Routine'**
+  String get routineValidate;
+
+  /// No description provided for @routineStepsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} steps'**
+  String routineStepsCount(int count);
+
+  /// No description provided for @routineTapToComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap each step as you complete it'**
+  String get routineTapToComplete;
+
+  /// No description provided for @routineDrinkWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink a glass of water'**
+  String get routineDrinkWater;
+
+  /// No description provided for @routineDimLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Dim your light'**
+  String get routineDimLight;
+
+  /// No description provided for @routineCloseComputer.
+  ///
+  /// In en, this message translates to:
+  /// **'Close your computer'**
+  String get routineCloseComputer;
+
+  /// No description provided for @routineBrushTeeth.
+  ///
+  /// In en, this message translates to:
+  /// **'Brush your teeth'**
+  String get routineBrushTeeth;
+
+  /// No description provided for @routinePrepareClothes.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare your clothes'**
+  String get routinePrepareClothes;
+
+  /// No description provided for @routineTodoList.
+  ///
+  /// In en, this message translates to:
+  /// **'Todo list for next day'**
+  String get routineTodoList;
+
+  /// No description provided for @routineJournaling.
+  ///
+  /// In en, this message translates to:
+  /// **'Journaling'**
+  String get routineJournaling;
+
+  /// No description provided for @routineBreathing.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathing'**
+  String get routineBreathing;
+
+  /// No description provided for @routineRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get routineRead;
 
   /// No description provided for @photoTargetSky.
   ///

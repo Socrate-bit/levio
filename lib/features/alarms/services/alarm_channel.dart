@@ -42,6 +42,10 @@ class AlarmChannel {
   static const _method = MethodChannel('levio/alarmkit');
   static const _events = EventChannel('levio/alarmkit/events');
 
+  /// Default number of escalating bursts in a loud cascade. Mirror of the
+  /// native `kBurstCount`. Gentle alarms pass 0 (master alert only).
+  static const defaultBurstCount = 40;
+
   static Future<bool> requestAuthorization() async {
     return await _method.invokeMethod<bool>('requestAuthorization') ?? false;
   }
@@ -86,12 +90,14 @@ class AlarmChannel {
     required String sfSymbol,
     required String secondaryLabel,
     String? soundPath,
+    int burstCount = defaultBurstCount,
   }) async {
     final id = await _method.invokeMethod<String>('scheduleOneShot', {
       'timestampMs': timestampMs.toDouble(),
       'title': title,
       'sfSymbol': sfSymbol,
       'secondaryLabel': secondaryLabel,
+      'burstCount': burstCount,
       if (soundPath != null) 'soundPath': soundPath,
     });
     return id!;
@@ -108,6 +114,7 @@ class AlarmChannel {
     required String sfSymbol,
     required String secondaryLabel,
     String? soundPath,
+    int burstCount = defaultBurstCount,
   }) async {
     final id = await _method.invokeMethod<String>('scheduleRepeating', {
       'weekdayMask': weekdayMask,
@@ -116,6 +123,7 @@ class AlarmChannel {
       'title': title,
       'sfSymbol': sfSymbol,
       'secondaryLabel': secondaryLabel,
+      'burstCount': burstCount,
       if (soundPath != null) 'soundPath': soundPath,
     });
     return id!;
