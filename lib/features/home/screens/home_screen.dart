@@ -585,13 +585,19 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              diff.isNegative
-                  ? l10n.homeToday
-                  : diff.inHours < 24
-                  ? l10n.homeToday
-                  : l10n.homeTomorrow,
-              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+            Row(
+              children: [
+                _AlarmKindIcon(isSleep: alarm.isSleep),
+                SizedBox(width: 8.w),
+                Text(
+                  diff.isNegative
+                      ? l10n.homeToday
+                      : diff.inHours < 24
+                      ? l10n.homeToday
+                      : l10n.homeTomorrow,
+                  style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+                ),
+              ],
             ),
             SizedBox(height: 4.h),
             Row(
@@ -766,9 +772,15 @@ class _AlarmCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              dayStr,
-              style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
+            Row(
+              children: [
+                _AlarmKindIcon(isSleep: alarm.isSleep),
+                SizedBox(width: 8.w),
+                Text(
+                  dayStr,
+                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
+                ),
+              ],
             ),
             SizedBox(height: 4.h),
             Row(
@@ -857,6 +869,31 @@ class _AlarmCard extends StatelessWidget {
       return l10n.alarmsWeekdays;
     }
     return selected.join(', ');
+  }
+}
+
+/// Small sun/moon badge distinguishing a wake-up alarm from a sleep (bedtime)
+/// alarm.
+class _AlarmKindIcon extends StatelessWidget {
+  final bool isSleep;
+  const _AlarmKindIcon({required this.isSleep});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isSleep ? AppColors.blue : AppColors.orange;
+    return Container(
+      width: 26.w,
+      height: 26.w,
+      decoration: BoxDecoration(
+        color: color.withAlpha(25),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        isSleep ? Icons.nightlight_round : Icons.wb_sunny,
+        size: 15.sp,
+        color: color,
+      ),
+    );
   }
 }
 

@@ -55,6 +55,7 @@ dependencies:
   timezone: ^0.11.0
   flutter_timezone: ^4.1.1
   firebase_storage: ^13.4.3
+  video_player: ^2.11.1
 
 dev_dependencies:
   flutter_test:
@@ -89,5 +90,6 @@ flutter:
     - assets/app_icon.png
     - assets/streaks.png
     - assets/siren.png
+    - assets/animations/
     - shorebird.yaml
     - assets/exemple.png
