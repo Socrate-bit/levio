@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,8 +10,13 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
 import '../../missions/models/mission.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../widgets/levio_brand_header.dart';
+
+/// Looping ambient music played behind the breathing exercise.
+const _breathingMusicUrl =
+    'https://firebasestorage.googleapis.com/v0/b/levio-ef67e.firebasestorage.app/o/meditation_sound.mp3?alt=media&token=325c4a8e-3862-468b-b331-e6fa3a9367f7';
 
 enum _BreathingPhase { inhale, holdIn, exhale, holdOut }
 
@@ -60,6 +66,8 @@ class _BreathingMissionScreenState extends State<BreathingMissionScreen>
   bool _finished = false;
   final _startTime = DateTime.now();
   AlarmCascadeController? _cascade;
+  final _musicPlayer = AudioPlayer();
+  bool _muted = false;
 
   @override
   void initState() {
@@ -70,7 +78,24 @@ class _BreathingMissionScreenState extends State<BreathingMissionScreen>
     if (widget.manageAlarm && !widget.isPreview) {
       _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
+    _startMusic();
     _startPhase(_BreathingPhase.inhale);
+  }
+
+  Future<void> _startMusic() async {
+    try {
+      await _musicPlayer.setReleaseMode(ReleaseMode.loop);
+      await _musicPlayer.play(UrlSource(_breathingMusicUrl));
+    } catch (e, st) {
+      AnalyticsService.trackError('BreathingMissionScreen._startMusic', e, st);
+    }
+  }
+
+  Future<void> _toggleMute() async {
+    HapticFeedback.selectionClick();
+    final next = !_muted;
+    await _musicPlayer.setVolume(next ? 0 : 1);
+    if (mounted) setState(() => _muted = next);
   }
 
   void _startPhase(_BreathingPhase phase) {
@@ -139,6 +164,7 @@ class _BreathingMissionScreenState extends State<BreathingMissionScreen>
     _finished = true;
     _holdTimer?.cancel();
     _controller.stop();
+    await _musicPlayer.stop();
     HapticFeedback.mediumImpact();
 
     if (widget.isPreview) {
@@ -172,6 +198,7 @@ class _BreathingMissionScreenState extends State<BreathingMissionScreen>
     _holdTimer?.cancel();
     _controller.removeStatusListener(_onAnimationStatus);
     _controller.dispose();
+    _musicPlayer.dispose();
     _cascade?.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
@@ -243,6 +270,27 @@ class _BreathingMissionScreenState extends State<BreathingMissionScreen>
                   ),
                 ),
               ],
+            ),
+            // Mute / unmute the background music.
+            Positioned(
+              top: 16.h,
+              left: 16.w,
+              child: GestureDetector(
+                onTap: _toggleMute,
+                child: Container(
+                  width: 36.w,
+                  height: 36.h,
+                  decoration: BoxDecoration(
+                    color: c.card,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _muted ? Icons.volume_off : Icons.volume_up,
+                    size: 18.sp,
+                    color: c.textPrimary,
+                  ),
+                ),
+              ),
             ),
             if (widget.isPreview)
               Positioned(

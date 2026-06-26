@@ -1076,6 +1076,12 @@ abstract class AppLocalizations {
   /// **'Number of rounds'**
   String get missionConfigNumberOfRounds;
 
+  /// No description provided for @missionConfigMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum minutes'**
+  String get missionConfigMinutes;
+
   /// No description provided for @missionConfigNumberOfProblems.
   ///
   /// In en, this message translates to:
@@ -1201,6 +1207,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to retry'**
   String get meditationRetry;
+
+  /// No description provided for @meditationFinishIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish in {time}'**
+  String meditationFinishIn(String time);
 
   /// No description provided for @itemPickerSelectItems.
   ///

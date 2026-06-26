@@ -509,6 +509,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionConfigNumberOfRounds => 'Number of rounds';
 
   @override
+  String get missionConfigMinutes => 'Minimum minutes';
+
+  @override
   String get missionConfigNumberOfProblems => 'Number of problems';
 
   @override
@@ -576,6 +579,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get meditationRetry => 'Tap to retry';
+
+  @override
+  String meditationFinishIn(String time) {
+    return 'Finish in $time';
+  }
 
   @override
   String get itemPickerSelectItems => 'Select Items';

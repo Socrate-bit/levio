@@ -67,8 +67,7 @@ Future<MissionConfig?> showMissionConfigModal(
       info.type == MissionType.makeBed ||
       info.type == MissionType.bedPhoto ||
       info.type == MissionType.touchGrass ||
-      info.type == MissionType.gratefulness ||
-      info.type == MissionType.meditation) {
+      info.type == MissionType.gratefulness) {
     return MissionConfig(type: info.type);
   }
 
@@ -145,6 +144,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
   late MathDifficulty _mathDifficulty;
   late int _mathProblemCount;
   late int _breathingRounds;
+  late int _meditationMinutes;
 
   @override
   void initState() {
@@ -163,6 +163,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
     _mathDifficulty = e?.mathDifficulty ?? MathDifficulty.medium;
     _mathProblemCount = e?.mathProblemCount ?? 3;
     _breathingRounds = e?.breathingRounds ?? 3;
+    _meditationMinutes = e?.meditationMinutes ?? 2;
   }
 
   MissionConfig _buildConfig() {
@@ -181,6 +182,11 @@ class _ConfigSheetState extends State<_ConfigSheet> {
         return MissionConfig(
           type: widget.info.type,
           breathingRounds: _breathingRounds,
+        );
+      case MissionType.meditation:
+        return MissionConfig(
+          type: widget.info.type,
+          meditationMinutes: _meditationMinutes,
         );
       default:
         return MissionConfig(type: widget.info.type);
@@ -213,6 +219,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
         widget.info.type == MissionType.squats ||
         widget.info.type == MissionType.shakePhone;
     final isBreathing = widget.info.type == MissionType.breathing;
+    final isMeditation = widget.info.type == MissionType.meditation;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -278,6 +285,22 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               min: 1,
               max: 10,
               onChanged: (v) => setState(() => _breathingRounds = v),
+            ),
+            SizedBox(height: 24.h),
+          ],
+
+          // Meditation minimum-time stepper (minutes)
+          if (isMeditation) ...[
+            Text(
+              l10n.missionConfigMinutes,
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+            ),
+            SizedBox(height: 12.h),
+            _Stepper(
+              value: _meditationMinutes,
+              min: 1,
+              max: 30,
+              onChanged: (v) => setState(() => _meditationMinutes = v),
             ),
             SizedBox(height: 24.h),
           ],

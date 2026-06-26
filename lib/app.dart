@@ -272,6 +272,7 @@ Widget buildDismissScreen({
         alarmId: alarmId,
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
+        minMinutes: config.meditationMinutes ?? 2,
         onComplete: onComplete,
         onProgress: onProgress,
         manageAlarm: manageAlarm,

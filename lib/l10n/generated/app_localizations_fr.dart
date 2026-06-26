@@ -516,6 +516,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionConfigNumberOfRounds => 'Nombre de cycles';
 
   @override
+  String get missionConfigMinutes => 'Minutes minimum';
+
+  @override
   String get missionConfigNumberOfProblems => 'Nombre de problèmes';
 
   @override
@@ -585,6 +588,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get meditationRetry => 'Touchez pour réessayer';
+
+  @override
+  String meditationFinishIn(String time) {
+    return 'Terminer dans $time';
+  }
 
   @override
   String get itemPickerSelectItems => 'Sélectionner les objets';

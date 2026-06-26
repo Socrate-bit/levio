@@ -31,6 +31,9 @@ class MissionConfig extends Equatable {
   /// Number of breathing rounds (default 3).
   final int? breathingRounds;
 
+  /// Minimum meditation listen time in minutes (default 2).
+  final int? meditationMinutes;
+
   const MissionConfig({
     required this.type,
     this.repCount,
@@ -41,6 +44,7 @@ class MissionConfig extends Equatable {
     this.affirmationCount,
     this.randomPool,
     this.breathingRounds,
+    this.meditationMinutes,
   });
 
   Map<String, dynamic> toMap() => {
@@ -55,6 +59,7 @@ class MissionConfig extends Equatable {
         if (randomPool != null)
           'randomPool': randomPool!.map((t) => t.name).toList(),
         if (breathingRounds != null) 'breathingRounds': breathingRounds,
+        if (meditationMinutes != null) 'meditationMinutes': meditationMinutes,
       };
 
   factory MissionConfig.fromMap(Map<String, dynamic> m) {
@@ -84,6 +89,7 @@ class MissionConfig extends Equatable {
           .where((t) => t != MissionType.none)
           .toList(),
       breathingRounds: m['breathingRounds'] as int?,
+      meditationMinutes: m['meditationMinutes'] as int?,
     );
   }
 
@@ -105,6 +111,8 @@ class MissionConfig extends Equatable {
     bool clearRandomPool = false,
     int? breathingRounds,
     bool clearBreathingRounds = false,
+    int? meditationMinutes,
+    bool clearMeditationMinutes = false,
   }) =>
       MissionConfig(
         type: type ?? this.type,
@@ -126,6 +134,9 @@ class MissionConfig extends Equatable {
         breathingRounds: clearBreathingRounds
             ? null
             : breathingRounds ?? this.breathingRounds,
+        meditationMinutes: clearMeditationMinutes
+            ? null
+            : meditationMinutes ?? this.meditationMinutes,
       );
 
   @override
@@ -139,5 +150,6 @@ class MissionConfig extends Equatable {
         affirmationCount,
         randomPool,
         breathingRounds,
+        meditationMinutes,
       ];
 }
