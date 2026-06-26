@@ -709,6 +709,7 @@ class AlarmCubit extends Cubit<AlarmState> {
         return 'figure.strengthtraining.traditional';
       case MissionType.skyPhoto:
       case MissionType.makeBed:
+      case MissionType.bedPhoto:
       case MissionType.objectHunt:
       case MissionType.petHunt:
       case MissionType.natureHunt:
@@ -716,6 +717,12 @@ class AlarmCubit extends Cubit<AlarmState> {
         return 'camera.fill';
       case MissionType.affirmation:
         return 'mic.fill';
+      case MissionType.breathing:
+        return 'wind';
+      case MissionType.gratefulness:
+        return 'heart.fill';
+      case MissionType.meditation:
+        return 'figure.mind.and.body';
       case MissionType.math:
         return 'function';
       case MissionType.random:

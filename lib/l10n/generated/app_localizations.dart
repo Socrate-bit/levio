@@ -914,6 +914,54 @@ abstract class AppLocalizations {
   /// **'Read an affirmation out loud'**
   String get missionAffirmationDesc;
 
+  /// No description provided for @missionBreathing.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathing'**
+  String get missionBreathing;
+
+  /// No description provided for @missionBreathingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow a guided breathing exercise'**
+  String get missionBreathingDesc;
+
+  /// No description provided for @missionGratefulness.
+  ///
+  /// In en, this message translates to:
+  /// **'Gratefulness'**
+  String get missionGratefulness;
+
+  /// No description provided for @missionGratefulnessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer 3 questions to start positive'**
+  String get missionGratefulnessDesc;
+
+  /// No description provided for @missionMeditation.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation'**
+  String get missionMeditation;
+
+  /// No description provided for @missionMeditationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to a 2-minute guided meditation'**
+  String get missionMeditationDesc;
+
+  /// No description provided for @missionBed.
+  ///
+  /// In en, this message translates to:
+  /// **'Bed'**
+  String get missionBed;
+
+  /// No description provided for @missionBedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo of your bed'**
+  String get missionBedDesc;
+
   /// No description provided for @missionRandom.
   ///
   /// In en, this message translates to:
@@ -950,6 +998,12 @@ abstract class AppLocalizations {
   /// **'your made bed'**
   String get photoTargetMadeBed;
 
+  /// No description provided for @photoTargetBed.
+  ///
+  /// In en, this message translates to:
+  /// **'your bed'**
+  String get photoTargetBed;
+
   /// No description provided for @photoTargetGrass.
   ///
   /// In en, this message translates to:
@@ -967,6 +1021,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All'**
   String get missionPickerAll;
+
+  /// No description provided for @missionPickerWakeup.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake-up'**
+  String get missionPickerWakeup;
+
+  /// No description provided for @missionPickerSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get missionPickerSleep;
 
   /// No description provided for @missionPickerTrending.
   ///
@@ -1003,6 +1069,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Number of reps'**
   String get missionConfigNumberOfReps;
+
+  /// No description provided for @missionConfigNumberOfRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of rounds'**
+  String get missionConfigNumberOfRounds;
 
   /// No description provided for @missionConfigNumberOfProblems.
   ///
@@ -1045,6 +1117,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Number of affirmations'**
   String get missionConfigNumberOfAffirmations;
+
+  /// No description provided for @breathingPhaseInhale.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathe in'**
+  String get breathingPhaseInhale;
+
+  /// No description provided for @breathingPhaseExhale.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathe out'**
+  String get breathingPhaseExhale;
+
+  /// No description provided for @breathingPhaseHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold'**
+  String get breathingPhaseHold;
+
+  /// No description provided for @breathingRoundLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {current} of {total}'**
+  String breathingRoundLabel(int current, int total);
+
+  /// No description provided for @gratefulnessQuestion1.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you grateful for today?'**
+  String get gratefulnessQuestion1;
+
+  /// No description provided for @gratefulnessQuestion2.
+  ///
+  /// In en, this message translates to:
+  /// **'What is something good that happened recently?'**
+  String get gratefulnessQuestion2;
+
+  /// No description provided for @gratefulnessQuestion3.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you looking forward to today?'**
+  String get gratefulnessQuestion3;
+
+  /// No description provided for @gratefulnessProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} / {total}'**
+  String gratefulnessProgress(int current, int total);
+
+  /// No description provided for @gratefulnessHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your answer…'**
+  String get gratefulnessHint;
+
+  /// No description provided for @gratefulnessNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get gratefulnessNext;
+
+  /// No description provided for @gratefulnessFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get gratefulnessFinish;
+
+  /// No description provided for @meditationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation'**
+  String get meditationTitle;
+
+  /// No description provided for @meditationInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Close your eyes and follow the guided meditation.'**
+  String get meditationInstruction;
+
+  /// No description provided for @meditationRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to retry'**
+  String get meditationRetry;
 
   /// No description provided for @itemPickerSelectItems.
   ///

@@ -163,6 +163,14 @@
   "missionTouchGrassDesc": "Take a photo of the grass",
   "missionAffirmation": "Affirmation",
   "missionAffirmationDesc": "Read an affirmation out loud",
+  "missionBreathing": "Breathing",
+  "missionBreathingDesc": "Follow a guided breathing exercise",
+  "missionGratefulness": "Gratefulness",
+  "missionGratefulnessDesc": "Answer 3 questions to start positive",
+  "missionMeditation": "Meditation",
+  "missionMeditationDesc": "Listen to a 2-minute guided meditation",
+  "missionBed": "Bed",
+  "missionBedDesc": "Take a photo of your bed",
   "missionRandom": "Random",
   "missionRandomDesc": "Surprise mission each morning",
   "missionNone": "No mission",
@@ -170,10 +178,13 @@
 
   "photoTargetSky": "the sky",
   "photoTargetMadeBed": "your made bed",
+  "photoTargetBed": "your bed",
   "photoTargetGrass": "grass",
 
   "missionPickerTitle": "Choose Mission",
   "missionPickerAll": "All",
+  "missionPickerWakeup": "Wake-up",
+  "missionPickerSleep": "Sleep",
   "missionPickerTrending": "Trending",
   "missionPickerHunts": "Hunts",
   "missionPickerPhysical": "Physical",
@@ -181,6 +192,7 @@
 
   "missionConfigNumberOfShakes": "Number of shakes",
   "missionConfigNumberOfReps": "Number of reps",
+  "missionConfigNumberOfRounds": "Number of rounds",
   "missionConfigNumberOfProblems": "Number of problems",
   "missionConfigDifficulty": "Difficulty",
   "missionConfigEasy": "Easy",
@@ -188,6 +200,35 @@
   "missionConfigHard": "Hard",
   "missionConfigChoose": "Choose This Mission",
   "missionConfigNumberOfAffirmations": "Number of affirmations",
+
+  "breathingPhaseInhale": "Breathe in",
+  "breathingPhaseExhale": "Breathe out",
+  "breathingPhaseHold": "Hold",
+  "breathingRoundLabel": "Round {current} of {total}",
+  "@breathingRoundLabel": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "gratefulnessQuestion1": "What are you grateful for today?",
+  "gratefulnessQuestion2": "What is something good that happened recently?",
+  "gratefulnessQuestion3": "What are you looking forward to today?",
+  "gratefulnessProgress": "{current} / {total}",
+  "@gratefulnessProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "gratefulnessHint": "Type your answer…",
+  "gratefulnessNext": "Next",
+  "gratefulnessFinish": "Finish",
+
+  "meditationTitle": "Meditation",
+  "meditationInstruction": "Close your eyes and follow the guided meditation.",
+  "meditationRetry": "Tap to retry",
 
   "itemPickerSelectItems": "Select Items",
   "itemPickerRandomItem": "A random item will be chosen each morning",
