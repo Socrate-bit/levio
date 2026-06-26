@@ -466,6 +466,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionRoutineDesc => 'Complete your checklist of steps';
 
   @override
+  String get missionBreathing => 'Breathing';
+
+  @override
+  String get missionBreathingDesc => 'Follow a guided breathing exercise';
+
+  @override
+  String get missionGratefulness => 'Gratefulness';
+
+  @override
+  String get missionGratefulnessDesc => 'Answer 3 questions to start positive';
+
+  @override
+  String get missionMeditation => 'Meditation';
+
+  @override
+  String get missionMeditationDesc => 'Listen to a 2-minute guided meditation';
+
+  @override
+  String get missionBed => 'Bed';
+
+  @override
+  String get missionBedDesc => 'Take a photo of your bed';
+
+  @override
   String get missionRandom => 'Random';
 
   @override
@@ -532,6 +556,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get photoTargetMadeBed => 'your made bed';
 
   @override
+  String get photoTargetBed => 'your bed';
+
+  @override
   String get photoTargetGrass => 'grass';
 
   @override
@@ -539,6 +566,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missionPickerAll => 'All';
+
+  @override
+  String get missionPickerWakeup => 'Wake-up';
+
+  @override
+  String get missionPickerSleep => 'Sleep';
 
   @override
   String get missionPickerTrending => 'Trending';
@@ -557,6 +590,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missionConfigNumberOfReps => 'Number of reps';
+
+  @override
+  String get missionConfigNumberOfRounds => 'Number of rounds';
 
   @override
   String get missionConfigNumberOfProblems => 'Number of problems';
@@ -578,6 +614,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missionConfigNumberOfAffirmations => 'Number of affirmations';
+
+  @override
+  String get breathingPhaseInhale => 'Breathe in';
+
+  @override
+  String get breathingPhaseExhale => 'Breathe out';
+
+  @override
+  String get breathingPhaseHold => 'Hold';
+
+  @override
+  String breathingRoundLabel(int current, int total) {
+    return 'Round $current of $total';
+  }
+
+  @override
+  String get gratefulnessQuestion1 => 'What are you grateful for today?';
+
+  @override
+  String get gratefulnessQuestion2 =>
+      'What is something good that happened recently?';
+
+  @override
+  String get gratefulnessQuestion3 => 'What are you looking forward to today?';
+
+  @override
+  String gratefulnessProgress(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get gratefulnessHint => 'Type your answer…';
+
+  @override
+  String get gratefulnessNext => 'Next';
+
+  @override
+  String get gratefulnessFinish => 'Finish';
+
+  @override
+  String get meditationTitle => 'Meditation';
+
+  @override
+  String get meditationInstruction =>
+      'Close your eyes and follow the guided meditation.';
+
+  @override
+  String get meditationRetry => 'Tap to retry';
 
   @override
   String get itemPickerSelectItems => 'Select Items';

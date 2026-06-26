@@ -22,7 +22,7 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
 
   List<MissionInfo> get _filtered {
     if (_filter == MissionCategory.all) return allMissions;
-    return allMissions.where((m) => m.category == _filter).toList();
+    return allMissions.where((m) => m.categories.contains(_filter)).toList();
   }
 
   @override
@@ -74,12 +74,16 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                 children: MissionCategory.values.map((cat) {
                   final label = switch (cat) {
                     MissionCategory.all => l10n.missionPickerAll,
+                    MissionCategory.wakeup => l10n.missionPickerWakeup,
+                    MissionCategory.sleep => l10n.missionPickerSleep,
                     MissionCategory.trending => l10n.missionPickerTrending,
                     MissionCategory.hunts => l10n.missionPickerHunts,
                     MissionCategory.physical => l10n.missionPickerPhysical,
                   };
                   final icon = switch (cat) {
                     MissionCategory.all => '\u26a1',
+                    MissionCategory.wakeup => '\u2600\ufe0f',
+                    MissionCategory.sleep => '\ud83c\udf19',
                     MissionCategory.trending => '\ud83d\udd25',
                     MissionCategory.hunts => '\ud83d\udd0d',
                     MissionCategory.physical => '\ud83d\udcaa',
