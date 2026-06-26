@@ -1670,6 +1670,54 @@ class AppLocalizationsEn extends AppLocalizations {
       'Get out of bed 5x faster with Levio vs on your own';
 
   @override
+  String get onboardingSleepEduTitle => 'Sleep timing is everything';
+
+  @override
+  String get onboardingSleepEduBody =>
+      'Going to bed at a consistent time is the single biggest lever for waking up rested. A bedtime cue makes it stick.';
+
+  @override
+  String get onboardingWantSleepAlarm => 'Want a bedtime alarm too?';
+
+  @override
+  String get onboardingSleepTimeTitle => 'When do you want to go to bed?';
+
+  @override
+  String get onboardingSleepTimeSubtitle =>
+      'We\'ll nudge you when it\'s time to wind down.';
+
+  @override
+  String get onboardingScreenEduTitle => 'Screens steal your sleep';
+
+  @override
+  String get onboardingScreenEduBody =>
+      'Late-night scrolling delays your body clock and cuts deep sleep. Blocking distracting apps at night protects your rest.';
+
+  @override
+  String get onboardingBlockApps => 'Block distracting apps during sleep?';
+
+  @override
+  String get onboardingBlockStartTitle => 'When should blocking start?';
+
+  @override
+  String get onboardingBlockStartSubtitle =>
+      'Apps stay blocked until your wake-up time.';
+
+  @override
+  String get onboardingRelaxEduTitle => 'Replace screens with calm';
+
+  @override
+  String get onboardingRelaxEduBody =>
+      'Swap the scroll for a short wind-down routine. Your bedtime alarm will guide you through it.';
+
+  @override
+  String get onboardingRelaxActivitiesTitle => 'What helps you wind down?';
+
+  @override
+  String get onboardingRelaxActivitiesSubtitle =>
+      'Pick a few activities for your bedtime routine.';
+
+  @override
   String get onboardingContinue => 'Continue';
 
   @override

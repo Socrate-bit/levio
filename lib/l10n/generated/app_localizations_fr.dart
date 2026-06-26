@@ -1693,6 +1693,59 @@ class AppLocalizationsFr extends AppLocalizations {
       'Sortez du lit 5x plus vite avec Levio vs tout seul';
 
   @override
+  String get onboardingSleepEduTitle => 'L\'heure du coucher change tout';
+
+  @override
+  String get onboardingSleepEduBody =>
+      'Se coucher à heure régulière est le meilleur moyen de se réveiller reposé. Un rappel du coucher aide à tenir le rythme.';
+
+  @override
+  String get onboardingWantSleepAlarm =>
+      'Vous voulez aussi une alarme de coucher ?';
+
+  @override
+  String get onboardingSleepTimeTitle =>
+      'À quelle heure voulez-vous vous coucher ?';
+
+  @override
+  String get onboardingSleepTimeSubtitle =>
+      'On vous préviendra quand il sera temps de ralentir.';
+
+  @override
+  String get onboardingScreenEduTitle => 'Les écrans volent votre sommeil';
+
+  @override
+  String get onboardingScreenEduBody =>
+      'Scroller tard décale votre horloge interne et réduit le sommeil profond. Bloquer les applis distrayantes le soir protège votre repos.';
+
+  @override
+  String get onboardingBlockApps =>
+      'Bloquer les applis distrayantes pendant le sommeil ?';
+
+  @override
+  String get onboardingBlockStartTitle =>
+      'Quand le blocage doit-il commencer ?';
+
+  @override
+  String get onboardingBlockStartSubtitle =>
+      'Les applis restent bloquées jusqu\'à votre réveil.';
+
+  @override
+  String get onboardingRelaxEduTitle => 'Remplacez les écrans par du calme';
+
+  @override
+  String get onboardingRelaxEduBody =>
+      'Échangez le scroll contre une courte routine de détente. Votre alarme de coucher vous guidera.';
+
+  @override
+  String get onboardingRelaxActivitiesTitle =>
+      'Qu\'est-ce qui vous aide à décompresser ?';
+
+  @override
+  String get onboardingRelaxActivitiesSubtitle =>
+      'Choisissez quelques activités pour votre routine du soir.';
+
+  @override
   String get onboardingContinue => 'Continuer';
 
   @override
