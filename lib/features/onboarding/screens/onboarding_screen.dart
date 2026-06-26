@@ -779,6 +779,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   final v = state.wantsScreenBlock;
                                   return SurveyStep(
                                     question: l10n.onboardingBlockApps,
+                                    subtitle: l10n.onboardingBlockStartSubtitle,
                                     options: [yes, no],
                                     selectedOption:
                                         v == null ? null : (v ? yes : no),
@@ -808,7 +809,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 subtitle:
                                     l10n.onboardingRelaxActivitiesSubtitle,
                                 selected: state.relaxingActivities,
-                                onToggle: cubit.toggleRelaxingActivity,
+                                onChanged: cubit.setRelaxingActivities,
                               ),
                               // 33: Where heard about us
                               SurveyStep(
@@ -868,6 +869,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 mission: state.selectedMission,
                                 soundId: state.soundId,
                                 repeatDays: state.repeatDays,
+                                hasSleep: state.wantsSleepAlarm == true,
                               ),
                               // 41: Sign in — saves alarm + refreshes user type
                               SignInStep(

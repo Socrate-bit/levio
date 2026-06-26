@@ -674,11 +674,17 @@
   "onboardingScreenEduBody": "Late-night scrolling delays your body clock and cuts deep sleep. Blocking distracting apps at night protects your rest.",
   "onboardingBlockApps": "Block distracting apps during sleep?",
   "onboardingBlockStartTitle": "When should blocking start?",
-  "onboardingBlockStartSubtitle": "Apps stay blocked until your wake-up time.",
+  "onboardingBlockStartSubtitle": "Apps stay blocked until 20 min after you wake up. This is the default — you can change it later in Settings.",
   "onboardingRelaxEduTitle": "Replace screens with calm",
   "onboardingRelaxEduBody": "Swap the scroll for a short wind-down routine. Your bedtime alarm will guide you through it.",
   "onboardingRelaxActivitiesTitle": "What helps you wind down?",
   "onboardingRelaxActivitiesSubtitle": "Pick a few activities for your bedtime routine.",
+  "onboardingRelaxActivitiesChoose": "Choose your wind-down routine",
+  "onboardingRelaxActivitiesCount": "{count} activities chosen",
+  "@onboardingRelaxActivitiesCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "onboardingSleepPlanTitle": "Your sleep routine",
   "onboardingContinue": "Continue",
   "onboardingSetAlarmFor": "Set alarm for {time}",
   "@onboardingSetAlarmFor": {
