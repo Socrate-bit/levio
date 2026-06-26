@@ -36,6 +36,14 @@ class MorningPlanStep extends StatelessWidget {
     return TimeOfDay(hour: total ~/ 60, minute: total % 60);
   }
 
+  /// Comma-joined localized wind-down activity names (falls back to the default
+  /// routine steps when none were picked).
+  String _activitiesLabel(AppLocalizations l10n) {
+    final steps =
+        relaxingActivities.isNotEmpty ? relaxingActivities : routinePresetSteps;
+    return steps.map((a) => localizedItemName(l10n, a)).join(', ');
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -105,7 +113,10 @@ class MorningPlanStep extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.onboardingHeresTomorrow,
+                Text(
+                    hasSleep
+                        ? l10n.onboardingSleepRoutineHeader
+                        : l10n.onboardingHeresTomorrow,
                     style: TextStyle(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.bold,
@@ -113,6 +124,31 @@ class MorningPlanStep extends StatelessWidget {
                       color: const Color(0xFF8E8E93),
                     )),
                 SizedBox(height: 16.h),
+                // Sleep routine flows chronologically into the morning timeline.
+                if (hasSleep) ...[
+                  _TimelineItem(
+                    icon: Icons.bedtime,
+                    label: l10n.onboardingSleepBedtime(_fmt(sleepTime)),
+                    colors: c,
+                  ),
+                  _TimelineLine(colors: c),
+                  _TimelineItem(
+                    icon: Icons.self_improvement,
+                    label: l10n.onboardingSleepWindDownSteps(
+                        _activitiesLabel(l10n)),
+                    colors: c,
+                  ),
+                  _TimelineLine(colors: c),
+                  if (blockApps) ...[
+                    _TimelineItem(
+                      icon: Icons.phonelink_lock,
+                      label: l10n.onboardingSleepBlocked(
+                          _fmt(_addMinutes(alarmTime, 20))),
+                      colors: c,
+                    ),
+                    _TimelineLine(colors: c),
+                  ],
+                ],
                 _TimelineItem(
                   icon: Icons.notifications,
                   label: l10n.onboardingAlarmRings(timeStr),
@@ -140,20 +176,6 @@ class MorningPlanStep extends StatelessWidget {
               ],
             ),
           ),
-          // Sleep routine summary (bedtime reminder, app block, wind-down).
-          if (hasSleep) ...[
-            SizedBox(height: 16.h),
-            _SleepRoutineCard(
-              bedtime: _fmt(sleepTime),
-              blockApps: blockApps,
-              blockStart: _fmt(sleepTime),
-              blockEnd: _fmt(_addMinutes(alarmTime, 20)),
-              activities: relaxingActivities.isNotEmpty
-                  ? relaxingActivities
-                  : routinePresetSteps,
-              colors: c,
-            ),
-          ],
           SizedBox(height: 40.h),
           // App icon
           ClipRRect(
@@ -190,141 +212,6 @@ class MorningPlanStep extends StatelessWidget {
           SizedBox(height: 32.h),
         ],
       ),
-    );
-  }
-}
-
-/// Summary of the configured sleep routine shown on the plan screen when a
-/// bedtime alarm was set: bedtime reminder, optional app block window, and the
-/// wind-down activities that make up the routine mission.
-class _SleepRoutineCard extends StatelessWidget {
-  final String bedtime;
-  final bool blockApps;
-  final String blockStart;
-  final String blockEnd;
-  final List<String> activities;
-  final AppColors colors;
-
-  const _SleepRoutineCard({
-    required this.bedtime,
-    required this.blockApps,
-    required this.blockStart,
-    required this.blockEnd,
-    required this.activities,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: colors.card,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: colors.separator),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.onboardingSleepRoutineHeader,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-              color: const Color(0xFF8E8E93),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          _SleepRow(
-            icon: Icons.bedtime,
-            label: l10n.onboardingSleepBedtime(bedtime),
-            colors: colors,
-          ),
-          if (blockApps) ...[
-            SizedBox(height: 12.h),
-            _SleepRow(
-              icon: Icons.phonelink_lock,
-              label: l10n.onboardingSleepBlocked(blockStart, blockEnd),
-              colors: colors,
-            ),
-          ],
-          SizedBox(height: 16.h),
-          Text(
-            l10n.onboardingSleepWindDown,
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
-              color: colors.textPrimary,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
-            children: [
-              for (final a in activities)
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                  decoration: BoxDecoration(
-                    color: AppColors.orange.withAlpha(30),
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  child: Text(
-                    localizedItemName(l10n, a),
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SleepRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final AppColors colors;
-
-  const _SleepRow({
-    required this.icon,
-    required this.label,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 36.w,
-          height: 36.h,
-          decoration: BoxDecoration(
-            color: colors.separator,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 18.sp, color: colors.textPrimary),
-        ),
-        SizedBox(width: 14.w),
-        Expanded(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: colors.textPrimary,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -3347,26 +3347,26 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingSleepRoutineHeader.
   ///
   /// In en, this message translates to:
-  /// **'YOUR SLEEP ROUTINE'**
+  /// **'YOUR ROUTINE'**
   String get onboardingSleepRoutineHeader;
 
   /// No description provided for @onboardingSleepBedtime.
   ///
   /// In en, this message translates to:
-  /// **'Bedtime reminder at {time}'**
+  /// **'Bedtime at {time}'**
   String onboardingSleepBedtime(String time);
 
   /// No description provided for @onboardingSleepBlocked.
   ///
   /// In en, this message translates to:
-  /// **'Apps blocked {start}–{end}'**
-  String onboardingSleepBlocked(String start, String end);
+  /// **'Apps blocked until {time}'**
+  String onboardingSleepBlocked(String time);
 
-  /// No description provided for @onboardingSleepWindDown.
+  /// No description provided for @onboardingSleepWindDownSteps.
   ///
   /// In en, this message translates to:
-  /// **'Wind-down routine'**
-  String get onboardingSleepWindDown;
+  /// **'Wind-down: {steps}'**
+  String onboardingSleepWindDownSteps(String steps);
 
   /// No description provided for @onboardingSignatureSleepSubtitle.
   ///
