@@ -41,13 +41,19 @@ class UnlockCountdownDialog extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(24.w),
             child: BlocBuilder<ScreenTimeCubit, ScreenTimeState>(
-              buildWhen: (p, n) => p.unlockCountdown != n.unlockCountdown,
+              buildWhen: (p, n) =>
+                  p.unlockCountdown != n.unlockCountdown ||
+                  p.unlockReady != n.unlockReady,
               builder: (context, state) {
+                final ready = state.unlockReady;
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      l10n.screenTimeUnlockCountdownTitle,
+                      ready
+                          ? l10n.screenTimeUnlockReadyTitle
+                          : l10n.screenTimeUnlockCountdownTitle,
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
@@ -58,40 +64,74 @@ class UnlockCountdownDialog extends StatelessWidget {
                     SizedBox(
                       width: 96.w,
                       height: 96.w,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          SizedBox(
-                            width: 96.w,
-                            height: 96.w,
-                            child: CircularProgressIndicator(
-                              value: state.unlockCountdown /
-                                  kUnlockCountdownSeconds,
-                              strokeWidth: 6,
-                              backgroundColor: c.separator,
-                              valueColor: const AlwaysStoppedAnimation(
-                                AppColors.orange,
-                              ),
+                      child: ready
+                          ? Icon(
+                              Icons.lock_open_rounded,
+                              size: 64.w,
+                              color: AppColors.orange,
+                            )
+                          : Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 96.w,
+                                  height: 96.w,
+                                  child: CircularProgressIndicator(
+                                    value: state.unlockCountdown /
+                                        kUnlockCountdownSeconds,
+                                    strokeWidth: 6,
+                                    backgroundColor: c.separator,
+                                    valueColor: const AlwaysStoppedAnimation(
+                                      AppColors.orange,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '${state.unlockCountdown}',
+                                  style: TextStyle(
+                                    fontSize: 32.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: c.textPrimary,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          Text(
-                            '${state.unlockCountdown}',
-                            style: TextStyle(
-                              fontSize: 32.sp,
-                              fontWeight: FontWeight.bold,
-                              color: c.textPrimary,
-                            ),
-                          ),
-                        ],
+                    ),
+                    SizedBox(height: 20.h),
+                    if (!ready)
+                      Text(
+                        l10n.screenTimeUnlockCountdownHint,
+                        textAlign: TextAlign.center,
+                        style:
+                            TextStyle(fontSize: 14.sp, color: c.textSecondary),
                       ),
-                    ),
-                    SizedBox(height: 20.h),
-                    Text(
-                      l10n.screenTimeUnlockCountdownHint,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
-                    ),
-                    SizedBox(height: 20.h),
+                    if (ready) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: withHaptic(
+                            () => context.read<ScreenTimeCubit>().confirmUnlock(),
+                          ),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.orange,
+                            minimumSize: Size(double.infinity, 52.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14.r),
+                            ),
+                          ),
+                          child: Text(
+                            l10n.screenTimeUnlock,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                    ] else
+                      SizedBox(height: 20.h),
                     TextButton(
                       onPressed: withHaptic(() {
                         context.read<ScreenTimeCubit>().cancelUnlock();

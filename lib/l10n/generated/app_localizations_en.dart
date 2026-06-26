@@ -2318,7 +2318,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get screenTimeUnlockConfirmProceed => 'Unlock anyway';
 
   @override
-  String get screenTimeUnlockCountdownTitle => 'Stay focused';
+  String get screenTimeUnlockCountdownTitle => 'You can unlock in';
+
+  @override
+  String get screenTimeUnlockReadyTitle => 'You can unlock now';
 
   @override
   String get screenTimeUnlockCountdownHint =>
