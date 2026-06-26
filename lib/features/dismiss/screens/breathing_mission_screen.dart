@@ -229,6 +229,37 @@ class _BreathingMissionScreenState extends State<BreathingMissionScreen>
             Column(
               children: [
                 const LevioBrandHeader(),
+                SizedBox(height: 12.h),
+                // Music toggle — prominent control at the top indication.
+                GestureDetector(
+                  onTap: _toggleMute,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: c.card,
+                      borderRadius: BorderRadius.circular(28.r),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _muted ? Icons.volume_off : Icons.volume_up,
+                          size: 28.sp,
+                          color: _muted ? c.textSecondary : AppColors.blue,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          _muted ? l10n.breathingMusicOff : l10n.breathingMusicOn,
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w600,
+                            color: c.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: Center(
                     child: Column(
@@ -270,27 +301,6 @@ class _BreathingMissionScreenState extends State<BreathingMissionScreen>
                   ),
                 ),
               ],
-            ),
-            // Mute / unmute the background music.
-            Positioned(
-              top: 16.h,
-              left: 16.w,
-              child: GestureDetector(
-                onTap: _toggleMute,
-                child: Container(
-                  width: 36.w,
-                  height: 36.h,
-                  decoration: BoxDecoration(
-                    color: c.card,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _muted ? Icons.volume_off : Icons.volume_up,
-                    size: 18.sp,
-                    color: c.textPrimary,
-                  ),
-                ),
-              ),
             ),
             if (widget.isPreview)
               Positioned(

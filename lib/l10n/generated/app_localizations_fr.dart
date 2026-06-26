@@ -626,6 +626,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionConfigNumberOfAffirmations => 'Nombre d\'affirmations';
 
   @override
+  String get breathingMusicOn => 'Musique activée';
+
+  @override
+  String get breathingMusicOff => 'Musique coupée';
+
+  @override
   String get breathingPhaseInhale => 'Inspirez';
 
   @override

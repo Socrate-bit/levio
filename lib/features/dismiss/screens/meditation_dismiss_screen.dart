@@ -57,8 +57,14 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
   StreamSubscription<Duration>? _positionSub;
   StreamSubscription<Duration>? _durationSub;
   StreamSubscription<void>? _completeSub;
+  Timer? _ticker;
   Duration _position = Duration.zero;
   Duration _total = Duration.zero;
+  // Real time spent listening (advances only while playing) — drives the
+  // minimum-listen gate so seeking the cursor can't bypass it.
+  Duration _listened = Duration.zero;
+  // Slider value (ms) while the user is dragging the cursor; null otherwise.
+  double? _dragValue;
   bool _playing = true;
   bool _trackEnded = false;
   bool _finished = false;
@@ -66,7 +72,7 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
   final _startTime = DateTime.now();
   AlarmCascadeController? _cascade;
 
-  bool get _canFinish => _position >= _requiredDuration || _trackEnded;
+  bool get _canFinish => _listened >= _requiredDuration || _trackEnded;
 
   @override
   void initState() {
@@ -91,6 +97,13 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
         if (mounted) setState(() => _trackEnded = true);
       });
       await _player.play(UrlSource(_meditationUrl));
+      // Accumulate real listening time once per second while playing.
+      _ticker ??= Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted || _finished || !_playing) return;
+        widget.onProgress?.call();
+        _cascade?.reportProgress();
+        setState(() => _listened += const Duration(seconds: 1));
+      });
       if (mounted) setState(() => _playing = true);
     } catch (e, st) {
       AnalyticsService.trackError('MeditationDismissScreen._start', e, st);
@@ -99,10 +112,24 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
   }
 
   void _onPosition(Duration position) {
-    if (!mounted || _finished) return;
+    if (!mounted || _finished || _dragValue != null) return;
     widget.onProgress?.call();
     _cascade?.reportProgress();
     setState(() => _position = position);
+  }
+
+  /// Seeks the audio to [ms] when the user releases the cursor.
+  Future<void> _seekTo(double ms) async {
+    widget.onProgress?.call();
+    _cascade?.reportProgress();
+    final target = Duration(milliseconds: ms.round());
+    await _player.seek(target);
+    if (mounted) {
+      setState(() {
+        _position = target;
+        _dragValue = null;
+      });
+    }
   }
 
   Future<void> _togglePlay() async {
@@ -156,6 +183,7 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
 
   @override
   void dispose() {
+    _ticker?.cancel();
     _positionSub?.cancel();
     _durationSub?.cancel();
     _completeSub?.cancel();
@@ -173,7 +201,7 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
 
   String _finishLabel(AppLocalizations l10n) {
     if (_canFinish) return l10n.gratefulnessFinish;
-    final remaining = _requiredDuration - _position;
+    final remaining = _requiredDuration - _listened;
     final clamped = remaining.isNegative ? Duration.zero : remaining;
     return l10n.meditationFinishIn(_fmt(clamped));
   }
@@ -182,10 +210,13 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    // Full-track progress (0 until duration is known).
-    final progress = _total.inMilliseconds > 0
-        ? (_position.inMilliseconds / _total.inMilliseconds).clamp(0.0, 1.0)
-        : 0.0;
+    final totalMs = _total.inMilliseconds.toDouble();
+    // Slider position: the drag value while scrubbing, else the playback head.
+    final sliderValue = (_dragValue ?? _position.inMilliseconds.toDouble())
+        .clamp(0.0, totalMs > 0 ? totalMs : 1.0);
+    final shownPosition = _dragValue != null
+        ? Duration(milliseconds: _dragValue!.round())
+        : _position;
 
     return Scaffold(
       backgroundColor: c.background,
@@ -219,75 +250,88 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                           ),
                         ),
                         SizedBox(height: 48.h),
-                        // Play/pause control inside a ring showing track progress.
-                        SizedBox(
-                          width: 200.w,
-                          height: 200.w,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox(
-                                width: 200.w,
-                                height: 200.w,
-                                child: CircularProgressIndicator(
-                                  value: progress,
-                                  strokeWidth: 6,
-                                  backgroundColor: c.separator,
-                                  valueColor: const AlwaysStoppedAnimation(
-                                    AppColors.orange,
+                        // Play/pause control (or retry on error).
+                        if (_error)
+                          GestureDetector(
+                            onTap: _retry,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.refresh,
+                                    size: 40.sp, color: c.textSecondary),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  l10n.meditationRetry,
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: c.textSecondary,
                                   ),
                                 ),
+                              ],
+                            ),
+                          )
+                        else
+                          GestureDetector(
+                            onTap: _togglePlay,
+                            child: Container(
+                              width: 96.w,
+                              height: 96.w,
+                              decoration: const BoxDecoration(
+                                color: AppColors.orange,
+                                shape: BoxShape.circle,
                               ),
-                              if (_error)
-                                GestureDetector(
-                                  onTap: _retry,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.refresh,
-                                          size: 36.sp, color: c.textSecondary),
-                                      SizedBox(height: 8.h),
-                                      Text(
-                                        l10n.meditationRetry,
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          color: c.textSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              else
-                                GestureDetector(
-                                  onTap: _togglePlay,
-                                  child: Container(
-                                    width: 88.w,
-                                    height: 88.w,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.orange,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      _playing
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                      color: Colors.white,
-                                      size: 44.sp,
-                                    ),
-                                  ),
-                                ),
-                            ],
+                              child: Icon(
+                                _playing ? Icons.pause : Icons.play_arrow,
+                                color: Colors.white,
+                                size: 48.sp,
+                              ),
+                            ),
+                          ),
+                        SizedBox(height: 40.h),
+                        // Draggable seek cursor — scrub the audio anywhere.
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            trackHeight: 4.h,
+                            activeTrackColor: AppColors.orange,
+                            inactiveTrackColor: c.separator,
+                            thumbColor: AppColors.orange,
+                            overlayColor: AppColors.orange.withAlpha(40),
+                          ),
+                          child: Slider(
+                            value: sliderValue,
+                            max: totalMs > 0 ? totalMs : 1.0,
+                            onChanged: totalMs > 0
+                                ? (v) => setState(() => _dragValue = v)
+                                : null,
+                            onChangeEnd: totalMs > 0 ? _seekTo : null,
                           ),
                         ),
-                        SizedBox(height: 20.h),
-                        // Full-track time readout.
-                        Text(
-                          '${_fmt(_position)} / ${_fmt(_total)}',
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            color: c.textSecondary,
-                            fontFeatures: const [
-                              FontFeature.tabularFigures(),
+                        // Position / total time readout.
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _fmt(shownPosition),
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  color: c.textSecondary,
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                _fmt(_total),
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  color: c.textSecondary,
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),

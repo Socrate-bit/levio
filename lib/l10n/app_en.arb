@@ -236,6 +236,8 @@
   "missionConfigChoose": "Choose This Mission",
   "missionConfigNumberOfAffirmations": "Number of affirmations",
 
+  "breathingMusicOn": "Music on",
+  "breathingMusicOff": "Music off",
   "breathingPhaseInhale": "Breathe in",
   "breathingPhaseExhale": "Breathe out",
   "breathingPhaseHold": "Hold",

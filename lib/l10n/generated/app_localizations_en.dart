@@ -619,6 +619,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionConfigNumberOfAffirmations => 'Number of affirmations';
 
   @override
+  String get breathingMusicOn => 'Music on';
+
+  @override
+  String get breathingMusicOff => 'Music off';
+
+  @override
   String get breathingPhaseInhale => 'Breathe in';
 
   @override
