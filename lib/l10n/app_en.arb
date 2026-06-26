@@ -227,6 +227,7 @@
   "missionConfigNumberOfShakes": "Number of shakes",
   "missionConfigNumberOfReps": "Number of reps",
   "missionConfigNumberOfRounds": "Number of rounds",
+  "missionConfigMinutes": "Minimum minutes",
   "missionConfigNumberOfProblems": "Number of problems",
   "missionConfigDifficulty": "Difficulty",
   "missionConfigEasy": "Easy",
@@ -263,6 +264,12 @@
   "meditationTitle": "Meditation",
   "meditationInstruction": "Close your eyes and follow the guided meditation.",
   "meditationRetry": "Tap to retry",
+  "meditationFinishIn": "Finish in {time}",
+  "@meditationFinishIn": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
 
   "itemPickerSelectItems": "Select Items",
   "itemPickerRandomItem": "A random item will be chosen each morning",

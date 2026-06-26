@@ -203,6 +203,7 @@
   "missionConfigNumberOfShakes": "Nombre de secousses",
   "missionConfigNumberOfReps": "Nombre de répétitions",
   "missionConfigNumberOfRounds": "Nombre de cycles",
+  "missionConfigMinutes": "Minutes minimum",
   "missionConfigNumberOfProblems": "Nombre de problèmes",
   "missionConfigDifficulty": "Difficulté",
   "missionConfigEasy": "Facile",
@@ -239,6 +240,12 @@
   "meditationTitle": "Méditation",
   "meditationInstruction": "Fermez les yeux et suivez la méditation guidée.",
   "meditationRetry": "Touchez pour réessayer",
+  "meditationFinishIn": "Terminer dans {time}",
+  "@meditationFinishIn": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
 
   "itemPickerSelectItems": "Sélectionner les objets",
   "itemPickerRandomItem": "Un objet aléatoire sera choisi chaque matin",

@@ -17,13 +17,16 @@ import '../widgets/levio_brand_header.dart';
 const _meditationUrl =
     'https://firebasestorage.googleapis.com/v0/b/levio-ef67e.firebasestorage.app/o/meditation_1_FR.mp3?alt=media&token=0923afa4-7a75-4a6c-ba30-81cd401ab3a6';
 
-/// Meditation mission. Plays a guided meditation audio and completes after a
-/// fixed minimum listen of 2 minutes (or when the track ends, whichever comes
-/// first). The user cannot skip ahead.
+/// Meditation mission. Plays a guided meditation audio with play/pause control
+/// and a full-track progress bar. The Finish button unlocks after a minimum
+/// listen of 2 minutes (or when the track ends).
 class MeditationDismissScreen extends StatefulWidget {
   final String alarmId;
   final String nativeAlarmId;
   final String alarmLabel;
+
+  /// Minimum listen time in minutes before the Finish button unlocks.
+  final int minMinutes;
   final VoidCallback? onComplete;
   final VoidCallback? onProgress;
   final bool manageAlarm;
@@ -34,6 +37,7 @@ class MeditationDismissScreen extends StatefulWidget {
     required this.alarmId,
     required this.nativeAlarmId,
     this.alarmLabel = 'Alarm #1',
+    this.minMinutes = 2,
     this.onComplete,
     this.onProgress,
     this.manageAlarm = true,
@@ -46,17 +50,23 @@ class MeditationDismissScreen extends StatefulWidget {
 }
 
 class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
-  // Required minimum listen duration before the mission completes.
-  static const _requiredDuration = Duration(minutes: 2);
+  // Minimum listen before the Finish button unlocks (from config).
+  late final Duration _requiredDuration = Duration(minutes: widget.minMinutes);
 
   final _player = AudioPlayer();
   StreamSubscription<Duration>? _positionSub;
+  StreamSubscription<Duration>? _durationSub;
   StreamSubscription<void>? _completeSub;
-  Duration _elapsed = Duration.zero;
+  Duration _position = Duration.zero;
+  Duration _total = Duration.zero;
+  bool _playing = true;
+  bool _trackEnded = false;
   bool _finished = false;
   bool _error = false;
   final _startTime = DateTime.now();
   AlarmCascadeController? _cascade;
+
+  bool get _canFinish => _position >= _requiredDuration || _trackEnded;
 
   @override
   void initState() {
@@ -70,15 +80,18 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
 
   Future<void> _start() async {
     try {
-      // Drop any listeners from a previous attempt before re-subscribing.
-      await _positionSub?.cancel();
-      await _completeSub?.cancel();
       await _player.setReleaseMode(ReleaseMode.stop);
-      // Position updates drive the countdown AND act as the liveness signal
-      // for the inactivity watchdog during this passive mission.
+      // Position updates drive the progress bar AND act as the liveness signal
+      // for the inactivity watchdog while audio is playing.
       _positionSub = _player.onPositionChanged.listen(_onPosition);
-      _completeSub = _player.onPlayerComplete.listen((_) => _finish());
+      _durationSub = _player.onDurationChanged.listen((d) {
+        if (mounted) setState(() => _total = d);
+      });
+      _completeSub = _player.onPlayerComplete.listen((_) {
+        if (mounted) setState(() => _trackEnded = true);
+      });
       await _player.play(UrlSource(_meditationUrl));
+      if (mounted) setState(() => _playing = true);
     } catch (e, st) {
       AnalyticsService.trackError('MeditationDismissScreen._start', e, st);
       if (mounted) setState(() => _error = true);
@@ -89,12 +102,23 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
     if (!mounted || _finished) return;
     widget.onProgress?.call();
     _cascade?.reportProgress();
-    setState(() => _elapsed = position);
-    if (position >= _requiredDuration) _finish();
+    setState(() => _position = position);
+  }
+
+  Future<void> _togglePlay() async {
+    widget.onProgress?.call();
+    _cascade?.reportProgress();
+    HapticFeedback.selectionClick();
+    if (_playing) {
+      await _player.pause();
+    } else {
+      await _player.resume();
+    }
+    if (mounted) setState(() => _playing = !_playing);
   }
 
   Future<void> _finish() async {
-    if (_finished) return;
+    if (_finished || !_canFinish) return;
     _finished = true;
     await _player.stop();
     HapticFeedback.mediumImpact();
@@ -133,6 +157,7 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
   @override
   void dispose() {
     _positionSub?.cancel();
+    _durationSub?.cancel();
     _completeSub?.cancel();
     _player.dispose();
     _cascade?.dispose();
@@ -140,21 +165,27 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
     super.dispose();
   }
 
-  String _formatRemaining() {
-    final remaining = _requiredDuration - _elapsed;
-    final clamped = remaining.isNegative ? Duration.zero : remaining;
-    final m = clamped.inMinutes;
-    final s = clamped.inSeconds % 60;
+  static String _fmt(Duration d) {
+    final m = d.inMinutes;
+    final s = d.inSeconds % 60;
     return '$m:${s.toString().padLeft(2, '0')}';
+  }
+
+  String _finishLabel(AppLocalizations l10n) {
+    if (_canFinish) return l10n.gratefulnessFinish;
+    final remaining = _requiredDuration - _position;
+    final clamped = remaining.isNegative ? Duration.zero : remaining;
+    return l10n.meditationFinishIn(_fmt(clamped));
   }
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    final progress =
-        (_elapsed.inMilliseconds / _requiredDuration.inMilliseconds)
-            .clamp(0.0, 1.0);
+    // Full-track progress (0 until duration is known).
+    final progress = _total.inMilliseconds > 0
+        ? (_position.inMilliseconds / _total.inMilliseconds).clamp(0.0, 1.0)
+        : 0.0;
 
     return Scaffold(
       backgroundColor: c.background,
@@ -165,9 +196,10 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
               children: [
                 const LevioBrandHeader(),
                 Expanded(
-                  child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40.w),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           l10n.meditationTitle,
@@ -178,18 +210,16 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                           ),
                         ),
                         SizedBox(height: 8.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 40.w),
-                          child: Text(
-                            l10n.meditationInstruction,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              color: c.textSecondary,
-                            ),
+                        Text(
+                          l10n.meditationInstruction,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            color: c.textSecondary,
                           ),
                         ),
                         SizedBox(height: 48.h),
+                        // Play/pause control inside a ring showing track progress.
                         SizedBox(
                           width: 200.w,
                           height: 200.w,
@@ -214,11 +244,8 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(
-                                        Icons.refresh,
-                                        size: 36.sp,
-                                        color: c.textSecondary,
-                                      ),
+                                      Icon(Icons.refresh,
+                                          size: 36.sp, color: c.textSecondary),
                                       SizedBox(height: 8.h),
                                       Text(
                                         l10n.meditationRetry,
@@ -231,18 +258,65 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                                   ),
                                 )
                               else
-                                Text(
-                                  _formatRemaining(),
-                                  style: TextStyle(
-                                    fontSize: 40.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: c.textPrimary,
+                                GestureDetector(
+                                  onTap: _togglePlay,
+                                  child: Container(
+                                    width: 88.w,
+                                    height: 88.w,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.orange,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      _playing
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                      color: Colors.white,
+                                      size: 44.sp,
+                                    ),
                                   ),
                                 ),
                             ],
                           ),
                         ),
+                        SizedBox(height: 20.h),
+                        // Full-track time readout.
+                        Text(
+                          '${_fmt(_position)} / ${_fmt(_total)}',
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            color: c.textSecondary,
+                            fontFeatures: const [
+                              FontFeature.tabularFigures(),
+                            ],
+                          ),
+                        ),
                       ],
+                    ),
+                  ),
+                ),
+                // Finish button — unlocks after the minimum listen.
+                Padding(
+                  padding: EdgeInsets.fromLTRB(40.w, 0, 40.w, 24.h),
+                  child: ElevatedButton(
+                    onPressed: _canFinish ? _finish : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.orange,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: c.separator,
+                      disabledForegroundColor: c.textSecondary,
+                      minimumSize: Size(double.infinity, 54.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14.r),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      _finishLabel(l10n),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
