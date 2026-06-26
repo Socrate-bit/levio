@@ -9,7 +9,7 @@ import '../../../features/wakeup/services/history_service.dart';
 import '../models/badge_model.dart';
 
 /// Per-day status used by the home weekly widget.
-enum DayStatus { none, done, frozen }
+enum DayStatus { none, done, frozen, missed }
 
 /// Result of [StreakService.computeStreak].
 class StreakResult {
@@ -257,12 +257,16 @@ class StreakService {
   }) {
     final today = _dateOnly(now ?? DateTime.now());
 
-    // Index completed sessions by date; track the oldest.
+    // Index completed sessions by date; track the oldest. Also track days that
+    // had any session at all, so days with only an incomplete (missed) session
+    // can be distinguished from days with no alarm.
     final sessionDays = <String>{};
+    final anySessionDays = <String>{};
     DateTime? oldestSessionDay;
     for (final s in sessions) {
-      if (!s.completed) continue;
       final d = _dateOnly(s.timestamp);
+      anySessionDays.add(_dateStr(d));
+      if (!s.completed) continue;
       sessionDays.add(_dateStr(d));
       if (oldestSessionDay == null || d.isBefore(oldestSessionDay)) {
         oldestSessionDay = d;
@@ -320,6 +324,17 @@ class StreakService {
       }
 
       cursor = _addDays(cursor, -1);
+    }
+
+    // Mark past display-week days that had an alarm but no completed session as
+    // missed. Done/frozen days keep their status; today and future stay `none`.
+    for (int i = 0; i < 7; i++) {
+      final d = _addDays(startOfDisplayWeek, i);
+      if (weekDays[i] != DayStatus.none) continue;
+      if (!d.isBefore(today)) continue; // skip today and future
+      if (anySessionDays.contains(_dateStr(d))) {
+        weekDays[i] = DayStatus.missed;
+      }
     }
 
     return StreakResult(streak: streak, weekDays: weekDays);

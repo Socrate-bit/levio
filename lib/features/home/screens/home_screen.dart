@@ -228,75 +228,22 @@ class _WeekRow extends StatelessWidget {
         final dayNum = dates[i].day.toString();
         final label = localizedDayShort(l10n, i);
 
-        if (isToday) {
-          // Today: white card wrapping label + circle
-          return Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-            decoration: BoxDecoration(
-              color: c.card,
-              borderRadius: BorderRadius.circular(20.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(10),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.bold,
-                    color: c.textPrimary,
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                Container(
-                  width: 42.w,
-                  height: 42.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: status == DayStatus.done
-                        ? Border.all(color: AppColors.orange, width: 2)
-                        : Border.all(color: c.separator, width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      dayNum,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                        color: c.textPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
         // Build the circle widget based on status
         Widget circle;
         if (status == DayStatus.done) {
-          // Past done: solid orange circle
+          // Past succeeded: circle with a blue check inside
           circle = Container(
             width: 42.w,
             height: 42.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.orange, width: 2),
+              border: Border.all(color: AppColors.blue, width: 3),
             ),
             child: Center(
-              child: Text(
-                dayNum,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: c.textPrimary,
-                ),
+              child: Icon(
+                Icons.check_rounded,
+                size: 28.sp,
+                color: AppColors.blue,
               ),
             ),
           );
@@ -307,16 +254,30 @@ class _WeekRow extends StatelessWidget {
             height: 42.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.blue, width: 2.5),
+              border: Border.all(color: AppColors.blue, width: 3),
             ),
             child: Center(
-              child: Text(
-                dayNum,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: c.textPrimary,
-                ),
+              child: Icon(
+                Icons.ac_unit,
+                size: 24.sp,
+                color: AppColors.blue,
+              ),
+            ),
+          );
+        } else if (status == DayStatus.missed) {
+          // Past missed (alarm fired but not completed): red cross
+          circle = Container(
+            width: 42.w,
+            height: 42.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.error, width: 3),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.close_rounded,
+                size: 28.sp,
+                color: AppColors.error,
               ),
             ),
           );
@@ -340,7 +301,7 @@ class _WeekRow extends StatelessWidget {
             ),
           );
         } else {
-          // Past not done: dashed circle
+          // Past with no alarm: dashed circle
           circle = CustomPaint(
             painter: _DashedCirclePainter(
               color: c.textSecondary.withAlpha(120),
@@ -360,6 +321,34 @@ class _WeekRow extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+          );
+        }
+
+        // Today: wrap the status circle in a white card with a bold label.
+        if (isToday) {
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+            decoration: BoxDecoration(
+              color: c.card,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 8),
+              ],
+            ),
+            child: Column(
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.bold,
+                    color: c.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                circle,
+              ],
             ),
           );
         }

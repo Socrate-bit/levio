@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
@@ -247,70 +246,35 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
   }
 }
 
-/// Looping, muted sun animation shown on the completion screen: a sleepy sun
-/// for sleep (bedtime) alarms and a happy sun for wake-up alarms. Falls back to
-/// the static app icon if the video can't be loaded.
-class _SunAnimation extends StatefulWidget {
+/// Looping sun animation shown on the completion screen: a sleepy sun for sleep
+/// (bedtime) alarms and a happy sun for wake-up alarms. Falls back to the static
+/// app icon if the GIF can't be loaded.
+class _SunAnimation extends StatelessWidget {
   final bool isSleep;
 
   const _SunAnimation({required this.isSleep});
 
   @override
-  State<_SunAnimation> createState() => _SunAnimationState();
-}
-
-class _SunAnimationState extends State<_SunAnimation> {
-  late final VideoPlayerController _controller;
-  bool _failed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final asset = widget.isSleep
-        ? 'assets/animations/sun_sleepy.mp4'
-        : 'assets/animations/sun_happy2.mp4';
-    _controller = VideoPlayerController.asset(asset);
-    _init();
-  }
-
-  Future<void> _init() async {
-    try {
-      await _controller.initialize();
-      await _controller.setLooping(true);
-      await _controller.setVolume(0);
-      if (!mounted) return;
-      await _controller.play();
-      setState(() {});
-    } catch (e, st) {
-      debugPrint('[WakeupCompleteScreen] sun animation failed: $e');
-      AnalyticsService.trackError('WakeupCompleteScreen.sunAnimation', e, st);
-      if (mounted) setState(() => _failed = true);
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final asset = isSleep
+        ? 'assets/animations/sleepy_sun.gif'
+        : 'assets/animations/happy_sun.gif';
     return SizedBox(
-      width: 160.w,
-      height: 160.h,
-      child: _failed
-          ? Image.asset('assets/icon.png')
-          : _controller.value.isInitialized
-              ? FittedBox(
-                  fit: BoxFit.contain,
-                  child: SizedBox(
-                    width: _controller.value.size.width,
-                    height: _controller.value.size.height,
-                    child: VideoPlayer(_controller),
-                  ),
-                )
-              : const SizedBox.shrink(),
+      width: 240.w,
+      height: 240.h,
+      child: Image.asset(
+        asset,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          debugPrint('[WakeupCompleteScreen] sun animation failed: $error');
+          AnalyticsService.trackError(
+            'WakeupCompleteScreen.sunAnimation',
+            error,
+            stackTrace,
+          );
+          return Image.asset('assets/icon.png');
+        },
+      ),
     );
   }
 }
