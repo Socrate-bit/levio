@@ -98,11 +98,14 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   late final List<String> _candidates;
   String _displayLabel = '';
   bool _rouletteRunning = false;
-  // True once the target is final (no roulette, or the spin has landed). Gates
-  // the "FIND THIS" card so it stays hidden during the spin and reveals only
-  // once the pick is locked in.
+  // True once the target reveal is done — the roulette has landed, or the 4s
+  // hold elapsed on a mission with no spin. Gates the center glyph, the capture
+  // button, and the fly-up of the "FIND THIS" card.
   bool _targetLocked = false;
   Timer? _rouletteTimer;
+  // Holds the emoji in the viewfinder for a beat before it flies up to the card
+  // on missions with no roulette to spin (single object or sky/bed/grass).
+  Timer? _revealTimer;
   AlarmCascadeController? _cascade;
   // Emojis for user-created custom objects (name -> emoji), loaded async.
   Map<String, String> _customEmojis = {};
@@ -184,8 +187,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       );
     } else {
       _displayLabel = _targetObject;
-      // No roulette will run, so the target is already locked in.
-      _targetLocked = true;
     }
 
     _initCamera();
@@ -252,13 +253,20 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     if (!mounted) return;
     setState(() => _controller = controller);
 
-    // Kick off the roulette once the preview has rendered — starting it any
-    // earlier plays the spin against the loading spinner.
+    // Reveal the target once the preview has rendered. Multi-object missions
+    // spin the roulette; single-object and non-hunt missions have nothing to
+    // spin, so they hold the emoji in the viewfinder for 4s before it flies up
+    // to the card — matching the rhythm of the roulette draw.
     if (_candidates.length > 1 && !_rouletteRunning) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _rouletteRunning) return;
         _rouletteRunning = true;
         _scheduleRouletteTick(0);
+      });
+    } else if (_candidates.length <= 1 && !_targetLocked) {
+      _revealTimer = Timer(const Duration(seconds: 4), () {
+        if (!mounted) return;
+        setState(() => _targetLocked = true);
       });
     }
   }
@@ -352,6 +360,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   @override
   void dispose() {
     _rouletteTimer?.cancel();
+    _revealTimer?.cancel();
     _controller?.dispose();
     _cascade?.dispose();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
@@ -382,9 +391,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final l10n = AppLocalizations.of(context);
     final targetLabel = _targetLabel(l10n);
     final errorMessage = _resolveError(l10n);
-    // A hunt's emoji spins in the center viewfinder, then flies up into the top
-    // card on lock-in — hide the big center glyph once it has docked.
-    final huntLocked = _targetObject.isNotEmpty && _targetLocked;
 
     return Scaffold(
       backgroundColor: c.background,
@@ -433,11 +439,11 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                     // Viewfinder frame — always centered so it
                                     // frames the real object after the target
                                     // emoji has flown up to the top card. The
-                                    // big glyph only shows while the hunt emoji
-                                    // is still in play (spinning or not a hunt).
+                                    // big glyph shows until the target locks in
+                                    // (roulette landed, or the 4s hold elapsed).
                                     Center(
                                       child: _ViewfinderFrame(
-                                        child: huntLocked
+                                        child: _targetLocked
                                             ? const SizedBox.shrink()
                                             : _TargetBadge(
                                                 label: _displayLabel,
@@ -536,7 +542,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     GestureDetector(
-                      onTap: (_isValidating || _rouletteRunning)
+                      onTap: (_isValidating || !_targetLocked)
                           ? null
                           : withHaptic(_captureAndValidate),
                       child: Container(
@@ -544,7 +550,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                         height: 72.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: (_isValidating || _rouletteRunning)
+                          color: (_isValidating || !_targetLocked)
                               ? c.textPrimary.withAlpha(80)
                               : c.textPrimary,
                           boxShadow: [
@@ -580,10 +586,10 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
               ],
             ),
 
-            // "FIND THIS" pill card. Hidden while the roulette spins; on lock-in
-            // it flies up from the camera's center (where the spin landed) to
-            // dock at the top, carrying the picked emoji + label. Non-hunt
-            // missions have no spin, so the card just fades in at the top.
+            // "FIND THIS" pill card. Hidden while the target is being revealed
+            // (roulette spin, or the 4s hold for single-object / non-hunt
+            // missions); on lock-in it flies up from the camera's center —
+            // where the emoji was sitting — to dock at the top with it.
             if (controller != null &&
                 controller.value.isInitialized &&
                 _targetLocked)
@@ -592,11 +598,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 duration: const Duration(milliseconds: 450),
                 curve: Curves.easeOutCubic,
                 builder: (context, t, child) => Align(
-                  alignment: Alignment.lerp(
-                    _targetObject.isNotEmpty ? Alignment.center : _kCardTop,
-                    _kCardTop,
-                    t,
-                  )!,
+                  alignment: Alignment.lerp(Alignment.center, _kCardTop, t)!,
                   child: Opacity(
                     opacity: Curves.easeOut.transform(t),
                     child: Transform.scale(
