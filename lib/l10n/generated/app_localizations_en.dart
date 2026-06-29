@@ -1486,6 +1486,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dismissShakePrompt => 'Shake your phone to stop the alarm';
 
   @override
+  String get dismissSpinningWheelTitle => 'Win a travel with Levio';
+
+  @override
+  String get dismissSpinningWheelPrompt => 'Flick to spin the wheel';
+
+  @override
+  String get dismissSpinningWheelFlickHarder => 'Flick harder to spin!';
+
+  @override
+  String get dismissSpinningWheelWin => 'You won a trip! ✈️';
+
+  @override
+  String get dismissSpinningWheelMissed => 'Better luck tomorrow!';
+
+  @override
+  String get dismissSpinningWheelAlreadyUsed =>
+      'You already spun today. Come back tomorrow! ✈️';
+
+  @override
   String dismissMathProgress(int current, int total) {
     return '$current / $total';
   }

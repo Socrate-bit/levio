@@ -14,6 +14,8 @@ import '../../missions/models/mission.dart';
 import '../../missions/widgets/mission_icon.dart';
 import '../../missions/models/mission_config.dart';
 import '../../settings/cubit/settings_cubit.dart';
+import '../../subscription/cubit/subscription_cubit.dart';
+import '../../subscription/cubit/subscription_state.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/widgets/mission_config_modal.dart';
@@ -44,8 +46,15 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
   late bool _gentle;
   late bool _reminderEnabled;
   late int _reminderMinutes;
+  late bool _spinToWin;
 
   bool get _isEditing => widget.alarm != null;
+
+  /// Spin to Win is a creator-only feature, gated to UGC users.
+  bool get _isCreator {
+    final t = context.read<SubscriptionCubit>().state.userType;
+    return t == UserType.ugc;
+  }
 
   bool get _canSave =>
       _nameCtrl.text.trim().isNotEmpty && _missions.isNotEmpty;
@@ -66,6 +75,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _gentle = a.gentle;
       _reminderEnabled = a.reminderEnabled;
       _reminderMinutes = a.reminderMinutesBefore;
+      _spinToWin = a.spinToWin;
     } else {
       // Create mode: use saved defaults from settings
       final alarmCount = context.read<AlarmCubit>().state.alarms.length;
@@ -83,6 +93,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _gentle = false;
       _reminderEnabled = false;
       _reminderMinutes = 15;
+      _spinToWin = false;
     }
   }
 
@@ -551,6 +562,55 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   ],
                 ),
               ),
+              // Spin to Win bonus — admin/UGC only.
+              if (_isCreator) ...[
+                SizedBox(height: 12.h),
+                _FormCard(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40.w,
+                        height: 40.h,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE3F6F2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Text('✈️', style: TextStyle(fontSize: 20)),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Spin to Win',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: c.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              'Win a travel after your mission',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                color: c.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _spinToWin,
+                        activeTrackColor: AppColors.orange,
+                        onChanged: (v) => setState(() => _spinToWin = v),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               // Sleep-only settings: ring style + bedtime reminder
               if (_isSleep) ...[
                 SizedBox(height: 12.h),
@@ -774,6 +834,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       gentle: _isSleep && _gentle,
       reminderEnabled: _isSleep && _reminderEnabled,
       reminderMinutesBefore: _reminderMinutes,
+      spinToWin: _spinToWin,
     );
 
     final cubit = context.read<AlarmCubit>();

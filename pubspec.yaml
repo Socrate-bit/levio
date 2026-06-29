@@ -97,3 +97,5 @@ flutter:
     - assets/icon_missions/
     - shorebird.yaml
     - assets/exemple.png
+    - assets/wheel_moving.png
+    - assets/wheel_static.png

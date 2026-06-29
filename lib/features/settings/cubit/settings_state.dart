@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 
 import '../../missions/models/mission.dart';
 
+/// Admin/UGC only — rigs the Spin to Win bonus wheel outcome.
+/// neverWin (default) keeps it a long-shot; alwaysWin guarantees the travel
+/// slot; normal lands at a random angle.
+enum SpinMode { normal, alwaysWin, neverWin }
+
 /// All app-level preferences (theme, defaults, behaviour toggles).
 class SettingsState extends Equatable {
   final ThemeMode themeMode;
@@ -17,6 +22,8 @@ class SettingsState extends Equatable {
   final String? forcedHuntTarget;
   // User-selected app language. null = follow the device locale.
   final Locale? locale;
+  // Admin/UGC only — rigs the Spin to Win bonus wheel outcome.
+  final SpinMode spinMode;
 
   const SettingsState({
     this.themeMode = ThemeMode.light,
@@ -27,6 +34,7 @@ class SettingsState extends Equatable {
     this.forceQuickAlarm = false,
     this.forcedHuntTarget,
     this.locale,
+    this.spinMode = SpinMode.neverWin,
   });
 
   SettingsState copyWith({
@@ -40,6 +48,7 @@ class SettingsState extends Equatable {
     bool clearForcedHuntTarget = false,
     Locale? locale,
     bool clearLocale = false,
+    SpinMode? spinMode,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
@@ -52,6 +61,7 @@ class SettingsState extends Equatable {
       forcedHuntTarget:
           clearForcedHuntTarget ? null : (forcedHuntTarget ?? this.forcedHuntTarget),
       locale: clearLocale ? null : (locale ?? this.locale),
+      spinMode: spinMode ?? this.spinMode,
     );
   }
 
@@ -65,5 +75,6 @@ class SettingsState extends Equatable {
         forceQuickAlarm,
         forcedHuntTarget,
         locale,
+        spinMode,
       ];
 }
