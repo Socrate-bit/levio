@@ -1911,7 +1911,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingJoin500k => 'Join 500,000+ people waking up with Levio';
 
   @override
-  String get onboardingAppOfTheYear => 'App of the Year';
+  String get onboardingAppOfTheYear => 'App of the Year 2026 🎊';
 
   @override
   String get onboardingAlreadyAccount => 'Already have an account? ';

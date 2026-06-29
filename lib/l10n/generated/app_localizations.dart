@@ -3665,7 +3665,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingAppOfTheYear.
   ///
   /// In en, this message translates to:
-  /// **'App of the Year'**
+  /// **'App of the Year 2026 🎊'**
   String get onboardingAppOfTheYear;
 
   /// No description provided for @onboardingAlreadyAccount.
