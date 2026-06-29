@@ -406,10 +406,13 @@ class _StatCard extends StatelessWidget {
             SizedBox(height: 6.h),
             Text(
               value,
+              maxLines: 1,
               style: TextStyle(
+
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
+                                   overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
