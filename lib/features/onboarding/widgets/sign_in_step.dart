@@ -201,6 +201,7 @@ class _SignInStepState extends State<SignInStep> {
           else if (widget.showSkip)
             GestureDetector(
               onTap: withHaptic(() async {
+                if (_loading) return;
                 setState(() => _loading = true);
                 try {
                   await AuthService.signInAnonymously();
