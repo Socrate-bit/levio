@@ -2756,6 +2756,12 @@ abstract class AppLocalizations {
   /// **'Thanks to Levio, you woke up today.'**
   String get wakeupThanks;
 
+  /// No description provided for @wakeupThanksSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks to Levio, you wound down tonight.'**
+  String get wakeupThanksSleep;
+
   /// No description provided for @wakeupTimeTaken.
   ///
   /// In en, this message translates to:
