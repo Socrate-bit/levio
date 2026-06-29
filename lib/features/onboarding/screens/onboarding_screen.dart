@@ -35,13 +35,17 @@ import '../widgets/timeline_comparison.dart';
 import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
 import '../widgets/time_picker_step.dart';
-import '../widgets/welcome_step.dart';
 import '../widgets/relaxing_activities_step.dart';
 
 const _totalPages = 44;
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  /// Called when the user backs out of the first step. The welcome page is now
+  /// the shared [OnboardingStartScreen] outside this funnel, so going back from
+  /// the first step returns there rather than into the funnel.
+  final VoidCallback? onExitToStart;
+
+  const OnboardingScreen({super.key, this.onExitToStart});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -49,7 +53,9 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
-  int _currentPage = 0;
+  // Starts at the first real step; the welcome page lives in the shared
+  // OnboardingStartScreen, outside this funnel. PageView index = page - 1.
+  int _currentPage = 1;
   // Blocks the UI with a spinner while the sign-in step finalizes onboarding
   // (alarm creation, Firestore writes, user-type refresh).
   bool _finalizing = false;
@@ -229,7 +235,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
     final visible = _visiblePages(context.read<OnboardingCubit>().state);
     final pos = visible.indexOf(_currentPage);
-    if (pos > 0) _goToPage(visible[pos - 1]);
+    if (pos > 0) {
+      final target = visible[pos - 1];
+      // Page 0 is the extracted welcome — backing out of the first step returns
+      // to the shared start screen instead of into the funnel.
+      if (target == 0) {
+        widget.onExitToStart?.call();
+      } else {
+        _goToPage(target);
+      }
+    }
   }
 
   String _formatTime(TimeOfDay t) =>
@@ -399,22 +414,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                   // Page content
                   Expanded(
-                    child: _currentPage == 0
-                        ? WelcomeStep(
-                            onBuildPlan: () {
-                              cubit.startOnboarding();
-                              _next();
-                            },
-                            onSignIn: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      const _StandaloneSignInScreen(),
-                                ),
-                              );
-                            },
-                          )
-                        : PageView(
+                    child: PageView(
                             controller: _pageController,
                             physics: const NeverScrollableScrollPhysics(),
                             children: [
@@ -968,59 +968,5 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           );
         });
-  }
-}
-
-class _StandaloneSignInScreen extends StatelessWidget {
-  const _StandaloneSignInScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: c.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: withHaptic(() => Navigator.of(context).pop()),
-                    child: Container(
-                      width: 32.w,
-                      height: 32.h,
-                      decoration: BoxDecoration(
-                        color: c.card,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.chevron_left,
-                        size: 20.sp,
-                        color: c.textPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SignInStep(
-                title: l10n.onboardingSignInTitle,
-                subtitle: l10n.onboardingSignInSubtitle,
-                onSkip: () => Navigator.of(context).pop(),
-                // After sign-in, pop. AuthWrapper reactively routes to
-                // AppGateWrapper because isInProgress is still false.
-                onSignInComplete: () => Navigator.of(context).pop(),
-                showSkip: false,
-                blockNewAccounts: true,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
