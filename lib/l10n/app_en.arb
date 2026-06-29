@@ -290,6 +290,11 @@
   "itemPickerAddOwn": "Add your own item",
   "itemPickerDone": "Done",
   "itemPickerCustomItems": "Custom Items",
+  "itemPickerAddCustom": "Add custom item",
+  "itemPickerNewItemTitle": "New custom item",
+  "itemPickerNameHint": "Name",
+  "itemPickerChooseEmoji": "Choose an emoji",
+  "itemPickerAdd": "Add",
   "affirmationPickerCustom": "Custom",
 
   "itemToothbrush": "Toothbrush",

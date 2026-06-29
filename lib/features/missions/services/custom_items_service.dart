@@ -7,7 +7,8 @@ import '../../subscription/services/analytics_service.dart';
 /// Persists user-created custom objects and affirmations in Firestore.
 ///
 /// Document: `users/{uid}/meta/custom`
-/// Fields: `objects` (list of strings), `affirmations` (list of strings)
+/// Fields: `objects` (list of strings), `objectEmojis` (map of name -> emoji),
+/// `affirmations` (list of strings)
 class CustomItemsService {
   static DocumentReference<Map<String, dynamic>> _doc() =>
       FirebaseFirestore.instance
@@ -66,10 +67,29 @@ class CustomItemsService {
     }
   }
 
-  static Future<void> addCustomObject(String text) async {
+  /// Returns a map of custom-object name -> emoji. Names without a stored
+  /// emoji are simply absent from the map (callers fall back to a default).
+  static Future<Map<String, String>> getCustomObjectEmojis() async {
+    try {
+      final snap = await _doc().get();
+      if (!snap.exists) return {};
+      final raw = snap.data()?['objectEmojis'];
+      if (raw is Map) return Map<String, String>.from(raw);
+      return {};
+    } catch (e, st) {
+      debugPrint('[CustomItemsService] getCustomObjectEmojis error: $e');
+      AnalyticsService.trackError(
+          'CustomItemsService.getCustomObjectEmojis', e, st);
+      return {};
+    }
+  }
+
+  static Future<void> addCustomObject(String text, {String? emoji}) async {
     try {
       await _doc().set({
         'objects': FieldValue.arrayUnion([text]),
+        if (emoji != null && emoji.isNotEmpty)
+          'objectEmojis': {text: emoji},
       }, SetOptions(merge: true));
     } catch (e, st) {
       debugPrint('[CustomItemsService] addCustomObject error: $e');
@@ -82,6 +102,12 @@ class CustomItemsService {
       await _doc().set({
         'objects': FieldValue.arrayRemove([text]),
       }, SetOptions(merge: true));
+      // Drop the parallel emoji entry for this object. Use a FieldPath list so
+      // the name is matched literally — a String key would be split on '.',
+      // mis-targeting names that contain a dot (e.g. "Mr. Coffee").
+      await _doc().update({
+        FieldPath(['objectEmojis', text]): FieldValue.delete(),
+      });
     } catch (e, st) {
       debugPrint('[CustomItemsService] removeCustomObject error: $e');
       AnalyticsService.trackError('CustomItemsService.removeCustomObject', e, st);

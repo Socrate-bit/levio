@@ -724,6 +724,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get itemPickerCustomItems => 'Custom Items';
 
   @override
+  String get itemPickerAddCustom => 'Add custom item';
+
+  @override
+  String get itemPickerNewItemTitle => 'New custom item';
+
+  @override
+  String get itemPickerNameHint => 'Name';
+
+  @override
+  String get itemPickerChooseEmoji => 'Choose an emoji';
+
+  @override
+  String get itemPickerAdd => 'Add';
+
+  @override
   String get affirmationPickerCustom => 'Custom';
 
   @override

@@ -732,6 +732,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get itemPickerCustomItems => 'Objets personnalisés';
 
   @override
+  String get itemPickerAddCustom => 'Ajouter un objet';
+
+  @override
+  String get itemPickerNewItemTitle => 'Nouvel objet';
+
+  @override
+  String get itemPickerNameHint => 'Nom';
+
+  @override
+  String get itemPickerChooseEmoji => 'Choisis un emoji';
+
+  @override
+  String get itemPickerAdd => 'Ajouter';
+
+  @override
   String get affirmationPickerCustom => 'Personnalisées';
 
   @override

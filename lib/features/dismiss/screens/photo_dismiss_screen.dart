@@ -11,6 +11,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
 
 import '../../missions/models/mission.dart';
+import '../../missions/services/custom_items_service.dart';
 import '../../missions/widgets/item_picker_screen.dart';
 import '../../subscription/services/analytics_service.dart';
 import '../../settings/cubit/settings_cubit.dart';
@@ -79,6 +80,8 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   bool _rouletteRunning = false;
   Timer? _rouletteTimer;
   AlarmCascadeController? _cascade;
+  // Emojis for user-created custom objects (name -> emoji), loaded async.
+  Map<String, String> _customEmojis = {};
 
   // Roulette tick delays (ms) — start fast, decelerate, dramatic last beat.
   // Total ≈ 6.5s — long enough to feel like a draw, short enough not to bore.
@@ -160,9 +163,18 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     }
 
     _initCamera();
+    _loadCustomEmojis();
     if (widget.manageAlarm && !widget.isPreview) {
       _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
+  }
+
+  // Load custom-object emojis so the target badge can show the user's chosen
+  // glyph instead of the generic star fallback.
+  Future<void> _loadCustomEmojis() async {
+    final emojis = await CustomItemsService.getCustomObjectEmojis();
+    if (!mounted || emojis.isEmpty) return;
+    setState(() => _customEmojis = emojis);
   }
 
   /// Recursively schedules each roulette tick using a growing delay table.
@@ -412,6 +424,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                           info: info,
                                           isHunt: _targetObject.isNotEmpty,
                                           spinning: _rouletteRunning,
+                                          customEmojis: _customEmojis,
                                         ),
                                       ),
                                     ),
@@ -603,12 +616,14 @@ class _TargetBadge extends StatefulWidget {
   final MissionInfo info;
   final bool isHunt;
   final bool spinning;
+  final Map<String, String> customEmojis;
 
   const _TargetBadge({
     required this.label,
     required this.info,
     required this.isHunt,
     required this.spinning,
+    required this.customEmojis,
   });
 
   @override
@@ -697,7 +712,9 @@ class _TargetBadgeState extends State<_TargetBadge>
   @override
   Widget build(BuildContext context) {
     final emoji = widget.isHunt
-        ? (emojiForItemLabel(widget.label) ?? '\u{2b50}')
+        ? (emojiForItemLabel(widget.label) ??
+            widget.customEmojis[widget.label] ??
+            '\u{2b50}')
         : null;
     return AnimatedBuilder(
       animation: _reveal,
