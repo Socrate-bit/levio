@@ -1176,7 +1176,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get milestonesStreakBadges => 'Badges de série';
 
   @override
-  String get milestonesAchievementBadges => 'Badges de réussite';
+  String get milestonesAchievementBadges => 'Réussites du réveil';
+
+  @override
+  String get milestonesSleepAchievementBadges => 'Réussites du coucher';
 
   @override
   String get milestonesBadgesEarned => 'Badges obtenus';
@@ -1318,6 +1321,67 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get badgeAudiophileQuote => 'Chaque matin mérite sa propre bande-son.';
+
+  @override
+  String get badgeFirstNight => 'Première nuit';
+
+  @override
+  String get badgeFirstNightReq => 'Termine ta première détente';
+
+  @override
+  String get badgeFirstNightQuote =>
+      'Chaque bon matin commence la veille au soir.';
+
+  @override
+  String get badgeEarlyToBed => 'Couché tôt';
+
+  @override
+  String get badgeEarlyToBedReq => 'Détends-toi avant 22 h';
+
+  @override
+  String get badgeEarlyToBedQuote =>
+      'Le repos est la fondation sur laquelle se construit la journée.';
+
+  @override
+  String get badgeCalmMind => 'Esprit calme';
+
+  @override
+  String get badgeCalmMindReq =>
+      'Termine une détente méditation ou respiration';
+
+  @override
+  String get badgeCalmMindQuote => 'Un esprit apaisé dort plus profondément.';
+
+  @override
+  String get badgeDreamer => 'Rêveur';
+
+  @override
+  String get badgeDreamerReq => 'Utilise les 6 missions de détente';
+
+  @override
+  String get badgeDreamerQuote =>
+      'Il y a plus d\'un chemin vers une bonne nuit.';
+
+  @override
+  String get badgeWellRested => 'Bien reposé';
+
+  @override
+  String get badgeWellRestedReq =>
+      'Atteins une série de 7 jours avec une alarme de coucher';
+
+  @override
+  String get badgeWellRestedQuote =>
+      'Sept nuits d\'intention. Le sommeil devient un rituel.';
+
+  @override
+  String get badgeNoNightsOff => 'Aucune nuit de repos';
+
+  @override
+  String get badgeNoNightsOffReq => '30 nuits consécutives de détente';
+
+  @override
+  String get badgeNoNightsOffQuote =>
+      'La constance est le plus discret des super-pouvoirs.';
 
   @override
   String get wakeupTitle => 'Réveil du jour';
@@ -1496,6 +1560,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dismissMissionTimeToWakeUp => 'C\'est l\'heure de se réveiller !';
+
+  @override
+  String get dismissMissionTimeToWindDown => 'C\'est l\'heure de te détendre !';
+
+  @override
+  String dismissMissionStreak(int count) {
+    return '🔥 série de $count jours';
+  }
 
   @override
   String dismissMissionLabel(int current, int total, String name) {

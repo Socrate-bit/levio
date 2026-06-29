@@ -207,6 +207,18 @@ String localizedBadgeName(AppLocalizations l10n, String badgeId) {
       return l10n.badgeConverted;
     case 'audiophile':
       return l10n.badgeAudiophile;
+    case 'first_night':
+      return l10n.badgeFirstNight;
+    case 'early_to_bed':
+      return l10n.badgeEarlyToBed;
+    case 'calm_mind':
+      return l10n.badgeCalmMind;
+    case 'dreamer':
+      return l10n.badgeDreamer;
+    case 'well_rested':
+      return l10n.badgeWellRested;
+    case 'no_nights_off':
+      return l10n.badgeNoNightsOff;
     default:
       return badgeId;
   }
@@ -241,6 +253,18 @@ String localizedBadgeReq(AppLocalizations l10n, String badgeId) {
       return l10n.badgeConvertedReq;
     case 'audiophile':
       return l10n.badgeAudiophileReq;
+    case 'first_night':
+      return l10n.badgeFirstNightReq;
+    case 'early_to_bed':
+      return l10n.badgeEarlyToBedReq;
+    case 'calm_mind':
+      return l10n.badgeCalmMindReq;
+    case 'dreamer':
+      return l10n.badgeDreamerReq;
+    case 'well_rested':
+      return l10n.badgeWellRestedReq;
+    case 'no_nights_off':
+      return l10n.badgeNoNightsOffReq;
     default:
       return '';
   }
@@ -275,6 +299,18 @@ String localizedBadgeQuote(AppLocalizations l10n, String badgeId) {
       return l10n.badgeConvertedQuote;
     case 'audiophile':
       return l10n.badgeAudiophileQuote;
+    case 'first_night':
+      return l10n.badgeFirstNightQuote;
+    case 'early_to_bed':
+      return l10n.badgeEarlyToBedQuote;
+    case 'calm_mind':
+      return l10n.badgeCalmMindQuote;
+    case 'dreamer':
+      return l10n.badgeDreamerQuote;
+    case 'well_rested':
+      return l10n.badgeWellRestedQuote;
+    case 'no_nights_off':
+      return l10n.badgeNoNightsOffQuote;
     default:
       return '';
   }

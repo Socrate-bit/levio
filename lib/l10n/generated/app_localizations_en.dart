@@ -1167,7 +1167,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get milestonesStreakBadges => 'Streak Badges';
 
   @override
-  String get milestonesAchievementBadges => 'Achievement Badges';
+  String get milestonesAchievementBadges => 'Wake-up Achievements';
+
+  @override
+  String get milestonesSleepAchievementBadges => 'Sleep Achievements';
 
   @override
   String get milestonesBadgesEarned => 'Badges Earned';
@@ -1307,6 +1310,64 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get badgeAudiophileQuote =>
       'Every morning deserves its own soundtrack.';
+
+  @override
+  String get badgeFirstNight => 'First Night';
+
+  @override
+  String get badgeFirstNightReq => 'Complete your first wind-down';
+
+  @override
+  String get badgeFirstNightQuote =>
+      'Every good morning begins the night before.';
+
+  @override
+  String get badgeEarlyToBed => 'Early to Bed';
+
+  @override
+  String get badgeEarlyToBedReq => 'Wind down before 10 PM';
+
+  @override
+  String get badgeEarlyToBedQuote =>
+      'Rest is the foundation the day is built on.';
+
+  @override
+  String get badgeCalmMind => 'Calm Mind';
+
+  @override
+  String get badgeCalmMindReq => 'Finish a meditation or breathing wind-down';
+
+  @override
+  String get badgeCalmMindQuote => 'A quiet mind sleeps deepest.';
+
+  @override
+  String get badgeDreamer => 'Dreamer';
+
+  @override
+  String get badgeDreamerReq => 'Use all 6 wind-down missions';
+
+  @override
+  String get badgeDreamerQuote =>
+      'There is more than one path to a good night.';
+
+  @override
+  String get badgeWellRested => 'Well Rested';
+
+  @override
+  String get badgeWellRestedReq => 'Reach a 7-day streak on a sleep alarm';
+
+  @override
+  String get badgeWellRestedQuote =>
+      'Seven nights of intention. Sleep becomes a ritual.';
+
+  @override
+  String get badgeNoNightsOff => 'No Nights Off';
+
+  @override
+  String get badgeNoNightsOffReq => '30 consecutive nights of winding down';
+
+  @override
+  String get badgeNoNightsOffQuote => 'Consistency is the quietest superpower.';
 
   @override
   String get wakeupTitle => 'Today\'s Wakeup';
@@ -1483,6 +1544,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dismissMissionTimeToWakeUp => 'Time to Wake Up!';
+
+  @override
+  String get dismissMissionTimeToWindDown => 'Time to Wind Down!';
+
+  @override
+  String dismissMissionStreak(int count) {
+    return '🔥 $count day streak';
+  }
 
   @override
   String dismissMissionLabel(int current, int total, String name) {

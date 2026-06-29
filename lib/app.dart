@@ -148,6 +148,7 @@ class _DismissLoader extends StatelessWidget {
           alarmId: alarmId,
           nativeAlarmId: nativeAlarmId,
           alarmLabel: label,
+          isSleep: entry?.isSleep ?? false,
         );
       },
     );

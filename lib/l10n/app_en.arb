@@ -456,7 +456,8 @@
   },
   "milestonesLongestStreakLabel": "longest streak",
   "milestonesStreakBadges": "Streak Badges",
-  "milestonesAchievementBadges": "Achievement Badges",
+  "milestonesAchievementBadges": "Wake-up Achievements",
+  "milestonesSleepAchievementBadges": "Sleep Achievements",
   "milestonesBadgesEarned": "Badges Earned",
   "milestonesBadgeCount": "{earned}/{total} badges",
   "@milestonesBadgeCount": {
@@ -507,6 +508,24 @@
   "badgeAudiophile": "Audiophile",
   "badgeAudiophileReq": "Use 4+ different alarm sounds",
   "badgeAudiophileQuote": "Every morning deserves its own soundtrack.",
+  "badgeFirstNight": "First Night",
+  "badgeFirstNightReq": "Complete your first wind-down",
+  "badgeFirstNightQuote": "Every good morning begins the night before.",
+  "badgeEarlyToBed": "Early to Bed",
+  "badgeEarlyToBedReq": "Wind down before 10 PM",
+  "badgeEarlyToBedQuote": "Rest is the foundation the day is built on.",
+  "badgeCalmMind": "Calm Mind",
+  "badgeCalmMindReq": "Finish a meditation or breathing wind-down",
+  "badgeCalmMindQuote": "A quiet mind sleeps deepest.",
+  "badgeDreamer": "Dreamer",
+  "badgeDreamerReq": "Use all 6 wind-down missions",
+  "badgeDreamerQuote": "There is more than one path to a good night.",
+  "badgeWellRested": "Well Rested",
+  "badgeWellRestedReq": "Reach a 7-day streak on a sleep alarm",
+  "badgeWellRestedQuote": "Seven nights of intention. Sleep becomes a ritual.",
+  "badgeNoNightsOff": "No Nights Off",
+  "badgeNoNightsOffReq": "30 consecutive nights of winding down",
+  "badgeNoNightsOffQuote": "Consistency is the quietest superpower.",
 
   "wakeupTitle": "Today's Wakeup",
   "wakeupStartMyDay": "Start My Day",
@@ -598,6 +617,11 @@
     "placeholders": { "target": { "type": "int" } }
   },
   "dismissMissionTimeToWakeUp": "Time to Wake Up!",
+  "dismissMissionTimeToWindDown": "Time to Wind Down!",
+  "dismissMissionStreak": "🔥 {count} day streak",
+  "@dismissMissionStreak": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "dismissMissionLabel": "Mission {current}/{total}: {name}",
   "@dismissMissionLabel": {
     "placeholders": {

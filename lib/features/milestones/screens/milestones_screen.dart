@@ -139,7 +139,7 @@ class _MilestonesView extends StatelessWidget {
                               SizedBox(height: 12.h),
                               _BadgeGrid(badges: state.streakBadges),
                               SizedBox(height: 24.h),
-                              // Achievement Badges
+                              // Wake-up Achievement Badges
                               Text(
                                 l10n.milestonesAchievementBadges,
                                 style: TextStyle(
@@ -150,6 +150,18 @@ class _MilestonesView extends StatelessWidget {
                               ),
                               SizedBox(height: 12.h),
                               _BadgeGrid(badges: state.achievementBadges),
+                              SizedBox(height: 24.h),
+                              // Sleep Achievement Badges
+                              Text(
+                                l10n.milestonesSleepAchievementBadges,
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: c.textPrimary,
+                                ),
+                              ),
+                              SizedBox(height: 12.h),
+                              _BadgeGrid(badges: state.sleepAchievementBadges),
                             ],
                           ),
                         ),
