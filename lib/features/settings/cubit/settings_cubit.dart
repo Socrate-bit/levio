@@ -18,6 +18,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   static const _defaultMissionKey = 'default_mission';
   static const forceQuickAlarmKey = 'force_quick_alarm';
   static const forcedHuntTargetKey = 'forced_hunt_target';
+  static const _localeKey = 'app_locale';
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -30,6 +31,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         missionStr != null ? missionTypeFromString(missionStr) : MissionType.none;
     final forceQuickAlarm = prefs.getBool(forceQuickAlarmKey) ?? false;
     final forcedHuntTarget = prefs.getString(forcedHuntTargetKey);
+    final localeCode = prefs.getString(_localeKey);
 
     emit(SettingsState(
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
@@ -39,7 +41,20 @@ class SettingsCubit extends Cubit<SettingsState> {
       defaultMission: mission,
       forceQuickAlarm: forceQuickAlarm,
       forcedHuntTarget: forcedHuntTarget,
+      locale: localeCode != null ? Locale(localeCode) : null,
     ));
+  }
+
+  /// Sets the app language override. Pass null to follow the device locale.
+  /// Persists across logout (it's a device preference, not account data).
+  Future<void> setLocale(Locale? locale) async {
+    emit(state.copyWith(locale: locale, clearLocale: locale == null));
+    final prefs = await SharedPreferences.getInstance();
+    if (locale == null) {
+      await prefs.remove(_localeKey);
+    } else {
+      await prefs.setString(_localeKey, locale.languageCode);
+    }
   }
 
   Future<void> toggleTheme() async {

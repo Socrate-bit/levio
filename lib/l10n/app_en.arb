@@ -721,9 +721,10 @@
   "onboardingWelcomeTitle": "Stop hitting snooze.\nStart winning mornings.",
   "onboardingWelcomeSubtitle": "One alarm. One mission. You're up.",
   "onboardingBuildPlan": "Build my plan",
-  "onboardingJoin500k": "Join 500k+ people waking up with Levio",
+  "onboardingJoin500k": "Join 500,000+ people waking up with Levio",
   "onboardingAlreadyAccount": "Already have an account? ",
   "onboardingSignIn": "Sign in",
+  "languageSelectTitle": "Language",
 
   "onboardingSignInApple": "Sign in with Apple",
   "onboardingSignInGoogle": "Continue with Google",

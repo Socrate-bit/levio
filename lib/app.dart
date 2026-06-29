@@ -63,7 +63,8 @@ class LevioApp extends StatelessWidget {
               themeMode: settings.themeMode,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
-              locale: DevicePreview.locale(context),
+              // User-selected language wins; otherwise follow the device.
+              locale: settings.locale ?? DevicePreview.locale(context),
               navigatorKey: navigatorKey,
               navigatorObservers: [
                 AnalyticsRouteObserver(),

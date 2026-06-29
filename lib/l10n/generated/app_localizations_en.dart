@@ -1803,13 +1803,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingBuildPlan => 'Build my plan';
 
   @override
-  String get onboardingJoin500k => 'Join 500k+ people waking up with Levio';
+  String get onboardingJoin500k => 'Join 500,000+ people waking up with Levio';
 
   @override
   String get onboardingAlreadyAccount => 'Already have an account? ';
 
   @override
   String get onboardingSignIn => 'Sign in';
+
+  @override
+  String get languageSelectTitle => 'Language';
 
   @override
   String get onboardingSignInApple => 'Sign in with Apple';
