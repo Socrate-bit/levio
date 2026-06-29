@@ -292,8 +292,9 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     _showSheet(BlocBuilder<OnboardingCubit, OnboardingState>(
       builder: (_, s) => MissionPickerStep(
         selectedMission: s.selectedMission,
-        onSelected: (m) {
-          cubit.setMission(m);
+        selectedConfig: s.missionConfig,
+        onSelected: (config) {
+          cubit.setMission(config);
           Navigator.pop(context);
         },
       ),
