@@ -263,6 +263,11 @@
   "itemPickerAddOwn": "Ajoute ton propre objet",
   "itemPickerDone": "Terminé",
   "itemPickerCustomItems": "Objets personnalisés",
+  "itemPickerAddCustom": "Ajouter un objet",
+  "itemPickerNewItemTitle": "Nouvel objet",
+  "itemPickerNameHint": "Nom",
+  "itemPickerChooseEmoji": "Choisis un emoji",
+  "itemPickerAdd": "Ajouter",
   "affirmationPickerCustom": "Personnalisées",
 
   "itemToothbrush": "Brosse à dents",

@@ -6,6 +6,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../missions/models/mission.dart';
+import '../widgets/levio_brand_header.dart';
 
 /// Interstitial screen shown before each mission in a multi-mission sequence.
 class MissionStartScreen extends StatelessWidget {
@@ -38,6 +39,7 @@ class MissionStartScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
+            const LevioBrandHeader(),
             const Spacer(),
             Image.asset('assets/icon.png', width: 130.w, height: 130.h),
             SizedBox(height: 24.h),

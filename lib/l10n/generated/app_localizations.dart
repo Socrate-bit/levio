@@ -1472,6 +1472,36 @@ abstract class AppLocalizations {
   /// **'Custom Items'**
   String get itemPickerCustomItems;
 
+  /// No description provided for @itemPickerAddCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Add custom item'**
+  String get itemPickerAddCustom;
+
+  /// No description provided for @itemPickerNewItemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New custom item'**
+  String get itemPickerNewItemTitle;
+
+  /// No description provided for @itemPickerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get itemPickerNameHint;
+
+  /// No description provided for @itemPickerChooseEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an emoji'**
+  String get itemPickerChooseEmoji;
+
+  /// No description provided for @itemPickerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get itemPickerAdd;
+
   /// No description provided for @affirmationPickerCustom.
   ///
   /// In en, this message translates to:
