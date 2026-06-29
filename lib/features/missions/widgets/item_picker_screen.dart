@@ -770,8 +770,14 @@ class _AddCustomObjectSheetState extends State<_AddCustomObjectSheet> {
                       indicatorColor: AppColors.orange,
                       backspaceColor: AppColors.orange,
                     ),
-                    bottomActionBarConfig:
-                        const BottomActionBarConfig(enabled: false),
+                    // Bottom bar hosts the search button; drop the backspace
+                    // button since this is a single-pick (no text field).
+                    bottomActionBarConfig: BottomActionBarConfig(
+                      backgroundColor: c.card,
+                      buttonColor: c.background,
+                      buttonIconColor: c.textSecondary,
+                      showBackspaceButton: false,
+                    ),
                     searchViewConfig: SearchViewConfig(
                       backgroundColor: c.card,
                       buttonIconColor: c.textSecondary,
