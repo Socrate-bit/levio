@@ -594,6 +594,7 @@
     "placeholders": { "error": { "type": "String" } }
   },
   "dismissPhotoTakePhoto": "TAKE A PHOTO OF",
+  "dismissPhotoFindThis": "FIND THIS",
   "dismissPhotoPickingTarget": "Picking your target…",
   "dismissSpeechSay": "Say:",
   "dismissSpeechListening": "Listening…",
