@@ -382,6 +382,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final l10n = AppLocalizations.of(context);
     final targetLabel = _targetLabel(l10n);
     final errorMessage = _resolveError(l10n);
+    // A hunt's emoji spins in the center viewfinder, then flies up into the top
+    // card on lock-in — hide the big center glyph once it has docked.
+    final huntLocked = _targetObject.isNotEmpty && _targetLocked;
 
     return Scaffold(
       backgroundColor: c.background,
@@ -426,18 +429,23 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                       ),
                                     ),
 
-                                    // Rounded viewfinder frame + centered target
-                                    // emoji (hunt item or mission emoji for
-                                    // sky/bed/grass) stacked on the camera feed.
+                                    // Viewfinder frame — always centered so it
+                                    // frames the real object after the target
+                                    // emoji has flown up to the top card. The
+                                    // big glyph only shows while the hunt emoji
+                                    // is still in play (spinning or not a hunt).
                                     Center(
                                       child: _ViewfinderFrame(
-                                        child: _TargetBadge(
-                                          label: _displayLabel,
-                                          missionType: widget.missionType,
-                                          isHunt: _targetObject.isNotEmpty,
-                                          spinning: _rouletteRunning,
-                                          customEmojis: _customEmojis,
-                                        ),
+                                        child: huntLocked
+                                            ? const SizedBox.shrink()
+                                            : _TargetBadge(
+                                                label: _displayLabel,
+                                                missionType: widget.missionType,
+                                                isHunt:
+                                                    _targetObject.isNotEmpty,
+                                                spinning: _rouletteRunning,
+                                                customEmojis: _customEmojis,
+                                              ),
                                       ),
                                     ),
 
@@ -571,31 +579,39 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
               ],
             ),
 
-            // "FIND THIS" pill card. Hidden while the roulette spins, then
-            // fades in docked over the camera's top edge once the target is
-            // locked in (or immediately for non-hunt missions).
+            // "FIND THIS" pill card. Hidden while the roulette spins; on lock-in
+            // it flies up from the camera's center (where the spin landed) to
+            // dock at the top, carrying the picked emoji + label. Non-hunt
+            // missions have no spin, so the card just fades in at the top.
             if (controller != null &&
                 controller.value.isInitialized &&
                 _targetLocked)
-              Align(
-                alignment: _kCardTop,
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0, end: 1),
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                  builder: (context, t, child) => Opacity(
-                    opacity: t,
-                    child: Transform.scale(scale: 0.92 + 0.08 * t, child: child),
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 450),
+                curve: Curves.easeOutCubic,
+                builder: (context, t, child) => Align(
+                  alignment: Alignment.lerp(
+                    _targetObject.isNotEmpty ? Alignment.center : _kCardTop,
+                    _kCardTop,
+                    t,
+                  )!,
+                  child: Opacity(
+                    opacity: Curves.easeOut.transform(t),
+                    child:
+                        Transform.scale(scale: 0.92 + 0.08 * t, child: child),
                   ),
-                  child: _FindThisCard(
-                    eyebrow: _targetObject.isNotEmpty
-                        ? l10n.dismissPhotoFindThis
-                        : l10n.dismissPhotoTakePhoto,
-                    emoji: _targetObject.isNotEmpty
-                        ? (emojiForItemLabel(_displayLabel) ?? '\u{2b50}')
-                        : _photoMissionEmoji(widget.missionType),
-                    label: targetLabel,
-                  ),
+                ),
+                child: _FindThisCard(
+                  eyebrow: _targetObject.isNotEmpty
+                      ? l10n.dismissPhotoFindThis
+                      : l10n.dismissPhotoTakePhoto,
+                  emoji: _targetObject.isNotEmpty
+                      ? (emojiForItemLabel(_displayLabel) ??
+                            _customEmojis[_displayLabel] ??
+                            '\u{2b50}')
+                      : _photoMissionEmoji(widget.missionType),
+                  label: targetLabel,
                 ),
               ),
 
@@ -648,8 +664,8 @@ class _ViewfinderFrame extends StatelessWidget {
   }
 }
 
-/// Rounded "FIND THIS" pill that names the target. Revealed docked at the top
-/// once the pick is locked in.
+/// Rounded "FIND THIS" pill that names the target. Flies up from the camera's
+/// center to dock at the top once the pick is locked in.
 class _FindThisCard extends StatelessWidget {
   final String eyebrow;
   final String emoji;
