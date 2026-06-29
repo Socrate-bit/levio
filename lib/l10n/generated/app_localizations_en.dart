@@ -1508,6 +1508,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dismissPhotoTakePhoto => 'TAKE A PHOTO OF';
 
   @override
+  String get dismissPhotoFindThis => 'FIND THIS';
+
+  @override
   String get dismissPhotoPickingTarget => 'Picking your target…';
 
   @override

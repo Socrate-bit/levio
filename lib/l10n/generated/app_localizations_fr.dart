@@ -1524,6 +1524,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dismissPhotoTakePhoto => 'PRENDS UNE PHOTO DE';
 
   @override
+  String get dismissPhotoFindThis => 'TROUVE ÇA';
+
+  @override
   String get dismissPhotoPickingTarget => 'Sélection de ta cible…';
 
   @override
