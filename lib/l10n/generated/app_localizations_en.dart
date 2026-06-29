@@ -1409,6 +1409,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionsMissed => 'Missed';
 
   @override
+  String get sessionsScreenTimeRelapse => 'Screen-time relapse';
+
+  @override
   String get quoteEinstein =>
       'In the middle of every difficulty lies opportunity.';
 
@@ -2505,14 +2508,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get screenTimeUnlock => 'Unlock controls';
 
   @override
-  String get screenTimeUnlockConfirmTitle => 'Are you really sure?';
+  String get screenTimeUnlockConfirmTitle =>
+      'Take 30 seconds to think about this';
 
   @override
   String get screenTimeUnlockConfirmBody =>
-      'Your sleep quality depends on this. Is unlocking truly vital right now? Will you be happy tomorrow that you gave in tonight? Stay strong — your future self is counting on you.';
+      'It takes just 3 to 7 days to anchor a new routine — and after that, waking up takes almost no effort. You\'re right in the middle of it. Don\'t give in tonight; your future self is counting on you. Breathe for a moment instead of unlocking.';
 
   @override
   String get screenTimeUnlockConfirmCancel => 'Keep it locked';
+
+  @override
+  String get screenTimeUnlockConfirmBreathe => 'Breathe instead';
 
   @override
   String get screenTimeUnlockConfirmProceed => 'Unlock anyway';

@@ -314,16 +314,23 @@ class StreakService {
     // can be distinguished from days with no alarm.
     final sessionDays = <String>{};
     final anySessionDays = <String>{};
+    final relapseDays = <String>{};
     DateTime? oldestSessionDay;
     for (final s in sessions) {
       final d = _dateOnly(s.timestamp);
       anySessionDays.add(_dateStr(d));
+      if (s.relapse) relapseDays.add(_dateStr(d));
       if (!s.completed) continue;
       sessionDays.add(_dateStr(d));
       if (oldestSessionDay == null || d.isBefore(oldestSessionDay)) {
         oldestSessionDay = d;
       }
     }
+
+    // A screen-time relapse forces its day to count as missed: drop it from the
+    // completed set even if a wake-up also happened that day, so the streak
+    // walk treats it as a (freezable) miss.
+    sessionDays.removeAll(relapseDays);
 
     // Build the display week (Sun..Sat) with done marks; freezes filled in
     // during the walk below.
@@ -400,7 +407,7 @@ class StreakService {
   ]) async {
     sessions ??= await HistoryService.getSessions(
       limit: 400,
-      includeIncomplete: false,
+      includeIncomplete: true, // needed so relapse days are seen as misses
     );
     return computeStreak(sessions: sessions).streak;
   }

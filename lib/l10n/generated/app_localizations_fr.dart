@@ -1423,6 +1423,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sessionsMissed => 'Manqué';
 
   @override
+  String get sessionsScreenTimeRelapse => 'Rechute temps d\'écran';
+
+  @override
   String get quoteEinstein =>
       'Au milieu de chaque difficulté se trouve une opportunité.';
 
@@ -2552,14 +2555,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get screenTimeUnlock => 'Déverrouiller';
 
   @override
-  String get screenTimeUnlockConfirmTitle => 'Es-tu vraiment sûr ?';
+  String get screenTimeUnlockConfirmTitle =>
+      'Prends 30 secondes pour y réfléchir';
 
   @override
   String get screenTimeUnlockConfirmBody =>
-      'Ta qualité de sommeil en dépend. Est-il vraiment vital de déverrouiller maintenant ? Seras-tu heureux demain d\'avoir cédé ce soir ? Reste fort — ton futur toi compte sur toi.';
+      'Il ne faut que 3 à 7 jours pour ancrer une nouvelle routine — et après ça, te réveiller ne te demandera presque aucun effort. Tu es en plein dedans. Ne cède pas ce soir ; ton futur toi compte sur toi. Respire un instant plutôt que de déverrouiller.';
 
   @override
   String get screenTimeUnlockConfirmCancel => 'Garder verrouillé';
+
+  @override
+  String get screenTimeUnlockConfirmBreathe => 'Respirer plutôt';
 
   @override
   String get screenTimeUnlockConfirmProceed => 'Déverrouiller quand même';

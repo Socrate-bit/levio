@@ -2780,6 +2780,12 @@ abstract class AppLocalizations {
   /// **'Missed'**
   String get sessionsMissed;
 
+  /// No description provided for @sessionsScreenTimeRelapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen-time relapse'**
+  String get sessionsScreenTimeRelapse;
+
   /// No description provided for @quoteEinstein.
   ///
   /// In en, this message translates to:
@@ -4733,13 +4739,13 @@ abstract class AppLocalizations {
   /// No description provided for @screenTimeUnlockConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Are you really sure?'**
+  /// **'Take 30 seconds to think about this'**
   String get screenTimeUnlockConfirmTitle;
 
   /// No description provided for @screenTimeUnlockConfirmBody.
   ///
   /// In en, this message translates to:
-  /// **'Your sleep quality depends on this. Is unlocking truly vital right now? Will you be happy tomorrow that you gave in tonight? Stay strong — your future self is counting on you.'**
+  /// **'It takes just 3 to 7 days to anchor a new routine — and after that, waking up takes almost no effort. You\'re right in the middle of it. Don\'t give in tonight; your future self is counting on you. Breathe for a moment instead of unlocking.'**
   String get screenTimeUnlockConfirmBody;
 
   /// No description provided for @screenTimeUnlockConfirmCancel.
@@ -4747,6 +4753,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep it locked'**
   String get screenTimeUnlockConfirmCancel;
+
+  /// No description provided for @screenTimeUnlockConfirmBreathe.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathe instead'**
+  String get screenTimeUnlockConfirmBreathe;
 
   /// No description provided for @screenTimeUnlockConfirmProceed.
   ///

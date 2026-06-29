@@ -6,6 +6,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
+import '../../dismiss/screens/breathing_mission_screen.dart';
 import '../cubit/screentime_cubit.dart';
 import '../cubit/screentime_state.dart';
 import '../models/screentime_schedule.dart';
@@ -462,6 +463,9 @@ class _ScheduleRow extends StatelessWidget {
   }
 }
 
+/// Outcome of the unlock confirmation dialog.
+enum _UnlockChoice { keepLocked, breathe, unlock }
+
 /// The "Unlock" button is always present so its context stays mounted across
 /// the confirm dialog; it is only actionable (and red) while controls are
 /// locked, and rendered gray/disabled otherwise. Tapping it runs the
@@ -471,11 +475,12 @@ class _UnlockSection extends StatelessWidget {
   const _UnlockSection({required this.locked});
 
   /// First a centered confirmation ("do you really want to unlock?"), then the
-  /// focus-locked countdown dialog if the user proceeds.
+  /// focus-locked countdown dialog if the user proceeds. The middle "breathe"
+  /// option launches a short calming exercise instead of unlocking.
   Future<void> _onUnlock(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final cubit = context.read<ScreenTimeCubit>();
-    final confirmed = await showDialog<bool>(
+    final choice = await showDialog<_UnlockChoice>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
@@ -495,7 +500,7 @@ class _UnlockSection extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () => Navigator.pop(ctx, false),
+                  onPressed: () => Navigator.pop(ctx, _UnlockChoice.keepLocked),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.orange,
                     minimumSize: Size(double.infinity, 48.h),
@@ -512,10 +517,32 @@ class _UnlockSection extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 8.h),
+              // Calming alternative: breathe instead of giving in.
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx, _UnlockChoice.breathe),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 48.h),
+                    side: BorderSide(color: AppColors.blue.withAlpha(140)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    l10n.screenTimeUnlockConfirmBreathe,
+                    style: const TextStyle(
+                      color: AppColors.blue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 4.h),
               // Discouraged action: unlock anyway.
               TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
+                onPressed: () => Navigator.pop(ctx, _UnlockChoice.unlock),
                 child: Text(
                   l10n.screenTimeUnlockConfirmProceed,
                   style: const TextStyle(color: AppColors.error),
@@ -526,7 +553,26 @@ class _UnlockSection extends StatelessWidget {
         ],
       ),
     );
-    if (confirmed != true || !context.mounted) return;
+    if (!context.mounted) return;
+
+    // Breathe: launch a short standalone breathing exercise (no alarm side
+    // effects) instead of unlocking.
+    if (choice == _UnlockChoice.breathe) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const BreathingMissionScreen(
+            alarmId: '',
+            nativeAlarmId: '',
+            rounds: 5,
+            isPreview: true,
+            manageAlarm: false,
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (choice != _UnlockChoice.unlock) return;
 
     cubit.startUnlockCountdown();
     await showDialog<void>(

@@ -14,6 +14,11 @@ class WakeupSession {
   /// totalWakeups (one physical wake-up, not several).
   final bool autoDismissed;
 
+  /// True when this entry records a screen-time relapse (the user unlocked the
+  /// block during an active window) rather than an alarm. Always incomplete;
+  /// counts as a missed day for the streak and shows a distinct history label.
+  final bool relapse;
+
   const WakeupSession({
     required this.id,
     this.alarmId,
@@ -23,6 +28,7 @@ class WakeupSession {
     this.soundId = 'default',
     this.completed = true,
     this.autoDismissed = false,
+    this.relapse = false,
   });
 
   Map<String, dynamic> toFirestore() => {
@@ -33,6 +39,7 @@ class WakeupSession {
         'soundId': soundId,
         'completed': completed,
         'autoDismissed': autoDismissed,
+        'relapse': relapse,
       };
 
   factory WakeupSession.fromFirestore(String id, Map<String, dynamic> data) {
@@ -48,6 +55,7 @@ class WakeupSession {
       soundId: (data['soundId'] as String?) ?? 'default',
       completed: (data['completed'] as bool?) ?? true, // legacy docs are completed
       autoDismissed: (data['autoDismissed'] as bool?) ?? false,
+      relapse: (data['relapse'] as bool?) ?? false,
     );
   }
 }
