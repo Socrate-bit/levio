@@ -3662,6 +3662,12 @@ abstract class AppLocalizations {
   /// **'Join 500,000+ people waking up with Levio'**
   String get onboardingJoin500k;
 
+  /// No description provided for @onboardingAppOfTheYear.
+  ///
+  /// In en, this message translates to:
+  /// **'App of the Year'**
+  String get onboardingAppOfTheYear;
+
   /// No description provided for @onboardingAlreadyAccount.
   ///
   /// In en, this message translates to:

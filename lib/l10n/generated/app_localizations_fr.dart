@@ -1939,6 +1939,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Rejoins plus de 500 000 personnes qui se réveillent avec Levio';
 
   @override
+  String get onboardingAppOfTheYear => 'Élue app de l\'année';
+
+  @override
   String get onboardingAlreadyAccount => 'Tu as déjà un compte ? ';
 
   @override

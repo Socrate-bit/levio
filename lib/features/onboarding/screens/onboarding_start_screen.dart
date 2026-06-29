@@ -20,22 +20,33 @@ class OnboardingStartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            // Language selector pinned top-right, mirroring the funnel header.
+            // Top bar: "App of the Year" badge left, language selector right.
             Padding(
               padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
-              child: const Align(
-                alignment: Alignment.centerRight,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: LanguageFlagButton(),
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    l10n.onboardingAppOfTheYear,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: c.textSecondary,
+                    ),
+                  ),
+                  const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: LanguageFlagButton(),
+                  ),
+                ],
               ),
             ),
             Expanded(

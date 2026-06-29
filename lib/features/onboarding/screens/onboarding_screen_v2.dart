@@ -1012,6 +1012,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
       // 34: RECALL PROOF — adopted by 200k
       InfoStep(
         title: l10n.onboardingV2Recall200kTitle,
+        subtitle: l10n.onboardingAppOfTheYear,
         imagePlaceholder: Text('🌍', style: TextStyle(fontSize: 80.sp)),
         bodyText: l10n.onboardingV2Recall200kBody,
       ),
