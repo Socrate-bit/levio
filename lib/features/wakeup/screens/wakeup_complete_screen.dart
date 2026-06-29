@@ -13,6 +13,7 @@ import '../../alarms/cubit/alarm_cubit.dart';
 import '../../milestones/models/badge_model.dart';
 import '../../milestones/screens/badge_unlock_screen.dart';
 import '../../milestones/services/streak_service.dart';
+import '../../dismiss/widgets/levio_brand_header.dart';
 import '../../missions/models/mission.dart';
 import '../../subscription/services/analytics_service.dart';
 import '../../wakeup/services/history_service.dart';
@@ -87,6 +88,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
         soundId: session?.soundId ?? 'default',
         timeTakenSeconds: widget.timeTakenSeconds,
         missionType: widget.missionType,
+        isSleep: _isSleep,
       );
       final total = await HistoryService.getTotalWakeups();
 
@@ -145,6 +147,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Column(
                 children: [
+                  const LevioBrandHeader(),
                   const Spacer(),
                   _SunAnimation(isSleep: _isSleep),
                   SizedBox(height: 24.h),

@@ -143,11 +143,16 @@ class _SessionTile extends StatelessWidget {
     final secs = session.timeTakenSeconds % 60;
     final durationStr = mins > 0 ? '${mins}m ${secs}s' : '${secs}s';
 
+    final relapse = session.relapse;
     final missed = !session.completed;
     final iconColor = missed ? c.textSecondary : missionColor;
     final iconBg = missed
         ? c.textSecondary.withAlpha(20)
         : missionColor.withAlpha(25);
+    final statusIcon =
+        relapse ? Icons.app_blocking : Icons.alarm_off_outlined;
+    final statusLabel =
+        relapse ? l10n.sessionsScreenTimeRelapse : l10n.sessionsMissed;
 
     return GestureDetector(
       onTap: onTap,
@@ -170,8 +175,7 @@ class _SessionTile extends StatelessWidget {
                 ),
                 child: Center(
                   child: missed
-                      ? Icon(Icons.alarm_off_outlined,
-                          color: iconColor, size: 22.sp)
+                      ? Icon(statusIcon, color: iconColor, size: 22.sp)
                       : session.missionType != null
                           ? MissionIcon(
                               info: missionInfoFor(session.missionType!),
@@ -196,7 +200,7 @@ class _SessionTile extends StatelessWidget {
                     ),
                     SizedBox(height: 2.h),
                     Text(
-                      missed ? l10n.sessionsMissed : missionLabel,
+                      missed ? statusLabel : missionLabel,
                       style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                     ),
                   ],

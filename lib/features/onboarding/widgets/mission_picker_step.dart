@@ -6,17 +6,34 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
+import '../../missions/widgets/mission_config_modal.dart';
 import '../../missions/widgets/mission_icon.dart';
 
 class MissionPickerStep extends StatelessWidget {
   final MissionType? selectedMission;
-  final ValueChanged<MissionType> onSelected;
+  // Config for the currently selected mission, used to pre-fill the config
+  // modal when re-tapping it.
+  final MissionConfig? selectedConfig;
+  final ValueChanged<MissionConfig> onSelected;
 
   const MissionPickerStep({
     super.key,
     required this.selectedMission,
+    this.selectedConfig,
     required this.onSelected,
   });
+
+  // Open the mission config ("customize") modal; report back only if the user
+  // confirms a config (cancelling leaves the current selection unchanged).
+  Future<void> _pickMission(BuildContext context, MissionInfo mission) async {
+    final config = await showMissionConfigModal(
+      context,
+      mission,
+      selectedConfig?.type == mission.type ? selectedConfig : null,
+    );
+    if (config != null) onSelected(config);
+  }
 
   static final _missions = allMissions
       .where((m) => m.type != MissionType.none && m.type != MissionType.random)
@@ -63,7 +80,7 @@ class MissionPickerStep extends StatelessWidget {
               final mission = _missions[index];
               final isSelected = selectedMission == mission.type;
               return GestureDetector(
-                onTap: withHaptic(() => onSelected(mission.type)),
+                onTap: withHaptic(() => _pickMission(context, mission)),
                 child: Container(
                   padding:
                       EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),

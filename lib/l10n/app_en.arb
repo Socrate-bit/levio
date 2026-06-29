@@ -290,6 +290,11 @@
   "itemPickerAddOwn": "Add your own item",
   "itemPickerDone": "Done",
   "itemPickerCustomItems": "Custom Items",
+  "itemPickerAddCustom": "Add custom item",
+  "itemPickerNewItemTitle": "New custom item",
+  "itemPickerNameHint": "Name",
+  "itemPickerChooseEmoji": "Choose an emoji",
+  "itemPickerAdd": "Add",
   "affirmationPickerCustom": "Custom",
 
   "itemToothbrush": "Toothbrush",
@@ -456,7 +461,8 @@
   },
   "milestonesLongestStreakLabel": "longest streak",
   "milestonesStreakBadges": "Streak Badges",
-  "milestonesAchievementBadges": "Achievement Badges",
+  "milestonesAchievementBadges": "Wake-up Achievements",
+  "milestonesSleepAchievementBadges": "Sleep Achievements",
   "milestonesBadgesEarned": "Badges Earned",
   "milestonesBadgeCount": "{earned}/{total} badges",
   "@milestonesBadgeCount": {
@@ -507,6 +513,24 @@
   "badgeAudiophile": "Audiophile",
   "badgeAudiophileReq": "Use 4+ different alarm sounds",
   "badgeAudiophileQuote": "Every morning deserves its own soundtrack.",
+  "badgeFirstNight": "First Night",
+  "badgeFirstNightReq": "Complete your first wind-down",
+  "badgeFirstNightQuote": "Every good morning begins the night before.",
+  "badgeEarlyToBed": "Early to Bed",
+  "badgeEarlyToBedReq": "Wind down before 10 PM",
+  "badgeEarlyToBedQuote": "Rest is the foundation the day is built on.",
+  "badgeCalmMind": "Calm Mind",
+  "badgeCalmMindReq": "Finish a meditation or breathing wind-down",
+  "badgeCalmMindQuote": "A quiet mind sleeps deepest.",
+  "badgeDreamer": "Dreamer",
+  "badgeDreamerReq": "Use all 6 wind-down missions",
+  "badgeDreamerQuote": "There is more than one path to a good night.",
+  "badgeWellRested": "Well Rested",
+  "badgeWellRestedReq": "Reach a 7-day streak on a sleep alarm",
+  "badgeWellRestedQuote": "Seven nights of intention. Sleep becomes a ritual.",
+  "badgeNoNightsOff": "No Nights Off",
+  "badgeNoNightsOffReq": "30 consecutive nights of winding down",
+  "badgeNoNightsOffQuote": "Consistency is the quietest superpower.",
 
   "wakeupTitle": "Today's Wakeup",
   "wakeupStartMyDay": "Start My Day",
@@ -522,6 +546,7 @@
   "sessionsTitle": "All Wakeups",
   "sessionsNoWakeups": "No wakeups yet",
   "sessionsMissed": "Missed",
+  "sessionsScreenTimeRelapse": "Screen-time relapse",
 
   "quoteEinstein": "In the middle of every difficulty lies opportunity.",
   "quoteEinsteinAuthor": "Albert Einstein",
@@ -569,6 +594,7 @@
     "placeholders": { "error": { "type": "String" } }
   },
   "dismissPhotoTakePhoto": "TAKE A PHOTO OF",
+  "dismissPhotoFindThis": "FIND THIS",
   "dismissPhotoPickingTarget": "Picking your target…",
   "dismissSpeechSay": "Say:",
   "dismissSpeechListening": "Listening…",
@@ -598,6 +624,11 @@
     "placeholders": { "target": { "type": "int" } }
   },
   "dismissMissionTimeToWakeUp": "Time to Wake Up!",
+  "dismissMissionTimeToWindDown": "Time to Wind Down!",
+  "dismissMissionStreak": "🔥 {count} day streak",
+  "@dismissMissionStreak": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "dismissMissionLabel": "Mission {current}/{total}: {name}",
   "@dismissMissionLabel": {
     "placeholders": {
@@ -985,9 +1016,10 @@
   "screenTimeSaveSchedule": "Save schedule",
   "screenTimeLockedHint": "Controls are locked while blocking is active to protect your sleep.",
   "screenTimeUnlock": "Unlock controls",
-  "screenTimeUnlockConfirmTitle": "Are you really sure?",
-  "screenTimeUnlockConfirmBody": "Your sleep quality depends on this. Is unlocking truly vital right now? Will you be happy tomorrow that you gave in tonight? Stay strong — your future self is counting on you.",
+  "screenTimeUnlockConfirmTitle": "Take 30 seconds to think about this",
+  "screenTimeUnlockConfirmBody": "It takes just 3 to 7 days to anchor a new routine — and after that, waking up takes almost no effort. You're right in the middle of it. Don't give in tonight; your future self is counting on you. Breathe for a moment instead of unlocking.",
   "screenTimeUnlockConfirmCancel": "Keep it locked",
+  "screenTimeUnlockConfirmBreathe": "Breathe instead",
   "screenTimeUnlockConfirmProceed": "Unlock anyway",
   "screenTimeUnlockCountdownTitle": "You can unlock in",
   "screenTimeUnlockReadyTitle": "You can unlock now",

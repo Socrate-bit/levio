@@ -1472,6 +1472,36 @@ abstract class AppLocalizations {
   /// **'Custom Items'**
   String get itemPickerCustomItems;
 
+  /// No description provided for @itemPickerAddCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Add custom item'**
+  String get itemPickerAddCustom;
+
+  /// No description provided for @itemPickerNewItemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New custom item'**
+  String get itemPickerNewItemTitle;
+
+  /// No description provided for @itemPickerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get itemPickerNameHint;
+
+  /// No description provided for @itemPickerChooseEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an emoji'**
+  String get itemPickerChooseEmoji;
+
+  /// No description provided for @itemPickerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get itemPickerAdd;
+
   /// No description provided for @affirmationPickerCustom.
   ///
   /// In en, this message translates to:
@@ -2327,8 +2357,14 @@ abstract class AppLocalizations {
   /// No description provided for @milestonesAchievementBadges.
   ///
   /// In en, this message translates to:
-  /// **'Achievement Badges'**
+  /// **'Wake-up Achievements'**
   String get milestonesAchievementBadges;
+
+  /// No description provided for @milestonesSleepAchievementBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep Achievements'**
+  String get milestonesSleepAchievementBadges;
 
   /// No description provided for @milestonesBadgesEarned.
   ///
@@ -2588,6 +2624,114 @@ abstract class AppLocalizations {
   /// **'Every morning deserves its own soundtrack.'**
   String get badgeAudiophileQuote;
 
+  /// No description provided for @badgeFirstNight.
+  ///
+  /// In en, this message translates to:
+  /// **'First Night'**
+  String get badgeFirstNight;
+
+  /// No description provided for @badgeFirstNightReq.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your first wind-down'**
+  String get badgeFirstNightReq;
+
+  /// No description provided for @badgeFirstNightQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Every good morning begins the night before.'**
+  String get badgeFirstNightQuote;
+
+  /// No description provided for @badgeEarlyToBed.
+  ///
+  /// In en, this message translates to:
+  /// **'Early to Bed'**
+  String get badgeEarlyToBed;
+
+  /// No description provided for @badgeEarlyToBedReq.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind down before 10 PM'**
+  String get badgeEarlyToBedReq;
+
+  /// No description provided for @badgeEarlyToBedQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest is the foundation the day is built on.'**
+  String get badgeEarlyToBedQuote;
+
+  /// No description provided for @badgeCalmMind.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm Mind'**
+  String get badgeCalmMind;
+
+  /// No description provided for @badgeCalmMindReq.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish a meditation or breathing wind-down'**
+  String get badgeCalmMindReq;
+
+  /// No description provided for @badgeCalmMindQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'A quiet mind sleeps deepest.'**
+  String get badgeCalmMindQuote;
+
+  /// No description provided for @badgeDreamer.
+  ///
+  /// In en, this message translates to:
+  /// **'Dreamer'**
+  String get badgeDreamer;
+
+  /// No description provided for @badgeDreamerReq.
+  ///
+  /// In en, this message translates to:
+  /// **'Use all 6 wind-down missions'**
+  String get badgeDreamerReq;
+
+  /// No description provided for @badgeDreamerQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'There is more than one path to a good night.'**
+  String get badgeDreamerQuote;
+
+  /// No description provided for @badgeWellRested.
+  ///
+  /// In en, this message translates to:
+  /// **'Well Rested'**
+  String get badgeWellRested;
+
+  /// No description provided for @badgeWellRestedReq.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach a 7-day streak on a sleep alarm'**
+  String get badgeWellRestedReq;
+
+  /// No description provided for @badgeWellRestedQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Seven nights of intention. Sleep becomes a ritual.'**
+  String get badgeWellRestedQuote;
+
+  /// No description provided for @badgeNoNightsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'No Nights Off'**
+  String get badgeNoNightsOff;
+
+  /// No description provided for @badgeNoNightsOffReq.
+  ///
+  /// In en, this message translates to:
+  /// **'30 consecutive nights of winding down'**
+  String get badgeNoNightsOffReq;
+
+  /// No description provided for @badgeNoNightsOffQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Consistency is the quietest superpower.'**
+  String get badgeNoNightsOffQuote;
+
   /// No description provided for @wakeupTitle.
   ///
   /// In en, this message translates to:
@@ -2665,6 +2809,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Missed'**
   String get sessionsMissed;
+
+  /// No description provided for @sessionsScreenTimeRelapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen-time relapse'**
+  String get sessionsScreenTimeRelapse;
 
   /// No description provided for @quoteEinstein.
   ///
@@ -2828,6 +2978,12 @@ abstract class AppLocalizations {
   /// **'TAKE A PHOTO OF'**
   String get dismissPhotoTakePhoto;
 
+  /// No description provided for @dismissPhotoFindThis.
+  ///
+  /// In en, this message translates to:
+  /// **'FIND THIS'**
+  String get dismissPhotoFindThis;
+
   /// No description provided for @dismissPhotoPickingTarget.
   ///
   /// In en, this message translates to:
@@ -2893,6 +3049,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time to Wake Up!'**
   String get dismissMissionTimeToWakeUp;
+
+  /// No description provided for @dismissMissionTimeToWindDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to Wind Down!'**
+  String get dismissMissionTimeToWindDown;
+
+  /// No description provided for @dismissMissionStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'🔥 {count} day streak'**
+  String dismissMissionStreak(int count);
 
   /// No description provided for @dismissMissionLabel.
   ///
@@ -4607,13 +4775,13 @@ abstract class AppLocalizations {
   /// No description provided for @screenTimeUnlockConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Are you really sure?'**
+  /// **'Take 30 seconds to think about this'**
   String get screenTimeUnlockConfirmTitle;
 
   /// No description provided for @screenTimeUnlockConfirmBody.
   ///
   /// In en, this message translates to:
-  /// **'Your sleep quality depends on this. Is unlocking truly vital right now? Will you be happy tomorrow that you gave in tonight? Stay strong — your future self is counting on you.'**
+  /// **'It takes just 3 to 7 days to anchor a new routine — and after that, waking up takes almost no effort. You\'re right in the middle of it. Don\'t give in tonight; your future self is counting on you. Breathe for a moment instead of unlocking.'**
   String get screenTimeUnlockConfirmBody;
 
   /// No description provided for @screenTimeUnlockConfirmCancel.
@@ -4621,6 +4789,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep it locked'**
   String get screenTimeUnlockConfirmCancel;
+
+  /// No description provided for @screenTimeUnlockConfirmBreathe.
+  ///
+  /// In en, this message translates to:
+  /// **'Breathe instead'**
+  String get screenTimeUnlockConfirmBreathe;
 
   /// No description provided for @screenTimeUnlockConfirmProceed.
   ///

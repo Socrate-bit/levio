@@ -11,7 +11,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
 
 import '../../missions/models/mission.dart';
-import '../../missions/widgets/mission_icon.dart';
+import '../../missions/services/custom_items_service.dart';
 import '../../missions/widgets/item_picker_screen.dart';
 import '../../subscription/services/analytics_service.dart';
 import '../../settings/cubit/settings_cubit.dart';
@@ -34,6 +34,22 @@ List<String> _defaultItemsFor(MissionType type) {
       return [];
   }
   return data.sections.expand((s) => s.items).map((i) => i.label).toList();
+}
+
+/// Emoji shown in the viewfinder for non-hunt photo missions (sky/bed/grass),
+/// replacing the old flat white material icons.
+String _photoMissionEmoji(MissionType type) {
+  switch (type) {
+    case MissionType.skyPhoto:
+      return '\u{2600}\u{FE0F}'; // ☀️
+    case MissionType.makeBed:
+    case MissionType.bedPhoto:
+      return '\u{1F6CF}\u{FE0F}'; // 🛏️
+    case MissionType.touchGrass:
+      return '\u{1F331}'; // 🌱
+    default:
+      return '\u{1F4F7}'; // 📷
+  }
 }
 
 class PhotoDismissScreen extends StatefulWidget {
@@ -68,6 +84,10 @@ class PhotoDismissScreen extends StatefulWidget {
 
 enum _PhotoError { none, notDetected, other }
 
+// Resting spot for the "FIND THIS" card once it reveals: docked near the top,
+// overlapping the camera's top edge.
+const Alignment _kCardTop = Alignment(0, -0.80);
+
 class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   CameraController? _controller;
   bool _isValidating = false;
@@ -78,8 +98,14 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   late final List<String> _candidates;
   String _displayLabel = '';
   bool _rouletteRunning = false;
+  // True once the target is final (no roulette, or the spin has landed). Gates
+  // the "FIND THIS" card so it stays hidden during the spin and reveals only
+  // once the pick is locked in.
+  bool _targetLocked = false;
   Timer? _rouletteTimer;
   AlarmCascadeController? _cascade;
+  // Emojis for user-created custom objects (name -> emoji), loaded async.
+  Map<String, String> _customEmojis = {};
 
   // Roulette tick delays (ms) — start fast, decelerate, dramatic last beat.
   // Total ≈ 6.5s — long enough to feel like a draw, short enough not to bore.
@@ -158,12 +184,23 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       );
     } else {
       _displayLabel = _targetObject;
+      // No roulette will run, so the target is already locked in.
+      _targetLocked = true;
     }
 
     _initCamera();
+    _loadCustomEmojis();
     if (widget.manageAlarm && !widget.isPreview) {
       _cascade = AlarmCascadeController(alarmId: widget.alarmId)..start();
     }
+  }
+
+  // Load custom-object emojis so the target badge can show the user's chosen
+  // glyph instead of the generic star fallback.
+  Future<void> _loadCustomEmojis() async {
+    final emojis = await CustomItemsService.getCustomObjectEmojis();
+    if (!mounted || emojis.isEmpty) return;
+    setState(() => _customEmojis = emojis);
   }
 
   /// Recursively schedules each roulette tick using a growing delay table.
@@ -176,6 +213,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         if (isLast) {
           _displayLabel = _targetObject;
           _rouletteRunning = false;
+          _targetLocked = true;
         } else {
           // Advance to next candidate, skipping the target until the final tick
           // so the reveal is not spoiled mid-spin.
@@ -342,7 +380,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final c = AppColors.of(context);
     final controller = _controller;
     final l10n = AppLocalizations.of(context);
-    final info = missionInfoFor(widget.missionType);
     final targetLabel = _targetLabel(l10n);
     final errorMessage = _resolveError(l10n);
 
@@ -356,20 +393,6 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const LevioBrandHeader(),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Text(
-                    l10n.dismissPhotoPrompt(targetLabel),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: c.textPrimary,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
-                      height: 1.1,
-                    ),
-                  ),
-                ),
 
                 Flexible(
                   child: Center(
@@ -404,15 +427,16 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                                     ),
 
                                     // Rounded viewfinder frame + centered target
-                                    // icon (emoji for hunts, material icon for
+                                    // emoji (hunt item or mission emoji for
                                     // sky/bed/grass) stacked on the camera feed.
                                     Center(
                                       child: _ViewfinderFrame(
                                         child: _TargetBadge(
                                           label: _displayLabel,
-                                          info: info,
+                                          missionType: widget.missionType,
                                           isHunt: _targetObject.isNotEmpty,
                                           spinning: _rouletteRunning,
+                                          customEmojis: _customEmojis,
                                         ),
                                       ),
                                     ),
@@ -546,6 +570,35 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                 ),
               ],
             ),
+
+            // "FIND THIS" pill card. Hidden while the roulette spins, then
+            // fades in docked over the camera's top edge once the target is
+            // locked in (or immediately for non-hunt missions).
+            if (controller != null &&
+                controller.value.isInitialized &&
+                _targetLocked)
+              Align(
+                alignment: _kCardTop,
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                  builder: (context, t, child) => Opacity(
+                    opacity: t,
+                    child: Transform.scale(scale: 0.92 + 0.08 * t, child: child),
+                  ),
+                  child: _FindThisCard(
+                    eyebrow: _targetObject.isNotEmpty
+                        ? l10n.dismissPhotoFindThis
+                        : l10n.dismissPhotoTakePhoto,
+                    emoji: _targetObject.isNotEmpty
+                        ? (emojiForItemLabel(_displayLabel) ?? '\u{2b50}')
+                        : _photoMissionEmoji(widget.missionType),
+                    label: targetLabel,
+                  ),
+                ),
+              ),
+
             if (widget.isPreview)
               Positioned(
                 top: 16.h,
@@ -595,21 +648,80 @@ class _ViewfinderFrame extends StatelessWidget {
   }
 }
 
-/// Centered target glyph — emoji for hunt items, the mission's material icon
-/// otherwise. Large and slightly transparent so the camera feed shows through.
-/// When the roulette finishes ([spinning] goes false), plays a reveal animation:
-/// a scale bounce and a radial glow that pulses out behind the glyph.
+/// Rounded "FIND THIS" pill that names the target. Revealed docked at the top
+/// once the pick is locked in.
+class _FindThisCard extends StatelessWidget {
+  final String eyebrow;
+  final String emoji;
+  final String label;
+
+  const _FindThisCard({
+    required this.eyebrow,
+    required this.emoji,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(24.r),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(40), blurRadius: 16),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(emoji, style: TextStyle(fontSize: 22.sp)),
+          SizedBox(height: 4.h),
+          Text(
+            eyebrow,
+            style: TextStyle(
+              color: c.textSecondary,
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
+            ),
+          ),
+          SizedBox(height: 2.h),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: c.textPrimary,
+              fontSize: 22.sp,
+              fontWeight: FontWeight.bold,
+              letterSpacing: -0.5,
+              height: 1.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Centered target glyph — emoji for hunt items, the mission emoji for
+/// sky/bed/grass. Large and slightly transparent so the camera feed shows
+/// through. When the roulette finishes ([spinning] goes false), plays a reveal
+/// animation: a scale bounce and a radial glow that pulses out behind the glyph.
 class _TargetBadge extends StatefulWidget {
   final String label;
-  final MissionInfo info;
+  final MissionType missionType;
   final bool isHunt;
   final bool spinning;
+  final Map<String, String> customEmojis;
 
   const _TargetBadge({
     required this.label,
-    required this.info,
+    required this.missionType,
     required this.isHunt,
     required this.spinning,
+    required this.customEmojis,
   });
 
   @override
@@ -698,8 +810,10 @@ class _TargetBadgeState extends State<_TargetBadge>
   @override
   Widget build(BuildContext context) {
     final emoji = widget.isHunt
-        ? (emojiForItemLabel(widget.label) ?? '\u{2b50}')
-        : null;
+        ? (emojiForItemLabel(widget.label) ??
+            widget.customEmojis[widget.label] ??
+            '\u{2b50}')
+        : _photoMissionEmoji(widget.missionType);
     return AnimatedBuilder(
       animation: _reveal,
       builder: (context, _) {
@@ -732,9 +846,7 @@ class _TargetBadgeState extends State<_TargetBadge>
                 ),
               Opacity(
                 opacity: opacity,
-                child: emoji != null
-                    ? Text(emoji, style: TextStyle(fontSize: 130.sp))
-                    : MissionIcon(info: widget.info, size: 130.sp),
+                child: Text(emoji, style: TextStyle(fontSize: 130.sp)),
               ),
             ],
           ),

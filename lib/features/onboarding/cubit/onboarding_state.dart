@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
 
 enum ReferralStatus { none, checking, valid, invalid, exhausted }
 
@@ -12,6 +13,10 @@ class OnboardingState extends Equatable {
   final TimeOfDay idealWakeTime;
   final TimeOfDay alarmTime;
   final MissionType selectedMission;
+  // Full config for the picked wake-up mission (rep count, math difficulty,
+  // hunt items, etc.). Null falls back to a bare config built from
+  // [selectedMission] when the alarm is created.
+  final MissionConfig? missionConfig;
   final String soundId;
   final String soundName;
   final List<bool> repeatDays;
@@ -48,6 +53,7 @@ class OnboardingState extends Equatable {
     this.idealWakeTime = const TimeOfDay(hour: 7, minute: 0),
     this.alarmTime = const TimeOfDay(hour: 7, minute: 0),
     this.selectedMission = MissionType.pushUps,
+    this.missionConfig,
     this.soundId = 'default',
     this.soundName = 'Default',
     this.repeatDays = const [false, true, true, true, true, true, false],
@@ -88,6 +94,7 @@ class OnboardingState extends Equatable {
     TimeOfDay? idealWakeTime,
     TimeOfDay? alarmTime,
     MissionType? selectedMission,
+    MissionConfig? missionConfig,
     String? soundId,
     String? soundName,
     List<bool>? repeatDays,
@@ -116,6 +123,7 @@ class OnboardingState extends Equatable {
         idealWakeTime: idealWakeTime ?? this.idealWakeTime,
         alarmTime: alarmTime ?? this.alarmTime,
         selectedMission: selectedMission ?? this.selectedMission,
+        missionConfig: missionConfig ?? this.missionConfig,
         soundId: soundId ?? this.soundId,
         soundName: soundName ?? this.soundName,
         repeatDays: repeatDays ?? this.repeatDays,
@@ -147,6 +155,7 @@ class OnboardingState extends Equatable {
         idealWakeTime,
         alarmTime,
         selectedMission,
+        missionConfig,
         soundId,
         soundName,
         repeatDays,

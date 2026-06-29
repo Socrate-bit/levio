@@ -14,21 +14,10 @@ import '../services/notification_service.dart';
 import 'alarm_state.dart';
 
 class AlarmCubit extends Cubit<AlarmState> {
-  AlarmCubit() : super(const AlarmState()) {
-    _init();
-  }
-
-  /// Constructor-side init: only request native AlarmKit authorization.
-  /// Firestore reconciliation lives in [sync] and is gated by access in
-  /// AppGateWrapper.
-  Future<void> _init() async {
-    try {
-      await AlarmChannel.requestAuthorization();
-    } catch (e, st) {
-      debugPrint('[AlarmCubit] requestAuthorization failed: $e');
-      AnalyticsService.trackError('AlarmCubit._init', e, st);
-    }
-  }
+  // AlarmKit authorization is requested contextually (right before the user
+  // picks their alarm time in onboarding), not at launch. Firestore
+  // reconciliation lives in [sync] and is gated by access in AppGateWrapper.
+  AlarmCubit() : super(const AlarmState());
 
   /// Debug: dumps native AlarmKit alarms and cross-references with Flutter state.
   Future<void> printActiveAlarms() async {
@@ -275,11 +264,17 @@ class AlarmCubit extends Cubit<AlarmState> {
     emit(state.copyWith(alarms: const []));
   }
 
+  /// Grace period after an expected fire before it can be marked missed. Keeps
+  /// the startup sync from racing the ring/dismiss flow (which would create a
+  /// missed twin of the session the dismiss flow is about to complete).
+  static const _missedGrace = Duration(minutes: 30);
+
   /// Creates missed sessions for enabled alarms that should have fired but
   /// have no session in Firebase.
   Future<void> _markMissedAlarms() async {
     try {
       final now = DateTime.now();
+      final missedCutoff = now.subtract(_missedGrace);
       final alarms = state.alarms;
       final sevenDaysAgo = DateTime(now.year, now.month, now.day - 7);
 
@@ -292,8 +287,18 @@ class AlarmCubit extends Cubit<AlarmState> {
         includeAutoDismissed: true,
       );
 
+      // Alarms ringing right now are owned by the ring/dismiss flow — never
+      // mark them missed (handles cascades that ring past the grace window).
+      Set<String> ringingIds = const {};
+      try {
+        ringingIds = (await AlarmChannel.getRingingIds()).toSet();
+      } catch (e) {
+        debugPrint('[AlarmCubit] _markMissedAlarms getRingingIds failed: $e');
+      }
+
       for (final alarm in alarms) {
         if (!alarm.isEnabled) continue;
+        if (ringingIds.contains(alarm.id)) continue;
         final missionType = alarm.missions.isNotEmpty
             ? alarm.missions.first.type
             : null;
@@ -309,7 +314,8 @@ class AlarmCubit extends Cubit<AlarmState> {
 
         // One-time alarm in the past with no session → missed.
         if (alarm.isOneTime) {
-          if (!alarm.dateTime.isBefore(now)) continue;
+          if (!alarm.dateTime.isBefore(missedCutoff)) continue;
+          if (alarm.dateTime.isBefore(alarm.createdAt)) continue;
           if (alarm.dateTime.isBefore(lookbackStart)) continue;
           final hasSession = recentSessions.any((s) => s.alarmId == alarm.id);
           if (!hasSession) {
@@ -346,7 +352,9 @@ class AlarmCubit extends Cubit<AlarmState> {
             hour,
             minute,
           );
-          if (!expectedFire.isBefore(now)) continue;
+          // Past the grace window, and only for fires after the alarm existed.
+          if (!expectedFire.isBefore(missedCutoff)) continue;
+          if (expectedFire.isBefore(alarm.createdAt)) continue;
 
           final dayStart = DateTime(day.year, day.month, day.day);
           final dayEnd = dayStart.add(const Duration(days: 1));

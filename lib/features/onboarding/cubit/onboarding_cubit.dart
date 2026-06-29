@@ -84,13 +84,16 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     AnalyticsService.setUserProperty('alarm_time', _formatTime(time));
   }
 
-  void setMission(MissionType mission) {
-    emit(state.copyWith(selectedMission: mission));
+  void setMission(MissionConfig config) {
+    emit(state.copyWith(
+      selectedMission: config.type,
+      missionConfig: config,
+    ));
     AnalyticsService.capture(
       AnalyticsService.onboardingStep,
-      {'step_name': 'mission', 'mission': mission.name},
+      {'step_name': 'mission', 'mission': config.type.name},
     );
-    AnalyticsService.setUserProperty('mission', mission.name);
+    AnalyticsService.setUserProperty('mission', config.type.name);
   }
 
   void setKeepAlarmDuringMission(bool value) {
@@ -225,6 +228,11 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       firstRoom: room,
       firstRoomItems: items,
       selectedMission: mission ?? state.selectedMission,
+      // Persist the resolved mission as a config too; 'other' leaves the
+      // existing config in place for the full mission picker to overwrite.
+      missionConfig: mission == null
+          ? null
+          : MissionConfig(type: mission, selectedItems: items),
     ));
     AnalyticsService.capture(
       AnalyticsService.onboardingStep,
@@ -299,7 +307,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     final entry = AppAlarmEntry(
       id: '',
       dateTime: nextOccurrence(alarmTime),
-      missions: [MissionConfig(type: selectedMission)],
+      missions: [state.missionConfig ?? MissionConfig(type: selectedMission)],
       name: 'Levio',
       soundId: state.soundId,
       repeatDays: state.repeatDays,
@@ -334,8 +342,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           isEnabled: true,
           isOneTime: !state.repeatDays.any((d) => d),
           isSleep: true,
-          // Bedtime reminder notification on by default.
+          // Bedtime reminder notification on by default, 30 min before bedtime.
           reminderEnabled: true,
+          reminderMinutesBefore: 30,
         );
         await alarmCubit.addAlarm(sleepEntry);
       }
@@ -440,12 +449,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     }
 
     final selectedMission = state.selectedMission;
-    // First-room object hunts carry their resolved target item.
-    final huntItems = (selectedMission == MissionType.objectHunt)
-        ? state.firstRoomItems
-        : null;
     final missions = <MissionConfig>[
-      MissionConfig(type: selectedMission, selectedItems: huntItems),
+      state.missionConfig ?? MissionConfig(type: selectedMission),
       // Morning routine runs right after the wake-up mission.
       if (state.wakeRoutine.isNotEmpty)
         MissionConfig(
@@ -485,7 +490,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           isEnabled: true,
           isOneTime: !state.repeatDays.any((d) => d),
           isSleep: true,
+          // Bedtime reminder notification on by default, 30 min before bedtime.
           reminderEnabled: true,
+          reminderMinutesBefore: 30,
         );
         await alarmCubit.addAlarm(sleepEntry);
       }

@@ -732,6 +732,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get itemPickerCustomItems => 'Objets personnalisés';
 
   @override
+  String get itemPickerAddCustom => 'Ajouter un objet';
+
+  @override
+  String get itemPickerNewItemTitle => 'Nouvel objet';
+
+  @override
+  String get itemPickerNameHint => 'Nom';
+
+  @override
+  String get itemPickerChooseEmoji => 'Choisis un emoji';
+
+  @override
+  String get itemPickerAdd => 'Ajouter';
+
+  @override
   String get affirmationPickerCustom => 'Personnalisées';
 
   @override
@@ -1176,7 +1191,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get milestonesStreakBadges => 'Badges de série';
 
   @override
-  String get milestonesAchievementBadges => 'Badges de réussite';
+  String get milestonesAchievementBadges => 'Réussites du réveil';
+
+  @override
+  String get milestonesSleepAchievementBadges => 'Réussites du coucher';
 
   @override
   String get milestonesBadgesEarned => 'Badges obtenus';
@@ -1320,6 +1338,67 @@ class AppLocalizationsFr extends AppLocalizations {
   String get badgeAudiophileQuote => 'Chaque matin mérite sa propre bande-son.';
 
   @override
+  String get badgeFirstNight => 'Première nuit';
+
+  @override
+  String get badgeFirstNightReq => 'Termine ta première détente';
+
+  @override
+  String get badgeFirstNightQuote =>
+      'Chaque bon matin commence la veille au soir.';
+
+  @override
+  String get badgeEarlyToBed => 'Couché tôt';
+
+  @override
+  String get badgeEarlyToBedReq => 'Détends-toi avant 22 h';
+
+  @override
+  String get badgeEarlyToBedQuote =>
+      'Le repos est la fondation sur laquelle se construit la journée.';
+
+  @override
+  String get badgeCalmMind => 'Esprit calme';
+
+  @override
+  String get badgeCalmMindReq =>
+      'Termine une détente méditation ou respiration';
+
+  @override
+  String get badgeCalmMindQuote => 'Un esprit apaisé dort plus profondément.';
+
+  @override
+  String get badgeDreamer => 'Rêveur';
+
+  @override
+  String get badgeDreamerReq => 'Utilise les 6 missions de détente';
+
+  @override
+  String get badgeDreamerQuote =>
+      'Il y a plus d\'un chemin vers une bonne nuit.';
+
+  @override
+  String get badgeWellRested => 'Bien reposé';
+
+  @override
+  String get badgeWellRestedReq =>
+      'Atteins une série de 7 jours avec une alarme de coucher';
+
+  @override
+  String get badgeWellRestedQuote =>
+      'Sept nuits d\'intention. Le sommeil devient un rituel.';
+
+  @override
+  String get badgeNoNightsOff => 'Aucune nuit de repos';
+
+  @override
+  String get badgeNoNightsOffReq => '30 nuits consécutives de détente';
+
+  @override
+  String get badgeNoNightsOffQuote =>
+      'La constance est le plus discret des super-pouvoirs.';
+
+  @override
   String get wakeupTitle => 'Réveil du jour';
 
   @override
@@ -1357,6 +1436,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get sessionsMissed => 'Manqué';
+
+  @override
+  String get sessionsScreenTimeRelapse => 'Rechute temps d\'écran';
 
   @override
   String get quoteEinstein =>
@@ -1457,6 +1539,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dismissPhotoTakePhoto => 'PRENDS UNE PHOTO DE';
 
   @override
+  String get dismissPhotoFindThis => 'TROUVE ÇA';
+
+  @override
   String get dismissPhotoPickingTarget => 'Sélection de ta cible…';
 
   @override
@@ -1496,6 +1581,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dismissMissionTimeToWakeUp => 'C\'est l\'heure de se réveiller !';
+
+  @override
+  String get dismissMissionTimeToWindDown => 'C\'est l\'heure de te détendre !';
+
+  @override
+  String dismissMissionStreak(int count) {
+    return '🔥 série de $count jours';
+  }
 
   @override
   String dismissMissionLabel(int current, int total, String name) {
@@ -2480,14 +2573,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get screenTimeUnlock => 'Déverrouiller';
 
   @override
-  String get screenTimeUnlockConfirmTitle => 'Es-tu vraiment sûr ?';
+  String get screenTimeUnlockConfirmTitle =>
+      'Prends 30 secondes pour y réfléchir';
 
   @override
   String get screenTimeUnlockConfirmBody =>
-      'Ta qualité de sommeil en dépend. Est-il vraiment vital de déverrouiller maintenant ? Seras-tu heureux demain d\'avoir cédé ce soir ? Reste fort — ton futur toi compte sur toi.';
+      'Il ne faut que 3 à 7 jours pour ancrer une nouvelle routine — et après ça, te réveiller ne te demandera presque aucun effort. Tu es en plein dedans. Ne cède pas ce soir ; ton futur toi compte sur toi. Respire un instant plutôt que de déverrouiller.';
 
   @override
   String get screenTimeUnlockConfirmCancel => 'Garder verrouillé';
+
+  @override
+  String get screenTimeUnlockConfirmBreathe => 'Respirer plutôt';
 
   @override
   String get screenTimeUnlockConfirmProceed => 'Déverrouiller quand même';

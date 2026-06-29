@@ -724,6 +724,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get itemPickerCustomItems => 'Custom Items';
 
   @override
+  String get itemPickerAddCustom => 'Add custom item';
+
+  @override
+  String get itemPickerNewItemTitle => 'New custom item';
+
+  @override
+  String get itemPickerNameHint => 'Name';
+
+  @override
+  String get itemPickerChooseEmoji => 'Choose an emoji';
+
+  @override
+  String get itemPickerAdd => 'Add';
+
+  @override
   String get affirmationPickerCustom => 'Custom';
 
   @override
@@ -1167,7 +1182,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get milestonesStreakBadges => 'Streak Badges';
 
   @override
-  String get milestonesAchievementBadges => 'Achievement Badges';
+  String get milestonesAchievementBadges => 'Wake-up Achievements';
+
+  @override
+  String get milestonesSleepAchievementBadges => 'Sleep Achievements';
 
   @override
   String get milestonesBadgesEarned => 'Badges Earned';
@@ -1309,6 +1327,64 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every morning deserves its own soundtrack.';
 
   @override
+  String get badgeFirstNight => 'First Night';
+
+  @override
+  String get badgeFirstNightReq => 'Complete your first wind-down';
+
+  @override
+  String get badgeFirstNightQuote =>
+      'Every good morning begins the night before.';
+
+  @override
+  String get badgeEarlyToBed => 'Early to Bed';
+
+  @override
+  String get badgeEarlyToBedReq => 'Wind down before 10 PM';
+
+  @override
+  String get badgeEarlyToBedQuote =>
+      'Rest is the foundation the day is built on.';
+
+  @override
+  String get badgeCalmMind => 'Calm Mind';
+
+  @override
+  String get badgeCalmMindReq => 'Finish a meditation or breathing wind-down';
+
+  @override
+  String get badgeCalmMindQuote => 'A quiet mind sleeps deepest.';
+
+  @override
+  String get badgeDreamer => 'Dreamer';
+
+  @override
+  String get badgeDreamerReq => 'Use all 6 wind-down missions';
+
+  @override
+  String get badgeDreamerQuote =>
+      'There is more than one path to a good night.';
+
+  @override
+  String get badgeWellRested => 'Well Rested';
+
+  @override
+  String get badgeWellRestedReq => 'Reach a 7-day streak on a sleep alarm';
+
+  @override
+  String get badgeWellRestedQuote =>
+      'Seven nights of intention. Sleep becomes a ritual.';
+
+  @override
+  String get badgeNoNightsOff => 'No Nights Off';
+
+  @override
+  String get badgeNoNightsOffReq => '30 consecutive nights of winding down';
+
+  @override
+  String get badgeNoNightsOffQuote => 'Consistency is the quietest superpower.';
+
+  @override
   String get wakeupTitle => 'Today\'s Wakeup';
 
   @override
@@ -1346,6 +1422,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionsMissed => 'Missed';
+
+  @override
+  String get sessionsScreenTimeRelapse => 'Screen-time relapse';
 
   @override
   String get quoteEinstein =>
@@ -1444,6 +1523,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dismissPhotoTakePhoto => 'TAKE A PHOTO OF';
 
   @override
+  String get dismissPhotoFindThis => 'FIND THIS';
+
+  @override
   String get dismissPhotoPickingTarget => 'Picking your target…';
 
   @override
@@ -1483,6 +1565,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dismissMissionTimeToWakeUp => 'Time to Wake Up!';
+
+  @override
+  String get dismissMissionTimeToWindDown => 'Time to Wind Down!';
+
+  @override
+  String dismissMissionStreak(int count) {
+    return '🔥 $count day streak';
+  }
 
   @override
   String dismissMissionLabel(int current, int total, String name) {
@@ -2436,14 +2526,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get screenTimeUnlock => 'Unlock controls';
 
   @override
-  String get screenTimeUnlockConfirmTitle => 'Are you really sure?';
+  String get screenTimeUnlockConfirmTitle =>
+      'Take 30 seconds to think about this';
 
   @override
   String get screenTimeUnlockConfirmBody =>
-      'Your sleep quality depends on this. Is unlocking truly vital right now? Will you be happy tomorrow that you gave in tonight? Stay strong — your future self is counting on you.';
+      'It takes just 3 to 7 days to anchor a new routine — and after that, waking up takes almost no effort. You\'re right in the middle of it. Don\'t give in tonight; your future self is counting on you. Breathe for a moment instead of unlocking.';
 
   @override
   String get screenTimeUnlockConfirmCancel => 'Keep it locked';
+
+  @override
+  String get screenTimeUnlockConfirmBreathe => 'Breathe instead';
 
   @override
   String get screenTimeUnlockConfirmProceed => 'Unlock anyway';

@@ -7,7 +7,9 @@ import '../../../shared/utils/haptic_utils.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/loading_barrier.dart';
+import '../../../shared/services/branch_service.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
+import '../../alarms/services/alarm_channel.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/mission_icon.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
@@ -166,6 +168,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingState state,
     OnboardingCubit cubit,
   ) async {
+    // Ask for AlarmKit authorization right before the alarm time picker, so
+    // the prompt lands in context (the next page is where they set the alarm).
+    if (_currentPage == 20) {
+      try {
+        await AlarmChannel.requestAuthorization();
+      } catch (e) {
+        debugPrint('[OnboardingScreen] requestAuthorization failed: $e');
+      }
+      if (!mounted) return;
+    }
     // Flush time picker local state to cubit before advancing.
     if (_currentPage == 15) {
       cubit.setUsualWakeTime(_usualWakeNotifier.value);
@@ -665,6 +677,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 19: Mission picker
                               MissionPickerStep(
                                 selectedMission: state.selectedMission,
+                                selectedConfig: state.missionConfig,
                                 onSelected: cubit.setMission,
                               ),
                               // 20: Info - Mission explanation
@@ -868,7 +881,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 39: Loading
                               LoadingStep(
                                 onComplete: () {
-                                  if (mounted) _next();
+                                  if (!mounted) return;
+                                  // Reveal the plan recap, then ask for
+                                  // ad-tracking (ATT) so the prompt lands over
+                                  // the revealed plan.
+                                  _next();
+                                  BranchService.requestTrackingAuthorization();
                                 },
                               ),
                               // 40: Morning plan summary

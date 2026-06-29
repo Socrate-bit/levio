@@ -25,12 +25,15 @@ class MilestonesCubit extends Cubit<MilestonesState> {
           buildStreakBadges().map(markEarned).toList();
       final achievementBadges =
           buildAchievementBadges().map(markEarned).toList();
+      final sleepAchievementBadges =
+          buildSleepAchievementBadges().map(markEarned).toList();
 
       emit(state.copyWith(
         currentStreak: profile.currentStreak,
         longestStreak: profile.longestStreak,
         streakBadges: streakBadges,
         achievementBadges: achievementBadges,
+        sleepAchievementBadges: sleepAchievementBadges,
         loading: false,
       ));
     } catch (e, st) {
