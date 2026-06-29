@@ -14,12 +14,13 @@ class BranchService {
   static bool _initialized = false;
   static StreamSubscription<Map<dynamic, dynamic>>? _sessionSub;
 
-  /// Requests App Tracking Transparency (iOS), then initializes Branch.
+  /// Initializes Branch (install + event attribution).
   ///
   /// `ios/Runner/branch.json` sets `deferInitForPluginRuntime: true`, so the
   /// native SDK does NOT auto-initialize — it waits for [FlutterBranchSdk.init]
-  /// below. We request ATT first so, if the user grants it, the advertising
-  /// identifier (IDFA) is available to Branch at init time for attribution.
+  /// below. The App Tracking Transparency prompt is requested separately, in
+  /// context, via [requestTrackingAuthorization] (fired when the onboarding
+  /// plan recap is revealed) rather than at launch.
   ///
   /// Safe to call once at startup; guarded against double-init.
   static Future<void> init() async {
@@ -27,12 +28,6 @@ class BranchService {
     try {
       // Initialize the native Branch SDK (deferred via branch.json).
       await FlutterBranchSdk.init(enableLogging: kDebugMode);
-
-      // iOS 14+: show the ATT prompt and wait for the user's response BEFORE
-      // Branch initializes. (No-op / notSupported on non-iOS platforms.)
-      if (Platform.isIOS) {
-        await FlutterBranchSdk.requestTrackingAuthorization();
-      }
 
       // Attach a session listener so Branch records the open and completes
       // attribution. Handler is intentionally minimal — no screen routing.
@@ -49,6 +44,18 @@ class BranchService {
       _initialized = true;
     } catch (e) {
       debugPrint('[BranchService] init failed: $e');
+    }
+  }
+
+  /// Shows the iOS App Tracking Transparency prompt and waits for the user's
+  /// response. Requested in context (when the onboarding plan recap is revealed)
+  /// so the IDFA, if granted, becomes available to Branch. No-op on non-iOS.
+  static Future<void> requestTrackingAuthorization() async {
+    if (!Platform.isIOS) return;
+    try {
+      await FlutterBranchSdk.requestTrackingAuthorization();
+    } catch (e) {
+      debugPrint('[BranchService] ATT request failed: $e');
     }
   }
 
