@@ -484,7 +484,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 6: Info - Energy levels
                               InfoStep(
                                 title: l10n.onboardingGetsYouOut,
-                                imagePlaceholder: const EnergyChart(),
+                                chartPlaceholder: const EnergyChart(),
                                 bodyText: l10n.onboardingAvoidGroggy,
                               ),
                               // 7-9: More surveys
@@ -528,7 +528,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 10: Info - One alarm one mission
                               InfoStep(
                                 title: l10n.onboardingOneAlarmOneMission,
-                                imagePlaceholder: const TimelineComparison(),
+                                chartPlaceholder: const TimelineComparison(),
                               ),
                               // 11-13: More surveys
                               SurveyStep(
@@ -866,7 +866,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 35: Info - Speedometer
                               InfoStep(
                                 title: l10n.onboarding5xFaster,
-                                imagePlaceholder: const SpeedometerChart(),
+                                chartPlaceholder: const SpeedometerChart(),
                               ),
                               // 36: Rating
                               const RatingStep(),
