@@ -91,5 +91,7 @@ flutter:
     - assets/streaks.png
     - assets/siren.png
     - assets/animations/
+    - assets/onboarding/
+    - assets/onboarding/profil_comments/
     - shorebird.yaml
     - assets/exemple.png

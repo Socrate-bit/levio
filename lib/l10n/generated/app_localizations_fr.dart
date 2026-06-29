@@ -1678,11 +1678,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingThirtyPlus => '30 minutes ou plus';
 
   @override
-  String get onboardingBiologyTitle => 'Biologie, pas paresse';
+  String get onboardingBiologyTitle => 'Ce n\'est pas ta faute !';
+
+  @override
+  String get onboardingBiologySubtitle => 'La biologie, pas la paresse';
 
   @override
   String get onboardingBiologyBody =>
-      'Ton cerveau met 15 à 30 min à éliminer l\'inertie du sommeil. Le snooze relance le cycle, empirant les choses.\n\nLevio force l\'action immédiate en sautant la zone de brouillard.';
+      'L\'inertie du sommeil est réelle : ton cerveau met 30 à 50 min à dissiper complètement la somnolence après le réveil. Le snooze relance le cycle et empire les choses.';
+
+  @override
+  String get onboardingBiologyReferences =>
+      'Tassi & Muzet (2000). L\'inertie du sommeil. Sleep Medicine Reviews.\nTrotti (2017). Se réveiller est la chose la plus difficile de ma journée. Sleep Medicine Reviews.\nHilditch & McHill (2019). L\'inertie du sommeil : connaissances actuelles. Nature and Science of Sleep.';
+
+  @override
+  String get onboardingScienceSays => 'La science le dit !';
 
   @override
   String get onboarding5xFaster =>
@@ -1705,6 +1715,11 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get onboardingSleepTimeSubtitle =>
       'On te préviendra quand il sera temps de ralentir.';
+
+  @override
+  String onboardingSleepDurationBadge(String duration) {
+    return '$duration de sommeil';
+  }
 
   @override
   String get onboardingScreenEduTitle => 'Les écrans volent ton sommeil';
@@ -1817,7 +1832,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingWelcomeTitle =>
-      'Arrête de repousser l\'alarme.\nCommence à gagner tes matins.';
+      'Arrête de te battre contre ton réveil.\nRéussis ton lever, réussis ta journée !';
 
   @override
   String get onboardingWelcomeSubtitle =>
@@ -1925,6 +1940,16 @@ class AppLocalizationsFr extends AppLocalizations {
       'Tu feras ceci pour éteindre ton alarme.';
 
   @override
+  String get onboardingV2MissionPickerHint =>
+      'Le plus optimal est de bouger quelque part, mais tu peux choisir une autre mission si tu en as envie. Tu pourras éditer tout ça à tout instant.';
+
+  @override
+  String get onboardingV2KeepChoosePlace => 'Choisir un endroit';
+
+  @override
+  String get onboardingV2ChooseOtherMission => 'Choisir une autre mission';
+
+  @override
   String get onboardingMorningPlanTitle => 'Ton plan matinal';
 
   @override
@@ -1951,7 +1976,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get onboardingYoureUp => 'Tu es debout. La journée commence.';
+  String get onboardingYoureUp =>
+      'La journée commence sur une grosse victoire 🏆';
 
   @override
   String get onboardingNoSnooze =>
@@ -2077,7 +2103,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingSignatureCommit => 'Je m\'engage';
 
   @override
-  String get onboardingTimePickerTitle => 'Règle ta première heure Levio';
+  String get onboardingTimePickerTitle =>
+      'À quelle heure tu veux te réveiller ?';
 
   @override
   String onboardingTimePickerSubtitle(String time) {
@@ -2115,6 +2142,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingTimelineMins => '25 MINS';
 
   @override
+  String get onboardingTimelineOutcomePanic => 'Panique';
+
+  @override
+  String get onboardingTimelineOutcomeStress => 'Stress';
+
+  @override
+  String get onboardingTimelineOutcomeFatigue => 'Fatigue';
+
+  @override
+  String get onboardingTimelineOutcomeFog => 'Brouillard';
+
+  @override
+  String get onboardingTimelineOutcomeSerenity => 'Sérénité';
+
+  @override
+  String get onboardingTimelineOutcomeEnergy => 'Énergie';
+
+  @override
+  String get onboardingTimelineOutcomeHealth => 'Bonne santé';
+
+  @override
   String get onboardingTrialTitle =>
       'Nous t\'enverrons\nun rappel avant\nla fin de ton essai gratuit';
 
@@ -2134,7 +2182,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingEnergyLevio => 'Protocole Levio';
 
   @override
-  String get onboardingEnergySnoozeCycle => 'Cycle de snooze';
+  String get onboardingEnergySnoozeCycle => 'CYCLE DE SNOOZE';
 
   @override
   String get onboardingEnergyGroggyZone => 'ZONE DE BROUILLARD';
@@ -2591,21 +2639,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingV2ProofScientistsTitle =>
-      'Conçu avec des scientifiques du sommeil';
+      'Conçu par des experts du sommeil';
+
+  @override
+  String get onboardingV2ProofScientistsSubtitle =>
+      'Validé par la recherche scientifique';
 
   @override
   String get onboardingV2ProofScientistsBody =>
-      'La méthode Levio s\'appuie sur la recherche sur les rythmes circadiens et l\'inertie du sommeil : chaque étape est pensée pour vraiment te lever.';
+      'Chaque étape de la méthode Levio s\'appuie sur la recherche sur les rythmes circadiens et l\'inertie du sommeil — pensée avec des experts du sommeil pour vraiment te lever.';
 
   @override
-  String get onboardingV2Proof200kTitle => '200 000 matins gagnés';
-
-  @override
-  String get onboardingV2Proof200kBody =>
-      'Dans plus de 30 pays, des personnes utilisent Levio pour vaincre le rappel d\'alarme et commencer la journée à leurs conditions.';
-
-  @override
-  String get onboardingV2FirstRoomTitle => 'Où vas-tu en premier ?';
+  String get onboardingV2FirstRoomTitle =>
+      'Où vas-tu en premier en sortant du lit ?';
 
   @override
   String get onboardingV2FirstRoomSubtitle =>
@@ -2624,14 +2670,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingV2RoomOther => 'Autre chose';
 
   @override
-  String get onboardingV2WakeRoutineTitle => 'Crée ta routine du matin';
+  String get onboardingV2WakeRoutineTitle => 'Garde ton élan';
 
   @override
   String get onboardingV2WakeRoutineSubtitle =>
-      'Après ta mission, garde l\'élan. Maintiens et glisse pour réorganiser.';
+      'C\'est en surfant sur l\'élan de ta mission que tes matins tiennent dans la durée. Choisis ce que tu fais ensuite.';
+
+  @override
+  String get onboardingRoutineModify => 'Modifier la routine';
 
   @override
   String get onboardingV2WakeRoutineRow => 'Ta routine du matin';
+
+  @override
+  String get onboardingV2NightRoutineRow => 'Ta routine du soir';
 
   @override
   String get onboardingV2SleepTiredTitle =>
@@ -2667,32 +2719,44 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingV2SleepChallengeNotEnough => 'Je ne dors jamais assez';
 
   @override
-  String get onboardingV2SleepChallengeGroggy => 'Je me réveille groggy';
+  String get onboardingV2SleepChallengeGroggy => 'Je scrolle sur mon téléphone';
 
   @override
   String get onboardingV2SleepQualityTitle =>
-      'La qualité du sommeil, c\'est tout';
+      'Le sommeil, c\'est le plus important';
+
+  @override
+  String get onboardingV2SleepQualitySubtitle =>
+      'Facteur premier d\'un réveil facile';
 
   @override
   String get onboardingV2SleepQualityBody =>
-      'La qualité du sommeil est le premier facteur d\'un réveil facile — et de ta forme tout au long de la journée.';
+      'Le sommeil est le facteur n°1 de ta capacité à te réveiller, de ta forme dans la journée et de ta santé à long terme. Et une heure de coucher régulière est le levier le plus puissant pour l\'améliorer.';
 
   @override
-  String get onboardingV2SleepSolutionTitle => 'Levio t\'aide à décompresser';
+  String get onboardingV2SleepQualityReferences =>
+      'Windred et al. (2024). La régularité du sommeil prédit mieux la mortalité que sa durée. Sleep.\nPhillips et al. (2017). Des rythmes veille/sommeil irréguliers sont liés à de moins bonnes performances. Scientific Reports.';
+
+  @override
+  String get onboardingV2SleepSolutionTitle =>
+      'Levio t\'aide à créer une routine';
+
+  @override
+  String get onboardingV2SleepSolutionSubtitle => 'Basée sur la science';
 
   @override
   String get onboardingV2SleepSolutionBody =>
-      'On t\'invite à t\'endormir au bon moment et à ranger les écrans, pour que les matins deviennent plus faciles.';
+      'Levio crée la routine parfaite pour t\'aider à t\'endormir et installer de la régularité.';
 
   @override
   String get onboardingV2ConsistencyTitle => 'La régularité change tout';
 
   @override
   String get onboardingV2ConsistencySubtitle =>
-      'Une heure de coucher régulière est le levier n°1. Tu veux aussi une alarme de coucher ?';
+      'Une heure de coucher régulière est le levier n°1 — les utilisateurs avec une alarme de coucher obtiennent _3× de meilleurs résultats_. Tu veux aussi une alarme de coucher ?';
 
   @override
-  String get onboardingV2Recall200kTitle => 'Rejoins 200 000 lève-tôt';
+  String get onboardingV2Recall200kTitle => 'Rejoins 500 000 lève-tôt';
 
   @override
   String get onboardingV2Recall200kBody =>

@@ -345,7 +345,10 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     }
 
     // Optional screen-time block from bedtime (or a picked start) to wake-up.
-    if (state.wantsScreenBlock == true) {
+    // Skip if a schedule already exists so re-running completeOnboarding
+    // (e.g. skip then sign-in) doesn't append duplicate schedules.
+    if (state.wantsScreenBlock == true &&
+        screenTimeCubit.state.schedules.isEmpty) {
       try {
         final start =
             state.wantsSleepAlarm == true ? state.sleepTime : state.screenBlockStart;
@@ -492,7 +495,10 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           'OnboardingCubit.completeOnboardingV2.addAlarm', e, st);
     }
 
-    if (state.wantsScreenBlock == true) {
+    // Skip if a schedule already exists so re-running completeOnboardingV2
+    // doesn't append duplicate screen-block schedules.
+    if (state.wantsScreenBlock == true &&
+        screenTimeCubit.state.schedules.isEmpty) {
       try {
         final start = state.wantsSleepAlarm == true
             ? state.sleepTime

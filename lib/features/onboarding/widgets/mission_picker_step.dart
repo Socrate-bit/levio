@@ -29,12 +29,13 @@ class MissionPickerStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 0),
+          padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 l10n.onboardingMissionPickerTitle,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
@@ -45,6 +46,7 @@ class MissionPickerStep extends StatelessWidget {
               SizedBox(height: 8.h),
               Text(
                 l10n.onboardingMissionPickerSubtitle,
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
               ),
             ],
@@ -91,6 +93,8 @@ class MissionPickerStep extends StatelessWidget {
                           children: [
                             Text(
                               localizedMissionName(l10n, mission.type),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
@@ -99,6 +103,8 @@ class MissionPickerStep extends StatelessWidget {
                             ),
                             Text(
                               localizedMissionDesc(l10n, mission.type),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                   fontSize: 13.sp, color: c.textSecondary),
                             ),

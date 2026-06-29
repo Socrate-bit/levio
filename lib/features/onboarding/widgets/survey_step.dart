@@ -22,6 +22,21 @@ class SurveyStep extends StatelessWidget {
     this.icons,
   });
 
+  // Splits text on `_` markers, underlining the wrapped segments (odd parts).
+  // e.g. "get _3× better results_ now" underlines "3× better results".
+  List<TextSpan> _underlineSpans(String text, TextStyle base) {
+    final parts = text.split('_');
+    return [
+      for (var i = 0; i < parts.length; i++)
+        TextSpan(
+          text: parts[i],
+          style: i.isOdd
+              ? base.copyWith(decoration: TextDecoration.underline)
+              : base,
+        ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -42,9 +57,13 @@ class SurveyStep extends StatelessWidget {
           ),
           if (subtitle != null) ...[
             SizedBox(height: 8.h),
-            Text(
-              subtitle!,
-              style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
+            Text.rich(
+              TextSpan(
+                children: _underlineSpans(
+                  subtitle!,
+                  TextStyle(fontSize: 16.sp, color: c.textSecondary),
+                ),
+              ),
             ),
           ],
           SizedBox(height: 24.h),

@@ -49,7 +49,7 @@ class WelcomeStep extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 '⭐⭐⭐⭐⭐',
-                style: TextStyle(fontSize: 28.sp),
+                style: TextStyle(fontSize: 64.sp),
               ),
             ),
             const Spacer(flex: 3),

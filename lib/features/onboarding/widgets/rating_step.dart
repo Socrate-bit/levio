@@ -45,18 +45,21 @@ class RatingStep extends StatelessWidget {
           _TestimonialCard(
             name: l10n.onboardingRatingMarc,
             review: l10n.onboardingRatingMarcReview,
+            avatar: 'assets/onboarding/profil_comments/man1.jpg',
             colors: c,
           ),
           SizedBox(height: 12.h),
           _TestimonialCard(
             name: l10n.onboardingRatingSophie,
             review: l10n.onboardingRatingSophieReview,
+            avatar: 'assets/onboarding/profil_comments/woman1.jpg',
             colors: c,
           ),
           SizedBox(height: 12.h),
           _TestimonialCard(
             name: l10n.onboardingRatingAlex,
             review: l10n.onboardingRatingAlexReview,
+            avatar: 'assets/onboarding/profil_comments/man2.jpg',
             colors: c,
           ),
           SizedBox(height: 24.h),
@@ -69,11 +72,13 @@ class RatingStep extends StatelessWidget {
 class _TestimonialCard extends StatelessWidget {
   final String name;
   final String review;
+  final String avatar;
   final AppColors colors;
 
   const _TestimonialCard({
     required this.name,
     required this.review,
+    required this.avatar,
     required this.colors,
   });
 
@@ -94,13 +99,7 @@ class _TestimonialCard extends StatelessWidget {
               CircleAvatar(
                 radius: 18.r,
                 backgroundColor: colors.separator,
-                child: Text(
-                  name[0],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: colors.textPrimary,
-                  ),
-                ),
+                backgroundImage: AssetImage(avatar),
               ),
               SizedBox(width: 10.w),
               Text(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
 
@@ -13,6 +14,9 @@ class TimePickerStep extends StatefulWidget {
   // Notifier is updated locally on every scroll tick; the parent reads its
   // value once on Continue instead of emitting a Bloc state per tick.
   final ValueNotifier<TimeOfDay> notifier;
+  // When set (bedtime picker), shows a live sleep-duration badge comparing the
+  // picked time to this wake-up time, colour-coded by how much sleep it leaves.
+  final TimeOfDay? compareWakeTime;
 
   const TimePickerStep({
     super.key,
@@ -20,6 +24,7 @@ class TimePickerStep extends StatefulWidget {
     this.subtitle,
     this.subtitleBuilder,
     required this.notifier,
+    this.compareWakeTime,
   });
 
   @override
@@ -97,6 +102,18 @@ class _TimePickerStepState extends State<TimePickerStep> {
               ),
             ),
           ),
+          if (widget.compareWakeTime != null) ...[
+            SizedBox(height: 14.h),
+            Center(
+              child: ValueListenableBuilder<TimeOfDay>(
+                valueListenable: widget.notifier,
+                builder: (_, bedtime, _) => _SleepDurationBadge(
+                  bedtime: bedtime,
+                  wakeTime: widget.compareWakeTime!,
+                ),
+              ),
+            ),
+          ],
           SizedBox(height: 16.h),
           SizedBox(
             height: 200.h,
@@ -150,6 +167,63 @@ class _TimePickerStepState extends State<TimePickerStep> {
             ),
           ),
           const Spacer(),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pill showing how much sleep the picked bedtime leaves before [wakeTime],
+/// colour-coded: red under 6h, green from 6h to under 8h, blue at 8h or more.
+class _SleepDurationBadge extends StatelessWidget {
+  final TimeOfDay bedtime;
+  final TimeOfDay wakeTime;
+
+  const _SleepDurationBadge({required this.bedtime, required this.wakeTime});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    // Minutes from bedtime to wake-up, rolling over midnight when needed.
+    final bedMin = bedtime.hour * 60 + bedtime.minute;
+    final wakeMin = wakeTime.hour * 60 + wakeTime.minute;
+    var total = wakeMin - bedMin;
+    if (total <= 0) total += 24 * 60;
+
+    final Color color;
+    if (total < 6 * 60) {
+      color = const Color(0xFFE53935); // red — under 6h, too little
+    } else if (total < 7 * 60) {
+      color = const Color(0xFFF9A825); // yellow — 6–7h, a bit short
+    } else if (total < 8 * 60) {
+      color = const Color(0xFF43A047); // green — 7–8h, healthy range
+    } else {
+      color = const Color(0xFF1E88E5); // blue — 8h or more, plenty
+    }
+
+    final h = total ~/ 60;
+    final m = total % 60;
+    final duration = m == 0 ? '${h}h' : '${h}h${m.toString().padLeft(2, '0')}';
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.bedtime_outlined, size: 16.sp, color: color),
+          SizedBox(width: 6.w),
+          Text(
+            l10n.onboardingSleepDurationBadge(duration),
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
         ],
       ),
     );

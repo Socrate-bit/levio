@@ -3227,14 +3227,32 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingBiologyTitle.
   ///
   /// In en, this message translates to:
-  /// **'Biology, Not Laziness'**
+  /// **'It\'s not your fault!'**
   String get onboardingBiologyTitle;
+
+  /// No description provided for @onboardingBiologySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Biology, not laziness'**
+  String get onboardingBiologySubtitle;
 
   /// No description provided for @onboardingBiologyBody.
   ///
   /// In en, this message translates to:
-  /// **'Your brain takes 15–30 min to clear sleep inertia. Snoozing resets the cycle, making it worse.\n\nLevio forces immediate action — skipping the groggy zone entirely.'**
+  /// **'Sleep inertia is real: your brain takes 30–50 min to fully clear the grogginess after waking. Hitting snooze restarts the cycle, making it worse.'**
   String get onboardingBiologyBody;
+
+  /// No description provided for @onboardingBiologyReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Tassi & Muzet (2000). Sleep inertia. Sleep Medicine Reviews.\nTrotti (2017). Waking up is the hardest thing I do all day. Sleep Medicine Reviews.\nHilditch & McHill (2019). Sleep inertia: current insights. Nature and Science of Sleep.'**
+  String get onboardingBiologyReferences;
+
+  /// No description provided for @onboardingScienceSays.
+  ///
+  /// In en, this message translates to:
+  /// **'Science says so!'**
+  String get onboardingScienceSays;
 
   /// No description provided for @onboarding5xFaster.
   ///
@@ -3271,6 +3289,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We\'ll nudge you when it\'s time to wind down.'**
   String get onboardingSleepTimeSubtitle;
+
+  /// No description provided for @onboardingSleepDurationBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration} of sleep'**
+  String onboardingSleepDurationBadge(String duration);
 
   /// No description provided for @onboardingScreenEduTitle.
   ///
@@ -3449,7 +3473,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingWelcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Stop hitting snooze.\nStart winning mornings.'**
+  /// **'Stop fighting your alarm.\nWin your wake-up, win your day!'**
   String get onboardingWelcomeTitle;
 
   /// No description provided for @onboardingWelcomeSubtitle.
@@ -3650,6 +3674,24 @@ abstract class AppLocalizations {
   /// **'You\'ll do this to turn off your alarm.'**
   String get onboardingMissionPickerSubtitle;
 
+  /// No description provided for @onboardingV2MissionPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving somewhere is the most effective, but you can pick another mission if you\'d like. You can edit all of this anytime.'**
+  String get onboardingV2MissionPickerHint;
+
+  /// No description provided for @onboardingV2KeepChoosePlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a place'**
+  String get onboardingV2KeepChoosePlace;
+
+  /// No description provided for @onboardingV2ChooseOtherMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another mission'**
+  String get onboardingV2ChooseOtherMission;
+
   /// No description provided for @onboardingMorningPlanTitle.
   ///
   /// In en, this message translates to:
@@ -3689,7 +3731,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingYoureUp.
   ///
   /// In en, this message translates to:
-  /// **'You\'re up. Day started.'**
+  /// **'The day starts with a big win 🏆'**
   String get onboardingYoureUp;
 
   /// No description provided for @onboardingNoSnooze.
@@ -3980,6 +4022,48 @@ abstract class AppLocalizations {
   /// **'25 MINS'**
   String get onboardingTimelineMins;
 
+  /// No description provided for @onboardingTimelineOutcomePanic.
+  ///
+  /// In en, this message translates to:
+  /// **'Panic'**
+  String get onboardingTimelineOutcomePanic;
+
+  /// No description provided for @onboardingTimelineOutcomeStress.
+  ///
+  /// In en, this message translates to:
+  /// **'Stress'**
+  String get onboardingTimelineOutcomeStress;
+
+  /// No description provided for @onboardingTimelineOutcomeFatigue.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue'**
+  String get onboardingTimelineOutcomeFatigue;
+
+  /// No description provided for @onboardingTimelineOutcomeFog.
+  ///
+  /// In en, this message translates to:
+  /// **'Brain fog'**
+  String get onboardingTimelineOutcomeFog;
+
+  /// No description provided for @onboardingTimelineOutcomeSerenity.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get onboardingTimelineOutcomeSerenity;
+
+  /// No description provided for @onboardingTimelineOutcomeEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get onboardingTimelineOutcomeEnergy;
+
+  /// No description provided for @onboardingTimelineOutcomeHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Good health'**
+  String get onboardingTimelineOutcomeHealth;
+
   /// No description provided for @onboardingTrialTitle.
   ///
   /// In en, this message translates to:
@@ -4019,7 +4103,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingEnergySnoozeCycle.
   ///
   /// In en, this message translates to:
-  /// **'Snooze Cycle'**
+  /// **'SNOOZE CYCLE'**
   String get onboardingEnergySnoozeCycle;
 
   /// No description provided for @onboardingEnergyGroggyZone.
@@ -4811,26 +4895,20 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingV2ProofScientistsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Built with sleep scientists'**
+  /// **'Built by sleep experts'**
   String get onboardingV2ProofScientistsTitle;
+
+  /// No description provided for @onboardingV2ProofScientistsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed by peer-reviewed science'**
+  String get onboardingV2ProofScientistsSubtitle;
 
   /// No description provided for @onboardingV2ProofScientistsBody.
   ///
   /// In en, this message translates to:
-  /// **'Levio\'s method is grounded in circadian and sleep-inertia research, so every step is designed to actually get you up.'**
+  /// **'Every step of Levio\'s method is grounded in circadian and sleep-inertia research — engineered with sleep experts to actually get you up.'**
   String get onboardingV2ProofScientistsBody;
-
-  /// No description provided for @onboardingV2Proof200kTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'200,000 mornings won'**
-  String get onboardingV2Proof200kTitle;
-
-  /// No description provided for @onboardingV2Proof200kBody.
-  ///
-  /// In en, this message translates to:
-  /// **'People in over 30 countries use Levio to beat the snooze button and start their day on their terms.'**
-  String get onboardingV2Proof200kBody;
 
   /// No description provided for @onboardingV2FirstRoomTitle.
   ///
@@ -4871,20 +4949,32 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingV2WakeRoutineTitle.
   ///
   /// In en, this message translates to:
-  /// **'Build your morning routine'**
+  /// **'Keep your momentum going'**
   String get onboardingV2WakeRoutineTitle;
 
   /// No description provided for @onboardingV2WakeRoutineSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'After your mission, keep the momentum going. Hold and drag to reorder.'**
+  /// **'Riding the momentum from your mission is what makes mornings stick. Choose what you\'ll do next.'**
   String get onboardingV2WakeRoutineSubtitle;
+
+  /// No description provided for @onboardingRoutineModify.
+  ///
+  /// In en, this message translates to:
+  /// **'Modify routine'**
+  String get onboardingRoutineModify;
 
   /// No description provided for @onboardingV2WakeRoutineRow.
   ///
   /// In en, this message translates to:
   /// **'Your morning routine'**
   String get onboardingV2WakeRoutineRow;
+
+  /// No description provided for @onboardingV2NightRoutineRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Your night routine'**
+  String get onboardingV2NightRoutineRow;
 
   /// No description provided for @onboardingV2SleepTiredTitle.
   ///
@@ -4949,31 +5039,49 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingV2SleepChallengeGroggy.
   ///
   /// In en, this message translates to:
-  /// **'I wake up groggy'**
+  /// **'I scroll on my phone'**
   String get onboardingV2SleepChallengeGroggy;
 
   /// No description provided for @onboardingV2SleepQualityTitle.
   ///
   /// In en, this message translates to:
-  /// **'Sleep quality is everything'**
+  /// **'Sleep matters most'**
   String get onboardingV2SleepQualityTitle;
+
+  /// No description provided for @onboardingV2SleepQualitySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The #1 driver of an easy wake-up'**
+  String get onboardingV2SleepQualitySubtitle;
 
   /// No description provided for @onboardingV2SleepQualityBody.
   ///
   /// In en, this message translates to:
-  /// **'Sleep quality is the #1 predictor of an easy wake-up — and of how you feel and perform all day long.'**
+  /// **'Sleep is the #1 factor in your ability to wake up, your energy through the day, and your long-term health. And a consistent bedtime is the single most powerful lever to improve it.'**
   String get onboardingV2SleepQualityBody;
+
+  /// No description provided for @onboardingV2SleepQualityReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Windred et al. (2024). Sleep regularity is a stronger predictor of mortality risk than sleep duration. Sleep.\nPhillips et al. (2017). Irregular sleep/wake patterns are associated with poorer academic performance. Scientific Reports.'**
+  String get onboardingV2SleepQualityReferences;
 
   /// No description provided for @onboardingV2SleepSolutionTitle.
   ///
   /// In en, this message translates to:
-  /// **'Levio helps you wind down'**
+  /// **'Levio builds your routine'**
   String get onboardingV2SleepSolutionTitle;
+
+  /// No description provided for @onboardingV2SleepSolutionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed by science'**
+  String get onboardingV2SleepSolutionSubtitle;
 
   /// No description provided for @onboardingV2SleepSolutionBody.
   ///
   /// In en, this message translates to:
-  /// **'We nudge you to fall asleep at the right time and help you put the screens away, so mornings get easier.'**
+  /// **'Levio creates the perfect routine to help you fall asleep and build consistency.'**
   String get onboardingV2SleepSolutionBody;
 
   /// No description provided for @onboardingV2ConsistencyTitle.
@@ -4985,13 +5093,13 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingV2ConsistencySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'A regular bedtime is the #1 lever. Want a bedtime alarm too?'**
+  /// **'A regular bedtime is the #1 lever — users with a bedtime alarm get _3× better results_. Want a bedtime alarm too?'**
   String get onboardingV2ConsistencySubtitle;
 
   /// No description provided for @onboardingV2Recall200kTitle.
   ///
   /// In en, this message translates to:
-  /// **'Join 200,000 early risers'**
+  /// **'Join 500,000 early risers'**
   String get onboardingV2Recall200kTitle;
 
   /// No description provided for @onboardingV2Recall200kBody.

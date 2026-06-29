@@ -54,14 +54,6 @@ class MorningPlanStep extends StatelessWidget {
     return TimeOfDay(hour: total ~/ 60, minute: total % 60);
   }
 
-  /// Comma-joined localized wind-down activity names (falls back to the default
-  /// routine steps when none were picked).
-  String _activitiesLabel(AppLocalizations l10n) {
-    final steps =
-        relaxingActivities.isNotEmpty ? relaxingActivities : routinePresetSteps;
-    return steps.map((a) => localizedItemName(l10n, a)).join(', ');
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -74,9 +66,6 @@ class MorningPlanStep extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 8.h),
-          // Stars placeholder
-          Text('⭐⭐⭐⭐⭐', style: TextStyle(fontSize: 22.sp)),
-          SizedBox(height: 12.h),
           Text(
             hasSleep
                 ? l10n.onboardingSleepPlanTitle
@@ -92,32 +81,6 @@ class MorningPlanStep extends StatelessWidget {
             l10n.onboardingMorningPlanSubtitle(timeStr),
             style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
           ),
-          SizedBox(height: 16.h),
-          // Info pills
-          Builder(builder: (context) {
-            final now = DateTime.now();
-            var alarmDt = DateTime(now.year, now.month, now.day,
-                alarmTime.hour, alarmTime.minute);
-            if (alarmDt.isBefore(now)) {
-              alarmDt = alarmDt.add(const Duration(days: 1));
-            }
-            final diff = alarmDt.difference(now);
-            final h = diff.inHours;
-            final m = diff.inMinutes % 60;
-            final countdown = '${h}h ${m}m';
-            final dayLabel = localizedDayShort(l10n, alarmDt.weekday % 7);
-            return Wrap(
-              spacing: 8.w,
-              runSpacing: 8.h,
-              alignment: WrapAlignment.center,
-              children: [
-                _Pill(icon: Icons.timer, label: l10n.onboardingStartsIn(countdown), colors: c),
-                _Pill(icon: Icons.access_time, label: '$dayLabel, $timeStr', colors: c, onTap: onEditTime),
-                _Pill(icon: Icons.fitness_center, label: missionName, colors: c, onTap: onEditMission),
-                _Pill(icon: Icons.notifications, label: localizedSoundName(l10n, soundId), colors: c, onTap: onEditSound),
-              ],
-            );
-          }),
           SizedBox(height: 24.h),
           // Timeline
           Container(
@@ -154,7 +117,7 @@ class MorningPlanStep extends StatelessWidget {
                   if (onEditNightRoutine != null) ...[
                     _TimelineItem(
                       icon: Icons.self_improvement,
-                      label: _activitiesLabel(l10n),
+                      label: l10n.onboardingV2NightRoutineRow,
                       colors: c,
                       onTap: onEditNightRoutine,
                     ),
@@ -175,6 +138,7 @@ class MorningPlanStep extends StatelessWidget {
                   icon: Icons.notifications,
                   label: l10n.onboardingAlarmRings(timeStr),
                   colors: c,
+                  onTap: onEditTime,
                 ),
                 _TimelineLine(colors: c),
                 _TimelineItem(
@@ -219,16 +183,6 @@ class MorningPlanStep extends StatelessWidget {
             ),
           ),
           SizedBox(height: 32.h),
-          // Rise and repeat
-          Text(
-            l10n.onboardingRiseAndRepeat,
-            style: TextStyle(
-              fontSize: 22.sp,
-              fontWeight: FontWeight.bold,
-              color: c.textPrimary,
-            ),
-          ),
-          SizedBox(height: 8.h),
           Text(
             l10n.onboardingAlarmFrequency(repeatDays.where((d) => d).length),
             style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
@@ -246,51 +200,6 @@ class MorningPlanStep extends StatelessWidget {
           ),
           SizedBox(height: 32.h),
         ],
-      ),
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final AppColors colors;
-  final VoidCallback? onTap;
-
-  const _Pill({
-    required this.icon,
-    required this.label,
-    required this.colors,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap == null ? null : withHaptic(onTap!),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: colors.card,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color: onTap != null ? AppColors.orange : colors.separator,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16.sp, color: colors.textSecondary),
-            SizedBox(width: 6.w),
-            Text(label,
-                style:
-                    TextStyle(fontSize: 13.sp, color: colors.textPrimary)),
-            if (onTap != null) ...[
-              SizedBox(width: 6.w),
-              Icon(Icons.edit, size: 12.sp, color: AppColors.orange),
-            ],
-          ],
-        ),
       ),
     );
   }

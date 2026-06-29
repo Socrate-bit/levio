@@ -9,7 +9,7 @@ import '../../settings/cubit/settings_cubit.dart';
 
 /// Supported app languages (code, flag emoji, endonym shown in its own tongue).
 const _languages = <({String code, String flag, String name})>[
-  (code: 'en', flag: '🇬🇧', name: 'English'),
+  (code: 'en', flag: '🇺🇸', name: 'English'),
   (code: 'fr', flag: '🇫🇷', name: 'Français'),
 ];
 
@@ -38,9 +38,7 @@ class LanguageFlagButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_flagFor(code), style: TextStyle(fontSize: 18.sp)),
-            SizedBox(width: 4.w),
-            Icon(Icons.keyboard_arrow_down, size: 16.sp, color: c.textSecondary),
+            Text(_flagFor(code), style: TextStyle(fontSize: 24.sp)),
           ],
         ),
       ),

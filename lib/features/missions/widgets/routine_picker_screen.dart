@@ -42,122 +42,14 @@ class RoutinePickerScreen extends StatefulWidget {
 }
 
 class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
-  // Ordered list of chosen steps (shown as cards). A step in here is removed
-  // from the chip pool; deleting its card returns the chip.
-  late List<String> _selected;
-  late RoutineMode? _mode;
-  List<String> _customSteps = [];
-  bool _loading = true;
-
-  /// Preset catalog for the active mode (legacy list when no mode is set).
-  List<String> get _presetSteps {
-    switch (_mode) {
-      case RoutineMode.wake:
-        return routineWakePresetSteps;
-      case RoutineMode.night:
-        return routineNightPresetSteps;
-      case null:
-        return routinePresetSteps;
-    }
-  }
-
-  /// All selectable labels (presets + persisted custom steps).
-  List<String> get _allLabels => [..._presetSteps, ..._customSteps];
+  // Mirrors the body's current selection so the Done button can return it and
+  // reflect its enabled state.
+  late List<String> _result;
 
   @override
   void initState() {
     super.initState();
-    _mode = widget.mode;
-    // Start from the existing config when editing; otherwise nothing is
-    // pre-selected — every chip is available to add.
-    _selected = widget.preselected?.toList() ?? <String>[];
-    _loadCustom();
-  }
-
-  Future<void> _loadCustom() async {
-    final custom = await CustomItemsService.getCustomRoutineSteps();
-    if (!mounted) return;
-    // Surface any preselected steps not in any preset catalog or the persisted
-    // store (e.g. custom steps from a saved routine).
-    final extra = _selected.where(
-      (s) => !_allPresetSteps.contains(s) && !custom.contains(s),
-    );
-    setState(() {
-      _customSteps = [...custom, ...extra];
-      _loading = false;
-    });
-  }
-
-  /// Opens a modal with a text field + button to name a new custom step,
-  /// instead of editing inline on a chip.
-  Future<void> _showAddCustomDialog() async {
-    final l10n = AppLocalizations.of(context);
-    final c = AppColors.of(context);
-    final ctrl = TextEditingController();
-    final text = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: c.card,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        title: Text(
-          l10n.routineAddStep,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w600),
-        ),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          textCapitalization: TextCapitalization.sentences,
-          style: TextStyle(fontSize: 15.sp, color: c.textPrimary),
-          decoration: InputDecoration(
-            hintText: l10n.routineAddStep,
-            hintStyle: TextStyle(color: c.textSecondary),
-            filled: true,
-            fillColor: c.background,
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14.r),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.generalCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-            ),
-            child: Text(
-              l10n.screenTimeAddSchedule,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-    ctrl.dispose();
-    if (text == null || text.isEmpty) return;
-
-    final isNew =
-        !_customSteps.contains(text) && !_allPresetSteps.contains(text);
-    setState(() {
-      if (isNew) _customSteps.add(text);
-      // A new custom step goes straight into the routine as a card.
-      if (!_selected.contains(text)) _selected.add(text);
-    });
-    if (isNew) CustomItemsService.addCustomRoutineStep(text);
+    _result = widget.preselected?.toList() ?? <String>[];
   }
 
   @override
@@ -212,102 +104,23 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
               ),
             ),
             SizedBox(height: 16.h),
-            // Wake/night catalog switch (in-app editing only).
-            if (widget.showModeToggle) ...[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: _ModeToggle(
-                  mode: _mode ?? RoutineMode.wake,
-                  wakeLabel: l10n.routineModeWake,
-                  nightLabel: l10n.routineModeNight,
-                  onChanged: (m) => setState(() => _mode = m),
-                ),
-              ),
-              SizedBox(height: 16.h),
-            ],
-
-            // Chips
+            // Interactive picker — shared with the embedded onboarding step.
             Expanded(
-              child: _loading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.orange,
-                        strokeWidth: 2.5,
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Chosen steps, in order, as removable cards.
-                          // Hold-and-drag to reorder.
-                          if (_selected.isNotEmpty)
-                            ReorderableListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              buildDefaultDragHandles: false,
-                              itemCount: _selected.length,
-                              onReorder: (oldIndex, newIndex) {
-                                setState(() {
-                                  if (newIndex > oldIndex) newIndex -= 1;
-                                  final item = _selected.removeAt(oldIndex);
-                                  _selected.insert(newIndex, item);
-                                });
-                              },
-                              itemBuilder: (context, i) {
-                                final step = _selected[i];
-                                return Padding(
-                                  key: ValueKey(step),
-                                  padding: EdgeInsets.only(bottom: 10.h),
-                                  child: ReorderableDelayedDragStartListener(
-                                    index: i,
-                                    child: _StepCard(
-                                      index: i + 1,
-                                      label: localizedItemName(l10n, step),
-                                      onDelete: () => setState(
-                                          () => _selected.remove(step)),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          if (_selected.isNotEmpty) SizedBox(height: 6.h),
-                          // Remaining chips (selected steps are pulled out) +
-                          // the add-custom chip / inline field.
-                          Wrap(
-                            spacing: 10.w,
-                            runSpacing: 10.h,
-                            children: [
-                              for (final label in _allLabels)
-                                if (!_selected.contains(label))
-                                  _Chip(
-                                    label: localizedItemName(l10n, label),
-                                    selected: false,
-                                    onTap: () =>
-                                        setState(() => _selected.add(label)),
-                                  ),
-                              _Chip(
-                                label: l10n.routineAddStep,
-                                selected: false,
-                                isAdd: true,
-                                onTap: _showAddCustomDialog,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+              child: RoutinePickerBody(
+                preselected: widget.preselected,
+                mode: widget.mode,
+                showModeToggle: widget.showModeToggle,
+                onChanged: (v) => setState(() => _result = v),
+              ),
             ),
-
             // Done button
             Padding(
               padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
               child: ElevatedButton(
-                onPressed: _selected.isEmpty
+                onPressed: _result.isEmpty
                     ? null
                     : withHaptic(
-                        () => Navigator.pop(context, _selected.toList()),
+                        () => Navigator.pop(context, _result.toList()),
                       ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.orange,
@@ -331,7 +144,334 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
       ),
     );
   }
+}
 
+/// Interactive routine builder: a reorderable list of chosen steps over a pool
+/// of preset + custom chips, with an add-your-own action. Used full-screen by
+/// [RoutinePickerScreen] and embedded inline in the onboarding routine step.
+/// Reports the ordered selection via [onChanged] on every change.
+class RoutinePickerBody extends StatefulWidget {
+  final List<String>? preselected;
+  final RoutineMode? mode;
+  final bool showModeToggle;
+  final ValueChanged<List<String>> onChanged;
+
+  /// Horizontal padding around the mode toggle and the scrollable content.
+  /// Defaults to 16.w so the full-screen route is unchanged; the onboarding
+  /// step passes its own to align with the surrounding layout.
+  final EdgeInsetsGeometry? padding;
+
+  const RoutinePickerBody({
+    super.key,
+    required this.onChanged,
+    this.preselected,
+    this.mode,
+    this.showModeToggle = false,
+    this.padding,
+  });
+
+  @override
+  State<RoutinePickerBody> createState() => _RoutinePickerBodyState();
+}
+
+class _RoutinePickerBodyState extends State<RoutinePickerBody> {
+  // How many catalog steps to pre-select when the picker opens with nothing
+  // chosen yet, so the user starts from a ready-made routine to trim or extend.
+  static const _kDefaultPreselectCount = 3;
+
+  // Ordered list of chosen steps (shown as cards). A step in here is removed
+  // from the chip pool; deleting its card returns the chip.
+  late List<String> _selected;
+  late RoutineMode? _mode;
+  List<String> _customSteps = [];
+  bool _loading = true;
+
+  /// Preset catalog for the active mode (legacy list when no mode is set).
+  List<String> get _presetSteps {
+    switch (_mode) {
+      case RoutineMode.wake:
+        return routineWakePresetSteps;
+      case RoutineMode.night:
+        return routineNightPresetSteps;
+      case null:
+        return routinePresetSteps;
+    }
+  }
+
+  /// All selectable labels (presets + persisted custom steps).
+  List<String> get _allLabels => [..._presetSteps, ..._customSteps];
+
+  @override
+  void initState() {
+    super.initState();
+    _mode = widget.mode;
+    // Start from the existing config when editing. When opening fresh (no
+    // preselection) default to the first few steps of the active catalog so the
+    // user begins with a ready-made routine to trim or extend.
+    final existing = widget.preselected;
+    if (existing != null && existing.isNotEmpty) {
+      _selected = existing.toList();
+    } else {
+      _selected = _presetSteps.take(_kDefaultPreselectCount).toList();
+      // Report the default upward so it persists even if left untouched.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onChanged(_selected.toList());
+      });
+    }
+    _loadCustom();
+  }
+
+  Future<void> _loadCustom() async {
+    final custom = await CustomItemsService.getCustomRoutineSteps();
+    if (!mounted) return;
+    // Surface any preselected steps not in any preset catalog or the persisted
+    // store (e.g. custom steps from a saved routine).
+    final extra = _selected.where(
+      (s) => !_allPresetSteps.contains(s) && !custom.contains(s),
+    );
+    setState(() {
+      _customSteps = [...custom, ...extra];
+      _loading = false;
+    });
+  }
+
+  // Applies a mutation to the selection and reports the new order upward.
+  void _mutateSelected(VoidCallback mutate) {
+    setState(mutate);
+    widget.onChanged(_selected.toList());
+  }
+
+  /// Opens a bottom-sheet modal with a text field + button to name a new
+  /// custom step, instead of editing inline on a chip.
+  Future<void> _showAddCustomDialog() async {
+    final text = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => const _AddCustomStepSheet(),
+    );
+    if (text == null || text.isEmpty) return;
+
+    final isNew =
+        !_customSteps.contains(text) && !_allPresetSteps.contains(text);
+    _mutateSelected(() {
+      if (isNew) _customSteps.add(text);
+      // A new custom step goes straight into the routine as a card.
+      if (!_selected.contains(text)) _selected.add(text);
+    });
+    if (isNew) CustomItemsService.addCustomRoutineStep(text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final padding = widget.padding ?? EdgeInsets.symmetric(horizontal: 16.w);
+    return Column(
+      children: [
+        // Wake/night catalog switch (in-app editing only).
+        if (widget.showModeToggle) ...[
+          Padding(
+            padding: padding,
+            child: _ModeToggle(
+              mode: _mode ?? RoutineMode.wake,
+              wakeLabel: l10n.routineModeWake,
+              nightLabel: l10n.routineModeNight,
+              onChanged: (m) => setState(() => _mode = m),
+            ),
+          ),
+          SizedBox(height: 16.h),
+        ],
+        // Chips
+        Expanded(
+          child: _loading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.orange,
+                    strokeWidth: 2.5,
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding: padding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Chosen steps, in order, as removable cards.
+                      // Hold-and-drag to reorder.
+                      if (_selected.isNotEmpty)
+                        ReorderableListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          buildDefaultDragHandles: false,
+                          itemCount: _selected.length,
+                          onReorder: (oldIndex, newIndex) {
+                            _mutateSelected(() {
+                              if (newIndex > oldIndex) newIndex -= 1;
+                              final item = _selected.removeAt(oldIndex);
+                              _selected.insert(newIndex, item);
+                            });
+                          },
+                          itemBuilder: (context, i) {
+                            final step = _selected[i];
+                            return Padding(
+                              key: ValueKey(step),
+                              padding: EdgeInsets.only(bottom: 10.h),
+                              child: ReorderableDelayedDragStartListener(
+                                index: i,
+                                child: _StepCard(
+                                  index: i + 1,
+                                  label: localizedItemName(l10n, step),
+                                  onDelete: () => _mutateSelected(
+                                      () => _selected.remove(step)),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      if (_selected.isNotEmpty) SizedBox(height: 6.h),
+                      // Remaining chips (selected steps are pulled out) +
+                      // the add-custom chip / inline field.
+                      Wrap(
+                        spacing: 10.w,
+                        runSpacing: 10.h,
+                        children: [
+                          for (final label in _allLabels)
+                            if (!_selected.contains(label))
+                              _Chip(
+                                label: localizedItemName(l10n, label),
+                                selected: false,
+                                onTap: () =>
+                                    _mutateSelected(() => _selected.add(label)),
+                              ),
+                          _Chip(
+                            label: l10n.routineAddStep,
+                            selected: false,
+                            isAdd: true,
+                            onTap: _showAddCustomDialog,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Bottom-sheet modal to name a new custom routine step. Owns its own
+/// [TextEditingController] so it is disposed only once the sheet route is fully
+/// gone — disposing it inline right after the sheet returns crashes the
+/// still-animating TextField ("used after being disposed").
+class _AddCustomStepSheet extends StatefulWidget {
+  const _AddCustomStepSheet();
+
+  @override
+  State<_AddCustomStepSheet> createState() => _AddCustomStepSheetState();
+}
+
+class _AddCustomStepSheetState extends State<_AddCustomStepSheet> {
+  final _ctrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = AppColors.of(context);
+    // Lift the sheet above the keyboard.
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Grabber.
+            Center(
+              child: Container(
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: c.separator,
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              l10n.routineAddStep,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w600),
+            ),
+            SizedBox(height: 16.h),
+            TextField(
+              controller: _ctrl,
+              autofocus: true,
+              textCapitalization: TextCapitalization.sentences,
+              textInputAction: TextInputAction.done,
+              style: TextStyle(fontSize: 15.sp, color: c.textPrimary),
+              decoration: InputDecoration(
+                hintText: l10n.routineAddStep,
+                hintStyle: TextStyle(color: c.textSecondary),
+                filled: true,
+                fillColor: c.background,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onSubmitted: (v) => Navigator.pop(context, v.trim()),
+            ),
+            SizedBox(height: 16.h),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      minimumSize: Size(0, 50.h),
+                      foregroundColor: c.textSecondary,
+                    ),
+                    child: Text(l10n.generalCancel),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context, _ctrl.text.trim()),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.orange,
+                      minimumSize: Size(0, 50.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      l10n.screenTimeAddSchedule,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// A selected routine step shown as a card with its order number and a

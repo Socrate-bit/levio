@@ -13,7 +13,7 @@ class EnergyChart extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
-      height: 240.h,
+      height: 300.h,
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: c.card,
@@ -108,16 +108,18 @@ class _EnergyChartPainter extends CustomPainter {
       w * 0.55,
       h * 0.65,
     );
+    // Ease the last plunge into the plateau horizontally (no corner): the
+    // control points on both sides of the joint share a flat tangent.
     snoozePath.cubicTo(
       w * 0.62,
       h * 0.38,
-      w * 0.65,
-      h * 0.45,
+      w * 0.64,
+      h * 0.70,
       w * 0.70,
       h * 0.70,
     );
     // Flatten into groggy zone
-    snoozePath.cubicTo(w * 0.78, h * 0.78, w * 0.88, h * 0.73, w, h * 0.70);
+    snoozePath.cubicTo(w * 0.76, h * 0.70, w * 0.88, h * 0.70, w, h * 0.70);
 
     canvas.drawPath(snoozePath, snoozePaint);
 
@@ -128,31 +130,22 @@ class _EnergyChartPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
+    // One smooth cubic so the line keeps rising without any kink: nearly flat
+    // early, then a sharp exponential-style climb to the top.
     final levioPath = Path();
     levioPath.moveTo(0, h * 0.75);
-    levioPath.cubicTo(
-      w * 0.15,
-      h * 0.70,
-      w * 0.30,
-      h * 0.55,
-      w * 0.45,
-      h * 0.30,
-    );
-    levioPath.cubicTo(w * 0.60, h * 0.05, w * 0.80, h * 0.02, w, h * 0.02);
+    levioPath.cubicTo(w * 0.45, h * 0.72, w * 0.58, h * 0.10, w, h * 0.02);
 
     canvas.drawPath(levioPath, levioPaint);
 
     // Levio endpoint dot
     canvas.drawCircle(Offset(w, h * 0.02), 5, Paint()..color = Colors.black);
 
-    // Snooze endpoint circle (hollow)
+    // Snooze endpoint dot (filled, like the Levio endpoint)
     canvas.drawCircle(
       Offset(w, h * 0.70),
-      4,
-      Paint()
-        ..color = const Color(0xFFFF6B6B)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
+      5,
+      Paint()..color = const Color(0xFFFF6B6B),
     );
 
     // Labels

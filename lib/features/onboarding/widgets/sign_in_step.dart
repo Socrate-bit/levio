@@ -184,18 +184,18 @@ class _SignInStepState extends State<SignInStep> {
             ),
           ),
           SizedBox(height: 16.h),
-          GestureDetector(
-            onTap: _loading ? null : withHaptic(_handleEmailAuth),
-            child: Text(
-              l10n.onboardingSignInEmail,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: c.textSecondary,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-          SizedBox(height: 24.h),
+          // GestureDetector(
+          //   onTap: _loading ? null : withHaptic(_handleEmailAuth),
+          //   child: Text(
+          //     l10n.onboardingSignInEmail,
+          //     style: TextStyle(
+          //       fontSize: 14.sp,
+          //       color: c.textSecondary,
+          //       decoration: TextDecoration.underline,
+          //     ),
+          //   ),
+          // ),
+          // SizedBox(height: 24.h),
           if (_loading)
             const CircularProgressIndicator()
           else if (widget.showSkip)

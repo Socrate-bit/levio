@@ -559,7 +559,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 14: Info - Biology not laziness
                               InfoStep(
                                 title: l10n.onboardingBiologyTitle,
-                                centerTitle: true,
+                          
                                 imagePlaceholder: Text(
                                   '🧬',
                                   style: TextStyle(fontSize: 80.sp),
@@ -586,7 +586,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   final monthHours = (delta * 30 / 60).round();
                                   return InfoStep(
                                     title: '',
-                                    centerTitle: true,
+              
                                     imagePlaceholder: Column(
                                       children: [
                                         Text(
@@ -628,7 +628,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 18: Info - Quote
                               InfoStep(
                                 title: '',
-                                centerTitle: true,
+                          
                                 imagePlaceholder: Column(
                                   children: [
                                     Text(

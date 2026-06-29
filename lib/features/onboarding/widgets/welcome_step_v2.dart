@@ -24,20 +24,18 @@ class WelcomeStepV2 extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        padding: EdgeInsets.only(right: 24.w, left: 24.w, bottom: 24.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 8.h),
-            // Rating (the language selector lives in the onboarding header).
-            Text('⭐⭐⭐⭐⭐', style: TextStyle(fontSize: 22.sp)),
+            Text('⭐⭐⭐⭐⭐', style: TextStyle(fontSize: 32.sp)),
             SizedBox(height: 28.h),
             // Headline anchored to the top.
             Text(
               l10n.onboardingWelcomeTitle,
               style: TextStyle(
-                fontSize: 40.sp,
-                fontWeight: FontWeight.bold,
+                fontSize: 36.sp,
+                fontWeight: FontWeight.w700,
                 color: c.textPrimary,
                 height: 1.12,
                 letterSpacing: -0.5,
@@ -46,21 +44,21 @@ class WelcomeStepV2 extends StatelessWidget {
             SizedBox(height: 16.h),
             Text(
               l10n.onboardingWelcomeSubtitle,
-              style: TextStyle(fontSize: 19.sp, color: c.textSecondary),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: c.textSecondary),
             ),
             const Spacer(),
             // Mascot.
             Center(
               child: Image.asset(
                 'assets/animations/happy_sun.gif',
-                height: 160.h,
+                height: 200.h,
                 fit: BoxFit.contain,
               ),
             ),
             const Spacer(),
             SizedBox(
               width: double.infinity,
-              height: 62.h,
+              height: 72.h,
               child: ElevatedButton(
                 onPressed: withHaptic(onBuildPlan),
                 style: ElevatedButton.styleFrom(
@@ -92,7 +90,9 @@ class WelcomeStepV2 extends StatelessWidget {
               child: Text(
                 l10n.onboardingJoin500k,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+                maxLines: 1,
+              
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: c.textSecondary, overflow: TextOverflow.ellipsis),
               ),
             ),
             SizedBox(height: 10.h),

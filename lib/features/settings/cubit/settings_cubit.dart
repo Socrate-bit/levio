@@ -125,7 +125,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   /// Wipes all persisted settings and resets state to defaults. Called on
-  /// logout so the next account starts from a clean slate.
+  /// logout so the next account starts from a clean slate. The language
+  /// override is preserved — it's a device preference, not account data.
   Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
     await Future.wait([
@@ -137,6 +138,6 @@ class SettingsCubit extends Cubit<SettingsState> {
       prefs.remove(forceQuickAlarmKey),
       prefs.remove(forcedHuntTargetKey),
     ]);
-    emit(const SettingsState());
+    emit(SettingsState(locale: state.locale));
   }
 }

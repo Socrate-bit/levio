@@ -41,7 +41,7 @@ import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
 import '../widgets/welcome_step_v2.dart';
 
-const _totalPages = 40;
+const _totalPages = 39;
 
 /// Redesigned onboarding funnel (v2). Runs in parallel with the original
 /// [OnboardingScreen]; which one shows is chosen by `kUseOnboardingV2` in
@@ -105,10 +105,10 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
   List<int> _visiblePages(OnboardingState s) {
     final pages = <int>[];
     for (var i = 0; i < _totalPages; i++) {
-      // 24/25: bedtime picker + wind-down routine — only with a bedtime alarm.
-      if ((i == 24 || i == 25) && s.wantsSleepAlarm != true) continue;
-      // 28: block-start picker — only when blocking but no bedtime to derive it.
-      if (i == 28 &&
+      // 23/24: bedtime picker + wind-down routine — only with a bedtime alarm.
+      if ((i == 23 || i == 24) && s.wantsSleepAlarm != true) continue;
+      // 27: block-start picker — only when blocking but no bedtime to derive it.
+      if (i == 27 &&
           !(s.wantsScreenBlock == true && s.wantsSleepAlarm != true)) {
         continue;
       }
@@ -134,10 +134,10 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
 
   void _back() {
     // Loading, plan recap, paywall, trial disallow going back.
-    if (_currentPage == 30 ||
-        _currentPage == 31 ||
-        _currentPage == 38 ||
-        _currentPage == 39) {
+    if (_currentPage == 29 ||
+        _currentPage == 30 ||
+        _currentPage == 37 ||
+        _currentPage == 38) {
       return;
     }
     final visible = _visiblePages(context.read<OnboardingCubit>().state);
@@ -167,15 +167,18 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     OnboardingState state,
     OnboardingCubit cubit,
   ) async {
-    if (_currentPage == 12) {
-      cubit.setAlarmTime(_alarmTimeNotifier.value);
-    } else if (_currentPage == 24) {
+    if (_currentPage == 11) {
+      final alarm = _alarmTimeNotifier.value;
+      cubit.setAlarmTime(alarm);
+      // Default the bedtime to 8h of sleep before the wake-up alarm.
+      _sleepTimeNotifier.value = _eightHoursBefore(alarm);
+    } else if (_currentPage == 23) {
       cubit.setSleepTime(_sleepTimeNotifier.value);
-    } else if (_currentPage == 28) {
+    } else if (_currentPage == 27) {
       cubit.setScreenBlockStart(_blockStartNotifier.value);
     }
     // Block-apps step: run native Screen Time setup inline when opted in.
-    if (_currentPage == 27 && state.wantsScreenBlock == true) {
+    if (_currentPage == 26 && state.wantsScreenBlock == true) {
       final stCubit = context.read<ScreenTimeCubit>();
       final granted = await stCubit.requestAuthorizationIfNeeded();
       if (!mounted) return;
@@ -185,7 +188,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
       }
     }
     // Referral step: validate any entered code before advancing.
-    if (_currentPage == 32) {
+    if (_currentPage == 31) {
       final code = state.referralCode.trim();
       FocusScope.of(context).unfocus();
       if (code.isNotEmpty && state.referralStatus != ReferralStatus.valid) {
@@ -194,7 +197,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         if (cubit.state.referralStatus != ReferralStatus.valid) return;
       }
     }
-    if (_currentPage == 36) {
+    if (_currentPage == 35) {
       InAppReview.instance.requestReview();
     }
     _next();
@@ -202,6 +205,12 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
 
   String _formatTime(TimeOfDay t) =>
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+  // Bedtime that leaves 8h of sleep before [wake], wrapping past midnight.
+  TimeOfDay _eightHoursBefore(TimeOfDay wake) {
+    final min = (wake.hour * 60 + wake.minute - 8 * 60 + 24 * 60) % (24 * 60);
+    return TimeOfDay(hour: min ~/ 60, minute: min % 60);
+  }
 
   bool _canContinue(OnboardingState state) {
     switch (_currentPage) {
@@ -215,19 +224,19 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         return state.wakeChallenges.isNotEmpty;
       case 5:
         return state.surveyAnswers.containsKey('feelSettingAlarm');
-      case 6:
+      case 7:
         return state.desiredFeelings.isNotEmpty;
-      case 13:
+      case 12:
         return state.firstRoom != null;
-      case 19:
+      case 18:
         return state.sleepTiredDay != null;
-      case 20:
+      case 19:
         return state.sleepChallenges.isNotEmpty;
-      case 23:
+      case 22:
         return state.wantsSleepAlarm != null;
-      case 27:
+      case 26:
         return state.wantsScreenBlock != null;
-      case 32:
+      case 31:
         return state.referralStatus != ReferralStatus.checking &&
             state.referralStatus != ReferralStatus.invalid &&
             state.referralStatus != ReferralStatus.exhausted;
@@ -239,12 +248,12 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
   // Pages that handle their own navigation (no shared Continue button).
   bool _hasOwnNavigation(int page) =>
       page == 0 ||
-      page == 29 || // notification
-      page == 30 || // loading
-      page == 33 || // sign in
-      page == 37 || // signature
-      page == 38 || // paywall
-      page == 39; // trial reminder
+      page == 28 || // notification
+      page == 29 || // loading
+      page == 32 || // sign in
+      page == 36 || // signature
+      page == 37 || // paywall
+      page == 38; // trial reminder
 
   // ---- Editable plan-recap pickers (modal sheets) ----
 
@@ -253,15 +262,16 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: c.background,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
-      builder: (_) => SafeArea(
-        child: SizedBox(
-          height: 0.8.sh,
-          child: child,
-        ),
+      // useSafeArea already places the sheet below the status bar, so only pad
+      // the bottom here to avoid a doubled gap at the top.
+      builder: (_) => SizedBox(
+        height: 1.sh,
+        child: SafeArea(top: false, child: child),
       ),
     );
   }
@@ -276,6 +286,64 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         },
       ),
     ));
+  }
+
+  // "Other" on the first-room step: nudge toward picking a place, but let the
+  // user open the mission picker instead via the secondary button.
+  Future<void> _promptFirstRoomOther(OnboardingCubit cubit) async {
+    final l10n = AppLocalizations.of(context);
+    final c = AppColors.of(context);
+    final chooseOther = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/siren.png', height: 64.h),
+            SizedBox(height: 24.h),
+            Text(
+              l10n.onboardingV2MissionPickerHint,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16.sp, height: 1.4),
+            ),
+          ],
+        ),
+        actions: [
+          Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: c.textPrimary,
+                    foregroundColor: c.card,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28.r),
+                    ),
+                  ),
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text(
+                    l10n.onboardingV2KeepChoosePlace,
+                    style: TextStyle(
+                        fontSize: 16.sp, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(l10n.onboardingV2ChooseOtherMission),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (chooseOther == true) {
+      cubit.setFirstRoom('other');
+      _editMission(cubit);
+    }
   }
 
   void _editSound(OnboardingCubit cubit) {
@@ -381,34 +449,32 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: (_currentPage > 0 &&
+                                    _currentPage != 29 &&
                                     _currentPage != 30 &&
-                                    _currentPage != 31 &&
-                                    _currentPage != 38 &&
-                                    _currentPage != 39)
+                                    _currentPage != 37 &&
+                                    _currentPage != 38)
                                 ? GestureDetector(
                                     onTap: withHaptic(_back),
                                     child: Container(
-                                      width: 32.w,
-                                      height: 32.h,
+                                      width: 50.w,
+                                      height: 50.h,
                                       decoration: BoxDecoration(
                                         color: c.card,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(Icons.chevron_left,
-                                          size: 20.sp, color: c.textPrimary),
+                                      child: Icon(Icons.chevron_left_rounded,
+                                          size: 30.sp, color: c.textPrimary),
                                     ),
                                   )
                                 : null,
                           ),
                         ),
-                        SizedBox(width: 8.w),
-                        // Progress bar — hidden (but space kept) on welcome,
-                        // last page and the recap so its position never shifts.
+                        SizedBox(width: 24.w),
+                        // Progress bar — hidden (but space kept) on welcome
+                        // and the last page so its position never shifts.
                         Expanded(
                           child: Opacity(
-                            opacity: (_currentPage > 0 &&
-                                    !_isLastPage(state) &&
-                                    _currentPage != 31)
+                            opacity: (_currentPage > 0 && !_isLastPage(state))
                                 ? 1.0
                                 : 0.0,
                             child: ClipRRect(
@@ -423,7 +489,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 8.w),
+                        SizedBox(width: 24.w),
                         // Right zone: language selector, always available.
                         SizedBox(
                           width: 52.w,
@@ -445,10 +511,12 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                         ? WelcomeStepV2(
                             onBuildPlan: () {
                               cubit.startOnboarding();
-                              // Seed v2 routine defaults (pre-selected).
-                              cubit.setWakeRoutine(routineWakePresetSteps);
+                              // Seed v2 routine defaults: pre-select the first 3
+                              // steps of each catalog (wake-up + sleep).
+                              cubit.setWakeRoutine(
+                                  routineWakePresetSteps.take(3).toList());
                               cubit.setRelaxingActivities(
-                                  routineNightPresetSteps);
+                                  routineNightPresetSteps.take(3).toList());
                               _next();
                             },
                             onSignIn: () {
@@ -493,7 +561,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                             child: ValueListenableBuilder<TimeOfDay>(
                               valueListenable: _alarmTimeNotifier,
                               builder: (_, alarmTime, _) => Text(
-                                _currentPage == 12
+                                _currentPage == 11
                                     ? l10n.onboardingSetAlarmFor(
                                         _formatTime(alarmTime))
                                     : l10n.onboardingContinue,
@@ -598,7 +666,19 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         selectedOption: state.surveyAnswers['feelSettingAlarm'],
         onSelected: (v) => cubit.answerSurvey('feelSettingAlarm', v),
       ),
-      // 6: how would you like to feel (multi-select)
+      // 6: EDU — sleep inertia / biology ("It's not your fault")
+      InfoStep(
+        title: l10n.onboardingBiologyTitle,
+        subtitle: l10n.onboardingBiologySubtitle,
+        imagePlaceholder: Image.asset(
+          'assets/onboarding/mental-health.png',
+          height: 120.h,
+          fit: BoxFit.contain,
+        ),
+        bodyText: l10n.onboardingBiologyBody,
+        references: l10n.onboardingBiologyReferences,
+      ),
+      // 7: how would you like to feel (multi-select)
       MultiSelectStep(
         question: l10n.onboardingV2DesiredFeelingsTitle,
         subtitle: l10n.onboardingV2MultiSelectHint,
@@ -627,62 +707,50 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
               label: l10n.onboardingV2FeelWinDay),
         ],
       ),
-      // 7: EDU — Levio gets you out of bed
+      // 8: EDU — Levio gets you out of bed
       InfoStep(
         title: l10n.onboardingGetsYouOut,
-        imagePlaceholder: const EnergyChart(),
+        imagePlaceholder: Image.asset(
+          'assets/icon.png',
+          height: 120.h,
+          fit: BoxFit.contain,
+        ),
+        chartPlaceholder: const EnergyChart(),
         bodyText: l10n.onboardingAvoidGroggy,
       ),
-      // 8: EDU — sleep inertia / biology
-      InfoStep(
-        title: l10n.onboardingBiologyTitle,
-        centerTitle: true,
-        imagePlaceholder: Text('🧬', style: TextStyle(fontSize: 80.sp)),
-        bodyText: l10n.onboardingBiologyBody,
-      ),
-      // 9: EDU — one alarm, one mission
-      InfoStep(
-        title: l10n.onboardingOneAlarmOneMission,
-        imagePlaceholder: const TimelineComparison(),
-      ),
-      // 10: EDU PROOF — built with scientists
+      // 9: EDU PROOF — built with scientists
       InfoStep(
         title: l10n.onboardingV2ProofScientistsTitle,
-        centerTitle: true,
+        subtitle: l10n.onboardingV2ProofScientistsSubtitle,
         imagePlaceholder: Text('🔬', style: TextStyle(fontSize: 80.sp)),
         bodyText: l10n.onboardingV2ProofScientistsBody,
       ),
-      // 11: EDU PROOF — 200k people
+      // 10: EDU — one alarm, one mission
       InfoStep(
-        title: l10n.onboardingV2Proof200kTitle,
-        centerTitle: true,
-        imagePlaceholder: Text('🌍', style: TextStyle(fontSize: 80.sp)),
-        bodyText: l10n.onboardingV2Proof200kBody,
+        title: l10n.onboardingOneAlarmOneMission,
+        chartPlaceholder: const TimelineComparison(),
       ),
-      // 12: wake-up time
+      // 11: wake-up time
       TimePickerStep(
         title: l10n.onboardingTimePickerTitle,
         subtitleBuilder: (t) =>
             l10n.onboardingTimePickerSubtitle(_formatTime(t)),
         notifier: _alarmTimeNotifier,
       ),
-      // 13: first room → mission
+      // 12: first room → mission
       FirstRoomStep(
         title: l10n.onboardingV2FirstRoomTitle,
         subtitle: l10n.onboardingV2FirstRoomSubtitle,
         selectedRoom: state.firstRoom,
         otherMissionLabel: missionName,
         onRoomSelected: cubit.setFirstRoom,
-        onPickOther: () {
-          cubit.setFirstRoom('other');
-          _editMission(cubit);
-        },
+        onPickOther: () => _promptFirstRoomOther(cubit),
         kitchenLabel: l10n.onboardingV2RoomKitchen,
         bathroomLabel: l10n.onboardingV2RoomBathroom,
         outsideLabel: l10n.onboardingV2RoomOutside,
         otherLabel: l10n.onboardingV2RoomOther,
       ),
-      // 14: EDU — mission explanation
+      // 13: EDU — mission explanation
       Builder(builder: (context) {
         final mission = state.selectedMission;
         final info = missionInfoFor(mission);
@@ -702,7 +770,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           bodyText: explanation['body'],
         );
       }),
-      // 15: wake-up routine (wake mode)
+      // 14: wake-up routine (wake mode) — locked step preview + modify button.
       RelaxingActivitiesStep(
         title: l10n.onboardingV2WakeRoutineTitle,
         subtitle: l10n.onboardingV2WakeRoutineSubtitle,
@@ -711,14 +779,13 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         mode: RoutineMode.wake,
         leadingIcon: Icons.wb_sunny_outlined,
       ),
-      // 16: days
+      // 15: days
       DayPickerStep(repeatDays: state.repeatDays, onToggle: cubit.toggleDay),
-      // 17: sound
+      // 16: sound
       SoundPickerStep(selectedId: state.soundId, onSelected: cubit.setSound),
-      // 18: CITATION — win the morning
+      // 17: CITATION — win the morning
       InfoStep(
         title: '',
-        centerTitle: true,
         imagePlaceholder: Column(
           children: [
             Text('66',
@@ -742,7 +809,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           ],
         ),
       ),
-      // 19: sleep — tired during the day?
+      // 18: sleep — tired during the day?
       Builder(builder: (context) {
         final v = state.sleepTiredDay;
         return SurveyStep(
@@ -756,7 +823,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           onSelected: cubit.setSleepTiredDay,
         );
       }),
-      // 20: sleep challenges (multi-select)
+      // 19: sleep challenges (multi-select)
       MultiSelectStep(
         question: l10n.onboardingV2SleepChallengesTitle,
         subtitle: l10n.onboardingV2MultiSelectHint,
@@ -785,25 +852,26 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
               label: l10n.onboardingV2SleepChallengeNotEnough),
           MultiSelectOption(
               value: 'groggy',
-              emoji: '🥱',
+              emoji: '📱',
               label: l10n.onboardingV2SleepChallengeGroggy),
         ],
       ),
-      // 21: EDU PB — sleep quality is the #1 predictor
+      // 20: EDU PB — sleep quality is the #1 predictor
       InfoStep(
         title: l10n.onboardingV2SleepQualityTitle,
-        centerTitle: true,
+        subtitle: l10n.onboardingV2SleepQualitySubtitle,
         imagePlaceholder: Text('🌙', style: TextStyle(fontSize: 80.sp)),
         bodyText: l10n.onboardingV2SleepQualityBody,
+        references: l10n.onboardingV2SleepQualityReferences,
       ),
-      // 22: EDU SOLUTION — Levio helps you fall asleep on time
+      // 21: EDU SOLUTION — Levio builds your sleep routine
       InfoStep(
         title: l10n.onboardingV2SleepSolutionTitle,
-        centerTitle: true,
+        subtitle: l10n.onboardingV2SleepSolutionSubtitle,
         imagePlaceholder: Text('🛌', style: TextStyle(fontSize: 80.sp)),
         bodyText: l10n.onboardingV2SleepSolutionBody,
       ),
-      // 23: consistency → want a bedtime alarm?
+      // 22: consistency → want a bedtime alarm?
       Builder(builder: (context) {
         final yes = l10n.onboardingYes;
         final no = l10n.onboardingNo;
@@ -816,13 +884,18 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           onSelected: (sel) => cubit.setWantsSleepAlarm(sel == yes),
         );
       }),
-      // 24: bedtime picker (conditional)
+      // 23: bedtime picker (conditional) — shows sleep length vs the wake alarm.
+      // Keyed to the alarm so the wheel re-seeds to 8h of sleep if the alarm
+      // changes (the default value is set when the alarm is committed).
       TimePickerStep(
+        key: ValueKey(
+            'sleep-${state.alarmTime.hour}-${state.alarmTime.minute}'),
         title: l10n.onboardingSleepTimeTitle,
         subtitle: l10n.onboardingSleepTimeSubtitle,
         notifier: _sleepTimeNotifier,
+        compareWakeTime: state.alarmTime,
       ),
-      // 25: wind-down routine (night mode, conditional)
+      // 24: wind-down routine (night mode, conditional)
       RelaxingActivitiesStep(
         title: l10n.onboardingRelaxActivitiesTitle,
         subtitle: l10n.onboardingRelaxActivitiesSubtitle,
@@ -830,13 +903,13 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         onChanged: cubit.setRelaxingActivities,
         mode: RoutineMode.night,
       ),
-      // 26: EDU PB — screens kill sleep
+      // 25: EDU PB — screens kill sleep
       InfoStep(
         title: l10n.onboardingScreenEduTitle,
         imagePlaceholder: Text('📵', style: TextStyle(fontSize: 80.sp)),
         bodyText: l10n.onboardingScreenEduBody,
       ),
-      // 27: block apps?
+      // 26: block apps?
       Builder(builder: (context) {
         final yes = l10n.onboardingYes;
         final no = l10n.onboardingNo;
@@ -849,16 +922,16 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           onSelected: (sel) => cubit.setWantsScreenBlock(sel == yes),
         );
       }),
-      // 28: block-start picker (only when blocking without a bedtime to
+      // 27: block-start picker (only when blocking without a bedtime to
       // derive the start time from)
       TimePickerStep(
         title: l10n.onboardingBlockStartTitle,
         subtitle: l10n.onboardingBlockStartSubtitle,
         notifier: _blockStartNotifier,
       ),
-      // 29: notification permission
+      // 28: notification permission
       NotificationStep(onNext: _next),
-      // 30: loading
+      // 29: loading
       LoadingStep(
         onComplete: () {
           if (mounted) _next();
@@ -872,7 +945,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           l10n.onboardingV2LoadingStep6,
         ],
       ),
-      // 31: editable plan recap
+      // 30: editable plan recap
       MorningPlanStep(
         alarmTime: state.alarmTime,
         mission: state.selectedMission,
@@ -906,42 +979,41 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                 onDone: cubit.setRelaxingActivities)
             : null,
       ),
-      // 32: referral
+      // 31: referral
       ReferralStep(
         code: state.referralCode,
         status: state.referralStatus,
         onCodeChanged: cubit.setReferralCode,
       ),
-      // 33: sign in
+      // 32: sign in
       SignInStep(
         title: l10n.onboardingSignInCreateTitle,
         subtitle: l10n.onboardingSignInCreateSubtitle,
         onSkip: _finalizeSignInStep,
         onSignInComplete: _finalizeSignInStep,
       ),
-      // 34: RECALL — 5x faster
+      // 33: RECALL — 5x faster
       InfoStep(
         title: l10n.onboarding5xFaster,
-        imagePlaceholder: const SpeedometerChart(),
+        chartPlaceholder: const SpeedometerChart(),
       ),
-      // 35: RECALL PROOF — adopted by 200k
+      // 34: RECALL PROOF — adopted by 200k
       InfoStep(
         title: l10n.onboardingV2Recall200kTitle,
-        centerTitle: true,
         imagePlaceholder: Text('🌍', style: TextStyle(fontSize: 80.sp)),
         bodyText: l10n.onboardingV2Recall200kBody,
       ),
-      // 36: RECALL PROOF — comments
+      // 35: RECALL PROOF — comments
       const RatingStep(),
-      // 37: commitment
+      // 36: commitment
       SignatureStep(
         alarmTimeText: _formatTime(state.alarmTime),
         hasSleep: state.wantsSleepAlarm == true,
         onCommit: _next,
       ),
-      // 38: paywall
+      // 37: paywall
       PaywallStep(onContinue: _next),
-      // 39: trial reminder
+      // 38: trial reminder
       TrialReminderStep(onContinue: cubit.finishOnboarding),
     ];
   }

@@ -1659,11 +1659,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingThirtyPlus => '30 minutes or more';
 
   @override
-  String get onboardingBiologyTitle => 'Biology, Not Laziness';
+  String get onboardingBiologyTitle => 'It\'s not your fault!';
+
+  @override
+  String get onboardingBiologySubtitle => 'Biology, not laziness';
 
   @override
   String get onboardingBiologyBody =>
-      'Your brain takes 15–30 min to clear sleep inertia. Snoozing resets the cycle, making it worse.\n\nLevio forces immediate action — skipping the groggy zone entirely.';
+      'Sleep inertia is real: your brain takes 30–50 min to fully clear the grogginess after waking. Hitting snooze restarts the cycle, making it worse.';
+
+  @override
+  String get onboardingBiologyReferences =>
+      'Tassi & Muzet (2000). Sleep inertia. Sleep Medicine Reviews.\nTrotti (2017). Waking up is the hardest thing I do all day. Sleep Medicine Reviews.\nHilditch & McHill (2019). Sleep inertia: current insights. Nature and Science of Sleep.';
+
+  @override
+  String get onboardingScienceSays => 'Science says so!';
 
   @override
   String get onboarding5xFaster =>
@@ -1685,6 +1695,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingSleepTimeSubtitle =>
       'We\'ll nudge you when it\'s time to wind down.';
+
+  @override
+  String onboardingSleepDurationBadge(String duration) {
+    return '$duration of sleep';
+  }
 
   @override
   String get onboardingScreenEduTitle => 'Screens steal your sleep';
@@ -1794,7 +1809,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingWelcomeTitle =>
-      'Stop hitting snooze.\nStart winning mornings.';
+      'Stop fighting your alarm.\nWin your wake-up, win your day!';
 
   @override
   String get onboardingWelcomeSubtitle => 'One alarm. One mission. You\'re up.';
@@ -1901,6 +1916,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ll do this to turn off your alarm.';
 
   @override
+  String get onboardingV2MissionPickerHint =>
+      'Moving somewhere is the most effective, but you can pick another mission if you\'d like. You can edit all of this anytime.';
+
+  @override
+  String get onboardingV2KeepChoosePlace => 'Pick a place';
+
+  @override
+  String get onboardingV2ChooseOtherMission => 'Choose another mission';
+
+  @override
   String get onboardingMorningPlanTitle => 'Your Morning Plan';
 
   @override
@@ -1927,7 +1952,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get onboardingYoureUp => 'You\'re up. Day started.';
+  String get onboardingYoureUp => 'The day starts with a big win 🏆';
 
   @override
   String get onboardingNoSnooze =>
@@ -2085,6 +2110,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingTimelineMins => '25 MINS';
 
   @override
+  String get onboardingTimelineOutcomePanic => 'Panic';
+
+  @override
+  String get onboardingTimelineOutcomeStress => 'Stress';
+
+  @override
+  String get onboardingTimelineOutcomeFatigue => 'Fatigue';
+
+  @override
+  String get onboardingTimelineOutcomeFog => 'Brain fog';
+
+  @override
+  String get onboardingTimelineOutcomeSerenity => 'Calm';
+
+  @override
+  String get onboardingTimelineOutcomeEnergy => 'Energy';
+
+  @override
+  String get onboardingTimelineOutcomeHealth => 'Good health';
+
+  @override
   String get onboardingTrialTitle =>
       'We\'ll send you\na reminder before\nyour free trial ends';
 
@@ -2104,7 +2150,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingEnergyLevio => 'Levio Protocol';
 
   @override
-  String get onboardingEnergySnoozeCycle => 'Snooze Cycle';
+  String get onboardingEnergySnoozeCycle => 'SNOOZE CYCLE';
 
   @override
   String get onboardingEnergyGroggyZone => 'GROGGY ZONE';
@@ -2544,18 +2590,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingV2FeelWinDay => 'Ready to win the day';
 
   @override
-  String get onboardingV2ProofScientistsTitle => 'Built with sleep scientists';
+  String get onboardingV2ProofScientistsTitle => 'Built by sleep experts';
+
+  @override
+  String get onboardingV2ProofScientistsSubtitle =>
+      'Backed by peer-reviewed science';
 
   @override
   String get onboardingV2ProofScientistsBody =>
-      'Levio\'s method is grounded in circadian and sleep-inertia research, so every step is designed to actually get you up.';
-
-  @override
-  String get onboardingV2Proof200kTitle => '200,000 mornings won';
-
-  @override
-  String get onboardingV2Proof200kBody =>
-      'People in over 30 countries use Levio to beat the snooze button and start their day on their terms.';
+      'Every step of Levio\'s method is grounded in circadian and sleep-inertia research — engineered with sleep experts to actually get you up.';
 
   @override
   String get onboardingV2FirstRoomTitle => 'Where do you go first?';
@@ -2577,14 +2620,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingV2RoomOther => 'Something else';
 
   @override
-  String get onboardingV2WakeRoutineTitle => 'Build your morning routine';
+  String get onboardingV2WakeRoutineTitle => 'Keep your momentum going';
 
   @override
   String get onboardingV2WakeRoutineSubtitle =>
-      'After your mission, keep the momentum going. Hold and drag to reorder.';
+      'Riding the momentum from your mission is what makes mornings stick. Choose what you\'ll do next.';
+
+  @override
+  String get onboardingRoutineModify => 'Modify routine';
 
   @override
   String get onboardingV2WakeRoutineRow => 'Your morning routine';
+
+  @override
+  String get onboardingV2NightRoutineRow => 'Your night routine';
 
   @override
   String get onboardingV2SleepTiredTitle => 'Do you feel tired during the day?';
@@ -2620,31 +2669,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingV2SleepChallengeNotEnough => 'I never get enough sleep';
 
   @override
-  String get onboardingV2SleepChallengeGroggy => 'I wake up groggy';
+  String get onboardingV2SleepChallengeGroggy => 'I scroll on my phone';
 
   @override
-  String get onboardingV2SleepQualityTitle => 'Sleep quality is everything';
+  String get onboardingV2SleepQualityTitle => 'Sleep matters most';
+
+  @override
+  String get onboardingV2SleepQualitySubtitle =>
+      'The #1 driver of an easy wake-up';
 
   @override
   String get onboardingV2SleepQualityBody =>
-      'Sleep quality is the #1 predictor of an easy wake-up — and of how you feel and perform all day long.';
+      'Sleep is the #1 factor in your ability to wake up, your energy through the day, and your long-term health. And a consistent bedtime is the single most powerful lever to improve it.';
 
   @override
-  String get onboardingV2SleepSolutionTitle => 'Levio helps you wind down';
+  String get onboardingV2SleepQualityReferences =>
+      'Windred et al. (2024). Sleep regularity is a stronger predictor of mortality risk than sleep duration. Sleep.\nPhillips et al. (2017). Irregular sleep/wake patterns are associated with poorer academic performance. Scientific Reports.';
+
+  @override
+  String get onboardingV2SleepSolutionTitle => 'Levio builds your routine';
+
+  @override
+  String get onboardingV2SleepSolutionSubtitle => 'Backed by science';
 
   @override
   String get onboardingV2SleepSolutionBody =>
-      'We nudge you to fall asleep at the right time and help you put the screens away, so mornings get easier.';
+      'Levio creates the perfect routine to help you fall asleep and build consistency.';
 
   @override
   String get onboardingV2ConsistencyTitle => 'Consistency changes everything';
 
   @override
   String get onboardingV2ConsistencySubtitle =>
-      'A regular bedtime is the #1 lever. Want a bedtime alarm too?';
+      'A regular bedtime is the #1 lever — users with a bedtime alarm get _3× better results_. Want a bedtime alarm too?';
 
   @override
-  String get onboardingV2Recall200kTitle => 'Join 200,000 early risers';
+  String get onboardingV2Recall200kTitle => 'Join 500,000 early risers';
 
   @override
   String get onboardingV2Recall200kBody =>
