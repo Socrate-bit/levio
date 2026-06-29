@@ -86,7 +86,7 @@ enum _PhotoError { none, notDetected, other }
 
 // Resting spot for the "FIND THIS" card once it reveals: docked near the top,
 // overlapping the camera's top edge.
-const Alignment _kCardTop = Alignment(0, -0.80);
+const Alignment _kCardTop = Alignment(0, -0.77);
 
 class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   CameraController? _controller;
@@ -396,6 +396,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const LevioBrandHeader(),
+                SizedBox(height: 12.h,),
 
                 Flexible(
                   child: Center(
@@ -598,8 +599,10 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
                   )!,
                   child: Opacity(
                     opacity: Curves.easeOut.transform(t),
-                    child:
-                        Transform.scale(scale: 0.92 + 0.08 * t, child: child),
+                    child: Transform.scale(
+                      scale: 0.92 + 0.08 * t,
+                      child: child,
+                    ),
                   ),
                 ),
                 child: _FindThisCard(
@@ -689,32 +692,37 @@ class _FindThisCard extends StatelessWidget {
           BoxShadow(color: Colors.black.withAlpha(40), blurRadius: 16),
         ],
       ),
-      child: Column(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(emoji, style: TextStyle(fontSize: 22.sp)),
-          SizedBox(height: 4.h),
-          Text(
-            eyebrow,
-            style: TextStyle(
-              color: c.textSecondary,
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                eyebrow,
+                style: TextStyle(
+                  color: c.textSecondary,
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: c.textPrimary,
+                  fontSize: 22.sp,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                  height: 1.1,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 2.h),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: c.textPrimary,
-              fontSize: 22.sp,
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
-              height: 1.1,
-            ),
-          ),
+          SizedBox(width: 12.w),
+          Text(emoji, style: TextStyle(fontSize: 50.sp)),
         ],
       ),
     );
@@ -827,8 +835,8 @@ class _TargetBadgeState extends State<_TargetBadge>
   Widget build(BuildContext context) {
     final emoji = widget.isHunt
         ? (emojiForItemLabel(widget.label) ??
-            widget.customEmojis[widget.label] ??
-            '\u{2b50}')
+              widget.customEmojis[widget.label] ??
+              '\u{2b50}')
         : _photoMissionEmoji(widget.missionType);
     return AnimatedBuilder(
       animation: _reveal,

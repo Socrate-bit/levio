@@ -11,6 +11,8 @@ import '../../../shared/theme/app_theme.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../settings/cubit/settings_state.dart';
+import '../../subscription/cubit/subscription_cubit.dart';
+import '../../subscription/cubit/subscription_state.dart';
 import '../../wakeup/services/history_service.dart';
 import '../widgets/levio_brand_header.dart';
 
@@ -86,7 +88,12 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
     if (!widget.isPreview) _checkAlreadyUsed();
   }
 
+  // UGC creators get unlimited spins for testing — everyone else is one per day.
+  bool get _isUgc =>
+      context.read<SubscriptionCubit>().state.userType == UserType.ugc;
+
   Future<void> _checkAlreadyUsed() async {
+    if (_isUgc) return;
     final used = await HistoryService.hasSpinToWinUsedToday();
     if (mounted) setState(() => _alreadyUsed = used);
   }
@@ -134,9 +141,15 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
   // Animate the wheel with physics-based spin; landing angle depends on spin mode.
   void _launchSpin(double speed) {
     _hasSpun = true;
-    setState(() => _flickHarder = false);
-    // Mark this trial as used immediately — one spin per day regardless of result.
-    HistoryService.markSpinToWinUsed(widget.alarmId);
+    setState(() {
+      _flickHarder = false;
+      // Clear any prior result so a UGC re-spin starts from a clean state.
+      _won = false;
+      _spunAndMissed = false;
+    });
+    // Mark this trial as used immediately — one spin per day regardless of
+    // result. UGC creators are exempt so they can test the wheel repeatedly.
+    if (!_isUgc) HistoryService.markSpinToWinUsed(widget.alarmId);
 
     final turns = (3 + speed / 900).clamp(3.0, 7.0).round();
     final start = _rotation;
@@ -200,6 +213,9 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
       // One trial only — wheel stays, user closes via ✕.
       setState(() => _spunAndMissed = true);
     }
+
+    // UGC creators can spin again immediately — release the in-screen lock.
+    if (_isUgc) _hasSpun = false;
   }
 
   @override
@@ -261,7 +277,7 @@ class _SpinningWheelDismissScreenState extends State<SpinningWheelDismissScreen>
                               children: [
                                 // Spinning disc image on top
                                 Transform.translate(
-                                  offset: Offset(0, -17.h),
+                                  offset: Offset(0, -20.h),
                                   child: Transform.rotate(
                                     angle: _rotation,
                                     child: Image.asset(
