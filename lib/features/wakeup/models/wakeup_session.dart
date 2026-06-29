@@ -19,6 +19,10 @@ class WakeupSession {
   /// counts as a missed day for the streak and shows a distinct history label.
   final bool relapse;
 
+  /// True once the user has spun the Spin to Win bonus wheel for this session.
+  /// Enforces one spin per day.
+  final bool spinToWinUsed;
+
   const WakeupSession({
     required this.id,
     this.alarmId,
@@ -29,6 +33,7 @@ class WakeupSession {
     this.completed = true,
     this.autoDismissed = false,
     this.relapse = false,
+    this.spinToWinUsed = false,
   });
 
   Map<String, dynamic> toFirestore() => {
@@ -40,6 +45,7 @@ class WakeupSession {
         'completed': completed,
         'autoDismissed': autoDismissed,
         'relapse': relapse,
+        if (spinToWinUsed) 'spinToWinUsed': true,
       };
 
   factory WakeupSession.fromFirestore(String id, Map<String, dynamic> data) {
@@ -56,6 +62,7 @@ class WakeupSession {
       completed: (data['completed'] as bool?) ?? true, // legacy docs are completed
       autoDismissed: (data['autoDismissed'] as bool?) ?? false,
       relapse: (data['relapse'] as bool?) ?? false,
+      spinToWinUsed: (data['spinToWinUsed'] as bool?) ?? false,
     );
   }
 }

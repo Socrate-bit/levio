@@ -1502,6 +1502,25 @@ class AppLocalizationsFr extends AppLocalizations {
       'Secoue ton téléphone pour arrêter l\'alarme';
 
   @override
+  String get dismissSpinningWheelTitle => 'Gagne un voyage avec Levio';
+
+  @override
+  String get dismissSpinningWheelPrompt => 'Lance la roue d\'un geste';
+
+  @override
+  String get dismissSpinningWheelFlickHarder => 'Lance plus fort !';
+
+  @override
+  String get dismissSpinningWheelWin => 'Tu as gagné un voyage ! ✈️';
+
+  @override
+  String get dismissSpinningWheelMissed => 'Meilleure chance demain !';
+
+  @override
+  String get dismissSpinningWheelAlreadyUsed =>
+      'Tu as déjà tourné aujourd\'hui. Reviens demain ! ✈️';
+
+  @override
   String dismissMathProgress(int current, int total) {
     return '$current / $total';
   }

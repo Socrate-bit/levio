@@ -29,6 +29,10 @@ class AppAlarmEntry extends Equatable {
   /// How many minutes before the alarm the reminder fires.
   final int reminderMinutesBefore;
 
+  /// Whether a Spin to Win bonus wheel appears after the dismiss mission
+  /// completes. At most one alarm per user may have this enabled.
+  final bool spinToWin;
+
   AppAlarmEntry({
     required this.id,
     required this.dateTime,
@@ -43,6 +47,7 @@ class AppAlarmEntry extends Equatable {
     this.gentle = false,
     this.reminderEnabled = false,
     this.reminderMinutesBefore = 15,
+    this.spinToWin = false,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -60,6 +65,7 @@ class AppAlarmEntry extends Equatable {
     bool? gentle,
     bool? reminderEnabled,
     int? reminderMinutesBefore,
+    bool? spinToWin,
     DateTime? createdAt,
   }) =>
       AppAlarmEntry(
@@ -78,6 +84,7 @@ class AppAlarmEntry extends Equatable {
         reminderEnabled: reminderEnabled ?? this.reminderEnabled,
         reminderMinutesBefore:
             reminderMinutesBefore ?? this.reminderMinutesBefore,
+        spinToWin: spinToWin ?? this.spinToWin,
         createdAt: createdAt ?? this.createdAt,
       );
 
@@ -96,6 +103,7 @@ class AppAlarmEntry extends Equatable {
         gentle,
         reminderEnabled,
         reminderMinutesBefore,
+        spinToWin,
         createdAt,
       ];
 }

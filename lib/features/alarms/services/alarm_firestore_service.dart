@@ -24,6 +24,7 @@ class AlarmFirestoreService {
         'gentle': entry.gentle,
         'reminderEnabled': entry.reminderEnabled,
         'reminderMinutesBefore': entry.reminderMinutesBefore,
+        'spinToWin': entry.spinToWin,
         'createdAtMs': entry.createdAt.millisecondsSinceEpoch,
       });
 
@@ -60,6 +61,7 @@ class AlarmFirestoreService {
       gentle: d['gentle'] as bool? ?? false,
       reminderEnabled: d['reminderEnabled'] as bool? ?? false,
       reminderMinutesBefore: d['reminderMinutesBefore'] as int? ?? 15,
+      spinToWin: d['spinToWin'] as bool? ?? false,
       createdAt: d['createdAtMs'] != null
           ? DateTime.fromMillisecondsSinceEpoch(d['createdAtMs'] as int)
           : null,

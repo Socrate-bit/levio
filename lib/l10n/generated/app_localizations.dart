@@ -2924,6 +2924,42 @@ abstract class AppLocalizations {
   /// **'Shake your phone to stop the alarm'**
   String get dismissShakePrompt;
 
+  /// No description provided for @dismissSpinningWheelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Win a travel with Levio'**
+  String get dismissSpinningWheelTitle;
+
+  /// No description provided for @dismissSpinningWheelPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Flick to spin the wheel'**
+  String get dismissSpinningWheelPrompt;
+
+  /// No description provided for @dismissSpinningWheelFlickHarder.
+  ///
+  /// In en, this message translates to:
+  /// **'Flick harder to spin!'**
+  String get dismissSpinningWheelFlickHarder;
+
+  /// No description provided for @dismissSpinningWheelWin.
+  ///
+  /// In en, this message translates to:
+  /// **'You won a trip! ✈️'**
+  String get dismissSpinningWheelWin;
+
+  /// No description provided for @dismissSpinningWheelMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Better luck tomorrow!'**
+  String get dismissSpinningWheelMissed;
+
+  /// No description provided for @dismissSpinningWheelAlreadyUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'You already spun today. Come back tomorrow! ✈️'**
+  String get dismissSpinningWheelAlreadyUsed;
+
   /// No description provided for @dismissMathProgress.
   ///
   /// In en, this message translates to:

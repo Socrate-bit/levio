@@ -19,6 +19,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   static const forceQuickAlarmKey = 'force_quick_alarm';
   static const forcedHuntTargetKey = 'forced_hunt_target';
   static const _localeKey = 'app_locale';
+  static const _spinModeKey = 'spin_mode';
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -32,6 +33,11 @@ class SettingsCubit extends Cubit<SettingsState> {
     final forceQuickAlarm = prefs.getBool(forceQuickAlarmKey) ?? false;
     final forcedHuntTarget = prefs.getString(forcedHuntTargetKey);
     final localeCode = prefs.getString(_localeKey);
+    final spinModeStr = prefs.getString(_spinModeKey);
+    final spinMode = spinModeStr != null
+        ? SpinMode.values.firstWhere((e) => e.name == spinModeStr,
+            orElse: () => SpinMode.neverWin)
+        : SpinMode.neverWin;
 
     emit(SettingsState(
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
@@ -42,7 +48,15 @@ class SettingsCubit extends Cubit<SettingsState> {
       forceQuickAlarm: forceQuickAlarm,
       forcedHuntTarget: forcedHuntTarget,
       locale: localeCode != null ? Locale(localeCode) : null,
+      spinMode: spinMode,
     ));
+  }
+
+  /// Admin/UGC: rigs the Spin to Win bonus wheel outcome.
+  Future<void> setSpinMode(SpinMode mode) async {
+    emit(state.copyWith(spinMode: mode));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_spinModeKey, mode.name);
   }
 
   /// Sets the app language override. Pass null to follow the device locale.
@@ -137,6 +151,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       prefs.remove(_defaultMissionKey),
       prefs.remove(forceQuickAlarmKey),
       prefs.remove(forcedHuntTargetKey),
+      prefs.remove(_spinModeKey),
     ]);
     emit(SettingsState(locale: state.locale));
   }

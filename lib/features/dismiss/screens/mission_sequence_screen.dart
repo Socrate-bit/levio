@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app.dart';
+import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
 import '../../alarms/services/alarm_channel.dart';
 import '../../milestones/services/streak_service.dart';
@@ -153,24 +155,34 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
 
   Future<void> _finishSequence() async {
     await _cascade.finish();
+    if (!mounted) return;
 
     final elapsed = DateTime.now().difference(_startTime).inSeconds;
+    final missionType = _resolvedMissions.first.type;
+    final spinToWin = context
+            .read<AlarmCubit>()
+            .state
+            .alarms
+            .where((a) => a.id == widget.alarmId)
+            .firstOrNull
+            ?.spinToWin ??
+        false;
 
-      // pushAndRemoveUntil sweeps the mission screen AND the orchestrator off
-      // the stack in one transition, so WakeupCompleteScreen animates in over
-      // the completed mission instead of a flash of MissionStartScreen.
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => WakeupCompleteScreen(
-            alarmId: widget.alarmId,
-            nativeAlarmId: widget.nativeAlarmId,
-            timeTakenSeconds: elapsed,
-            missionType: _resolvedMissions.first.type,
-          ),
+    // pushAndRemoveUntil sweeps the mission screen AND the orchestrator off
+    // the stack in one transition, so WakeupCompleteScreen animates in over
+    // the completed mission instead of a flash of MissionStartScreen.
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => WakeupCompleteScreen(
+          alarmId: widget.alarmId,
+          nativeAlarmId: widget.nativeAlarmId,
+          timeTakenSeconds: elapsed,
+          missionType: missionType,
+          spinToWin: spinToWin,
         ),
-        (route) => route.isFirst,
-      );
-    
+      ),
+      (route) => route.isFirst,
+    );
   }
 
   @override
