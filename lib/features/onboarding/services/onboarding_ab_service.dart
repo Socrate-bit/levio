@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../subscription/services/analytics_service.dart';
 import '../onboarding_config.dart';
@@ -10,30 +9,20 @@ import '../onboarding_config.dart';
 /// Resolves which onboarding funnel a user sees (A/B test).
 ///
 /// The rollout is driven by Firestore `settings/app_settings`.`ratio_ab` — the
-/// percentage (0–100) of users sent to the new v2 funnel. The decision is made
-/// once, persisted locally so the user never flips funnels across cold starts,
-/// and pushed to Mixpanel as a user property for segmentation.
+/// percentage (0–100) of users sent to the new v2 funnel. The decision is
+/// re-rolled on every launch (no local persistence) and pushed to Mixpanel as a
+/// user property for segmentation.
 class OnboardingAbService {
-  static const _prefsKey = 'onboarding_variant'; // stored as 'v2' | 'v1'
   static const _userProperty = 'onboarding_variant';
   static const _defaultUseV2 = true; // matches current shipping behavior
 
-  /// Resolves the funnel once, publishes it to [useOnboardingV2], persists it,
-  /// and pushes the variant to Mixpanel. Runs in the background at startup so it
-  /// never blocks launch; the v2 start screen renders meanwhile and AuthWrapper
-  /// swaps to v1 if this resolves there.
+  /// Resolves the funnel, publishes it to [useOnboardingV2], and pushes the
+  /// variant to Mixpanel. Runs in the background at startup so it never blocks
+  /// launch; the v2 start screen renders meanwhile and AuthWrapper swaps to v1
+  /// if this resolves there. Re-rolled every launch — not persisted.
   static Future<void> resolveVariant() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Sticky: reuse a prior decision so the user keeps the same funnel.
-    bool useV2;
-    final stored = prefs.getString(_prefsKey);
-    if (stored != null) {
-      useV2 = stored == 'v2';
-    } else {
-      useV2 = await _decideFromRatio();
-      await prefs.setString(_prefsKey, useV2 ? 'v2' : 'v1');
-    }
+    // Fresh weighted roll each launch; no sticky save.
+    final useV2 = await _decideFromRatio();
 
     // Publish so AuthWrapper swaps into the chosen funnel.
     useOnboardingV2.value = useV2;
