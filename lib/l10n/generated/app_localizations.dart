@@ -3467,7 +3467,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingJoin500k.
   ///
   /// In en, this message translates to:
-  /// **'Join 500k+ people waking up with Levio'**
+  /// **'Join 500,000+ people waking up with Levio'**
   String get onboardingJoin500k;
 
   /// No description provided for @onboardingAlreadyAccount.
@@ -3481,6 +3481,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in'**
   String get onboardingSignIn;
+
+  /// No description provided for @languageSelectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageSelectTitle;
 
   /// No description provided for @onboardingSignInApple.
   ///

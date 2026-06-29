@@ -30,14 +30,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get alarmsEmpty => 'Aucune alarme';
 
   @override
-  String get alarmsEmptyHint =>
-      'Appuyez sur + pour créer votre première alarme';
+  String get alarmsEmptyHint => 'Appuie sur + pour créer ta première alarme';
 
   @override
   String get alarmsMissionAlarm => 'Alarme Mission';
 
   @override
-  String get alarmsMissionAlarmSubtitle => 'Complétez une tâche d\'abord';
+  String get alarmsMissionAlarmSubtitle => 'Complète une tâche d\'abord';
 
   @override
   String get alarmsNormalAlarm => 'Alarme Normale';
@@ -161,7 +160,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get alarmFormStackMissions =>
-      'Empilez les missions et complétez-les pour éteindre l\'alarme';
+      'Empile les missions et complète-les pour éteindre l\'alarme';
 
   @override
   String get alarmFormSound => 'Son';
@@ -196,7 +195,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get alarmFormReminder => 'Rappel du coucher';
 
   @override
-  String get alarmFormReminderHint => 'Soyez notifié avant que l\'alarme sonne';
+  String get alarmFormReminderHint => 'Sois notifié avant que l\'alarme sonne';
 
   @override
   String alarmFormReminderBefore(int minutes) {
@@ -204,16 +203,16 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get reminderNotificationTitle => 'Il est temps de vous détendre';
+  String get reminderNotificationTitle => 'Il est temps de te détendre';
 
   @override
-  String get reminderNotificationBody => 'Votre alarme du coucher approche';
+  String get reminderNotificationBody => 'Ton alarme du coucher approche';
 
   @override
   String get soundPickerTitle => 'Son de l\'alarme';
 
   @override
-  String get soundPickerYourSounds => 'Vos sons';
+  String get soundPickerYourSounds => 'Tes sons';
 
   @override
   String get soundPickerUpload => 'Importer un son';
@@ -331,7 +330,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get homeNoActiveAlarmHint =>
-      'Appuyez pour en créer une avec une mission';
+      'Appuie pour en créer une avec une mission';
 
   @override
   String get homeToday => 'Aujourd\'hui';
@@ -357,7 +356,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeNoWakeupsYet => 'Aucun réveil encore';
 
   @override
-  String get homeSetAlarmToStart => 'Créez une alarme pour commencer';
+  String get homeSetAlarmToStart => 'Crée une alarme pour commencer';
 
   @override
   String get monthJan => 'Jan';
@@ -399,102 +398,101 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionPushUps => 'Pompes';
 
   @override
-  String get missionPushUpsDesc => 'Filmez-vous en faisant des pompes';
+  String get missionPushUpsDesc => 'Filme-toi en faisant des pompes';
 
   @override
   String get missionSquats => 'Squats';
 
   @override
-  String get missionSquatsDesc => 'Filmez-vous en faisant des squats';
+  String get missionSquatsDesc => 'Filme-toi en faisant des squats';
 
   @override
   String get missionShakePhone => 'Secouer le téléphone';
 
   @override
-  String get missionShakePhoneDesc =>
-      'Secouez votre téléphone pour vous réveiller';
+  String get missionShakePhoneDesc => 'Secoue ton téléphone pour te réveiller';
 
   @override
   String get missionMath => 'Maths';
 
   @override
-  String get missionMathDesc => 'Résolvez des problèmes de maths';
+  String get missionMathDesc => 'Résous des problèmes de maths';
 
   @override
   String get missionSkyPhoto => 'Photo du ciel';
 
   @override
-  String get missionSkyPhotoDesc => 'Prenez une photo du ciel';
+  String get missionSkyPhotoDesc => 'Prends une photo du ciel';
 
   @override
   String get missionMakeBed => 'Faire le lit';
 
   @override
-  String get missionMakeBedDesc => 'Prenez une photo de votre lit fait';
+  String get missionMakeBedDesc => 'Prends une photo de ton lit fait';
 
   @override
   String get missionObjectHunt => 'Chasse aux objets';
 
   @override
   String get missionObjectHuntDesc =>
-      'Trouvez et photographiez un objet de la maison';
+      'Trouve et photographie un objet de la maison';
 
   @override
   String get missionPetHunt => 'Chasse aux animaux';
 
   @override
-  String get missionPetHuntDesc => 'Trouvez et photographiez votre animal';
+  String get missionPetHuntDesc => 'Trouve et photographie ton animal';
 
   @override
   String get missionNatureHunt => 'Chasse nature';
 
   @override
   String get missionNatureHuntDesc =>
-      'Trouvez et photographiez un élément naturel';
+      'Trouve et photographie un élément naturel';
 
   @override
   String get missionTouchGrass => 'Toucher l\'herbe';
 
   @override
-  String get missionTouchGrassDesc => 'Prenez une photo de l\'herbe';
+  String get missionTouchGrassDesc => 'Prends une photo de l\'herbe';
 
   @override
   String get missionAffirmation => 'Affirmation';
 
   @override
-  String get missionAffirmationDesc => 'Lisez une affirmation à voix haute';
+  String get missionAffirmationDesc => 'Lis une affirmation à voix haute';
 
   @override
   String get missionRoutine => 'Routine';
 
   @override
-  String get missionRoutineDesc => 'Complétez votre liste d\'étapes';
+  String get missionRoutineDesc => 'Complète ta liste d\'étapes';
 
   @override
   String get missionBreathing => 'Respiration';
 
   @override
-  String get missionBreathingDesc => 'Suivez un exercice de respiration guidé';
+  String get missionBreathingDesc => 'Suis un exercice de respiration guidé';
 
   @override
   String get missionGratefulness => 'Gratitude';
 
   @override
   String get missionGratefulnessDesc =>
-      'Répondez à 3 questions pour bien commencer';
+      'Réponds à 3 questions pour bien commencer';
 
   @override
   String get missionMeditation => 'Méditation';
 
   @override
   String get missionMeditationDesc =>
-      'Écoutez une méditation guidée de 2 minutes';
+      'Écoute une méditation guidée de 2 minutes';
 
   @override
   String get missionBed => 'Lit';
 
   @override
-  String get missionBedDesc => 'Prenez une photo de votre lit';
+  String get missionBedDesc => 'Prends une photo de ton lit';
 
   @override
   String get missionRandom => 'Aléatoire';
@@ -509,11 +507,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionNoneDesc => 'Alarme simple sans tâche';
 
   @override
-  String get routinePickerTitle => 'Composez votre routine';
+  String get routinePickerTitle => 'Compose ta routine';
 
   @override
   String get routinePickerSubtitle =>
-      'Choisissez les étapes à compléter. Touchez ＋ pour ajouter la vôtre.';
+      'Choisis les étapes à compléter. Touche ＋ pour ajouter la tienne.';
 
   @override
   String get routineAddStep => 'Ajouter une étape';
@@ -527,7 +525,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get routineTapToComplete => 'Touchez chaque étape une fois complétée';
+  String get routineTapToComplete => 'Touche chaque étape une fois complétée';
 
   @override
   String get routineDrinkWater => 'Boire un verre d\'eau';
@@ -536,13 +534,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get routineDimLight => 'Tamiser la lumière';
 
   @override
-  String get routineCloseComputer => 'Fermer votre ordinateur';
+  String get routineCloseComputer => 'Fermer ton ordinateur';
 
   @override
   String get routineBrushTeeth => 'Se brosser les dents';
 
   @override
-  String get routinePrepareClothes => 'Préparer vos vêtements';
+  String get routinePrepareClothes => 'Préparer tes vêtements';
 
   @override
   String get routineTodoList => 'Liste de tâches pour demain';
@@ -560,10 +558,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get photoTargetSky => 'le ciel';
 
   @override
-  String get photoTargetMadeBed => 'votre lit fait';
+  String get photoTargetMadeBed => 'ton lit fait';
 
   @override
-  String get photoTargetBed => 'votre lit';
+  String get photoTargetBed => 'ton lit';
 
   @override
   String get photoTargetGrass => 'l\'herbe';
@@ -632,13 +630,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get breathingMusicOff => 'Musique coupée';
 
   @override
-  String get breathingPhaseInhale => 'Inspirez';
+  String get breathingPhaseInhale => 'Inspire';
 
   @override
-  String get breathingPhaseExhale => 'Expirez';
+  String get breathingPhaseExhale => 'Expire';
 
   @override
-  String get breathingPhaseHold => 'Retenez';
+  String get breathingPhaseHold => 'Retiens';
 
   @override
   String breathingRoundLabel(int current, int total) {
@@ -647,15 +645,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get gratefulnessQuestion1 =>
-      'Pour quoi êtes-vous reconnaissant aujourd\'hui ?';
+      'Pour quoi es-tu reconnaissant aujourd\'hui ?';
 
   @override
   String get gratefulnessQuestion2 =>
-      'Quelle bonne chose vous est arrivée récemment ?';
+      'Quelle bonne chose t\'est arrivée récemment ?';
 
   @override
   String get gratefulnessQuestion3 =>
-      'Qu\'attendez-vous avec impatience aujourd\'hui ?';
+      'Qu\'attends-tu avec impatience aujourd\'hui ?';
 
   @override
   String gratefulnessProgress(int current, int total) {
@@ -663,7 +661,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get gratefulnessHint => 'Écrivez votre réponse…';
+  String get gratefulnessHint => 'Écris ta réponse…';
 
   @override
   String get gratefulnessNext => 'Suivant';
@@ -676,10 +674,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get meditationInstruction =>
-      'Fermez les yeux et suivez la méditation guidée.';
+      'Ferme les yeux et suis la méditation guidée.';
 
   @override
-  String get meditationRetry => 'Touchez pour réessayer';
+  String get meditationRetry => 'Touche pour réessayer';
 
   @override
   String meditationFinishIn(String time) {
@@ -700,11 +698,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get itemPickerFunItems => 'Objets amusants';
 
   @override
-  String get itemPickerSelectPets => 'Sélectionner vos animaux';
+  String get itemPickerSelectPets => 'Sélectionner tes animaux';
 
   @override
   String get itemPickerPetsSubtitle =>
-      'Sélectionnez les animaux que vous avez à la maison';
+      'Sélectionne les animaux que tu as à la maison';
 
   @override
   String get itemPickerSelectNature => 'Sélectionner les éléments naturels';
@@ -725,7 +723,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get itemPickerDeselectAll => 'Tout désélectionner';
 
   @override
-  String get itemPickerAddOwn => 'Ajoutez votre propre objet';
+  String get itemPickerAddOwn => 'Ajoute ton propre objet';
 
   @override
   String get itemPickerDone => 'Terminé';
@@ -904,7 +902,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get affirmationPickerDeselectAll => 'Tout désélectionner';
 
   @override
-  String get affirmationPickerAddOwn => 'Ajoutez votre propre affirmation';
+  String get affirmationPickerAddOwn => 'Ajoute ta propre affirmation';
 
   @override
   String get affirmationPickerDone => 'Terminé';
@@ -914,7 +912,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get randomPoolSubtitle =>
-      'Sélectionnez les missions à inclure dans la rotation aléatoire';
+      'Sélectionne les missions à inclure dans la rotation aléatoire';
 
   @override
   String randomPoolSelected(int count) {
@@ -1038,7 +1036,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsLogoutBody =>
-      'Vous serez déconnecté de cet appareil. Les paramètres locaux et les alarmes programmées seront effacés.';
+      'Tu seras déconnecté de cet appareil. Les paramètres locaux et les alarmes programmées seront effacés.';
 
   @override
   String get settingsLogoutConfirm => 'Se déconnecter';
@@ -1054,7 +1052,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsDeleteAccountBody =>
-      'Cette action supprime définitivement votre compte, vos alarmes, vos sessions et votre historique de séries. Elle est irréversible.';
+      'Cette action supprime définitivement ton compte, tes alarmes, tes sessions et ton historique de séries. Elle est irréversible.';
 
   @override
   String get settingsDeleteAccountConfirm => 'Supprimer';
@@ -1064,11 +1062,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsDeleteAccountReauthRequired =>
-      'Veuillez vous reconnecter, puis réessayer de supprimer votre compte.';
+      'Reconnecte-toi, puis réessaie de supprimer ton compte.';
 
   @override
   String get settingsDeleteAccountError =>
-      'Impossible de supprimer votre compte. Veuillez réessayer.';
+      'Impossible de supprimer ton compte. Réessaie.';
 
   @override
   String get settingsVersion => 'Levio v0.1.0';
@@ -1081,7 +1079,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String referralApplied(String type) {
-    return 'Code appliqué ! Vous êtes maintenant : $type';
+    return 'Code appliqué ! Tu es maintenant : $type';
   }
 
   @override
@@ -1091,7 +1089,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get referralUsageLimit => 'Ce code a atteint sa limite d\'utilisation';
 
   @override
-  String get referralError => 'Une erreur est survenue, veuillez réessayer';
+  String get referralError => 'Une erreur est survenue, réessaie';
 
   @override
   String get referralCancel => 'Annuler';
@@ -1155,7 +1153,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get insightsConsistencyScoreBody =>
-      'Votre score de régularité mesure la fréquence à laquelle vous vous réveillez avec Levio. Il s\'améliore au fur et à mesure que votre série grandit.';
+      'Ton score de régularité mesure la fréquence à laquelle tu te réveilles avec Levio. Il s\'améliore au fur et à mesure que ta série grandit.';
 
   @override
   String get insightsOk => 'OK';
@@ -1193,7 +1191,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get milestonesStreakExplanation =>
-      'Réveillez-vous avec Levio chaque jour pour construire votre série. Vous avez 2 jours de gel par semaine pour sauter sans perdre votre progression. Si vous manquez un jour sans gel, votre série baisse de 3 au lieu de revenir à zéro.';
+      'Réveille-toi avec Levio chaque jour pour construire ta série. Tu as 2 jours de gel par semaine pour sauter sans perdre ta progression. Si tu manques un jour sans gel, ta série baisse de 3 au lieu de revenir à zéro.';
 
   @override
   String get badgeRisen => 'Éveillé';
@@ -1222,7 +1220,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get badgeHorizonQuote =>
-      'Une semaine de matins — vous réécrivez votre histoire.';
+      'Une semaine de matins — tu réécris ton histoire.';
 
   @override
   String get badgeAurora => 'Aurore';
@@ -1232,7 +1230,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get badgeAuroraQuote =>
-      'Deux semaines de levers de soleil. Continuez à poursuivre la lumière.';
+      'Deux semaines de levers de soleil. Continue à poursuivre la lumière.';
 
   @override
   String get badgeCelestial => 'Céleste';
@@ -1242,7 +1240,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get badgeCelestialQuote =>
-      'Un mois complet de levers. Vous êtes inarrêtable.';
+      'Un mois complet de levers. Tu es inarrêtable.';
 
   @override
   String get badgeNebula => 'Nébuleuse';
@@ -1251,7 +1249,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get badgeNebulaReq => '100 jours';
 
   @override
-  String get badgeNebulaQuote => 'Cent matins. Un nouveau vous est né.';
+  String get badgeNebulaQuote => 'Cent matins. Un nouveau toi est né.';
 
   @override
   String get badgeEternal => 'Éternel';
@@ -1261,7 +1259,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get badgeEternalQuote =>
-      'Une année complète de matins. Vous êtes légendaire.';
+      'Une année complète de matins. Tu es légendaire.';
 
   @override
   String get badgeVersatile => 'Polyvalent';
@@ -1331,8 +1329,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wakeupCongratulations => 'Félicitations.';
 
   @override
-  String get wakeupThanks =>
-      'Grâce à Levio, vous vous êtes réveillé aujourd\'hui.';
+  String get wakeupThanks => 'Grâce à Levio, tu t\'es réveillé aujourd\'hui.';
 
   @override
   String get wakeupTimeTaken => 'Temps écoulé';
@@ -1376,7 +1373,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quoteConfucius =>
-      'Peu importe la lenteur à laquelle vous avancez, pourvu que vous ne vous arrêtiez pas.';
+      'Peu importe la lenteur à laquelle tu avances, pourvu que tu ne t\'arrêtes pas.';
 
   @override
   String get quoteConfuciusAuthor => 'Confucius';
@@ -1389,22 +1386,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get quoteChurchillAuthor => 'Winston Churchill';
 
   @override
-  String get quoteRoosevelt =>
-      'Croyez que vous pouvez et vous êtes à mi-chemin.';
+  String get quoteRoosevelt => 'Crois que tu peux et tu es à mi-chemin.';
 
   @override
   String get quoteRooseveltAuthor => 'Theodore Roosevelt';
 
   @override
   String get quoteJobs =>
-      'La seule façon de faire du bon travail est d\'aimer ce que vous faites.';
+      'La seule façon de faire du bon travail est d\'aimer ce que tu fais.';
 
   @override
   String get quoteJobsAuthor => 'Steve Jobs';
 
   @override
   String get quoteUnknown =>
-      'Réveillez-vous avec détermination, couchez-vous avec satisfaction.';
+      'Réveille-toi avec détermination, couche-toi avec satisfaction.';
 
   @override
   String get quoteUnknownAuthor => 'Inconnu';
@@ -1421,7 +1417,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dismissShakePrompt =>
-      'Secouez votre téléphone pour arrêter l\'alarme';
+      'Secoue ton téléphone pour arrêter l\'alarme';
 
   @override
   String dismissMathProgress(int current, int total) {
@@ -1429,14 +1425,14 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get dismissMathWrong => 'Faux — réessayez !';
+  String get dismissMathWrong => 'Faux — réessaie !';
 
   @override
   String get dismissMathConfirm => 'Confirmer';
 
   @override
   String dismissPhotoPrompt(String target) {
-    return 'Prenez une photo de $target pour arrêter l\'alarme';
+    return 'Prends une photo de $target pour arrêter l\'alarme';
   }
 
   @override
@@ -1449,7 +1445,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String dismissPhotoNotDetected(String target) {
-    return 'Aucun $target détecté — réessayez';
+    return 'Aucun $target détecté — réessaie';
   }
 
   @override
@@ -1458,23 +1454,23 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get dismissPhotoTakePhoto => 'PRENEZ UNE PHOTO DE';
+  String get dismissPhotoTakePhoto => 'PRENDS UNE PHOTO DE';
 
   @override
-  String get dismissPhotoPickingTarget => 'Sélection de votre cible…';
+  String get dismissPhotoPickingTarget => 'Sélection de ta cible…';
 
   @override
-  String get dismissSpeechSay => 'Dites :';
+  String get dismissSpeechSay => 'Dis :';
 
   @override
   String get dismissSpeechListening => 'Écoute en cours…';
 
   @override
-  String get dismissSpeechTapToSpeak => 'Appuyez pour parler';
+  String get dismissSpeechTapToSpeak => 'Appuie pour parler';
 
   @override
   String dismissSpeechTryAgain(int score) {
-    return '$score% — réessayez';
+    return '$score% — réessaie';
   }
 
   @override
@@ -1490,7 +1486,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String dismissRepPrompt(int target, String mission) {
-    return 'Faites $target $mission pour arrêter l\'alarme';
+    return 'Fais $target $mission pour arrêter l\'alarme';
   }
 
   @override
@@ -1511,35 +1507,35 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dismissFeedbackMoveIntoFrame =>
-      'Placez tout votre corps dans le cadre';
+      'Place tout ton corps dans le cadre';
 
   @override
-  String get dismissFeedbackKeepGoing => 'Oui, continuez !';
+  String get dismissFeedbackKeepGoing => 'Oui, continue !';
 
   @override
   String get dismissFeedbackPushupPosition =>
-      'Allongez-vous en position de pompe';
+      'Allonge-toi en position de pompe';
 
   @override
-  String get dismissFeedbackStartPushups => 'Commencez vos pompes !';
+  String get dismissFeedbackStartPushups => 'Commence tes pompes !';
 
   @override
   String get dismissFeedbackPushupGoDeeper =>
-      'Descendez plus bas, votre poitrine doit toucher le sol !';
+      'Descends plus bas, ta poitrine doit toucher le sol !';
 
   @override
   String get dismissFeedbackSquatPosition =>
-      'Levez-vous pour commencer les squats';
+      'Lève-toi pour commencer les squats';
 
   @override
-  String get dismissFeedbackStartSquats => 'Commencez vos squats !';
+  String get dismissFeedbackStartSquats => 'Commence tes squats !';
 
   @override
   String get dismissFeedbackSquatGoDeeper =>
-      'Descendez plus bas, vos cuisses doivent être parallèles au sol !';
+      'Descends plus bas, tes cuisses doivent être parallèles au sol !';
 
   @override
-  String get onboardingMorningPerson => 'Vous sentez-vous du matin ?';
+  String get onboardingMorningPerson => 'Te sens-tu du matin ?';
 
   @override
   String get onboardingYes => 'Oui';
@@ -1548,10 +1544,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingNotYet => 'Pas encore';
 
   @override
-  String get onboardingAgeRange => 'Quelle est votre tranche d\'âge ?';
+  String get onboardingAgeRange => 'Quelle est ta tranche d\'âge ?';
 
   @override
-  String get onboardingDescribesYou => 'Qu\'est-ce qui vous décrit le mieux ?';
+  String get onboardingDescribesYou => 'Qu\'est-ce qui te décrit le mieux ?';
 
   @override
   String get onboardingMale => 'Homme';
@@ -1564,7 +1560,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingKeepsInBed =>
-      'Qu\'est-ce qui vous retient au lit après l\'alarme ?';
+      'Qu\'est-ce qui te retient au lit après l\'alarme ?';
 
   @override
   String get onboardingPhoneScrolling => 'Scroller sur le téléphone';
@@ -1595,14 +1591,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingWhyDidI => 'Pourquoi j\'ai fait ça ?';
 
   @override
-  String get onboardingGetsYouOut => 'Levio vous fait sortir du lit';
+  String get onboardingGetsYouOut => 'Levio te fait sortir du lit';
 
   @override
   String get onboardingAvoidGroggy =>
-      'Évitez la « zone de brouillard ». Levio vous propulse directement en état d\'alerte.';
+      'Évite la « zone de brouillard ». Levio te propulse directement en état d\'alerte.';
 
   @override
-  String get onboardingHowManyAlarms => 'Combien d\'alarmes mettez-vous ?';
+  String get onboardingHowManyAlarms => 'Combien d\'alarmes mets-tu ?';
 
   @override
   String get onboardingOne => 'Une';
@@ -1615,7 +1611,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingOneAlarmWakeUp =>
-      'Si vous ne mettiez qu\'une alarme, vous réveillerez-vous ?';
+      'Si tu ne mettais qu\'une alarme, te réveillerais-tu ?';
 
   @override
   String get onboardingSometimes => 'Parfois';
@@ -1625,7 +1621,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingTurnOffGoBack =>
-      'Vous arrive-t-il d\'éteindre l\'alarme et de vous rendormir ?';
+      'T\'arrive-t-il d\'éteindre l\'alarme et de te rendormir ?';
 
   @override
   String get onboardingOften => 'Souvent';
@@ -1641,7 +1637,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingFeelSettingAlarm =>
-      'Que ressentez-vous en réglant votre alarme le soir ?';
+      'Que ressens-tu en réglant ton alarme le soir ?';
 
   @override
   String get onboardingMotivated => 'Motivé';
@@ -1657,7 +1653,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingFeelAfterWaking =>
-      'Comment vous sentez-vous juste après le réveil ?';
+      'Comment te sens-tu juste après le réveil ?';
 
   @override
   String get onboardingReadyToGo => 'Prêt à foncer';
@@ -1670,7 +1666,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingHowLongAwake =>
-      'Combien de temps pour vous sentir pleinement éveillé ?';
+      'Combien de temps pour te sentir pleinement éveillé ?';
 
   @override
   String get onboardingInstantly => 'Instantanément';
@@ -1686,11 +1682,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingBiologyBody =>
-      'Votre cerveau met 15 à 30 min à éliminer l\'inertie du sommeil. Le snooze relance le cycle, empirant les choses.\n\nLevio force l\'action immédiate en sautant la zone de brouillard.';
+      'Ton cerveau met 15 à 30 min à éliminer l\'inertie du sommeil. Le snooze relance le cycle, empirant les choses.\n\nLevio force l\'action immédiate en sautant la zone de brouillard.';
 
   @override
   String get onboarding5xFaster =>
-      'Sortez du lit 5x plus vite avec Levio vs tout seul';
+      'Sors du lit 5x plus vite avec Levio vs tout seul';
 
   @override
   String get onboardingSleepEduTitle => 'L\'heure du coucher change tout';
@@ -1701,22 +1697,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingWantSleepAlarm =>
-      'Vous voulez aussi une alarme de coucher ?';
+      'Tu veux aussi une alarme de coucher ?';
 
   @override
-  String get onboardingSleepTimeTitle =>
-      'À quelle heure voulez-vous vous coucher ?';
+  String get onboardingSleepTimeTitle => 'À quelle heure veux-tu te coucher ?';
 
   @override
   String get onboardingSleepTimeSubtitle =>
-      'On vous préviendra quand il sera temps de ralentir.';
+      'On te préviendra quand il sera temps de ralentir.';
 
   @override
-  String get onboardingScreenEduTitle => 'Les écrans volent votre sommeil';
+  String get onboardingScreenEduTitle => 'Les écrans volent ton sommeil';
 
   @override
   String get onboardingScreenEduBody =>
-      'Scroller tard décale votre horloge interne et réduit le sommeil profond. Bloquer les applis distrayantes le soir protège votre repos.';
+      'Scroller tard décale ton horloge interne et réduit le sommeil profond. Bloquer les applis distrayantes le soir protège ton repos.';
 
   @override
   String get onboardingBlockApps =>
@@ -1728,26 +1723,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingBlockStartSubtitle =>
-      'Les applis restent bloquées jusqu\'à 20 min après votre réveil. C\'est la valeur par défaut — vous pourrez la modifier plus tard dans les Réglages.';
+      'Les applis restent bloquées jusqu\'à 20 min après ton réveil. C\'est la valeur par défaut — tu pourras la modifier plus tard dans les Réglages.';
 
   @override
-  String get onboardingRelaxEduTitle => 'Remplacez les écrans par du calme';
+  String get onboardingRelaxEduTitle => 'Remplace les écrans par du calme';
 
   @override
   String get onboardingRelaxEduBody =>
-      'Échangez le scroll contre une courte routine de détente. Votre alarme de coucher vous guidera.';
+      'Échange le scroll contre une courte routine de détente. Ton alarme de coucher te guidera.';
 
   @override
   String get onboardingRelaxActivitiesTitle =>
-      'Qu\'est-ce qui vous aide à décompresser ?';
+      'Qu\'est-ce qui t\'aide à décompresser ?';
 
   @override
   String get onboardingRelaxActivitiesSubtitle =>
-      'Choisissez quelques activités pour votre routine du soir.';
+      'Choisis quelques activités pour ta routine du soir.';
 
   @override
-  String get onboardingRelaxActivitiesChoose =>
-      'Choisissez votre routine de détente';
+  String get onboardingRelaxActivitiesChoose => 'Choisis ta routine de détente';
 
   @override
   String onboardingRelaxActivitiesCount(int count) {
@@ -1755,10 +1749,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get onboardingSleepPlanTitle => 'Votre routine de sommeil';
+  String get onboardingSleepPlanTitle => 'Ta routine de sommeil';
 
   @override
-  String get onboardingSleepRoutineHeader => 'VOTRE ROUTINE';
+  String get onboardingSleepRoutineHeader => 'TA ROUTINE';
 
   @override
   String onboardingSleepBedtime(String time) {
@@ -1801,7 +1795,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Arrêter l\'alarme sauf si je quitte l\'app pendant la mission.';
 
   @override
-  String get onboardingWhereHeard => 'Où avez-vous entendu parler de nous ?';
+  String get onboardingWhereHeard => 'Où as-tu entendu parler de nous ?';
 
   @override
   String get onboardingYouTube => 'YouTube';
@@ -1823,24 +1817,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingWelcomeTitle =>
-      'Arrêtez de snoozer.\nCommencez à gagner vos matins.';
+      'Arrête de repousser l\'alarme.\nCommence à gagner tes matins.';
 
   @override
   String get onboardingWelcomeSubtitle =>
-      'Une alarme. Une mission. Vous êtes debout.';
+      'Une alarme. Une mission. Tu es debout.';
 
   @override
   String get onboardingBuildPlan => 'Créer mon plan';
 
   @override
   String get onboardingJoin500k =>
-      'Rejoignez 500k+ personnes qui se réveillent avec Levio';
+      'Rejoins plus de 500 000 personnes qui se réveillent avec Levio';
 
   @override
-  String get onboardingAlreadyAccount => 'Vous avez déjà un compte ? ';
+  String get onboardingAlreadyAccount => 'Tu as déjà un compte ? ';
 
   @override
   String get onboardingSignIn => 'Se connecter';
+
+  @override
+  String get languageSelectTitle => 'Langue';
 
   @override
   String get onboardingSignInApple => 'Se connecter avec Apple';
@@ -1853,15 +1850,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingGoogleFailed =>
-      'Échec de la connexion Google. Veuillez réessayer.';
+      'Échec de la connexion Google. Réessaie.';
 
   @override
-  String get onboardingAppleFailed =>
-      'Échec de la connexion Apple. Veuillez réessayer.';
+  String get onboardingAppleFailed => 'Échec de la connexion Apple. Réessaie.';
 
   @override
   String get onboardingAccountNotFound =>
-      'Aucun compte trouvé. Veuillez d\'abord créer un compte via l\'inscription.';
+      'Aucun compte trouvé. Crée d\'abord un compte via l\'inscription.';
 
   @override
   String get onboardingSignInEmail => 'Se connecter avec un email';
@@ -1879,10 +1875,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingPasswordLabel => 'Mot de passe';
 
   @override
-  String get onboardingEmailNoAccount => 'Vous n\'avez pas de compte ? ';
+  String get onboardingEmailNoAccount => 'Tu n\'as pas de compte ? ';
 
   @override
-  String get onboardingEmailHasAccount => 'Vous avez déjà un compte ? ';
+  String get onboardingEmailHasAccount => 'Tu as déjà un compte ? ';
 
   @override
   String get onboardingEmailSignUpAction => 'S\'inscrire';
@@ -1892,46 +1888,44 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingEmailEmptyError =>
-      'Veuillez saisir votre email et votre mot de passe.';
+      'Saisis ton email et ton mot de passe.';
 
   @override
   String get onboardingDayPickerTitle => 'Quels jours Levio doit-il sonner ?';
 
   @override
-  String get onboardingDayPickerSubtitle =>
-      'Choisissez les jours à verrouiller.';
+  String get onboardingDayPickerSubtitle => 'Choisis les jours à verrouiller.';
 
   @override
-  String get onboardingLoadingTitle => 'Tout se met en place\npour vous';
+  String get onboardingLoadingTitle => 'Tout se met en place\npour toi';
 
   @override
-  String get onboardingLoadingStep1 => 'Analyse de vos habitudes de sommeil';
+  String get onboardingLoadingStep1 => 'Analyse de tes habitudes de sommeil';
 
   @override
-  String get onboardingLoadingStep2 => 'Configuration de vos objectifs';
+  String get onboardingLoadingStep2 => 'Configuration de tes objectifs';
 
   @override
-  String get onboardingLoadingStep3 => 'Choix de votre mission';
+  String get onboardingLoadingStep3 => 'Choix de ta mission';
 
   @override
   String get onboardingLoadingStep4 => 'Calibrage du son d\'alarme';
 
   @override
-  String get onboardingLoadingStep5 => 'Programmation de votre alarme';
+  String get onboardingLoadingStep5 => 'Programmation de ton alarme';
 
   @override
-  String get onboardingLoadingStep6 => 'Finalisation de votre plan';
+  String get onboardingLoadingStep6 => 'Finalisation de ton plan';
 
   @override
-  String get onboardingMissionPickerTitle =>
-      'Choisissez votre mission de réveil';
+  String get onboardingMissionPickerTitle => 'Choisis ta mission de réveil';
 
   @override
   String get onboardingMissionPickerSubtitle =>
-      'Vous ferez ceci pour éteindre votre alarme.';
+      'Tu feras ceci pour éteindre ton alarme.';
 
   @override
-  String get onboardingMorningPlanTitle => 'Votre plan matinal';
+  String get onboardingMorningPlanTitle => 'Ton plan matinal';
 
   @override
   String onboardingMorningPlanSubtitle(String time) {
@@ -1953,15 +1947,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String onboardingCompleteMission(String mission) {
-    return 'Complétez $mission';
+    return 'Complète $mission';
   }
 
   @override
-  String get onboardingYoureUp => 'Vous êtes debout. La journée commence.';
+  String get onboardingYoureUp => 'Tu es debout. La journée commence.';
 
   @override
   String get onboardingNoSnooze =>
-      'Pas de boucle de snooze. Une action, puis votre journée démarre avec élan.';
+      'Pas de boucle de snooze. Une action, puis ta journée démarre avec élan.';
 
   @override
   String get onboardingWakeReceipt =>
@@ -1972,15 +1966,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String onboardingAlarmFrequency(int count) {
-    return 'Votre alarme sonne ${count}x par semaine. Construisez la série.';
+    return 'Ton alarme sonne ${count}x par semaine. Construis la série.';
   }
 
   @override
-  String get onboardingNotificationTitle => 'Restez sur la bonne voie';
+  String get onboardingNotificationTitle => 'Reste sur la bonne voie';
 
   @override
   String get onboardingNotificationSubtitle =>
-      'Nous vous enverrons un rappel pour ne jamais manquer votre heure de réveil.';
+      'Nous t\'enverrons un rappel pour ne jamais manquer ton heure de réveil.';
 
   @override
   String get onboardingNotificationEnable => 'Activer';
@@ -1990,13 +1984,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingPaywallTitle =>
-      'Nous voulons vous faire \nessayer Levio gratuitement.';
+      'Nous voulons te faire \nessayer Levio gratuitement.';
 
   @override
   String get onboardingPaywallSecondsRemaining => 'secondes restantes';
 
   @override
-  String get onboardingPaywallKeepGoing => 'Continuez ! Faites vos pompes';
+  String get onboardingPaywallKeepGoing => 'Continue ! Fais tes pompes';
 
   @override
   String get onboardingPaywallNoPayment => 'Aucun paiement maintenant';
@@ -2006,7 +2000,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingPaywallNoCommitment =>
-      'Sans engagement, annulez à tout moment.';
+      'Sans engagement, annule à tout moment.';
 
   @override
   String get onboardingPaywallPrivacy => 'Politique de confidentialité';
@@ -2021,11 +2015,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingPaywallEula => 'CLUF';
 
   @override
-  String get onboardingRatingTitle => 'Donnez-nous une note';
+  String get onboardingRatingTitle => 'Donne-nous une note';
 
   @override
   String get onboardingRatingSubtitle =>
-      'Levio a été fait pour\ndes personnes comme vous';
+      'Levio a été fait pour\ndes personnes comme toi';
 
   @override
   String get onboardingRatingMarc => 'Marc L.';
@@ -2053,7 +2047,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Entrer un code de parrainage\n(optionnel)';
 
   @override
-  String get onboardingReferralSubtitle => 'Vous pouvez passer cette étape';
+  String get onboardingReferralSubtitle => 'Tu peux passer cette étape';
 
   @override
   String get onboardingReferralLabel => 'Code de parrainage';
@@ -2072,26 +2066,26 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ce code a atteint sa limite d\'utilisation';
 
   @override
-  String get onboardingSignatureTitle => 'Engagez-vous\nà vous lever';
+  String get onboardingSignatureTitle => 'Engage-toi\nà te lever';
 
   @override
   String onboardingSignatureSubtitle(String time) {
-    return 'Signez ci-dessous pour sortir du lit à $time. Les pieds au sol.';
+    return 'Signe ci-dessous pour sortir du lit à $time. Les pieds au sol.';
   }
 
   @override
   String get onboardingSignatureCommit => 'Je m\'engage';
 
   @override
-  String get onboardingTimePickerTitle => 'Réglez votre première heure Levio';
+  String get onboardingTimePickerTitle => 'Règle ta première heure Levio';
 
   @override
   String onboardingTimePickerSubtitle(String time) {
-    return 'Nous vous réveillerons à $time avec votre mission.';
+    return 'Nous te réveillerons à $time avec ta mission.';
   }
 
   @override
-  String get onboardingSoundPickerTitle => 'Choisissez votre son d\'alarme';
+  String get onboardingSoundPickerTitle => 'Choisis ton son d\'alarme';
 
   @override
   String get onboardingTimelineTypical => 'MATIN TYPIQUE';
@@ -2122,7 +2116,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingTrialTitle =>
-      'Nous vous enverrons\nun rappel avant\nla fin de votre essai gratuit';
+      'Nous t\'enverrons\nun rappel avant\nla fin de ton essai gratuit';
 
   @override
   String get onboardingTrialNoPayment => 'Aucun paiement maintenant';
@@ -2168,126 +2162,124 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingSpeedometerMultiplier => '5.0x';
 
   @override
-  String get missionExplPushUpsTitle => 'Pourquoi les pompes vous réveillent';
+  String get missionExplPushUpsTitle => 'Pourquoi les pompes te réveillent';
 
   @override
   String get missionExplPushUpsSubtitle =>
-      'Active votre circulation sanguine immédiatement';
+      'Active ta circulation sanguine immédiatement';
 
   @override
   String get missionExplPushUpsBody =>
-      'Les pompes activent votre poitrine, vos bras et votre tronc — inondant votre cerveau d\'oxygène et accélérant votre rythme cardiaque. En quelques secondes, votre corps passe du mode sommeil à pleinement alerte. C\'est le moyen le plus rapide d\'éliminer la somnolence matinale.';
+      'Les pompes activent ta poitrine, tes bras et ton tronc — inondant ton cerveau d\'oxygène et accélérant ton rythme cardiaque. En quelques secondes, ton corps passe du mode sommeil à pleinement alerte. C\'est le moyen le plus rapide d\'éliminer la somnolence matinale.';
 
   @override
-  String get missionExplSquatsTitle => 'Pourquoi les squats vous réveillent';
+  String get missionExplSquatsTitle => 'Pourquoi les squats te réveillent';
 
   @override
-  String get missionExplSquatsSubtitle => 'Active vos plus gros muscles';
+  String get missionExplSquatsSubtitle => 'Active tes plus gros muscles';
 
   @override
   String get missionExplSquatsBody =>
-      'Les squats activent vos fessiers, quadriceps et ischio-jambiers — les plus grands groupes musculaires de votre corps. Cela déclenche un afflux de sang et élève rapidement votre température corporelle. Votre cerveau reçoit le signal : c\'est parti.';
+      'Les squats activent tes fessiers, quadriceps et ischio-jambiers — les plus grands groupes musculaires de ton corps. Cela déclenche un afflux de sang et élève rapidement ta température corporelle. Ton cerveau reçoit le signal : c\'est parti.';
 
   @override
   String get missionExplShakeTitle =>
-      'Pourquoi secouer votre téléphone vous réveille';
+      'Pourquoi secouer ton téléphone te réveille';
 
   @override
-  String get missionExplShakeSubtitle => 'Vous force à bouger';
+  String get missionExplShakeSubtitle => 'Te force à bouger';
 
   @override
   String get missionExplShakeBody =>
-      'Secouer votre téléphone force le mouvement des bras et la coordination, sortant votre cerveau du pilote automatique. Le mouvement répétitif active votre cortex moteur et fait circuler votre sang — transformant un moment de somnolence en engagement physique.';
+      'Secouer ton téléphone force le mouvement des bras et la coordination, sortant ton cerveau du pilote automatique. Le mouvement répétitif active ton cortex moteur et fait circuler ton sang — transformant un moment de somnolence en engagement physique.';
 
   @override
-  String get missionExplMathTitle =>
-      'Pourquoi résoudre des maths vous réveille';
+  String get missionExplMathTitle => 'Pourquoi résoudre des maths te réveille';
 
   @override
-  String get missionExplMathSubtitle => 'Réveille votre cerveau';
+  String get missionExplMathSubtitle => 'Réveille ton cerveau';
 
   @override
   String get missionExplMathBody =>
-      'Les problèmes de maths forcent votre cortex préfrontal à s\'activer — la partie de votre cerveau responsable de la logique et de la prise de décision. Même l\'arithmétique simple vous sort de l\'inertie du sommeil en exigeant une pensée concentrée et consciente.';
+      'Les problèmes de maths forcent ton cortex préfrontal à s\'activer — la partie de ton cerveau responsable de la logique et de la prise de décision. Même l\'arithmétique simple te sort de l\'inertie du sommeil en exigeant une pensée concentrée et consciente.';
 
   @override
   String get missionExplSkyPhotoTitle =>
-      'Pourquoi prendre une photo du ciel vous réveille';
+      'Pourquoi prendre une photo du ciel te réveille';
 
   @override
-  String get missionExplSkyPhotoSubtitle => 'Vous amène à la fenêtre';
+  String get missionExplSkyPhotoSubtitle => 'T\'amène à la fenêtre';
 
   @override
   String get missionExplSkyPhotoBody =>
-      'Marcher jusqu\'à une fenêtre et regarder le ciel vous expose à la lumière naturelle — le signal le plus puissant pour arrêter la production de mélatonine. Même les jours nuageux, l\'intensité lumineuse extérieure est bien supérieure à l\'éclairage intérieur, recalibrant rapidement votre horloge circadienne.';
+      'Marcher jusqu\'à une fenêtre et regarder le ciel t\'expose à la lumière naturelle — le signal le plus puissant pour arrêter la production de mélatonine. Même les jours nuageux, l\'intensité lumineuse extérieure est bien supérieure à l\'éclairage intérieur, recalibrant rapidement ton horloge circadienne.';
 
   @override
-  String get missionExplMakeBedTitle =>
-      'Pourquoi faire votre lit vous réveille';
+  String get missionExplMakeBedTitle => 'Pourquoi faire ton lit te réveille';
 
   @override
   String get missionExplMakeBedSubtitle =>
-      'Commence votre journée par une victoire';
+      'Commence ta journée par une victoire';
 
   @override
   String get missionExplMakeBedBody =>
-      'Faire votre lit est un micro-accomplissement qui déclenche une petite dose de dopamine. Cela signale à votre cerveau que la journée a commencé et supprime la tentation de vous recoucher. Une tâche accomplie crée l\'élan pour la suivante.';
+      'Faire ton lit est un micro-accomplissement qui déclenche une petite dose de dopamine. Cela signale à ton cerveau que la journée a commencé et supprime la tentation de te recoucher. Une tâche accomplie crée l\'élan pour la suivante.';
 
   @override
   String get missionExplObjectHuntTitle =>
-      'Pourquoi la chasse aux objets vous réveille';
+      'Pourquoi la chasse aux objets te réveille';
 
   @override
-  String get missionExplObjectHuntSubtitle => 'Vous fait sortir du lit';
+  String get missionExplObjectHuntSubtitle => 'Te fait sortir du lit';
 
   @override
   String get missionExplObjectHuntBody =>
-      'Chercher un objet spécifique vous force à sortir du lit et à bouger. Votre cerveau passe du repos passif à la résolution active de problèmes — balayant, reconnaissant et se déplaçant. Le temps de le trouver, l\'inertie du sommeil a disparu.';
+      'Chercher un objet spécifique te force à sortir du lit et à bouger. Ton cerveau passe du repos passif à la résolution active de problèmes — balayant, reconnaissant et se déplaçant. Le temps de le trouver, l\'inertie du sommeil a disparu.';
 
   @override
   String get missionExplPetHuntTitle =>
-      'Pourquoi trouver votre animal vous réveille';
+      'Pourquoi trouver ton animal te réveille';
 
   @override
   String get missionExplPetHuntSubtitle => 'Moment de complicité matinale';
 
   @override
   String get missionExplPetHuntBody =>
-      'Interagir avec votre animal libère de l\'ocytocine — l\'hormone de l\'attachement qui élève naturellement votre humeur et votre vigilance. Se déplacer dans votre maison pour le trouver ajoute de l\'activité physique, tandis que la connexion émotionnelle donne un ancrage positif à votre matin.';
+      'Interagir avec ton animal libère de l\'ocytocine — l\'hormone de l\'attachement qui élève naturellement ton humeur et ta vigilance. Se déplacer dans ta maison pour le trouver ajoute de l\'activité physique, tandis que la connexion émotionnelle donne un ancrage positif à ton matin.';
 
   @override
   String get missionExplNatureHuntTitle =>
-      'Pourquoi la chasse nature vous réveille';
+      'Pourquoi la chasse nature te réveille';
 
   @override
-  String get missionExplNatureHuntSubtitle => 'Vous connecte à l\'extérieur';
+  String get missionExplNatureHuntSubtitle => 'Te connecte à l\'extérieur';
 
   @override
   String get missionExplNatureHuntBody =>
-      'Sortir pour trouver quelque chose dans la nature combine mouvement, air frais et lumière naturelle — les trois signaux de réveil les plus efficaces. Le changement sensoriel de la chambre à l\'extérieur propulse votre système nerveux en pleine alerte.';
+      'Sortir pour trouver quelque chose dans la nature combine mouvement, air frais et lumière naturelle — les trois signaux de réveil les plus efficaces. Le changement sensoriel de la chambre à l\'extérieur propulse ton système nerveux en pleine alerte.';
 
   @override
   String get missionExplTouchGrassTitle =>
-      'Pourquoi toucher l\'herbe vous réveille';
+      'Pourquoi toucher l\'herbe te réveille';
 
   @override
-  String get missionExplTouchGrassSubtitle => 'Ancrez-vous dans le matin';
+  String get missionExplTouchGrassSubtitle => 'Ancre-toi dans le matin';
 
   @override
   String get missionExplTouchGrassBody =>
-      'Sortir pour photographier l\'herbe vous expose simultanément au soleil et à l\'air frais. L\'acte de se pencher et de se concentrer sur la nature engage votre corps et vos sens, créant un réveil complet corps-esprit qu\'aucun son d\'alarme ne peut égaler.';
+      'Sortir pour photographier l\'herbe t\'expose simultanément au soleil et à l\'air frais. L\'acte de se pencher et de se concentrer sur la nature engage ton corps et tes sens, créant un réveil complet corps-esprit qu\'aucun son d\'alarme ne peut égaler.';
 
   @override
   String get missionExplAffirmationTitle =>
-      'Pourquoi les affirmations vous réveillent';
+      'Pourquoi les affirmations te réveillent';
 
   @override
   String get missionExplAffirmationSubtitle =>
-      'Définit votre état d\'esprit pour la journée';
+      'Définit ton état d\'esprit pour la journée';
 
   @override
   String get missionExplAffirmationBody =>
-      'Prononcer une affirmation à voix haute active votre voix, votre souffle et votre concentration simultanément. L\'acte de lire et de répéter engage plusieurs régions du cerveau — vous faisant passer de la somnolence passive à la pensée intentionnelle et consciente.';
+      'Prononcer une affirmation à voix haute active ta voix, ton souffle et ta concentration simultanément. L\'acte de lire et de répéter engage plusieurs régions du cerveau — te faisant passer de la somnolence passive à la pensée intentionnelle et consciente.';
 
   @override
   String get generalOk => 'OK';
@@ -2312,7 +2304,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingUsualWakeTimeTitle =>
-      'À quelle heure sortez-vous habituellement du lit ?';
+      'À quelle heure sors-tu habituellement du lit ?';
 
   @override
   String get onboardingUsualWakeTimeSubtitle =>
@@ -2320,15 +2312,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingIdealWakeTimeTitle =>
-      'À quelle heure\nvoulez-vous vous lever ?';
+      'À quelle heure\nveux-tu te lever ?';
 
   @override
   String get onboardingIdealWakeTimeSubtitle =>
-      'Votre heure de réveil idéale quotidienne.';
+      'Ton heure de réveil idéale quotidienne.';
 
   @override
   String onboardingTargetWakeTime(String time) {
-    return 'Se réveiller à $time est votre objectif.';
+    return 'Se réveiller à $time est ton objectif.';
   }
 
   @override
@@ -2349,18 +2341,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingQuoteWinMorningAuthor => '— Tim Ferriss';
 
   @override
-  String get onboardingSignInCreateTitle => 'Créez votre compte';
+  String get onboardingSignInCreateTitle => 'Crée ton compte';
 
   @override
   String get onboardingSignInCreateSubtitle =>
-      'Sauvegardez votre progression et synchronisez votre plan.';
+      'Sauvegarde ta progression et synchronise ton plan.';
 
   @override
-  String get onboardingSignInTitle => 'Ravis de vous revoir';
+  String get onboardingSignInTitle => 'Ravis de te revoir';
 
   @override
   String get onboardingSignInSubtitle =>
-      'Connectez-vous pour restaurer votre plan.';
+      'Connecte-toi pour restaurer ton plan.';
 
   @override
   String get soundPickerFileTooLarge => 'Fichier trop volumineux (max 10 Mo)';
@@ -2378,7 +2370,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get screenTimeSubtitle =>
-      'Bloquez les applis distrayantes pendant votre fenêtre de sommeil.';
+      'Bloque les applis distrayantes pendant ta fenêtre de sommeil.';
 
   @override
   String get screenTimeStatusInactive => 'Inactif';
@@ -2415,7 +2407,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get screenTimeNoSchedules =>
-      'Aucun horaire. Ajoutez-en un pour bloquer les applis sur une plage récurrente.';
+      'Aucun horaire. Ajoutes-en un pour bloquer les applis sur une plage récurrente.';
 
   @override
   String get screenTimeScheduleNew => 'Nouvel horaire';
@@ -2434,17 +2426,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get screenTimeLockedHint =>
-      'Les réglages sont verrouillés pendant le blocage pour protéger votre sommeil.';
+      'Les réglages sont verrouillés pendant le blocage pour protéger ton sommeil.';
 
   @override
   String get screenTimeUnlock => 'Déverrouiller';
 
   @override
-  String get screenTimeUnlockConfirmTitle => 'Êtes-vous vraiment sûr ?';
+  String get screenTimeUnlockConfirmTitle => 'Es-tu vraiment sûr ?';
 
   @override
   String get screenTimeUnlockConfirmBody =>
-      'Votre qualité de sommeil en dépend. Est-il vraiment vital de déverrouiller maintenant ? Serez-vous heureux demain d\'avoir cédé ce soir ? Restez fort — votre futur vous compte sur vous.';
+      'Ta qualité de sommeil en dépend. Est-il vraiment vital de déverrouiller maintenant ? Seras-tu heureux demain d\'avoir cédé ce soir ? Reste fort — ton futur toi compte sur toi.';
 
   @override
   String get screenTimeUnlockConfirmCancel => 'Garder verrouillé';
@@ -2460,51 +2452,50 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get screenTimeUnlockCountdownHint =>
-      'Gardez Levio ouvert. Quitter l\'appli redémarre le minuteur.';
+      'Garde Levio ouvert. Quitter l\'appli redémarre le minuteur.';
 
   @override
   String get screenTimeAuthDenied =>
-      'L\'accès au Temps d\'écran est requis. Activez-le pour Levio dans les Réglages iOS.';
+      'L\'accès au Temps d\'écran est requis. Active-le pour Levio dans les Réglages iOS.';
 
   @override
   String get osUpdateRequiredTitle => 'Passons à la mise à jour 🚀';
 
   @override
   String get osUpdateRequiredBody =>
-      'Les alarmes de Levio utilisent les dernières technologies d\'Apple : votre iPhone a donc besoin de la version la plus récente d\'iOS pour vous réveiller. Ça ne prend que quelques minutes :';
+      'Les alarmes de Levio utilisent les dernières technologies d\'Apple : ton iPhone a donc besoin de la version la plus récente d\'iOS pour te réveiller. Ça ne prend que quelques minutes :';
 
   @override
-  String get osUpdateStep1 => 'Ouvrez l\'app Réglages';
+  String get osUpdateStep1 => 'Ouvre l\'app Réglages';
 
   @override
-  String get osUpdateStep2 => 'Allez dans Général → Mise à jour logicielle';
+  String get osUpdateStep2 => 'Va dans Général → Mise à jour logicielle';
 
   @override
-  String get osUpdateStep3 =>
-      'Installez la mise à jour, puis revenez sur Levio';
+  String get osUpdateStep3 => 'Installe la mise à jour, puis reviens sur Levio';
 
   @override
   String get osUpdateButton => 'C\'est compris';
 
   @override
-  String get alarmPermissionTitle => 'Votre alarme ne sonnera pas ⏰';
+  String get alarmPermissionTitle => 'Ton alarme ne sonnera pas ⏰';
 
   @override
   String get alarmPermissionBody =>
-      'Levio n\'a pas la permission de programmer des alarmes, il ne peut donc pas vous réveiller. Touchez ci-dessous et choisissez « Autoriser » pour que votre alarme sonne vraiment.';
+      'Levio n\'a pas la permission de programmer des alarmes, il ne peut donc pas te réveiller. Touche ci-dessous et choisis « Autoriser » pour que ton alarme sonne vraiment.';
 
   @override
   String get alarmPermissionDeniedBody =>
-      'L\'accès aux alarmes est désactivé, vos alarmes ne sonneront donc pas. Voici comment le réactiver dans Réglages :';
+      'L\'accès aux alarmes est désactivé, tes alarmes ne sonneront donc pas. Voici comment le réactiver dans Réglages :';
 
   @override
-  String get alarmPermissionStep1 => 'Ouvrez Réglages et trouvez Levio';
+  String get alarmPermissionStep1 => 'Ouvre Réglages et trouve Levio';
 
   @override
-  String get alarmPermissionStep2 => 'Activez l\'option des alarmes';
+  String get alarmPermissionStep2 => 'Active l\'option des alarmes';
 
   @override
-  String get alarmPermissionStep3 => 'Revenez, et tout est prêt';
+  String get alarmPermissionStep3 => 'Reviens, et tout est prêt';
 
   @override
   String get alarmPermissionEnable => 'Activer les alarmes';
@@ -2531,7 +2522,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get routineGetDressed => 'S\'habiller';
 
   @override
-  String get routinePutPhoneAway => 'Ranger son téléphone';
+  String get routinePutPhoneAway => 'Ranger ton téléphone';
 
   @override
   String get routineLowerTemp => 'Baisser la température de la pièce';
@@ -2544,7 +2535,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingV2MultiSelectHint =>
-      'Sélectionnez tout ce qui s\'applique';
+      'Sélectionne tout ce qui s\'applique';
 
   @override
   String get onboardingV2WakeChallengesTitle =>
@@ -2581,7 +2572,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingV2DesiredFeelingsTitle =>
-      'Comment voulez-vous vous réveiller ?';
+      'Comment veux-tu te réveiller ?';
 
   @override
   String get onboardingV2FeelWakeStraight => 'Debout du premier coup';
@@ -2604,7 +2595,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingV2ProofScientistsBody =>
-      'La méthode Levio s\'appuie sur la recherche sur les rythmes circadiens et l\'inertie du sommeil : chaque étape est pensée pour vraiment vous lever.';
+      'La méthode Levio s\'appuie sur la recherche sur les rythmes circadiens et l\'inertie du sommeil : chaque étape est pensée pour vraiment te lever.';
 
   @override
   String get onboardingV2Proof200kTitle => '200 000 matins gagnés';
@@ -2614,11 +2605,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Dans plus de 30 pays, des personnes utilisent Levio pour vaincre le rappel d\'alarme et commencer la journée à leurs conditions.';
 
   @override
-  String get onboardingV2FirstRoomTitle => 'Où allez-vous en premier ?';
+  String get onboardingV2FirstRoomTitle => 'Où vas-tu en premier ?';
 
   @override
   String get onboardingV2FirstRoomSubtitle =>
-      'Votre mission vous y mènera — bouger casse l\'inertie du sommeil.';
+      'Ta mission t\'y mènera — bouger casse l\'inertie du sommeil.';
 
   @override
   String get onboardingV2RoomKitchen => 'La cuisine';
@@ -2633,18 +2624,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingV2RoomOther => 'Autre chose';
 
   @override
-  String get onboardingV2WakeRoutineTitle => 'Créez votre routine du matin';
+  String get onboardingV2WakeRoutineTitle => 'Crée ta routine du matin';
 
   @override
   String get onboardingV2WakeRoutineSubtitle =>
-      'Après votre mission, gardez l\'élan. Maintenez et glissez pour réorganiser.';
+      'Après ta mission, garde l\'élan. Maintiens et glisse pour réorganiser.';
 
   @override
-  String get onboardingV2WakeRoutineRow => 'Votre routine du matin';
+  String get onboardingV2WakeRoutineRow => 'Ta routine du matin';
 
   @override
   String get onboardingV2SleepTiredTitle =>
-      'Vous sentez-vous fatigué dans la journée ?';
+      'Te sens-tu fatigué dans la journée ?';
 
   @override
   String get onboardingV2SleepTiredOften => 'Souvent';
@@ -2657,7 +2648,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingV2SleepChallengesTitle =>
-      'Qu\'est-ce qui nuit à votre sommeil ?';
+      'Qu\'est-ce qui nuit à ton sommeil ?';
 
   @override
   String get onboardingV2SleepChallengeHardToFall =>
@@ -2684,45 +2675,45 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingV2SleepQualityBody =>
-      'La qualité du sommeil est le premier facteur d\'un réveil facile — et de votre forme tout au long de la journée.';
+      'La qualité du sommeil est le premier facteur d\'un réveil facile — et de ta forme tout au long de la journée.';
 
   @override
-  String get onboardingV2SleepSolutionTitle => 'Levio vous aide à décompresser';
+  String get onboardingV2SleepSolutionTitle => 'Levio t\'aide à décompresser';
 
   @override
   String get onboardingV2SleepSolutionBody =>
-      'On vous invite à vous endormir au bon moment et à ranger les écrans, pour que les matins deviennent plus faciles.';
+      'On t\'invite à t\'endormir au bon moment et à ranger les écrans, pour que les matins deviennent plus faciles.';
 
   @override
   String get onboardingV2ConsistencyTitle => 'La régularité change tout';
 
   @override
   String get onboardingV2ConsistencySubtitle =>
-      'Une heure de coucher régulière est le levier n°1. Vous voulez aussi une alarme de coucher ?';
+      'Une heure de coucher régulière est le levier n°1. Tu veux aussi une alarme de coucher ?';
 
   @override
-  String get onboardingV2Recall200kTitle => 'Rejoignez 200 000 lève-tôt';
+  String get onboardingV2Recall200kTitle => 'Rejoins 200 000 lève-tôt';
 
   @override
   String get onboardingV2Recall200kBody =>
-      'Vous êtes sur le point de rejoindre une communauté qui se réveille à ses conditions — chaque matin.';
+      'Tu es sur le point de rejoindre une communauté qui se réveille à ses conditions — chaque matin.';
 
   @override
-  String get onboardingV2LoadingStep1 => 'Personnalisation de votre plan';
+  String get onboardingV2LoadingStep1 => 'Personnalisation de ton plan';
 
   @override
   String get onboardingV2LoadingStep2 =>
-      'Configuration de votre mission de réveil';
+      'Configuration de ta mission de réveil';
 
   @override
-  String get onboardingV2LoadingStep3 => 'Création de votre routine du matin';
+  String get onboardingV2LoadingStep3 => 'Création de ta routine du matin';
 
   @override
-  String get onboardingV2LoadingStep4 => 'Création de votre routine de sommeil';
+  String get onboardingV2LoadingStep4 => 'Création de ta routine de sommeil';
 
   @override
-  String get onboardingV2LoadingStep5 => 'Programmation de vos alarmes';
+  String get onboardingV2LoadingStep5 => 'Programmation de tes alarmes';
 
   @override
-  String get onboardingV2LoadingStep6 => 'Finalisation de votre compte';
+  String get onboardingV2LoadingStep6 => 'Finalisation de ton compte';
 }

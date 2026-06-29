@@ -21,6 +21,7 @@ import '../widgets/day_picker_step.dart';
 import '../widgets/energy_chart.dart';
 import '../widgets/first_room_step.dart';
 import '../widgets/info_step.dart';
+import '../widgets/language_selector.dart';
 import '../widgets/loading_step.dart';
 import '../widgets/mission_picker_step.dart';
 import '../widgets/morning_plan_step.dart';
@@ -38,7 +39,7 @@ import '../widgets/timeline_comparison.dart';
 import '../widgets/time_picker_step.dart';
 import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
-import '../widgets/welcome_step.dart';
+import '../widgets/welcome_step_v2.dart';
 
 const _totalPages = 40;
 
@@ -365,59 +366,83 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
               bottom: false,
               child: Column(
                 children: [
-                  // Progress bar + back (hidden on welcome, last page, recap).
-                  Opacity(
-                    opacity: (_currentPage > 0 &&
-                            !_isLastPage(state) &&
-                            _currentPage != 31)
-                        ? 1.0
-                        : 0.0,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
-                      child: Row(
-                        children: [
-                          if (_currentPage > 0 &&
-                              _currentPage != 30 &&
-                              _currentPage != 31 &&
-                              _currentPage != 38 &&
-                              _currentPage != 39)
-                            GestureDetector(
-                              onTap: withHaptic(_back),
-                              child: Container(
-                                width: 32.w,
-                                height: 32.h,
-                                decoration: BoxDecoration(
-                                  color: c.card,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.chevron_left,
-                                    size: 20.sp, color: c.textPrimary),
-                              ),
-                            )
-                          else
-                            SizedBox(width: 32.w),
-                          SizedBox(width: 12.w),
-                          Expanded(
+                  // Header: a centered progress bar that keeps the same
+                  // position whether or not the back button is shown (equal
+                  // side zones), with the language selector pinned to the right
+                  // on every page.
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
+                    child: Row(
+                      children: [
+                        // Left zone mirrors the right zone to keep the bar
+                        // centered; holds the back button when available.
+                        SizedBox(
+                          width: 52.w,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: (_currentPage > 0 &&
+                                    _currentPage != 30 &&
+                                    _currentPage != 31 &&
+                                    _currentPage != 38 &&
+                                    _currentPage != 39)
+                                ? GestureDetector(
+                                    onTap: withHaptic(_back),
+                                    child: Container(
+                                      width: 32.w,
+                                      height: 32.h,
+                                      decoration: BoxDecoration(
+                                        color: c.card,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.chevron_left,
+                                          size: 20.sp, color: c.textPrimary),
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        // Progress bar — hidden (but space kept) on welcome,
+                        // last page and the recap so its position never shifts.
+                        Expanded(
+                          child: Opacity(
+                            opacity: (_currentPage > 0 &&
+                                    !_isLastPage(state) &&
+                                    _currentPage != 31)
+                                ? 1.0
+                                : 0.0,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(4.r),
                               child: LinearProgressIndicator(
                                 value: _progressFraction(state),
                                 backgroundColor: c.separator,
-                                valueColor:
-                                    const AlwaysStoppedAnimation<Color>(
-                                        AppColors.orange),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                    AppColors.orange),
                                 minHeight: 6,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(width: 8.w),
+                        // Right zone: language selector, always available.
+                        SizedBox(
+                          width: 52.w,
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerRight,
+                              child: LanguageFlagButton(),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
                   Expanded(
                     child: _currentPage == 0
-                        ? WelcomeStep(
+                        ? WelcomeStepV2(
                             onBuildPlan: () {
                               cubit.startOnboarding();
                               // Seed v2 routine defaults (pre-selected).

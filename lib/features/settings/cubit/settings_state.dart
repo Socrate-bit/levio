@@ -15,6 +15,8 @@ class SettingsState extends Equatable {
   // item label, regardless of which items are selected for the mission.
   // null = random (default).
   final String? forcedHuntTarget;
+  // User-selected app language. null = follow the device locale.
+  final Locale? locale;
 
   const SettingsState({
     this.themeMode = ThemeMode.light,
@@ -24,6 +26,7 @@ class SettingsState extends Equatable {
     this.defaultMission = MissionType.none,
     this.forceQuickAlarm = false,
     this.forcedHuntTarget,
+    this.locale,
   });
 
   SettingsState copyWith({
@@ -35,6 +38,8 @@ class SettingsState extends Equatable {
     bool? forceQuickAlarm,
     String? forcedHuntTarget,
     bool clearForcedHuntTarget = false,
+    Locale? locale,
+    bool clearLocale = false,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
@@ -46,6 +51,7 @@ class SettingsState extends Equatable {
       forceQuickAlarm: forceQuickAlarm ?? this.forceQuickAlarm,
       forcedHuntTarget:
           clearForcedHuntTarget ? null : (forcedHuntTarget ?? this.forcedHuntTarget),
+      locale: clearLocale ? null : (locale ?? this.locale),
     );
   }
 
@@ -58,5 +64,6 @@ class SettingsState extends Equatable {
         defaultMission,
         forceQuickAlarm,
         forcedHuntTarget,
+        locale,
       ];
 }
