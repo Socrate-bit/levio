@@ -676,6 +676,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               // 19: Mission picker
                               MissionPickerStep(
                                 selectedMission: state.selectedMission,
+                                selectedConfig: state.missionConfig,
                                 onSelected: cubit.setMission,
                               ),
                               // 20: Info - Mission explanation
