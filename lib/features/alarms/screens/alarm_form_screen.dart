@@ -84,9 +84,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _time = const TimeOfDay(hour: 8, minute: 0);
       _isScheduled = true;
       _repeatDays = [false, true, true, true, true, true, false];
-      _missions = settings.defaultMission != MissionType.none
-          ? [MissionConfig(type: settings.defaultMission)]
-          : [];
+      final def = settings.defaultMission;
+      _missions = (def != null && def.type != MissionType.none) ? [def] : [];
       _soundId = settings.defaultSoundId;
       _soundName = settings.defaultSoundName;
       _isSleep = false;

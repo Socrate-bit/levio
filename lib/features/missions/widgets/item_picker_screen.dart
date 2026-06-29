@@ -203,7 +203,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _AddCustomObjectSheet(),
+      builder: (_) => const AddCustomObjectSheet(),
     );
     if (result == null || !mounted) return;
 
@@ -603,14 +603,14 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
 /// Bottom-sheet for creating a custom object — a name field plus an emoji
 /// picker. Pops `(name, emoji)` once both are provided; the emoji picker
 /// guarantees the emoji is a real emoji glyph.
-class _AddCustomObjectSheet extends StatefulWidget {
-  const _AddCustomObjectSheet();
+class AddCustomObjectSheet extends StatefulWidget {
+  const AddCustomObjectSheet({super.key});
 
   @override
-  State<_AddCustomObjectSheet> createState() => _AddCustomObjectSheetState();
+  State<AddCustomObjectSheet> createState() => _AddCustomObjectSheetState();
 }
 
-class _AddCustomObjectSheetState extends State<_AddCustomObjectSheet> {
+class _AddCustomObjectSheetState extends State<AddCustomObjectSheet> {
   final _nameCtrl = TextEditingController();
   String? _emoji;
   bool _showEmoji = false;

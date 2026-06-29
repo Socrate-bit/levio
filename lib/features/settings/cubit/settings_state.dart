@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
 
 /// Admin/UGC only — rigs the Spin to Win bonus wheel outcome.
 /// neverWin (default) keeps it a long-shot; alwaysWin guarantees the travel
@@ -14,7 +14,8 @@ class SettingsState extends Equatable {
   final bool keepAlarmDuringMission;
   final String defaultSoundId;
   final String defaultSoundName;
-  final MissionType defaultMission;
+  // Full mission config applied to newly created alarms. null = no default.
+  final MissionConfig? defaultMission;
   final bool forceQuickAlarm;
   // Admin/UGC only — forces the photo-hunt roulette to always land on this
   // item label, regardless of which items are selected for the mission.
@@ -30,7 +31,7 @@ class SettingsState extends Equatable {
     this.keepAlarmDuringMission = false,
     this.defaultSoundId = 'default',
     this.defaultSoundName = 'Default',
-    this.defaultMission = MissionType.none,
+    this.defaultMission,
     this.forceQuickAlarm = false,
     this.forcedHuntTarget,
     this.locale,
@@ -42,7 +43,8 @@ class SettingsState extends Equatable {
     bool? keepAlarmDuringMission,
     String? defaultSoundId,
     String? defaultSoundName,
-    MissionType? defaultMission,
+    MissionConfig? defaultMission,
+    bool clearDefaultMission = false,
     bool? forceQuickAlarm,
     String? forcedHuntTarget,
     bool clearForcedHuntTarget = false,
@@ -56,7 +58,8 @@ class SettingsState extends Equatable {
           keepAlarmDuringMission ?? this.keepAlarmDuringMission,
       defaultSoundId: defaultSoundId ?? this.defaultSoundId,
       defaultSoundName: defaultSoundName ?? this.defaultSoundName,
-      defaultMission: defaultMission ?? this.defaultMission,
+      defaultMission:
+          clearDefaultMission ? null : (defaultMission ?? this.defaultMission),
       forceQuickAlarm: forceQuickAlarm ?? this.forceQuickAlarm,
       forcedHuntTarget:
           clearForcedHuntTarget ? null : (forcedHuntTarget ?? this.forcedHuntTarget),
