@@ -19,6 +19,11 @@ import 'onboarding_state.dart';
 class OnboardingCubit extends Cubit<OnboardingState> {
   OnboardingCubit() : super(const OnboardingState());
 
+  // Guards against re-entrant completion: the sign-in step can fire its
+  // finalize callback more than once (e.g. a double-tap on "Skip for Now"),
+  // and a second concurrent run would create duplicate alarms.
+  bool _isCompleting = false;
+
   /// Marks the onboarding flow as in progress. Called when the user commits
   /// to the build-plan flow (e.g. on the welcome screen). AuthWrapper uses
   /// this to keep showing OnboardingScreen across reactive auth changes.
@@ -294,6 +299,24 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     SettingsCubit settingsCubit,
     ScreenTimeCubit screenTimeCubit,
   ) async {
+    // Bail if a completion is already running, so a re-entrant call can't
+    // create a second set of alarms.
+    if (_isCompleting) return;
+    _isCompleting = true;
+    try {
+      await _completeOnboarding(
+          alarmCubit, subscriptionCubit, settingsCubit, screenTimeCubit);
+    } finally {
+      _isCompleting = false;
+    }
+  }
+
+  Future<void> _completeOnboarding(
+    AlarmCubit alarmCubit,
+    SubscriptionCubit subscriptionCubit,
+    SettingsCubit settingsCubit,
+    ScreenTimeCubit screenTimeCubit,
+  ) async {
     final alarmTime = state.alarmTime;
     final now = DateTime.now();
     // Next future occurrence of a time-of-day.
@@ -435,6 +458,24 @@ class OnboardingCubit extends Cubit<OnboardingState> {
   /// 2. The Firestore onboarding doc records the extra v2 survey answers.
   /// Everything else (bedtime alarm, screen block, settings, referral) matches.
   Future<void> completeOnboardingV2(
+    AlarmCubit alarmCubit,
+    SubscriptionCubit subscriptionCubit,
+    SettingsCubit settingsCubit,
+    ScreenTimeCubit screenTimeCubit,
+  ) async {
+    // Bail if a completion is already running, so a re-entrant call can't
+    // create a second set of alarms.
+    if (_isCompleting) return;
+    _isCompleting = true;
+    try {
+      await _completeOnboardingV2(
+          alarmCubit, subscriptionCubit, settingsCubit, screenTimeCubit);
+    } finally {
+      _isCompleting = false;
+    }
+  }
+
+  Future<void> _completeOnboardingV2(
     AlarmCubit alarmCubit,
     SubscriptionCubit subscriptionCubit,
     SettingsCubit settingsCubit,
