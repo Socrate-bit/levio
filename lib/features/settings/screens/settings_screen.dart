@@ -17,6 +17,7 @@ import '../../alarms/screens/sound_picker_screen.dart';
 import '../../alarms/services/alarm_channel.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
 import '../../subscription/cubit/subscription_state.dart';
+import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../cubit/settings_cubit.dart';
@@ -351,7 +352,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                   _LinkRow(
                     icon: Icons.flag_outlined,
                     label: l10n.settingsDefaultMission,
-                    value: localizedMissionName(l10n, settings.defaultMission),
+                    value: localizedMissionName(
+                        l10n, settings.defaultMission?.type ?? MissionType.none),
                     onTap: () async {
                       final picked = await Navigator.push<MissionConfig>(
                         context,
@@ -360,9 +362,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         ),
                       );
                       if (picked != null && context.mounted) {
-                        context
-                            .read<SettingsCubit>()
-                            .setDefaultMission(picked.type);
+                        context.read<SettingsCubit>().setDefaultMission(picked);
                       }
                     },
                   ),

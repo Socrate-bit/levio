@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../missions/models/mission.dart';
+import '../../missions/models/mission_config.dart';
 import 'settings_state.dart';
 
 /// Manages all app-level settings (theme, alarm defaults, behaviour toggles).
@@ -27,9 +30,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     final keepAlarm = prefs.getBool(_keepAlarmKey) ?? false;
     final soundId = prefs.getString(_defaultSoundIdKey) ?? 'default';
     final soundName = prefs.getString(_defaultSoundNameKey) ?? 'Default';
-    final missionStr = prefs.getString(_defaultMissionKey);
-    final mission =
-        missionStr != null ? missionTypeFromString(missionStr) : MissionType.none;
+    final mission = _decodeDefaultMission(prefs.getString(_defaultMissionKey));
     final forceQuickAlarm = prefs.getBool(forceQuickAlarmKey) ?? false;
     final forcedHuntTarget = prefs.getString(forcedHuntTargetKey);
     final localeCode = prefs.getString(_localeKey);
@@ -50,6 +51,24 @@ class SettingsCubit extends Cubit<SettingsState> {
       locale: localeCode != null ? Locale(localeCode) : null,
       spinMode: spinMode,
     ));
+  }
+
+  /// Decodes the stored default mission. New format is a JSON-encoded
+  /// [MissionConfig]; old installs stored a bare type name (e.g. "math"),
+  /// which we upgrade to a type-only config. Returns null when unset/none.
+  MissionConfig? _decodeDefaultMission(String? stored) {
+    if (stored == null || stored.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(stored);
+      if (decoded is Map<String, dynamic>) {
+        final config = MissionConfig.fromMap(decoded);
+        return config.type == MissionType.none ? null : config;
+      }
+    } catch (_) {
+      // Not JSON — fall through to legacy bare-string handling.
+    }
+    final type = missionTypeFromString(stored);
+    return type == MissionType.none ? null : MissionConfig(type: type);
   }
 
   /// Admin/UGC: rigs the Spin to Win bonus wheel outcome.
@@ -97,10 +116,19 @@ class SettingsCubit extends Cubit<SettingsState> {
     await prefs.setString(_defaultSoundNameKey, name);
   }
 
-  Future<void> setDefaultMission(MissionType type) async {
-    emit(state.copyWith(defaultMission: type));
+  /// Stores the full default mission config (applied to new alarms).
+  /// Pass null to clear.
+  Future<void> setDefaultMission(MissionConfig? config) async {
+    emit(state.copyWith(
+      defaultMission: config,
+      clearDefaultMission: config == null,
+    ));
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_defaultMissionKey, type.name);
+    if (config == null) {
+      await prefs.remove(_defaultMissionKey);
+    } else {
+      await prefs.setString(_defaultMissionKey, jsonEncode(config.toMap()));
+    }
   }
 
   Future<void> toggleForceQuickAlarm() async {
