@@ -147,6 +147,92 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     );
   }
 
+  // --- v2 funnel setters ---
+
+  void _toggle(Set<String> current, String value, String stepName,
+      String property, void Function(Set<String>) apply) {
+    final next = Set<String>.from(current);
+    next.contains(value) ? next.remove(value) : next.add(value);
+    apply(next);
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'funnel': 'v2', 'step_name': stepName, 'count': next.length},
+    );
+    AnalyticsService.setUserProperty(property, next.join(','));
+  }
+
+  void toggleWakeChallenge(String value) => _toggle(
+        state.wakeChallenges,
+        value,
+        'wake_challenges',
+        'wake_challenges',
+        (s) => emit(state.copyWith(wakeChallenges: s)),
+      );
+
+  void toggleDesiredFeeling(String value) => _toggle(
+        state.desiredFeelings,
+        value,
+        'desired_feelings',
+        'desired_feelings',
+        (s) => emit(state.copyWith(desiredFeelings: s)),
+      );
+
+  void toggleSleepChallenge(String value) => _toggle(
+        state.sleepChallenges,
+        value,
+        'sleep_challenges',
+        'sleep_challenges',
+        (s) => emit(state.copyWith(sleepChallenges: s)),
+      );
+
+  void setSleepTiredDay(String value) {
+    emit(state.copyWith(sleepTiredDay: value));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'funnel': 'v2', 'step_name': 'sleep_tired_day', 'value': value},
+    );
+    AnalyticsService.setUserProperty('sleep_tired_day', value);
+  }
+
+  void setWakeRoutine(List<String> steps) {
+    emit(state.copyWith(wakeRoutine: steps));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'funnel': 'v2', 'step_name': 'wake_routine', 'count': steps.length},
+    );
+  }
+
+  /// Resolves a picked first-room into a concrete mission. `kitchen`/`bathroom`
+  /// become single-item object hunts; `outside` is a sky photo; `other` leaves
+  /// the mission to the full mission picker.
+  void setFirstRoom(String room) {
+    MissionType? mission;
+    List<String>? items;
+    switch (room) {
+      case 'kitchen':
+        mission = MissionType.objectHunt;
+        items = const ['Fridge'];
+        break;
+      case 'bathroom':
+        mission = MissionType.objectHunt;
+        items = const ['Shower'];
+        break;
+      case 'outside':
+        mission = MissionType.skyPhoto;
+        break;
+    }
+    emit(state.copyWith(
+      firstRoom: room,
+      firstRoomItems: items,
+      selectedMission: mission ?? state.selectedMission,
+    ));
+    AnalyticsService.capture(
+      AnalyticsService.onboardingStep,
+      {'funnel': 'v2', 'step_name': 'first_room', 'room': room},
+    );
+    AnalyticsService.setUserProperty('first_room', room);
+  }
+
   void setSound(String id, String name) {
     emit(state.copyWith(soundId: id, soundName: name));
     AnalyticsService.capture(
@@ -326,6 +412,160 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       } catch (e, st) {
         debugPrint('[OnboardingCubit] referral redeem failed: $e');
         AnalyticsService.trackError('OnboardingCubit.completeOnboarding.redeemCode', e, st);
+      }
+    }
+    await subscriptionCubit.refreshUserType();
+  }
+
+  /// v2-funnel variant of [completeOnboarding]. Differs in two ways:
+  /// 1. The wake-up alarm stacks the first-room mission and, when present, the
+  ///    morning routine as a second `routine` mission.
+  /// 2. The Firestore onboarding doc records the extra v2 survey answers.
+  /// Everything else (bedtime alarm, screen block, settings, referral) matches.
+  Future<void> completeOnboardingV2(
+    AlarmCubit alarmCubit,
+    SubscriptionCubit subscriptionCubit,
+    SettingsCubit settingsCubit,
+    ScreenTimeCubit screenTimeCubit,
+  ) async {
+    final alarmTime = state.alarmTime;
+    final now = DateTime.now();
+    DateTime nextOccurrence(TimeOfDay t) {
+      var dt = DateTime(now.year, now.month, now.day, t.hour, t.minute);
+      if (dt.isBefore(now)) dt = dt.add(const Duration(days: 1));
+      return dt;
+    }
+
+    final selectedMission = state.selectedMission;
+    // First-room object hunts carry their resolved target item.
+    final huntItems = (selectedMission == MissionType.objectHunt)
+        ? state.firstRoomItems
+        : null;
+    final missions = <MissionConfig>[
+      MissionConfig(type: selectedMission, selectedItems: huntItems),
+      // Morning routine runs right after the wake-up mission.
+      if (state.wakeRoutine.isNotEmpty)
+        MissionConfig(
+            type: MissionType.routine, selectedItems: state.wakeRoutine),
+    ];
+    final entry = AppAlarmEntry(
+      id: '',
+      dateTime: nextOccurrence(alarmTime),
+      missions: missions,
+      name: 'Levio',
+      soundId: state.soundId,
+      repeatDays: state.repeatDays,
+      isEnabled: true,
+      isOneTime: !state.repeatDays.any((d) => d),
+    );
+
+    try {
+      final existingIds = alarmCubit.state.alarms.map((a) => a.id).toList();
+      for (final id in existingIds) {
+        await alarmCubit.removeAlarm(id);
+      }
+      await alarmCubit.addAlarm(entry);
+
+      if (state.wantsSleepAlarm == true) {
+        final steps = state.relaxingActivities.isNotEmpty
+            ? state.relaxingActivities
+            : routineNightPresetSteps;
+        final sleepEntry = AppAlarmEntry(
+          id: '',
+          dateTime: nextOccurrence(state.sleepTime),
+          missions: [
+            MissionConfig(type: MissionType.routine, selectedItems: steps),
+          ],
+          name: 'Levio',
+          soundId: state.soundId,
+          repeatDays: state.repeatDays,
+          isEnabled: true,
+          isOneTime: !state.repeatDays.any((d) => d),
+          isSleep: true,
+          reminderEnabled: true,
+        );
+        await alarmCubit.addAlarm(sleepEntry);
+      }
+    } catch (e, st) {
+      debugPrint('[OnboardingCubit] v2 alarm creation failed: $e');
+      AnalyticsService.trackError(
+          'OnboardingCubit.completeOnboardingV2.addAlarm', e, st);
+    }
+
+    if (state.wantsScreenBlock == true) {
+      try {
+        final start = state.wantsSleepAlarm == true
+            ? state.sleepTime
+            : state.screenBlockStart;
+        final endTotal =
+            (alarmTime.hour * 60 + alarmTime.minute + 20) % (24 * 60);
+        final schedule = ScreenTimeSchedule.create().copyWith(
+          repeatDays: state.repeatDays,
+          startHour: start.hour,
+          startMinute: start.minute,
+          endHour: endTotal ~/ 60,
+          endMinute: endTotal % 60,
+        );
+        await screenTimeCubit.setEnabled(true);
+        await screenTimeCubit.addSchedule(schedule);
+      } catch (e, st) {
+        debugPrint('[OnboardingCubit] v2 screen block creation failed: $e');
+        AnalyticsService.trackError(
+            'OnboardingCubit.completeOnboardingV2.screenBlock', e, st);
+      }
+    }
+
+    final keepRinging = state.keepAlarmDuringMission ?? true;
+    await settingsCubit.setKeepAlarmDuringMission(keepRinging);
+
+    final uid = AuthService.uidOrNull;
+    if (uid != null) {
+      try {
+        final data = <String, dynamic>{
+          ...state.surveyAnswers,
+          'funnel': 'v2',
+          'alarmTime': '${alarmTime.hour}:${alarmTime.minute}',
+          'mission': selectedMission.name,
+          'firstRoom': state.firstRoom,
+          'wakeRoutine': state.wakeRoutine,
+          'wakeChallenges': state.wakeChallenges.toList(),
+          'desiredFeelings': state.desiredFeelings.toList(),
+          'sleepChallenges': state.sleepChallenges.toList(),
+          'sleepTiredDay': state.sleepTiredDay,
+          'soundId': state.soundId,
+          'repeatDays': state.repeatDays,
+          'keepAlarmDuringMission': keepRinging,
+          'wantsSleepAlarm': state.wantsSleepAlarm ?? false,
+          'sleepTime': '${state.sleepTime.hour}:${state.sleepTime.minute}',
+          'wantsScreenBlock': state.wantsScreenBlock ?? false,
+          'relaxingActivities': state.relaxingActivities,
+          'onboardingComplete': true,
+          'completedAt': FieldValue.serverTimestamp(),
+        };
+        if (state.referralCode.trim().isNotEmpty) {
+          data['referralCode'] = state.referralCode.trim();
+        }
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection('meta')
+            .doc('onboarding')
+            .set(data);
+      } catch (e, st) {
+        debugPrint('[OnboardingCubit] v2 survey save failed: $e');
+        AnalyticsService.trackError(
+            'OnboardingCubit.completeOnboardingV2.surveySave', e, st);
+      }
+    }
+
+    if (state.referralStatus == ReferralStatus.valid &&
+        state.referralCode.trim().isNotEmpty) {
+      try {
+        await ReferralService.redeemCode(state.referralCode.trim());
+      } catch (e, st) {
+        debugPrint('[OnboardingCubit] v2 referral redeem failed: $e');
+        AnalyticsService.trackError(
+            'OnboardingCubit.completeOnboardingV2.redeemCode', e, st);
       }
     }
     await subscriptionCubit.refreshUserType();

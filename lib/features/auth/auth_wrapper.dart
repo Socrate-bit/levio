@@ -6,7 +6,9 @@ import 'auth_service.dart';
 import '../alarms/cubit/alarm_cubit.dart';
 import '../onboarding/cubit/onboarding_cubit.dart';
 import '../onboarding/cubit/onboarding_state.dart';
+import '../onboarding/onboarding_config.dart';
 import '../onboarding/screens/onboarding_screen.dart';
+import '../onboarding/screens/onboarding_screen_v2.dart';
 import '../settings/cubit/settings_cubit.dart';
 import '../subscription/cubit/subscription_cubit.dart';
 import '../subscription/screens/app_gate_wrapper.dart';
@@ -62,7 +64,9 @@ class AuthWrapper extends StatelessWidget {
           buildWhen: (prev, curr) => prev.isInProgress != curr.isInProgress,
           builder: (context, ob) {
             if (!isAuth || ob.isInProgress) {
-              return const OnboardingScreen();
+              return kUseOnboardingV2
+                  ? const OnboardingScreenV2()
+                  : const OnboardingScreen();
             }
             return AppGateWrapper(navigatorKey: navigatorKey);
           },

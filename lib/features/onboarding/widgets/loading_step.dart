@@ -7,7 +7,11 @@ import '../../../shared/theme/app_theme.dart';
 class LoadingStep extends StatefulWidget {
   final VoidCallback onComplete;
 
-  const LoadingStep({super.key, required this.onComplete});
+  /// Optional override for the checklist bullets (v2 personalizes these and
+  /// adds a sleep-routine line). Falls back to the default six when null.
+  final List<String>? steps;
+
+  const LoadingStep({super.key, required this.onComplete, this.steps});
 
   @override
   State<LoadingStep> createState() => _LoadingStepState();
@@ -18,16 +22,20 @@ class _LoadingStepState extends State<LoadingStep>
   late final AnimationController _controller;
   late final Animation<double> _progressAnimation;
 
-  static const _stepCount = 6;
+  int get _stepCount => _resolvedSteps?.length ?? 6;
 
-  List<String> _steps(AppLocalizations l10n) => [
-    l10n.onboardingLoadingStep1,
-    l10n.onboardingLoadingStep2,
-    l10n.onboardingLoadingStep3,
-    l10n.onboardingLoadingStep4,
-    l10n.onboardingLoadingStep5,
-    l10n.onboardingLoadingStep6,
-  ];
+  List<String>? get _resolvedSteps => widget.steps;
+
+  List<String> _steps(AppLocalizations l10n) =>
+      _resolvedSteps ??
+      [
+        l10n.onboardingLoadingStep1,
+        l10n.onboardingLoadingStep2,
+        l10n.onboardingLoadingStep3,
+        l10n.onboardingLoadingStep4,
+        l10n.onboardingLoadingStep5,
+        l10n.onboardingLoadingStep6,
+      ];
 
   @override
   void initState() {

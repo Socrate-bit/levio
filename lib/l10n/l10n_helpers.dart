@@ -461,12 +461,29 @@ String localizedItemName(AppLocalizations l10n, String item) {
       return l10n.routineBreathing;
     case 'Read':
       return l10n.routineRead;
+    // Wake-up routine labels.
+    case 'Open curtains or lights':
+      return l10n.routineOpenCurtains;
+    case 'Do 10 push-ups or 20 squats':
+      return l10n.routineExercise;
+    case 'Take a shower':
+      return l10n.routineShower;
+    case 'Have breakfast':
+      return l10n.routineBreakfast;
+    case 'Get dressed':
+      return l10n.routineGetDressed;
+    // Wind-down routine labels.
+    case 'Put your phone away':
+      return l10n.routinePutPhoneAway;
+    case 'Lower the room temperature':
+      return l10n.routineLowerTemp;
     default:
       return item;
   }
 }
 
-/// The built-in routine step labels (stored as plain strings in selectedItems).
+/// The original built-in routine step labels. Kept unchanged for back-compat
+/// with the legacy routine picker (no mode) and v1 onboarding fallbacks.
 const routinePresetSteps = <String>[
   'Drink a glass of water',
   'Dim your light',
@@ -477,4 +494,25 @@ const routinePresetSteps = <String>[
   'Journaling',
   'Breathing',
   'Read',
+];
+
+/// The built-in wind-down (night) routine step labels for the v2 funnel.
+const routineNightPresetSteps = <String>[
+  'Put your phone away',
+  'Dim your light',
+  'Lower the room temperature',
+  'Prepare your clothes',
+  'Todo list for next day',
+  'Read',
+];
+
+/// The built-in wake-up (morning) routine step labels for the v2 funnel.
+const routineWakePresetSteps = <String>[
+  'Open curtains or lights',
+  'Do 10 push-ups or 20 squats',
+  'Drink a glass of water',
+  'Take a shower',
+  'Have breakfast',
+  'Brush your teeth',
+  'Get dressed',
 ];

@@ -26,6 +26,18 @@ class OnboardingState extends Equatable {
   final TimeOfDay screenBlockStart;
   final List<String> relaxingActivities;
 
+  // --- v2 funnel only (additive; defaults keep v1 valid) ---
+  final Set<String> wakeChallenges;
+  final Set<String> desiredFeelings;
+  final Set<String> sleepChallenges;
+  final String? sleepTiredDay;
+  // First-room framing: the picked room and the object-hunt items it resolves
+  // to. The resolved MissionType lives in [selectedMission].
+  final String? firstRoom;
+  final List<String>? firstRoomItems;
+  // Morning routine completed after the wake-up mission.
+  final List<String> wakeRoutine;
+
   final bool isInProgress;
   final bool isComplete;
 
@@ -47,6 +59,13 @@ class OnboardingState extends Equatable {
     this.wantsScreenBlock,
     this.screenBlockStart = const TimeOfDay(hour: 22, minute: 30),
     this.relaxingActivities = const [],
+    this.wakeChallenges = const {},
+    this.desiredFeelings = const {},
+    this.sleepChallenges = const {},
+    this.sleepTiredDay,
+    this.firstRoom,
+    this.firstRoomItems,
+    this.wakeRoutine = const [],
     this.isInProgress = false,
     this.isComplete = false,
   });
@@ -80,6 +99,13 @@ class OnboardingState extends Equatable {
     bool? wantsScreenBlock,
     TimeOfDay? screenBlockStart,
     List<String>? relaxingActivities,
+    Set<String>? wakeChallenges,
+    Set<String>? desiredFeelings,
+    Set<String>? sleepChallenges,
+    String? sleepTiredDay,
+    String? firstRoom,
+    List<String>? firstRoomItems,
+    List<String>? wakeRoutine,
     bool? isInProgress,
     bool? isComplete,
   }) =>
@@ -102,6 +128,13 @@ class OnboardingState extends Equatable {
         wantsScreenBlock: wantsScreenBlock ?? this.wantsScreenBlock,
         screenBlockStart: screenBlockStart ?? this.screenBlockStart,
         relaxingActivities: relaxingActivities ?? this.relaxingActivities,
+        wakeChallenges: wakeChallenges ?? this.wakeChallenges,
+        desiredFeelings: desiredFeelings ?? this.desiredFeelings,
+        sleepChallenges: sleepChallenges ?? this.sleepChallenges,
+        sleepTiredDay: sleepTiredDay ?? this.sleepTiredDay,
+        firstRoom: firstRoom ?? this.firstRoom,
+        firstRoomItems: firstRoomItems ?? this.firstRoomItems,
+        wakeRoutine: wakeRoutine ?? this.wakeRoutine,
         isInProgress: isInProgress ?? this.isInProgress,
         isComplete: isComplete ?? this.isComplete,
       );
@@ -125,6 +158,13 @@ class OnboardingState extends Equatable {
         wantsScreenBlock,
         screenBlockStart,
         relaxingActivities,
+        wakeChallenges,
+        desiredFeelings,
+        sleepChallenges,
+        sleepTiredDay,
+        firstRoom,
+        firstRoomItems,
+        wakeRoutine,
         isInProgress,
         isComplete,
       ];
