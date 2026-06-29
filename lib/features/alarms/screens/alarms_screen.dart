@@ -8,6 +8,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../cubit/alarm_cubit.dart';
 import '../cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/mission_icon.dart';
 import '../../../shared/theme/app_theme.dart';
 import 'alarm_form_screen.dart';
 import '../../missions/models/mission_config.dart';
@@ -401,10 +402,11 @@ class _StackedMissionIcons extends StatelessWidget {
                     width: 1.5,
                   ),
                 ),
-                child: Icon(
-                  missionInfoFor(missions[i].type).icon,
-                  size: 10.sp,
-                  color: missionInfoFor(missions[i].type).iconColor,
+                child: Center(
+                  child: MissionIcon(
+                    info: missionInfoFor(missions[i].type),
+                    size: 14.sp,
+                  ),
                 ),
               ),
             ),

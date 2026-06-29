@@ -13,6 +13,7 @@ import '../../alarms/screens/sound_picker_screen.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
+import '../../missions/widgets/mission_icon.dart';
 import '../../screentime/widgets/screentime_chip.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/bottom_nav_shell.dart';
@@ -644,8 +645,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
             Row(
               children: [
                 _MiniInfoCard(
-                  icon: firstMission.icon,
-                  iconColor: firstMission.iconColor,
+                  icon: MissionIcon(info: firstMission, size: 26.sp),
                   label: l10n.homeMission,
                   value: alarm.missions.length > 1
                       ? '${alarm.missions.length} Missions'
@@ -654,8 +654,8 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                 ),
                 SizedBox(width: 10.w),
                 _MiniInfoCard(
-                  icon: Icons.music_note,
-                  iconColor: const Color(0xFFFFCC00),
+                  icon: Icon(Icons.music_note,
+                      size: 22.sp, color: const Color(0xFFFFCC00)),
                   label: l10n.homeSound,
                   value: alarm.soundId == 'default' ? l10n.generalDefault : localizedSoundName(l10n, alarm.soundId),
                   onTap: _pickSound,
@@ -676,15 +676,13 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
 }
 
 class _MiniInfoCard extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
+  final Widget icon;
   final String label;
   final String value;
   final VoidCallback? onTap;
 
   const _MiniInfoCard({
     required this.icon,
-    required this.iconColor,
     required this.label,
     required this.value,
     this.onTap,
@@ -716,7 +714,7 @@ class _MiniInfoCard extends StatelessWidget {
               style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 8.h),
-            Icon(icon, size: 22.sp, color: iconColor),
+            icon,
           ],
         ),
       ),
@@ -918,10 +916,11 @@ class _StackedMissionIcons extends StatelessWidget {
                     width: 1.5,
                   ),
                 ),
-                child: Icon(
-                  missionInfoFor(missions[i].type).icon,
-                  size: 10.sp,
-                  color: missionInfoFor(missions[i].type).iconColor,
+                child: Center(
+                  child: MissionIcon(
+                    info: missionInfoFor(missions[i].type),
+                    size: 14.sp,
+                  ),
                 ),
               ),
             ),

@@ -6,6 +6,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/mission_icon.dart';
 
 class MissionPickerStep extends StatelessWidget {
   final MissionType? selectedMission;
@@ -83,8 +84,9 @@ class MissionPickerStep extends StatelessWidget {
                           color: mission.iconBg,
                           borderRadius: BorderRadius.circular(12.r),
                         ),
-                        child: Icon(mission.icon,
-                            color: mission.iconColor, size: 22.sp),
+                        child: Center(
+                          child: MissionIcon(info: mission, size: 28.sp),
+                        ),
                       ),
                       SizedBox(width: 14.w),
                       Expanded(

@@ -10,6 +10,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 import '../data/affirmations.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/mission_icon.dart';
 import '../../subscription/services/analytics_service.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -261,8 +262,9 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                             color: info.iconBg,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(info.icon,
-                              color: info.iconColor, size: 30.sp),
+                          child: Center(
+                            child: MissionIcon(info: info, size: 38.sp),
+                          ),
                         ),
                         SizedBox(height: 20.h),
                         if (_totalCount > 1) ...[

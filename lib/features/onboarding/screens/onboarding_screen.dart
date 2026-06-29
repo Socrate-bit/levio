@@ -9,6 +9,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/loading_barrier.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/mission_icon.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
@@ -686,10 +687,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                         color: info.iconBg,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(
-                                        info.icon,
-                                        color: info.iconColor,
-                                        size: 56.sp,
+                                      child: Center(
+                                        child: MissionIcon(
+                                          info: info,
+                                          size: 70.sp,
+                                        ),
                                       ),
                                     ),
                                     subtitle: explanation['subtitle'],

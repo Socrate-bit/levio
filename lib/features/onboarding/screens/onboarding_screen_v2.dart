@@ -10,6 +10,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/loading_barrier.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/mission_icon.dart';
 import '../../missions/widgets/routine_picker_screen.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
 import '../../settings/cubit/settings_cubit.dart';
@@ -764,7 +765,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
             height: 120.h,
             decoration:
                 BoxDecoration(color: info.iconBg, shape: BoxShape.circle),
-            child: Icon(info.icon, color: info.iconColor, size: 56.sp),
+            child: Center(child: MissionIcon(info: info, size: 70.sp)),
           ),
           subtitle: explanation['subtitle'],
           bodyText: explanation['body'],

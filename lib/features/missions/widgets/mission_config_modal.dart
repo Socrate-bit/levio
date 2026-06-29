@@ -10,6 +10,7 @@ import '../../alarms/cubit/alarm_state.dart';
 import '../models/mission.dart';
 import '../models/mission_config.dart';
 import 'affirmation_picker_screen.dart';
+import 'mission_icon.dart';
 import 'item_picker_screen.dart';
 import 'random_pool_picker_screen.dart';
 import 'routine_picker_screen.dart';
@@ -255,8 +256,9 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               color: widget.info.iconBg,
               shape: BoxShape.circle,
             ),
-            child: Icon(widget.info.icon,
-                color: widget.info.iconColor, size: 30.sp),
+            child: Center(
+              child: MissionIcon(info: widget.info, size: 38.sp),
+            ),
           ),
           SizedBox(height: 12.h),
           Text(

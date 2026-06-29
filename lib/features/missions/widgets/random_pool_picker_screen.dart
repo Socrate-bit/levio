@@ -6,6 +6,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../models/mission.dart';
+import 'mission_icon.dart';
 
 /// Full-screen picker for selecting which missions to include in the random pool.
 class RandomPoolPickerScreen extends StatefulWidget {
@@ -164,12 +165,9 @@ class _RandomPoolPickerScreenState extends State<RandomPoolPickerScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            info.icon,
-                            color: selected
-                                ? info.iconColor
-                                : c.textSecondary,
-                            size: 22.sp,
+                          Opacity(
+                            opacity: selected ? 1.0 : 0.4,
+                            child: MissionIcon(info: info, size: 26.sp),
                           ),
                           SizedBox(width: 8.w),
                           Text(

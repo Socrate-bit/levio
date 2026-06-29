@@ -33,6 +33,10 @@ class MissionInfo {
   final Color iconBg;
   final IconData icon;
 
+  /// Full-color illustration asset shown for the mission. Null falls back to
+  /// the Material [icon] (e.g. the `none` mission).
+  final String? iconAsset;
+
   /// Tabs this mission appears under — a mission can belong to a functional
   /// group and one or more ships at once.
   final List<MissionCategory> categories;
@@ -45,6 +49,7 @@ class MissionInfo {
     required this.iconBg,
     required this.icon,
     required this.categories,
+    this.iconAsset,
   });
 }
 
@@ -56,6 +61,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFE05C5C),
     iconBg: Color(0xFFFDE8E8),
     icon: Icons.fitness_center,
+    iconAsset: 'assets/icon_missions/push-up.png',
     categories: [MissionCategory.physical, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -65,6 +71,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF3DAD6F),
     iconBg: Color(0xFFE5F5EC),
     icon: Icons.accessibility_new,
+    iconAsset: 'assets/icon_missions/squat.png',
     categories: [MissionCategory.physical, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -74,6 +81,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF5B8DEF),
     iconBg: Color(0xFFEAF0FD),
     icon: Icons.vibration,
+    iconAsset: 'assets/icon_missions/shake.png',
     categories: [MissionCategory.physical, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -83,6 +91,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF7B61FF),
     iconBg: Color(0xFFF0EDFF),
     icon: Icons.calculate,
+    iconAsset: 'assets/icon_missions/maths.png',
     categories: [MissionCategory.trending, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -92,6 +101,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFE07B3A),
     iconBg: Color(0xFFFDF0E7),
     icon: Icons.wb_sunny,
+    iconAsset: 'assets/icon_missions/cloudy.png',
     categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -101,6 +111,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF7B61FF),
     iconBg: Color(0xFFF0EDFF),
     icon: Icons.bed,
+    iconAsset: 'assets/icon_missions/bed.png',
     categories: [MissionCategory.trending, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -110,6 +121,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF3DAD6F),
     iconBg: Color(0xFFE5F5EC),
     icon: Icons.search,
+    iconAsset: 'assets/icon_missions/search.png',
     categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -119,6 +131,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFE07B3A),
     iconBg: Color(0xFFFDF0E7),
     icon: Icons.pets,
+    iconAsset: 'assets/icon_missions/kitten.png',
     categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -128,6 +141,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF3DAD6F),
     iconBg: Color(0xFFE5F5EC),
     icon: Icons.park,
+    iconAsset: 'assets/icon_missions/plant.png',
     categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -137,6 +151,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF3DAD6F),
     iconBg: Color(0xFFE5F5EC),
     icon: Icons.grass,
+    iconAsset: 'assets/icon_missions/grass.png',
     categories: [MissionCategory.hunts, MissionCategory.wakeup],
   ),
   MissionInfo(
@@ -146,6 +161,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFCC4DAA),
     iconBg: Color(0xFFFAE7F5),
     icon: Icons.chat_bubble,
+    iconAsset: 'assets/icon_missions/galaxy.png',
     categories: [
       MissionCategory.trending,
       MissionCategory.wakeup,
@@ -159,6 +175,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF4A90D9),
     iconBg: Color(0xFFE7F1FD),
     icon: Icons.air,
+    iconAsset: 'assets/icon_missions/bad-breath.png',
     categories: [MissionCategory.sleep],
   ),
   MissionInfo(
@@ -168,6 +185,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFE0566B),
     iconBg: Color(0xFFFDEAEA),
     icon: Icons.favorite_border,
+    iconAsset: 'assets/icon_missions/gratitude.png',
     categories: [MissionCategory.wakeup, MissionCategory.sleep],
   ),
   MissionInfo(
@@ -177,6 +195,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF7B61FF),
     iconBg: Color(0xFFF0EDFF),
     icon: Icons.self_improvement,
+    iconAsset: 'assets/icon_missions/meditation.png',
     categories: [MissionCategory.sleep],
   ),
   MissionInfo(
@@ -186,6 +205,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF5B8DEF),
     iconBg: Color(0xFFEAF0FD),
     icon: Icons.king_bed,
+    iconAsset: 'assets/icon_missions/bed_plain.png',
     categories: [MissionCategory.sleep],
   ),
   MissionInfo(
@@ -195,6 +215,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF2BA7A0),
     iconBg: Color(0xFFE2F4F2),
     icon: Icons.checklist,
+    iconAsset: 'assets/icon_missions/exercise-routine.png',
     categories: [MissionCategory.trending, MissionCategory.sleep],
   ),
   MissionInfo(
@@ -204,6 +225,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFF8E8E93),
     iconBg: Color(0xFFF2F2F7),
     icon: Icons.casino,
+    iconAsset: 'assets/icon_missions/dices.png',
     categories: [MissionCategory.trending],
   ),
 ];

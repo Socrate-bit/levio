@@ -9,6 +9,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../widgets/hexagon_badge.dart';
 import '../../milestones/screens/milestones_screen.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/mission_icon.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../cubit/insights_cubit.dart';
 import '../cubit/insights_state.dart';
@@ -608,9 +609,6 @@ class _SessionTile extends StatelessWidget {
     final missionLabel = session.missionType != null
         ? localizedMissionName(l10n, session.missionType!)
         : l10n.wakeupWakeUp;
-    final missionIcon = session.missionType != null
-        ? missionInfoFor(session.missionType!).icon
-        : Icons.wb_sunny;
     final missionColor = session.missionType != null
         ? missionInfoFor(session.missionType!).iconColor
         : AppColors.orange;
@@ -642,10 +640,16 @@ class _SessionTile extends StatelessWidget {
                 color: iconBg,
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(
-                missed ? Icons.alarm_off_outlined : missionIcon,
-                color: iconColor,
-                size: 22.sp,
+              child: Center(
+                child: missed
+                    ? Icon(Icons.alarm_off_outlined,
+                        color: iconColor, size: 22.sp)
+                    : session.missionType != null
+                        ? MissionIcon(
+                            info: missionInfoFor(session.missionType!),
+                            size: 28.sp,
+                          )
+                        : Icon(Icons.wb_sunny, color: iconColor, size: 22.sp),
               ),
             ),
             SizedBox(width: 14.w),

@@ -4,6 +4,7 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../features/missions/models/mission.dart';
+import '../../../features/missions/widgets/mission_icon.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../models/wakeup_session.dart';
@@ -134,9 +135,6 @@ class _SessionTile extends StatelessWidget {
     final missionLabel = session.missionType != null
         ? localizedMissionName(l10n, session.missionType!)
         : l10n.wakeupWakeUp;
-    final missionIcon = session.missionType != null
-        ? missionInfoFor(session.missionType!).icon
-        : Icons.wb_sunny;
     final missionColor = session.missionType != null
         ? missionInfoFor(session.missionType!).iconColor
         : AppColors.orange;
@@ -170,10 +168,17 @@ class _SessionTile extends StatelessWidget {
                   color: iconBg,
                   borderRadius: BorderRadius.circular(12.r),
                 ),
-                child: Icon(
-                  missed ? Icons.alarm_off_outlined : missionIcon,
-                  color: iconColor,
-                  size: 22.sp,
+                child: Center(
+                  child: missed
+                      ? Icon(Icons.alarm_off_outlined,
+                          color: iconColor, size: 22.sp)
+                      : session.missionType != null
+                          ? MissionIcon(
+                              info: missionInfoFor(session.missionType!),
+                              size: 28.sp,
+                            )
+                          : Icon(Icons.wb_sunny,
+                              color: iconColor, size: 22.sp),
                 ),
               ),
               SizedBox(width: 14.w),

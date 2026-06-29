@@ -7,6 +7,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 import '../../../app.dart' show buildDismissScreen;
 import '../models/mission.dart';
+import '../widgets/mission_icon.dart';
 import '../models/mission_config.dart';
 import '../widgets/mission_config_modal.dart';
 
@@ -190,7 +191,7 @@ class _MissionCard extends StatelessWidget {
                 color: info.iconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(info.icon, color: info.iconColor, size: 26.sp),
+              child: Center(child: MissionIcon(info: info, size: 32.sp)),
             ),
             SizedBox(height: 10.h),
             Text(

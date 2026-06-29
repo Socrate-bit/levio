@@ -11,6 +11,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../cubit/alarm_cubit.dart';
 import '../cubit/alarm_state.dart';
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/mission_icon.dart';
 import '../../missions/models/mission_config.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -553,41 +554,42 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               // Sleep-only settings: ring style + bedtime reminder
               if (_isSleep) ...[
                 SizedBox(height: 12.h),
-                _FormCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.alarmFormRingStyle,
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          color: c.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _TogglePill(
-                              label: l10n.alarmFormGentle,
-                              selected: _gentle,
-                              onTap: () => setState(() => _gentle = true),
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: _TogglePill(
-                              label: l10n.alarmFormLoud,
-                              selected: !_gentle,
-                              onTap: () => setState(() => _gentle = false),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 12.h),
+                // Soft / Hard (gentle / loud) ring style — disabled for now.
+                // _FormCard(
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       Text(
+                //         l10n.alarmFormRingStyle,
+                //         style: TextStyle(
+                //           fontSize: 15.sp,
+                //           color: c.textSecondary,
+                //         ),
+                //       ),
+                //       SizedBox(height: 12.h),
+                //       Row(
+                //         children: [
+                //           Expanded(
+                //             child: _TogglePill(
+                //               label: l10n.alarmFormGentle,
+                //               selected: _gentle,
+                //               onTap: () => setState(() => _gentle = true),
+                //             ),
+                //           ),
+                //           SizedBox(width: 8.w),
+                //           Expanded(
+                //             child: _TogglePill(
+                //               label: l10n.alarmFormLoud,
+                //               selected: !_gentle,
+                //               onTap: () => setState(() => _gentle = false),
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // SizedBox(height: 12.h),
                 _FormCard(
                   child: Column(
                     children: [
@@ -710,7 +712,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               color: info.iconBg,
               shape: BoxShape.circle,
             ),
-            child: Icon(info.icon, size: 20.sp, color: info.iconColor),
+            child: Center(child: MissionIcon(info: info, size: 26.sp)),
           ),
           SizedBox(width: 12.w),
           Expanded(

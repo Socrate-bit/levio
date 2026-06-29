@@ -93,5 +93,6 @@ flutter:
     - assets/animations/
     - assets/onboarding/
     - assets/onboarding/profil_comments/
+    - assets/icon_missions/
     - shorebird.yaml
     - assets/exemple.png

@@ -11,6 +11,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
 
 import '../../missions/models/mission.dart';
+import '../../missions/widgets/mission_icon.dart';
 import '../../missions/widgets/item_picker_screen.dart';
 import '../../subscription/services/analytics_service.dart';
 import '../../settings/cubit/settings_cubit.dart';
@@ -733,7 +734,7 @@ class _TargetBadgeState extends State<_TargetBadge>
                 opacity: opacity,
                 child: emoji != null
                     ? Text(emoji, style: TextStyle(fontSize: 130.sp))
-                    : Icon(widget.info.icon, color: Colors.white, size: 110.sp),
+                    : MissionIcon(info: widget.info, size: 130.sp),
               ),
             ],
           ),
