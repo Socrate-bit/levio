@@ -334,8 +334,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           isEnabled: true,
           isOneTime: !state.repeatDays.any((d) => d),
           isSleep: true,
-          // Bedtime reminder notification on by default.
+          // Bedtime reminder notification on by default, 30 min before bedtime.
           reminderEnabled: true,
+          reminderMinutesBefore: 30,
         );
         await alarmCubit.addAlarm(sleepEntry);
       }
@@ -485,7 +486,9 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           isEnabled: true,
           isOneTime: !state.repeatDays.any((d) => d),
           isSleep: true,
+          // Bedtime reminder notification on by default, 30 min before bedtime.
           reminderEnabled: true,
+          reminderMinutesBefore: 30,
         );
         await alarmCubit.addAlarm(sleepEntry);
       }
