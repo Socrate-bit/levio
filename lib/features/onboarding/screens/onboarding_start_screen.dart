@@ -34,11 +34,12 @@ class OnboardingStartScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    l10n.onboardingAppOfTheYear,
+                    l10n.onboardingAppOfTheYear.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
                       color: c.textSecondary,
+                      letterSpacing: 0.5,
                     ),
                   ),
                   const FittedBox(
