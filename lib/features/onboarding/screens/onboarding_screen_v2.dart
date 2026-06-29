@@ -40,7 +40,7 @@ import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
 import '../widgets/welcome_step.dart';
 
-const _totalPages = 39;
+const _totalPages = 40;
 
 /// Redesigned onboarding funnel (v2). Runs in parallel with the original
 /// [OnboardingScreen]; which one shows is chosen by `kUseOnboardingV2` in
@@ -59,18 +59,21 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
 
   late final ValueNotifier<TimeOfDay> _alarmTimeNotifier;
   late final ValueNotifier<TimeOfDay> _sleepTimeNotifier;
+  late final ValueNotifier<TimeOfDay> _blockStartNotifier;
 
   @override
   void initState() {
     super.initState();
     _alarmTimeNotifier = ValueNotifier(const TimeOfDay(hour: 7, minute: 0));
     _sleepTimeNotifier = ValueNotifier(const TimeOfDay(hour: 22, minute: 30));
+    _blockStartNotifier = ValueNotifier(const TimeOfDay(hour: 22, minute: 30));
   }
 
   @override
   void dispose() {
     _alarmTimeNotifier.dispose();
     _sleepTimeNotifier.dispose();
+    _blockStartNotifier.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -96,11 +99,18 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     }
   }
 
-  // Sleep-section pages (24-27) only show once a bedtime alarm is wanted.
+  // Sleep-section pages are skipped based on the user's answers so navigation
+  // and the progress bar treat the flow as if they don't exist.
   List<int> _visiblePages(OnboardingState s) {
     final pages = <int>[];
     for (var i = 0; i < _totalPages; i++) {
-      if (i >= 24 && i <= 27 && s.wantsSleepAlarm != true) continue;
+      // 24/25: bedtime picker + wind-down routine — only with a bedtime alarm.
+      if ((i == 24 || i == 25) && s.wantsSleepAlarm != true) continue;
+      // 28: block-start picker — only when blocking but no bedtime to derive it.
+      if (i == 28 &&
+          !(s.wantsScreenBlock == true && s.wantsSleepAlarm != true)) {
+        continue;
+      }
       pages.add(i);
     }
     return pages;
@@ -123,10 +133,10 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
 
   void _back() {
     // Loading, plan recap, paywall, trial disallow going back.
-    if (_currentPage == 29 ||
-        _currentPage == 30 ||
-        _currentPage == 37 ||
-        _currentPage == 38) {
+    if (_currentPage == 30 ||
+        _currentPage == 31 ||
+        _currentPage == 38 ||
+        _currentPage == 39) {
       return;
     }
     final visible = _visiblePages(context.read<OnboardingCubit>().state);
@@ -160,6 +170,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
       cubit.setAlarmTime(_alarmTimeNotifier.value);
     } else if (_currentPage == 24) {
       cubit.setSleepTime(_sleepTimeNotifier.value);
+    } else if (_currentPage == 28) {
+      cubit.setScreenBlockStart(_blockStartNotifier.value);
     }
     // Block-apps step: run native Screen Time setup inline when opted in.
     if (_currentPage == 27 && state.wantsScreenBlock == true) {
@@ -172,7 +184,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
       }
     }
     // Referral step: validate any entered code before advancing.
-    if (_currentPage == 31) {
+    if (_currentPage == 32) {
       final code = state.referralCode.trim();
       FocusScope.of(context).unfocus();
       if (code.isNotEmpty && state.referralStatus != ReferralStatus.valid) {
@@ -181,7 +193,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         if (cubit.state.referralStatus != ReferralStatus.valid) return;
       }
     }
-    if (_currentPage == 35) {
+    if (_currentPage == 36) {
       InAppReview.instance.requestReview();
     }
     _next();
@@ -214,7 +226,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         return state.wantsSleepAlarm != null;
       case 27:
         return state.wantsScreenBlock != null;
-      case 31:
+      case 32:
         return state.referralStatus != ReferralStatus.checking &&
             state.referralStatus != ReferralStatus.invalid &&
             state.referralStatus != ReferralStatus.exhausted;
@@ -226,12 +238,12 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
   // Pages that handle their own navigation (no shared Continue button).
   bool _hasOwnNavigation(int page) =>
       page == 0 ||
-      page == 28 || // notification
-      page == 29 || // loading
-      page == 32 || // sign in
-      page == 36 || // signature
-      page == 37 || // paywall
-      page == 38; // trial reminder
+      page == 29 || // notification
+      page == 30 || // loading
+      page == 33 || // sign in
+      page == 37 || // signature
+      page == 38 || // paywall
+      page == 39; // trial reminder
 
   // ---- Editable plan-recap pickers (modal sheets) ----
 
@@ -357,7 +369,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                   Opacity(
                     opacity: (_currentPage > 0 &&
                             !_isLastPage(state) &&
-                            _currentPage != 30)
+                            _currentPage != 31)
                         ? 1.0
                         : 0.0,
                     child: Padding(
@@ -365,10 +377,10 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                       child: Row(
                         children: [
                           if (_currentPage > 0 &&
-                              _currentPage != 29 &&
                               _currentPage != 30 &&
-                              _currentPage != 37 &&
-                              _currentPage != 38)
+                              _currentPage != 31 &&
+                              _currentPage != 38 &&
+                              _currentPage != 39)
                             GestureDetector(
                               onTap: withHaptic(_back),
                               child: Container(
@@ -793,13 +805,13 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         onChanged: cubit.setRelaxingActivities,
         mode: RoutineMode.night,
       ),
-      // 26: EDU PB — screens kill sleep (conditional)
+      // 26: EDU PB — screens kill sleep
       InfoStep(
         title: l10n.onboardingScreenEduTitle,
         imagePlaceholder: Text('📵', style: TextStyle(fontSize: 80.sp)),
         bodyText: l10n.onboardingScreenEduBody,
       ),
-      // 27: block apps? (conditional)
+      // 27: block apps?
       Builder(builder: (context) {
         final yes = l10n.onboardingYes;
         final no = l10n.onboardingNo;
@@ -812,9 +824,16 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           onSelected: (sel) => cubit.setWantsScreenBlock(sel == yes),
         );
       }),
-      // 28: notification permission
+      // 28: block-start picker (only when blocking without a bedtime to
+      // derive the start time from)
+      TimePickerStep(
+        title: l10n.onboardingBlockStartTitle,
+        subtitle: l10n.onboardingBlockStartSubtitle,
+        notifier: _blockStartNotifier,
+      ),
+      // 29: notification permission
       NotificationStep(onNext: _next),
-      // 29: loading
+      // 30: loading
       LoadingStep(
         onComplete: () {
           if (mounted) _next();
@@ -828,7 +847,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           l10n.onboardingV2LoadingStep6,
         ],
       ),
-      // 30: editable plan recap
+      // 31: editable plan recap
       MorningPlanStep(
         alarmTime: state.alarmTime,
         mission: state.selectedMission,
@@ -862,42 +881,42 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                 onDone: cubit.setRelaxingActivities)
             : null,
       ),
-      // 31: referral
+      // 32: referral
       ReferralStep(
         code: state.referralCode,
         status: state.referralStatus,
         onCodeChanged: cubit.setReferralCode,
       ),
-      // 32: sign in
+      // 33: sign in
       SignInStep(
         title: l10n.onboardingSignInCreateTitle,
         subtitle: l10n.onboardingSignInCreateSubtitle,
         onSkip: _finalizeSignInStep,
         onSignInComplete: _finalizeSignInStep,
       ),
-      // 33: RECALL — 5x faster
+      // 34: RECALL — 5x faster
       InfoStep(
         title: l10n.onboarding5xFaster,
         imagePlaceholder: const SpeedometerChart(),
       ),
-      // 34: RECALL PROOF — adopted by 200k
+      // 35: RECALL PROOF — adopted by 200k
       InfoStep(
         title: l10n.onboardingV2Recall200kTitle,
         centerTitle: true,
         imagePlaceholder: Text('🌍', style: TextStyle(fontSize: 80.sp)),
         bodyText: l10n.onboardingV2Recall200kBody,
       ),
-      // 35: RECALL PROOF — comments
+      // 36: RECALL PROOF — comments
       const RatingStep(),
-      // 36: commitment
+      // 37: commitment
       SignatureStep(
         alarmTimeText: _formatTime(state.alarmTime),
         hasSleep: state.wantsSleepAlarm == true,
         onCommit: _next,
       ),
-      // 37: paywall
+      // 38: paywall
       PaywallStep(onContinue: _next),
-      // 38: trial reminder
+      // 39: trial reminder
       TrialReminderStep(onContinue: cubit.finishOnboarding),
     ];
   }
