@@ -109,6 +109,25 @@ class HistoryService {
     });
   }
 
+  /// Records a screen-time relapse: the user unlocked the block during an
+  /// active window. Stored as an incomplete, alarm-less session flagged
+  /// `relapse` so it shows a distinct history label and counts as a missed day
+  /// for the streak. Does not increment totalWakeups.
+  static Future<String> recordRelapseSession() async {
+    final now = DateTime.now();
+    final session = WakeupSession(
+      id: '',
+      alarmId: null,
+      timestamp: now,
+      timeTakenSeconds: 0,
+      completed: false,
+      relapse: true,
+    );
+    final docId = now.millisecondsSinceEpoch.toString();
+    await _sessions.doc(docId).set(session.toFirestore());
+    return docId;
+  }
+
   /// Creates a missed session (completed: false) for an alarm that was never dismissed.
   static Future<String> createMissedSession({
     required String alarmId,

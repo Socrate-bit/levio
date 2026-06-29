@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../wakeup/services/history_service.dart';
 import '../models/screentime_schedule.dart';
 import '../services/screentime_channel.dart';
 import '../services/screentime_firestore_service.dart';
@@ -230,6 +231,9 @@ class ScreenTimeCubit extends Cubit<ScreenTimeState> with WidgetsBindingObserver
       unlockInProgress: false,
       unlockCountdown: 0,
     ));
+    // Unlocking during an active window is a relapse: record it so the streak
+    // counts the day as missed and history shows the relapse entry.
+    HistoryService.recordRelapseSession().ignore();
   }
 
   /// User dismissed the countdown dialog without finishing.
