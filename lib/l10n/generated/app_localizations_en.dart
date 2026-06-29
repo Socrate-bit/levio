@@ -1397,6 +1397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wakeupThanks => 'Thanks to Levio, you woke up today.';
 
   @override
+  String get wakeupThanksSleep => 'Thanks to Levio, you wound down tonight.';
+
+  @override
   String get wakeupTimeTaken => 'Time Taken';
 
   @override

@@ -536,6 +536,7 @@
   "wakeupStartMyDay": "Start My Day",
   "wakeupCongratulations": "Congratulations.",
   "wakeupThanks": "Thanks to Levio, you woke up today.",
+  "wakeupThanksSleep": "Thanks to Levio, you wound down tonight.",
   "wakeupTimeTaken": "Time Taken",
   "wakeupDayStreak": "Day Streak",
   "wakeupWakeups": "Wakeups",

@@ -1411,6 +1411,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wakeupThanks => 'Grâce à Levio, tu t\'es réveillé aujourd\'hui.';
 
   @override
+  String get wakeupThanksSleep => 'Grâce à Levio, tu t\'es détendu ce soir.';
+
+  @override
   String get wakeupTimeTaken => 'Temps écoulé';
 
   @override

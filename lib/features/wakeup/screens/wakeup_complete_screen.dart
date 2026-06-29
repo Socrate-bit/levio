@@ -167,7 +167,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    l10n.wakeupThanks,
+                    _isSleep ? l10n.wakeupThanksSleep : l10n.wakeupThanks,
                     style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
                     textAlign: TextAlign.center,
                   ),
