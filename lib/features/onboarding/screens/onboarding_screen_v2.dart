@@ -42,15 +42,19 @@ import '../widgets/timeline_comparison.dart';
 import '../widgets/time_picker_step.dart';
 import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
-import '../widgets/welcome_step_v2.dart';
 
 const _totalPages = 39;
 
 /// Redesigned onboarding funnel (v2). Runs in parallel with the original
-/// [OnboardingScreen]; which one shows is chosen by `kUseOnboardingV2` in
+/// [OnboardingScreen]; which one shows is chosen by `useOnboardingV2` in
 /// AuthWrapper. Reuses the v1 step widgets and the shared [OnboardingCubit].
 class OnboardingScreenV2 extends StatefulWidget {
-  const OnboardingScreenV2({super.key});
+  /// Called when the user backs out of the first step. The welcome page is now
+  /// the shared [OnboardingStartScreen] outside this funnel, so going back from
+  /// the first step returns there rather than into the funnel.
+  final VoidCallback? onExitToStart;
+
+  const OnboardingScreenV2({super.key, this.onExitToStart});
 
   @override
   State<OnboardingScreenV2> createState() => _OnboardingScreenV2State();
@@ -58,7 +62,9 @@ class OnboardingScreenV2 extends StatefulWidget {
 
 class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
   final _pageController = PageController();
-  int _currentPage = 0;
+  // Starts at the first real step; the welcome page lives in the shared
+  // OnboardingStartScreen, outside this funnel. PageView index = page - 1.
+  int _currentPage = 1;
   bool _finalizing = false;
 
   late final ValueNotifier<TimeOfDay> _alarmTimeNotifier;
@@ -145,7 +151,16 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     }
     final visible = _visiblePages(context.read<OnboardingCubit>().state);
     final pos = visible.indexOf(_currentPage);
-    if (pos > 0) _goToPage(visible[pos - 1]);
+    if (pos > 0) {
+      final target = visible[pos - 1];
+      // Page 0 is the extracted welcome — backing out of the first step returns
+      // to the shared start screen instead of into the funnel.
+      if (target == 0) {
+        widget.onExitToStart?.call();
+      } else {
+        _goToPage(target);
+      }
+    }
   }
 
   Future<void> _finalizeSignInStep() async {
@@ -521,32 +536,11 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                   ),
 
                   Expanded(
-                    child: _currentPage == 0
-                        ? WelcomeStepV2(
-                            onBuildPlan: () {
-                              cubit.startOnboarding();
-                              // Seed v2 routine defaults: pre-select the first 3
-                              // steps of each catalog (wake-up + sleep).
-                              cubit.setWakeRoutine(
-                                  routineWakePresetSteps.take(3).toList());
-                              cubit.setRelaxingActivities(
-                                  routineNightPresetSteps.take(3).toList());
-                              _next();
-                            },
-                            onSignIn: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      const _StandaloneSignInScreen(),
-                                ),
-                              );
-                            },
-                          )
-                        : PageView(
-                            controller: _pageController,
-                            physics: const NeverScrollableScrollPhysics(),
-                            children: _pages(state, cubit, l10n, c),
-                          ),
+                    child: PageView(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: _pages(state, cubit, l10n, c),
+                    ),
                   ),
 
                   if (!_hasOwnNavigation(_currentPage))
@@ -1034,57 +1028,5 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
       // 38: trial reminder
       TrialReminderStep(onContinue: cubit.finishOnboarding),
     ];
-  }
-}
-
-/// Standalone sign-in for returning users tapping "Sign In" on the welcome
-/// screen. Mirrors the v1 standalone screen: pops on success, after which
-/// AuthWrapper reactively routes to the app (onboarding never started).
-class _StandaloneSignInScreen extends StatelessWidget {
-  const _StandaloneSignInScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: c.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: withHaptic(() => Navigator.of(context).pop()),
-                    child: Container(
-                      width: 32.w,
-                      height: 32.h,
-                      decoration: BoxDecoration(
-                        color: c.card,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(Icons.chevron_left,
-                          size: 20.sp, color: c.textPrimary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SignInStep(
-                title: l10n.onboardingSignInTitle,
-                subtitle: l10n.onboardingSignInSubtitle,
-                onSkip: () => Navigator.of(context).pop(),
-                onSignInComplete: () => Navigator.of(context).pop(),
-                showSkip: false,
-                blockNewAccounts: true,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

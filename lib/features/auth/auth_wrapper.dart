@@ -9,6 +9,8 @@ import '../onboarding/cubit/onboarding_state.dart';
 import '../onboarding/onboarding_config.dart';
 import '../onboarding/screens/onboarding_screen.dart';
 import '../onboarding/screens/onboarding_screen_v2.dart';
+import '../onboarding/screens/onboarding_start_screen.dart';
+import 'package:levio/l10n/l10n_helpers.dart';
 import '../settings/cubit/settings_cubit.dart';
 import '../subscription/cubit/subscription_cubit.dart';
 import '../subscription/screens/app_gate_wrapper.dart';
@@ -33,6 +35,37 @@ class _AuthWrapperState extends State<AuthWrapper> {
   // Tracks the last handled auth state so side effects fire only on an actual
   // transition — not on every rebuild (locale/theme changes rebuild this tree).
   bool? _lastIsAuth;
+
+  // The funnel the user is committed to once they leave the start screen. Read
+  // once from the background-resolved A/B value (`useOnboardingV2`) and then
+  // fixed, so the back arrow can't re-resolve or swap funnels. Null until the
+  // user first taps "Build my plan".
+  bool? _committedV2;
+
+  // Whether the user has left the shared start screen and entered a funnel. The
+  // back arrow on the funnel's first step flips this back to false, returning to
+  // the start screen while keeping the committed variant.
+  bool _started = false;
+
+  // Commits the A/B direction (once) and enters the chosen funnel. Re-entering
+  // after a back keeps the same direction and skips the v2 routine seeding.
+  void _startOnboarding() {
+    if (_committedV2 == null) {
+      final useV2 = useOnboardingV2.value;
+      _committedV2 = useV2;
+      final cubit = context.read<OnboardingCubit>();
+      cubit.startOnboarding();
+      if (useV2) {
+        // Seed v2 routine defaults: pre-select the first 3 steps of each
+        // catalog (wake-up + sleep).
+        cubit.setWakeRoutine(routineWakePresetSteps.take(3).toList());
+        cubit.setRelaxingActivities(routineNightPresetSteps.take(3).toList());
+      }
+    }
+    setState(() => _started = true);
+  }
+
+  void _exitToStart() => setState(() => _started = false);
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +106,15 @@ class _AuthWrapperState extends State<AuthWrapper> {
           buildWhen: (prev, curr) => prev.isInProgress != curr.isInProgress,
           builder: (context, ob) {
             if (!isAuth || ob.isInProgress) {
-              return kUseOnboardingV2
-                  ? const OnboardingScreenV2()
-                  : const OnboardingScreen();
+              // Shared start screen for both variants. The A/B direction is
+              // committed when the user leaves it and stays fixed afterwards, so
+              // the back arrow returns here without re-resolving or swapping.
+              if (!_started) {
+                return OnboardingStartScreen(onStart: _startOnboarding);
+              }
+              return _committedV2!
+                  ? OnboardingScreenV2(onExitToStart: _exitToStart)
+                  : OnboardingScreen(onExitToStart: _exitToStart);
             }
             return AppGateWrapper(navigatorKey: widget.navigatorKey);
           },

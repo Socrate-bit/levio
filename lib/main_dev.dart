@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:levio/app.dart';
 import 'package:levio/features/alarms/services/notification_service.dart';
+import 'package:levio/features/onboarding/services/onboarding_ab_service.dart';
 import 'package:levio/features/subscription/services/analytics_service.dart';
 import 'package:levio/firebase_options_dev.dart';
 import 'package:levio/shared/services/branch_service.dart';
@@ -22,6 +23,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AnalyticsService.init();
   await NotificationService.init();
+
+  // Resolve the onboarding A/B funnel in the background so it never blocks
+  // launch; the v2 start screen renders immediately while this resolves.
+  unawaited(OnboardingAbService.resolveVariant());
 
   // Match paywall locale to the device locale (e.g. "en_US", "fr_FR").
   final options = SuperwallOptions()..localeIdentifier = Platform.localeName;
