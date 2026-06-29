@@ -4651,6 +4651,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Maybe later'**
   String get alarmPermissionNotNow;
+
+  /// No description provided for @routineOpenCurtains.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the curtains or lights'**
+  String get routineOpenCurtains;
+
+  /// No description provided for @routineExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Do 10 push-ups or 20 squats'**
+  String get routineExercise;
+
+  /// No description provided for @routineShower.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a shower'**
+  String get routineShower;
+
+  /// No description provided for @routineBreakfast.
+  ///
+  /// In en, this message translates to:
+  /// **'Have breakfast'**
+  String get routineBreakfast;
+
+  /// No description provided for @routineGetDressed.
+  ///
+  /// In en, this message translates to:
+  /// **'Get dressed'**
+  String get routineGetDressed;
+
+  /// No description provided for @routinePutPhoneAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Put your phone away'**
+  String get routinePutPhoneAway;
+
+  /// No description provided for @routineLowerTemp.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower the room temperature'**
+  String get routineLowerTemp;
+
+  /// No description provided for @routineModeWake.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get routineModeWake;
+
+  /// No description provided for @routineModeNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get routineModeNight;
+
+  /// No description provided for @onboardingV2MultiSelectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all that apply'**
+  String get onboardingV2MultiSelectHint;
+
+  /// No description provided for @onboardingV2WakeChallengesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s hardest when you wake up?'**
+  String get onboardingV2WakeChallengesTitle;
+
+  /// No description provided for @onboardingV2WakeChallengeSleepThrough.
+  ///
+  /// In en, this message translates to:
+  /// **'I sleep through my alarm'**
+  String get onboardingV2WakeChallengeSleepThrough;
+
+  /// No description provided for @onboardingV2WakeChallengeSnooze.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m stuck in a snooze loop'**
+  String get onboardingV2WakeChallengeSnooze;
+
+  /// No description provided for @onboardingV2WakeChallengeStayInBed.
+  ///
+  /// In en, this message translates to:
+  /// **'I stay in bed too long'**
+  String get onboardingV2WakeChallengeStayInBed;
+
+  /// No description provided for @onboardingV2WakeChallengeScroll.
+  ///
+  /// In en, this message translates to:
+  /// **'I scroll my phone after waking'**
+  String get onboardingV2WakeChallengeScroll;
+
+  /// No description provided for @onboardingV2WakeChallengeFallAsleep.
+  ///
+  /// In en, this message translates to:
+  /// **'I fall back asleep'**
+  String get onboardingV2WakeChallengeFallAsleep;
+
+  /// No description provided for @onboardingV2WakeChallengeTired.
+  ///
+  /// In en, this message translates to:
+  /// **'I feel completely drained'**
+  String get onboardingV2WakeChallengeTired;
+
+  /// No description provided for @onboardingV2WakeChallengeMindFog.
+  ///
+  /// In en, this message translates to:
+  /// **'My mind is foggy'**
+  String get onboardingV2WakeChallengeMindFog;
+
+  /// No description provided for @onboardingV2WakeChallengeAnxiety.
+  ///
+  /// In en, this message translates to:
+  /// **'I wake up anxious or stressed'**
+  String get onboardingV2WakeChallengeAnxiety;
+
+  /// No description provided for @onboardingV2DesiredFeelingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you want to wake up?'**
+  String get onboardingV2DesiredFeelingsTitle;
+
+  /// No description provided for @onboardingV2FeelWakeStraight.
+  ///
+  /// In en, this message translates to:
+  /// **'Up on the first try'**
+  String get onboardingV2FeelWakeStraight;
+
+  /// No description provided for @onboardingV2FeelEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Full of energy'**
+  String get onboardingV2FeelEnergy;
+
+  /// No description provided for @onboardingV2FeelGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Feeling good'**
+  String get onboardingV2FeelGood;
+
+  /// No description provided for @onboardingV2FeelConfident.
+  ///
+  /// In en, this message translates to:
+  /// **'Confident'**
+  String get onboardingV2FeelConfident;
+
+  /// No description provided for @onboardingV2FeelWinDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to win the day'**
+  String get onboardingV2FeelWinDay;
+
+  /// No description provided for @onboardingV2ProofScientistsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built with sleep scientists'**
+  String get onboardingV2ProofScientistsTitle;
+
+  /// No description provided for @onboardingV2ProofScientistsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Levio\'s method is grounded in circadian and sleep-inertia research, so every step is designed to actually get you up.'**
+  String get onboardingV2ProofScientistsBody;
+
+  /// No description provided for @onboardingV2Proof200kTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'200,000 mornings won'**
+  String get onboardingV2Proof200kTitle;
+
+  /// No description provided for @onboardingV2Proof200kBody.
+  ///
+  /// In en, this message translates to:
+  /// **'People in over 30 countries use Levio to beat the snooze button and start their day on their terms.'**
+  String get onboardingV2Proof200kBody;
+
+  /// No description provided for @onboardingV2FirstRoomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do you go first?'**
+  String get onboardingV2FirstRoomTitle;
+
+  /// No description provided for @onboardingV2FirstRoomSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your mission will get you there — moving breaks sleep inertia.'**
+  String get onboardingV2FirstRoomSubtitle;
+
+  /// No description provided for @onboardingV2RoomKitchen.
+  ///
+  /// In en, this message translates to:
+  /// **'The kitchen'**
+  String get onboardingV2RoomKitchen;
+
+  /// No description provided for @onboardingV2RoomBathroom.
+  ///
+  /// In en, this message translates to:
+  /// **'The bathroom'**
+  String get onboardingV2RoomBathroom;
+
+  /// No description provided for @onboardingV2RoomOutside.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside'**
+  String get onboardingV2RoomOutside;
+
+  /// No description provided for @onboardingV2RoomOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get onboardingV2RoomOther;
+
+  /// No description provided for @onboardingV2WakeRoutineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your morning routine'**
+  String get onboardingV2WakeRoutineTitle;
+
+  /// No description provided for @onboardingV2WakeRoutineSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'After your mission, keep the momentum going. Hold and drag to reorder.'**
+  String get onboardingV2WakeRoutineSubtitle;
+
+  /// No description provided for @onboardingV2WakeRoutineRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Your morning routine'**
+  String get onboardingV2WakeRoutineRow;
+
+  /// No description provided for @onboardingV2SleepTiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you feel tired during the day?'**
+  String get onboardingV2SleepTiredTitle;
+
+  /// No description provided for @onboardingV2SleepTiredOften.
+  ///
+  /// In en, this message translates to:
+  /// **'Often'**
+  String get onboardingV2SleepTiredOften;
+
+  /// No description provided for @onboardingV2SleepTiredSometimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Sometimes'**
+  String get onboardingV2SleepTiredSometimes;
+
+  /// No description provided for @onboardingV2SleepTiredRarely.
+  ///
+  /// In en, this message translates to:
+  /// **'Rarely'**
+  String get onboardingV2SleepTiredRarely;
+
+  /// No description provided for @onboardingV2SleepChallengesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What gets in the way of good sleep?'**
+  String get onboardingV2SleepChallengesTitle;
+
+  /// No description provided for @onboardingV2SleepChallengeHardToFall.
+  ///
+  /// In en, this message translates to:
+  /// **'I struggle to fall asleep'**
+  String get onboardingV2SleepChallengeHardToFall;
+
+  /// No description provided for @onboardingV2SleepChallengeWakeAtNight.
+  ///
+  /// In en, this message translates to:
+  /// **'I wake up during the night'**
+  String get onboardingV2SleepChallengeWakeAtNight;
+
+  /// No description provided for @onboardingV2SleepChallengeLateBed.
+  ///
+  /// In en, this message translates to:
+  /// **'I go to bed too late'**
+  String get onboardingV2SleepChallengeLateBed;
+
+  /// No description provided for @onboardingV2SleepChallengeRacingMind.
+  ///
+  /// In en, this message translates to:
+  /// **'My mind races'**
+  String get onboardingV2SleepChallengeRacingMind;
+
+  /// No description provided for @onboardingV2SleepChallengeNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'I never get enough sleep'**
+  String get onboardingV2SleepChallengeNotEnough;
+
+  /// No description provided for @onboardingV2SleepChallengeGroggy.
+  ///
+  /// In en, this message translates to:
+  /// **'I wake up groggy'**
+  String get onboardingV2SleepChallengeGroggy;
+
+  /// No description provided for @onboardingV2SleepQualityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep quality is everything'**
+  String get onboardingV2SleepQualityTitle;
+
+  /// No description provided for @onboardingV2SleepQualityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep quality is the #1 predictor of an easy wake-up — and of how you feel and perform all day long.'**
+  String get onboardingV2SleepQualityBody;
+
+  /// No description provided for @onboardingV2SleepSolutionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Levio helps you wind down'**
+  String get onboardingV2SleepSolutionTitle;
+
+  /// No description provided for @onboardingV2SleepSolutionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We nudge you to fall asleep at the right time and help you put the screens away, so mornings get easier.'**
+  String get onboardingV2SleepSolutionBody;
+
+  /// No description provided for @onboardingV2ConsistencyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Consistency changes everything'**
+  String get onboardingV2ConsistencyTitle;
+
+  /// No description provided for @onboardingV2ConsistencySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A regular bedtime is the #1 lever. Want a bedtime alarm too?'**
+  String get onboardingV2ConsistencySubtitle;
+
+  /// No description provided for @onboardingV2Recall200kTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join 200,000 early risers'**
+  String get onboardingV2Recall200kTitle;
+
+  /// No description provided for @onboardingV2Recall200kBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re about to join a community that wakes up on their terms — every single morning.'**
+  String get onboardingV2Recall200kBody;
+
+  /// No description provided for @onboardingV2LoadingStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalizing your plan'**
+  String get onboardingV2LoadingStep1;
+
+  /// No description provided for @onboardingV2LoadingStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting up your wake-up mission'**
+  String get onboardingV2LoadingStep2;
+
+  /// No description provided for @onboardingV2LoadingStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Building your morning routine'**
+  String get onboardingV2LoadingStep3;
+
+  /// No description provided for @onboardingV2LoadingStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Building your sleep routine'**
+  String get onboardingV2LoadingStep4;
+
+  /// No description provided for @onboardingV2LoadingStep5.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduling your alarms'**
+  String get onboardingV2LoadingStep5;
+
+  /// No description provided for @onboardingV2LoadingStep6.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalizing your account'**
+  String get onboardingV2LoadingStep6;
 }
 
 class _AppLocalizationsDelegate

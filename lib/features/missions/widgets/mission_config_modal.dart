@@ -53,6 +53,9 @@ Future<MissionConfig?> showMissionConfigModal(
       MaterialPageRoute(
         builder: (_) => RoutinePickerScreen(
           preselected: existing?.selectedItems,
+          // In-app editing exposes the wake/night catalog switch.
+          mode: RoutineMode.wake,
+          showModeToggle: true,
         ),
       ),
     );

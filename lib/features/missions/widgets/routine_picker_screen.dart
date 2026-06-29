@@ -7,13 +7,35 @@ import '../services/custom_items_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
+/// Which preset catalog the routine picker offers.
+enum RoutineMode { wake, night }
+
+/// Union of every built-in routine label across catalogs — used to tell preset
+/// steps apart from user-added custom ones.
+final Set<String> _allPresetSteps = {
+  ...routinePresetSteps,
+  ...routineWakePresetSteps,
+  ...routineNightPresetSteps,
+};
+
 /// Full-screen chip picker to build a wind-down / wake-up routine. Returns the
 /// selected step labels (built-in + custom) as a `List<String>`, or null when
 /// cancelled.
+///
+/// [mode] selects the preset catalog (wake vs night); when null the legacy
+/// catalog is used. Set [showModeToggle] (in-app only) to let the user switch
+/// between wake and night catalogs from a segmented control.
 class RoutinePickerScreen extends StatefulWidget {
   final List<String>? preselected;
+  final RoutineMode? mode;
+  final bool showModeToggle;
 
-  const RoutinePickerScreen({super.key, this.preselected});
+  const RoutinePickerScreen({
+    super.key,
+    this.preselected,
+    this.mode,
+    this.showModeToggle = false,
+  });
 
   @override
   State<RoutinePickerScreen> createState() => _RoutinePickerScreenState();
@@ -23,15 +45,29 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
   // Ordered list of chosen steps (shown as cards). A step in here is removed
   // from the chip pool; deleting its card returns the chip.
   late List<String> _selected;
+  late RoutineMode? _mode;
   List<String> _customSteps = [];
   bool _loading = true;
 
+  /// Preset catalog for the active mode (legacy list when no mode is set).
+  List<String> get _presetSteps {
+    switch (_mode) {
+      case RoutineMode.wake:
+        return routineWakePresetSteps;
+      case RoutineMode.night:
+        return routineNightPresetSteps;
+      case null:
+        return routinePresetSteps;
+    }
+  }
+
   /// All selectable labels (presets + persisted custom steps).
-  List<String> get _allLabels => [...routinePresetSteps, ..._customSteps];
+  List<String> get _allLabels => [..._presetSteps, ..._customSteps];
 
   @override
   void initState() {
     super.initState();
+    _mode = widget.mode;
     // Start from the existing config when editing; otherwise nothing is
     // pre-selected — every chip is available to add.
     _selected = widget.preselected?.toList() ?? <String>[];
@@ -41,9 +77,10 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
   Future<void> _loadCustom() async {
     final custom = await CustomItemsService.getCustomRoutineSteps();
     if (!mounted) return;
-    // Surface any preselected custom steps not yet in the persisted store.
+    // Surface any preselected steps not in any preset catalog or the persisted
+    // store (e.g. custom steps from a saved routine).
     final extra = _selected.where(
-      (s) => !routinePresetSteps.contains(s) && !custom.contains(s),
+      (s) => !_allPresetSteps.contains(s) && !custom.contains(s),
     );
     setState(() {
       _customSteps = [...custom, ...extra];
@@ -114,7 +151,7 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
     if (text == null || text.isEmpty) return;
 
     final isNew =
-        !_customSteps.contains(text) && !routinePresetSteps.contains(text);
+        !_customSteps.contains(text) && !_allPresetSteps.contains(text);
     setState(() {
       if (isNew) _customSteps.add(text);
       // A new custom step goes straight into the routine as a card.
@@ -175,6 +212,19 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
               ),
             ),
             SizedBox(height: 16.h),
+            // Wake/night catalog switch (in-app editing only).
+            if (widget.showModeToggle) ...[
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: _ModeToggle(
+                  mode: _mode ?? RoutineMode.wake,
+                  wakeLabel: l10n.routineModeWake,
+                  nightLabel: l10n.routineModeNight,
+                  onChanged: (m) => setState(() => _mode = m),
+                ),
+              ),
+              SizedBox(height: 16.h),
+            ],
 
             // Chips
             Expanded(
@@ -191,15 +241,36 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Chosen steps, in order, as removable cards.
-                          for (final (i, step) in _selected.indexed)
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 10.h),
-                              child: _StepCard(
-                                index: i + 1,
-                                label: localizedItemName(l10n, step),
-                                onDelete: () =>
-                                    setState(() => _selected.remove(step)),
-                              ),
+                          // Hold-and-drag to reorder.
+                          if (_selected.isNotEmpty)
+                            ReorderableListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              buildDefaultDragHandles: false,
+                              itemCount: _selected.length,
+                              onReorder: (oldIndex, newIndex) {
+                                setState(() {
+                                  if (newIndex > oldIndex) newIndex -= 1;
+                                  final item = _selected.removeAt(oldIndex);
+                                  _selected.insert(newIndex, item);
+                                });
+                              },
+                              itemBuilder: (context, i) {
+                                final step = _selected[i];
+                                return Padding(
+                                  key: ValueKey(step),
+                                  padding: EdgeInsets.only(bottom: 10.h),
+                                  child: ReorderableDelayedDragStartListener(
+                                    index: i,
+                                    child: _StepCard(
+                                      index: i + 1,
+                                      label: localizedItemName(l10n, step),
+                                      onDelete: () => setState(
+                                          () => _selected.remove(step)),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           if (_selected.isNotEmpty) SizedBox(height: 6.h),
                           // Remaining chips (selected steps are pulled out) +
@@ -322,6 +393,65 @@ class _StepCard extends StatelessWidget {
             onTap: withHaptic(onDelete),
             child: Icon(Icons.close, size: 20.sp, color: c.textSecondary),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Segmented wake/night switch shown above the chip pool when editing in-app.
+class _ModeToggle extends StatelessWidget {
+  final RoutineMode mode;
+  final String wakeLabel;
+  final String nightLabel;
+  final ValueChanged<RoutineMode> onChanged;
+
+  const _ModeToggle({
+    required this.mode,
+    required this.wakeLabel,
+    required this.nightLabel,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    Widget segment(RoutineMode m, String label) {
+      final selected = mode == m;
+      return Expanded(
+        child: GestureDetector(
+          onTap: withHaptic(() => onChanged(m)),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: EdgeInsets.symmetric(vertical: 10.h),
+            decoration: BoxDecoration(
+              color: selected ? c.card : Colors.transparent,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: selected ? c.textPrimary : c.textSecondary,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: c.separator,
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Row(
+        children: [
+          segment(RoutineMode.wake, wakeLabel),
+          segment(RoutineMode.night, nightLabel),
         ],
       ),
     );

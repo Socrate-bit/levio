@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/haptic_utils.dart';
 import '../../missions/models/mission.dart';
 
 class MorningPlanStep extends StatelessWidget {
@@ -16,6 +17,16 @@ class MorningPlanStep extends StatelessWidget {
   final List<String> relaxingActivities;
   final bool blockApps;
 
+  // Optional edit hooks (v2). When provided, the matching plan row becomes
+  // tappable and shows an edit affordance. Left null in v1 → read-only.
+  final VoidCallback? onEditTime;
+  final VoidCallback? onEditMission;
+  final VoidCallback? onEditSound;
+  final VoidCallback? onEditDays;
+  final VoidCallback? onEditSleepTime;
+  final VoidCallback? onEditWakeRoutine;
+  final VoidCallback? onEditNightRoutine;
+
   const MorningPlanStep({
     super.key,
     required this.alarmTime,
@@ -26,6 +37,13 @@ class MorningPlanStep extends StatelessWidget {
     this.sleepTime = const TimeOfDay(hour: 22, minute: 30),
     this.relaxingActivities = const [],
     this.blockApps = false,
+    this.onEditTime,
+    this.onEditMission,
+    this.onEditSound,
+    this.onEditDays,
+    this.onEditSleepTime,
+    this.onEditWakeRoutine,
+    this.onEditNightRoutine,
   });
 
   String _fmt(TimeOfDay t) =>
@@ -94,9 +112,9 @@ class MorningPlanStep extends StatelessWidget {
               alignment: WrapAlignment.center,
               children: [
                 _Pill(icon: Icons.timer, label: l10n.onboardingStartsIn(countdown), colors: c),
-                _Pill(icon: Icons.access_time, label: '$dayLabel, $timeStr', colors: c),
-                _Pill(icon: Icons.fitness_center, label: missionName, colors: c),
-                _Pill(icon: Icons.notifications, label: localizedSoundName(l10n, soundId), colors: c),
+                _Pill(icon: Icons.access_time, label: '$dayLabel, $timeStr', colors: c, onTap: onEditTime),
+                _Pill(icon: Icons.fitness_center, label: missionName, colors: c, onTap: onEditMission),
+                _Pill(icon: Icons.notifications, label: localizedSoundName(l10n, soundId), colors: c, onTap: onEditSound),
               ],
             );
           }),
@@ -130,8 +148,18 @@ class MorningPlanStep extends StatelessWidget {
                     icon: Icons.bedtime,
                     label: l10n.onboardingSleepBedtime(_fmt(sleepTime)),
                     colors: c,
+                    onTap: onEditSleepTime,
                   ),
                   _TimelineLine(colors: c),
+                  if (onEditNightRoutine != null) ...[
+                    _TimelineItem(
+                      icon: Icons.self_improvement,
+                      label: _activitiesLabel(l10n),
+                      colors: c,
+                      onTap: onEditNightRoutine,
+                    ),
+                    _TimelineLine(colors: c),
+                  ],
 
                   if (blockApps) ...[
                     _TimelineItem(
@@ -153,8 +181,18 @@ class MorningPlanStep extends StatelessWidget {
                   icon: Icons.fitness_center,
                   label: l10n.onboardingCompleteMission(missionName),
                   colors: c,
+                  onTap: onEditMission,
                 ),
                 _TimelineLine(colors: c),
+                if (onEditWakeRoutine != null) ...[
+                  _TimelineItem(
+                    icon: Icons.checklist,
+                    label: l10n.onboardingV2WakeRoutineRow,
+                    colors: c,
+                    onTap: onEditWakeRoutine,
+                  ),
+                  _TimelineLine(colors: c),
+                ],
                 _TimelineItem(
                   icon: Icons.check_circle,
                   label: l10n.onboardingYoureUp,
@@ -197,10 +235,13 @@ class MorningPlanStep extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
           // Day circles
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(7, (i) =>
-              _DayCircle(localizedDayShort(l10n, i)[0], repeatDays[i], c),
+          GestureDetector(
+            onTap: onEditDays,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(7, (i) =>
+                _DayCircle(localizedDayShort(l10n, i)[0], repeatDays[i], c),
+              ),
             ),
           ),
           SizedBox(height: 32.h),
@@ -214,27 +255,42 @@ class _Pill extends StatelessWidget {
   final IconData icon;
   final String label;
   final AppColors colors;
+  final VoidCallback? onTap;
 
-  const _Pill({required this.icon, required this.label, required this.colors});
+  const _Pill({
+    required this.icon,
+    required this.label,
+    required this.colors,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: colors.card,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: colors.separator),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16.sp, color: colors.textSecondary),
-          SizedBox(width: 6.w),
-          Text(label,
-              style:
-                  TextStyle(fontSize: 13.sp, color: colors.textPrimary)),
-        ],
+    return GestureDetector(
+      onTap: onTap == null ? null : withHaptic(onTap!),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: colors.card,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: onTap != null ? AppColors.orange : colors.separator,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16.sp, color: colors.textSecondary),
+            SizedBox(width: 6.w),
+            Text(label,
+                style:
+                    TextStyle(fontSize: 13.sp, color: colors.textPrimary)),
+            if (onTap != null) ...[
+              SizedBox(width: 6.w),
+              Icon(Icons.edit, size: 12.sp, color: AppColors.orange),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -245,39 +301,46 @@ class _TimelineItem extends StatelessWidget {
   final String label;
   final AppColors colors;
   final bool isLast;
+  final VoidCallback? onTap;
 
   const _TimelineItem({
     required this.icon,
     required this.label,
     required this.colors,
     this.isLast = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 36.w,
-          height: 36.h,
-          decoration: BoxDecoration(
-            color: colors.separator,
-            shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: onTap == null ? null : withHaptic(onTap!),
+      child: Row(
+        children: [
+          Container(
+            width: 36.w,
+            height: 36.h,
+            decoration: BoxDecoration(
+              color: colors.separator,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 18.sp, color: colors.textPrimary),
           ),
-          child: Icon(icon, size: 18.sp, color: colors.textPrimary),
-        ),
-        SizedBox(width: 14.w),
-        Expanded(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: colors.textPrimary,
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: colors.textPrimary,
+              ),
             ),
           ),
-        ),
-      ],
+          if (onTap != null)
+            Icon(Icons.edit, size: 14.sp, color: AppColors.orange),
+        ],
+      ),
     );
   }
 }

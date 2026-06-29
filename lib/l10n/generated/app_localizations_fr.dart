@@ -2514,4 +2514,215 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get alarmPermissionNotNow => 'Plus tard';
+
+  @override
+  String get routineOpenCurtains => 'Ouvrir les rideaux ou la lumière';
+
+  @override
+  String get routineExercise => 'Faire 10 pompes ou 20 squats';
+
+  @override
+  String get routineShower => 'Prendre une douche';
+
+  @override
+  String get routineBreakfast => 'Prendre le petit-déjeuner';
+
+  @override
+  String get routineGetDressed => 'S\'habiller';
+
+  @override
+  String get routinePutPhoneAway => 'Ranger son téléphone';
+
+  @override
+  String get routineLowerTemp => 'Baisser la température de la pièce';
+
+  @override
+  String get routineModeWake => 'Matin';
+
+  @override
+  String get routineModeNight => 'Soir';
+
+  @override
+  String get onboardingV2MultiSelectHint =>
+      'Sélectionnez tout ce qui s\'applique';
+
+  @override
+  String get onboardingV2WakeChallengesTitle =>
+      'Qu\'est-ce qui est le plus dur au réveil ?';
+
+  @override
+  String get onboardingV2WakeChallengeSleepThrough =>
+      'Je n\'entends pas mon alarme';
+
+  @override
+  String get onboardingV2WakeChallengeSnooze =>
+      'Je suis pris dans la boucle du rappel';
+
+  @override
+  String get onboardingV2WakeChallengeStayInBed =>
+      'Je reste trop longtemps au lit';
+
+  @override
+  String get onboardingV2WakeChallengeScroll =>
+      'Je scrolle mon téléphone au réveil';
+
+  @override
+  String get onboardingV2WakeChallengeFallAsleep => 'Je me rendors';
+
+  @override
+  String get onboardingV2WakeChallengeTired => 'Je me sens complètement épuisé';
+
+  @override
+  String get onboardingV2WakeChallengeMindFog => 'J\'ai l\'esprit embrumé';
+
+  @override
+  String get onboardingV2WakeChallengeAnxiety =>
+      'Je me réveille anxieux ou stressé';
+
+  @override
+  String get onboardingV2DesiredFeelingsTitle =>
+      'Comment voulez-vous vous réveiller ?';
+
+  @override
+  String get onboardingV2FeelWakeStraight => 'Debout du premier coup';
+
+  @override
+  String get onboardingV2FeelEnergy => 'Plein d\'énergie';
+
+  @override
+  String get onboardingV2FeelGood => 'Bien dans ma peau';
+
+  @override
+  String get onboardingV2FeelConfident => 'En confiance';
+
+  @override
+  String get onboardingV2FeelWinDay => 'Prêt à gagner ma journée';
+
+  @override
+  String get onboardingV2ProofScientistsTitle =>
+      'Conçu avec des scientifiques du sommeil';
+
+  @override
+  String get onboardingV2ProofScientistsBody =>
+      'La méthode Levio s\'appuie sur la recherche sur les rythmes circadiens et l\'inertie du sommeil : chaque étape est pensée pour vraiment vous lever.';
+
+  @override
+  String get onboardingV2Proof200kTitle => '200 000 matins gagnés';
+
+  @override
+  String get onboardingV2Proof200kBody =>
+      'Dans plus de 30 pays, des personnes utilisent Levio pour vaincre le rappel d\'alarme et commencer la journée à leurs conditions.';
+
+  @override
+  String get onboardingV2FirstRoomTitle => 'Où allez-vous en premier ?';
+
+  @override
+  String get onboardingV2FirstRoomSubtitle =>
+      'Votre mission vous y mènera — bouger casse l\'inertie du sommeil.';
+
+  @override
+  String get onboardingV2RoomKitchen => 'La cuisine';
+
+  @override
+  String get onboardingV2RoomBathroom => 'La salle de bain';
+
+  @override
+  String get onboardingV2RoomOutside => 'Dehors';
+
+  @override
+  String get onboardingV2RoomOther => 'Autre chose';
+
+  @override
+  String get onboardingV2WakeRoutineTitle => 'Créez votre routine du matin';
+
+  @override
+  String get onboardingV2WakeRoutineSubtitle =>
+      'Après votre mission, gardez l\'élan. Maintenez et glissez pour réorganiser.';
+
+  @override
+  String get onboardingV2WakeRoutineRow => 'Votre routine du matin';
+
+  @override
+  String get onboardingV2SleepTiredTitle =>
+      'Vous sentez-vous fatigué dans la journée ?';
+
+  @override
+  String get onboardingV2SleepTiredOften => 'Souvent';
+
+  @override
+  String get onboardingV2SleepTiredSometimes => 'Parfois';
+
+  @override
+  String get onboardingV2SleepTiredRarely => 'Rarement';
+
+  @override
+  String get onboardingV2SleepChallengesTitle =>
+      'Qu\'est-ce qui nuit à votre sommeil ?';
+
+  @override
+  String get onboardingV2SleepChallengeHardToFall =>
+      'J\'ai du mal à m\'endormir';
+
+  @override
+  String get onboardingV2SleepChallengeWakeAtNight => 'Je me réveille la nuit';
+
+  @override
+  String get onboardingV2SleepChallengeLateBed => 'Je me couche trop tard';
+
+  @override
+  String get onboardingV2SleepChallengeRacingMind => 'Mon esprit s\'emballe';
+
+  @override
+  String get onboardingV2SleepChallengeNotEnough => 'Je ne dors jamais assez';
+
+  @override
+  String get onboardingV2SleepChallengeGroggy => 'Je me réveille groggy';
+
+  @override
+  String get onboardingV2SleepQualityTitle =>
+      'La qualité du sommeil, c\'est tout';
+
+  @override
+  String get onboardingV2SleepQualityBody =>
+      'La qualité du sommeil est le premier facteur d\'un réveil facile — et de votre forme tout au long de la journée.';
+
+  @override
+  String get onboardingV2SleepSolutionTitle => 'Levio vous aide à décompresser';
+
+  @override
+  String get onboardingV2SleepSolutionBody =>
+      'On vous invite à vous endormir au bon moment et à ranger les écrans, pour que les matins deviennent plus faciles.';
+
+  @override
+  String get onboardingV2ConsistencyTitle => 'La régularité change tout';
+
+  @override
+  String get onboardingV2ConsistencySubtitle =>
+      'Une heure de coucher régulière est le levier n°1. Vous voulez aussi une alarme de coucher ?';
+
+  @override
+  String get onboardingV2Recall200kTitle => 'Rejoignez 200 000 lève-tôt';
+
+  @override
+  String get onboardingV2Recall200kBody =>
+      'Vous êtes sur le point de rejoindre une communauté qui se réveille à ses conditions — chaque matin.';
+
+  @override
+  String get onboardingV2LoadingStep1 => 'Personnalisation de votre plan';
+
+  @override
+  String get onboardingV2LoadingStep2 =>
+      'Configuration de votre mission de réveil';
+
+  @override
+  String get onboardingV2LoadingStep3 => 'Création de votre routine du matin';
+
+  @override
+  String get onboardingV2LoadingStep4 => 'Création de votre routine de sommeil';
+
+  @override
+  String get onboardingV2LoadingStep5 => 'Programmation de vos alarmes';
+
+  @override
+  String get onboardingV2LoadingStep6 => 'Finalisation de votre compte';
 }

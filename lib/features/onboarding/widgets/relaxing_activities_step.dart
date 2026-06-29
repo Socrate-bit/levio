@@ -16,6 +16,11 @@ class RelaxingActivitiesStep extends StatelessWidget {
   final String subtitle;
   final List<String> selected;
   final ValueChanged<List<String>> onChanged;
+  // Which preset catalog the picker offers (v2 passes wake/night). Null keeps
+  // the legacy catalog for the v1 funnel.
+  final RoutineMode? mode;
+  // Leading icon on the tappable card (bedtime by default, sun for wake).
+  final IconData leadingIcon;
 
   const RelaxingActivitiesStep({
     super.key,
@@ -23,13 +28,15 @@ class RelaxingActivitiesStep extends StatelessWidget {
     required this.subtitle,
     required this.selected,
     required this.onChanged,
+    this.mode,
+    this.leadingIcon = Icons.bedtime_outlined,
   });
 
   Future<void> _openPicker(BuildContext context) async {
     final result = await Navigator.push<List<String>>(
       context,
       MaterialPageRoute(
-        builder: (_) => RoutinePickerScreen(preselected: selected),
+        builder: (_) => RoutinePickerScreen(preselected: selected, mode: mode),
       ),
     );
     if (result != null) onChanged(result);
@@ -73,8 +80,7 @@ class RelaxingActivitiesStep extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.bedtime_outlined,
-                      size: 22.sp, color: c.textSecondary),
+                  Icon(leadingIcon, size: 22.sp, color: c.textSecondary),
                   SizedBox(width: 12.w),
                   Expanded(
                     child: Text(
