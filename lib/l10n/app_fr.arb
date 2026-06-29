@@ -523,6 +523,7 @@
   "dismissPhotoNotDetected": "Aucun {target} détecté — réessaie",
   "dismissPhotoError": "Erreur : {error}",
   "dismissPhotoTakePhoto": "PRENDS UNE PHOTO DE",
+  "dismissPhotoFindThis": "TROUVE ÇA",
   "dismissPhotoPickingTarget": "Sélection de ta cible…",
   "dismissSpeechSay": "Dis :",
   "dismissSpeechListening": "Écoute en cours…",
