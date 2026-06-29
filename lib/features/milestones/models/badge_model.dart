@@ -157,3 +157,57 @@ List<BadgeModel> buildAchievementBadges() => [
         displayValue: '4+',
       ),
     ];
+
+/// Sleep (bedtime) achievement badges — unlocked only by completing sleep
+/// alarms, mirroring the wake-up achievement set. Display copy is localized via
+/// l10n_helpers; the strings here are English fallbacks.
+List<BadgeModel> buildSleepAchievementBadges() => [
+      BadgeModel(
+        id: 'first_night',
+        name: 'First Night',
+        description: 'Complete your first wind-down',
+        quote: 'Every good morning begins the night before.',
+        kind: BadgeKind.achievement,
+        displayValue: '1',
+      ),
+      BadgeModel(
+        id: 'early_to_bed',
+        name: 'Early to Bed',
+        description: 'Wind down before 10 PM',
+        quote: 'Rest is the foundation the day is built on.',
+        kind: BadgeKind.achievement,
+        displayValue: '🌙',
+      ),
+      BadgeModel(
+        id: 'calm_mind',
+        name: 'Calm Mind',
+        description: 'Finish a meditation or breathing wind-down',
+        quote: 'A quiet mind sleeps deepest.',
+        kind: BadgeKind.achievement,
+        displayValue: '🧘',
+      ),
+      BadgeModel(
+        id: 'dreamer',
+        name: 'Dreamer',
+        description: 'Use all 6 wind-down missions',
+        quote: 'There is more than one path to a good night.',
+        kind: BadgeKind.achievement,
+        displayValue: '6',
+      ),
+      BadgeModel(
+        id: 'well_rested',
+        name: 'Well Rested',
+        description: 'Reach a 7-day streak on a sleep alarm',
+        quote: 'Seven nights of intention. Sleep becomes a ritual.',
+        kind: BadgeKind.achievement,
+        displayValue: '7',
+      ),
+      BadgeModel(
+        id: 'no_nights_off',
+        name: 'No Nights Off',
+        description: '30 consecutive nights of winding down',
+        quote: 'Consistency is the quietest superpower.',
+        kind: BadgeKind.achievement,
+        displayValue: '30',
+      ),
+    ];

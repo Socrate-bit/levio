@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app.dart';
 import '../../alarms/services/alarm_cascade_controller.dart';
 import '../../alarms/services/alarm_channel.dart';
+import '../../milestones/services/streak_service.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
@@ -20,6 +21,8 @@ class MissionSequenceScreen extends StatefulWidget {
   final String alarmId;
   final String nativeAlarmId;
   final String alarmLabel;
+  // Sleep (bedtime) alarm vs wake-up — drives the start-screen greeting.
+  final bool isSleep;
 
   const MissionSequenceScreen({
     super.key,
@@ -27,6 +30,7 @@ class MissionSequenceScreen extends StatefulWidget {
     required this.alarmId,
     required this.nativeAlarmId,
     required this.alarmLabel,
+    this.isSleep = false,
   });
 
   @override
@@ -36,6 +40,8 @@ class MissionSequenceScreen extends StatefulWidget {
 class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
   int _currentIndex = 0;
   bool _inMission = false;
+  // Current streak shown on the start screen as encouragement (0 until loaded).
+  int _currentStreak = 0;
   final _startTime = DateTime.now();
   late final AlarmCascadeController _cascade;
 
@@ -55,6 +61,13 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
     // Top up the burst queue — if the user skipped prior cascades, only the
     // master may be live when the app opens. No-op when the queue is full.
     AlarmChannel.primeCascadeIfNeeded(widget.alarmId).ignore();
+    _loadStreak();
+  }
+
+  // Fetches the current streak to display as encouragement on the start screen.
+  Future<void> _loadStreak() async {
+    final profile = await StreakService.getProfile();
+    if (mounted) setState(() => _currentStreak = profile.currentStreak);
   }
 
   /// Resolves a random mission config to a concrete mission type.
@@ -173,6 +186,8 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
       totalMissions: _resolvedMissions.length,
       missionType: _resolvedMissions[_currentIndex].type,
       onStart: _startMission,
+      isSleep: widget.isSleep,
+      currentStreak: _currentStreak,
     );
   }
 }

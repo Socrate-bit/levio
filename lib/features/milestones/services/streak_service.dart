@@ -29,7 +29,10 @@ class StreakProfile {
   final int totalWakeups;
   final List<String> earnedBadgeIds;
   final List<String> usedSoundIds;
+  // Mission types completed on wake-up alarms (drives the wake "Versatile" badge).
   final List<String> usedMissionTypeNames;
+  // Mission types completed on sleep alarms (drives the sleep "Dreamer" badge).
+  final List<String> usedSleepMissionTypeNames;
 
   const StreakProfile({
     this.currentStreak = 0,
@@ -39,6 +42,7 @@ class StreakProfile {
     this.earnedBadgeIds = const [],
     this.usedSoundIds = const [],
     this.usedMissionTypeNames = const [],
+    this.usedSleepMissionTypeNames = const [],
   });
 
   factory StreakProfile.fromMap(Map<String, dynamic> data) => StreakProfile(
@@ -54,6 +58,8 @@ class StreakProfile {
         usedSoundIds: List<String>.from(data['usedSoundIds'] as List? ?? []),
         usedMissionTypeNames:
             List<String>.from(data['usedMissionTypeNames'] as List? ?? []),
+        usedSleepMissionTypeNames: List<String>.from(
+            data['usedSleepMissionTypeNames'] as List? ?? []),
       );
 
   Map<String, dynamic> toMap() => {
@@ -64,8 +70,20 @@ class StreakProfile {
         'earnedBadgeIds': earnedBadgeIds,
         'usedSoundIds': usedSoundIds,
         'usedMissionTypeNames': usedMissionTypeNames,
+        'usedSleepMissionTypeNames': usedSleepMissionTypeNames,
       };
 }
+
+/// Mission types that count toward the sleep "Dreamer" badge (all 6 wind-down
+/// missions).
+const _sleepMissionTypes = <MissionType>[
+  MissionType.breathing,
+  MissionType.meditation,
+  MissionType.gratefulness,
+  MissionType.routine,
+  MissionType.bedPhoto,
+  MissionType.affirmation,
+];
 
 class WakeupResult {
   final int newStreak;
@@ -108,22 +126,23 @@ class StreakService {
     String? soundId,
     int timeTakenSeconds = 0,
     MissionType? missionType,
+    bool isSleep = false,
   }) async {
     final profile = await getProfile();
     final now = DateTime.now();
 
-    // Already woken up today — no streak update
-    if (profile.lastWakeupDate != null &&
-        _isSameDay(profile.lastWakeupDate!, now)) {
-      return WakeupResult(
-          newStreak: profile.currentStreak, newlyEarnedBadges: []);
-    }
+    // Streak advances at most once per day, but later same-day completions must
+    // still be evaluated for badges — e.g. a sleep alarm the same evening as the
+    // morning wake-up shares the calendar day yet should still award sleep badges.
+    final alreadyToday = profile.lastWakeupDate != null &&
+        _isSameDay(profile.lastWakeupDate!, now);
 
     // -------------------------------------------------------------------------
     // Streak: walk backward from today; freezes (max 2/week, max 2 in a row)
     // bridge missed days; first session date stops the walk.
     // -------------------------------------------------------------------------
-    final newStreak = await computeCurrentStreak();
+    final newStreak =
+        alreadyToday ? profile.currentStreak : await computeCurrentStreak();
     final newLongest =
         newStreak > profile.longestStreak ? newStreak : profile.longestStreak;
 
@@ -134,7 +153,7 @@ class StreakService {
     final newlyEarned = <BadgeModel>[];
     final updatedBadgeIds = List<String>.from(profile.earnedBadgeIds);
 
-    // Streak badges
+    // Streak badges (shared across wake-up and sleep alarms).
     for (final badge in allStreakBadges) {
       if (!updatedBadgeIds.contains(badge.id) &&
           badge.requiredDays != null &&
@@ -144,60 +163,92 @@ class StreakService {
       }
     }
 
-    final achieveBadges = buildAchievementBadges();
-
-    // Blitz: dismissed in under 15s
-    if (!updatedBadgeIds.contains('blitz') && timeTakenSeconds < 15 && timeTakenSeconds > 0) {
-      final blitz = achieveBadges.firstWhere((b) => b.id == 'blitz');
-      newlyEarned.add(blitz.copyWith(earned: true, earnedDate: now));
-      updatedBadgeIds.add('blitz');
-    }
-
-    // First Light: before 5:30 AM
-    if (!updatedBadgeIds.contains('first_light') &&
-        (now.hour < 5 || (now.hour == 5 && now.minute < 30))) {
-      final fl = achieveBadges.firstWhere((b) => b.id == 'first_light');
-      newlyEarned.add(fl.copyWith(earned: true, earnedDate: now));
-      updatedBadgeIds.add('first_light');
-    }
-
-    // Audiophile: 4+ distinct sounds
+    // Variety trackers accrue per alarm type so wake badges derive purely from
+    // wake-up alarms and sleep badges purely from sleep alarms.
     final updatedSounds = List<String>.from(profile.usedSoundIds);
-    if (soundId != null && soundId.isNotEmpty && !updatedSounds.contains(soundId)) {
-      updatedSounds.add(soundId);
-    }
-    if (!updatedBadgeIds.contains('audiophile') && updatedSounds.length >= 4) {
-      final audio = achieveBadges.firstWhere((b) => b.id == 'audiophile');
-      newlyEarned.add(audio.copyWith(earned: true, earnedDate: now));
-      updatedBadgeIds.add('audiophile');
-    }
-
-    // Converted: first time streak hits 7
-    if (!updatedBadgeIds.contains('converted') && newStreak == 7) {
-      final conv = achieveBadges.firstWhere((b) => b.id == 'converted');
-      newlyEarned.add(conv.copyWith(earned: true, earnedDate: now));
-      updatedBadgeIds.add('converted');
-    }
-
-    // Versatile: all mission types used
     final updatedMissions = List<String>.from(profile.usedMissionTypeNames);
-    if (missionType != null && missionType != MissionType.none &&
-        !updatedMissions.contains(missionType.name)) {
-      updatedMissions.add(missionType.name);
-    }
-    if (!updatedBadgeIds.contains('versatile') &&
-        updatedMissions.length >=
-            MissionType.values.where((t) => t != MissionType.none).length) {
-      final vers = achieveBadges.firstWhere((b) => b.id == 'versatile');
-      newlyEarned.add(vers.copyWith(earned: true, earnedDate: now));
-      updatedBadgeIds.add('versatile');
+    final updatedSleepMissions =
+        List<String>.from(profile.usedSleepMissionTypeNames);
+
+    void earn(List<BadgeModel> pool, String id) {
+      if (updatedBadgeIds.contains(id)) return;
+      newlyEarned.add(
+          pool.firstWhere((b) => b.id == id).copyWith(earned: true, earnedDate: now));
+      updatedBadgeIds.add(id);
     }
 
-    // No Days Off: 30 consecutive days
-    if (!updatedBadgeIds.contains('no_days_off') && newStreak >= 30) {
-      final ndo = achieveBadges.firstWhere((b) => b.id == 'no_days_off');
-      newlyEarned.add(ndo.copyWith(earned: true, earnedDate: now));
-      updatedBadgeIds.add('no_days_off');
+    // -------------------------------------------------------------------------
+    // Achievement badges — gated by alarm type so each set only ever unlocks on
+    // its matching alarm. Sleep alarms never award wake-up badges and vice versa.
+    // -------------------------------------------------------------------------
+    if (isSleep) {
+      final sleepBadges = buildSleepAchievementBadges();
+
+      // First Night: first completed sleep alarm.
+      earn(sleepBadges, 'first_night');
+
+      // Early to Bed: wind down in the evening, before 10 PM (excludes
+      // after-midnight completions, which are the opposite of "early").
+      if (now.hour >= 18 && now.hour < 22) earn(sleepBadges, 'early_to_bed');
+
+      // Calm Mind: a meditation or breathing wind-down.
+      if (missionType == MissionType.meditation ||
+          missionType == MissionType.breathing) {
+        earn(sleepBadges, 'calm_mind');
+      }
+
+      // Dreamer: all wind-down mission types used on sleep alarms.
+      if (missionType != null &&
+          missionType != MissionType.none &&
+          !updatedSleepMissions.contains(missionType.name)) {
+        updatedSleepMissions.add(missionType.name);
+      }
+      if (_sleepMissionTypes.every((t) => updatedSleepMissions.contains(t.name))) {
+        earn(sleepBadges, 'dreamer');
+      }
+
+      // Well Rested: a 7-day streak reached via a sleep alarm.
+      if (newStreak >= 7) earn(sleepBadges, 'well_rested');
+
+      // No Nights Off: 30 consecutive nights.
+      if (newStreak >= 30) earn(sleepBadges, 'no_nights_off');
+    } else {
+      final achieveBadges = buildAchievementBadges();
+
+      // Blitz: dismissed in under 15s.
+      if (timeTakenSeconds < 15 && timeTakenSeconds > 0) {
+        earn(achieveBadges, 'blitz');
+      }
+
+      // First Light: before 5:30 AM.
+      if (now.hour < 5 || (now.hour == 5 && now.minute < 30)) {
+        earn(achieveBadges, 'first_light');
+      }
+
+      // Audiophile: 4+ distinct sounds on wake-up alarms.
+      if (soundId != null &&
+          soundId.isNotEmpty &&
+          !updatedSounds.contains(soundId)) {
+        updatedSounds.add(soundId);
+      }
+      if (updatedSounds.length >= 4) earn(achieveBadges, 'audiophile');
+
+      // Converted: streak of 7 reached via a wake-up alarm.
+      if (newStreak >= 7) earn(achieveBadges, 'converted');
+
+      // Versatile: all mission types used on wake-up alarms.
+      if (missionType != null &&
+          missionType != MissionType.none &&
+          !updatedMissions.contains(missionType.name)) {
+        updatedMissions.add(missionType.name);
+      }
+      if (updatedMissions.length >=
+          MissionType.values.where((t) => t != MissionType.none).length) {
+        earn(achieveBadges, 'versatile');
+      }
+
+      // No Days Off: 30 consecutive days.
+      if (newStreak >= 30) earn(achieveBadges, 'no_days_off');
     }
 
     // -------------------------------------------------------------------------
@@ -210,6 +261,7 @@ class StreakService {
       'earnedBadgeIds': updatedBadgeIds,
       'usedSoundIds': updatedSounds,
       'usedMissionTypeNames': updatedMissions,
+      'usedSleepMissionTypeNames': updatedSleepMissions,
     }, SetOptions(merge: true));
 
     if (newStreak > profile.currentStreak) {

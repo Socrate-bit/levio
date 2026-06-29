@@ -87,6 +87,7 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
         soundId: session?.soundId ?? 'default',
         timeTakenSeconds: widget.timeTakenSeconds,
         missionType: widget.missionType,
+        isSleep: _isSleep,
       );
       final total = await HistoryService.getTotalWakeups();
 
