@@ -14,21 +14,10 @@ import '../services/notification_service.dart';
 import 'alarm_state.dart';
 
 class AlarmCubit extends Cubit<AlarmState> {
-  AlarmCubit() : super(const AlarmState()) {
-    _init();
-  }
-
-  /// Constructor-side init: only request native AlarmKit authorization.
-  /// Firestore reconciliation lives in [sync] and is gated by access in
-  /// AppGateWrapper.
-  Future<void> _init() async {
-    try {
-      await AlarmChannel.requestAuthorization();
-    } catch (e, st) {
-      debugPrint('[AlarmCubit] requestAuthorization failed: $e');
-      AnalyticsService.trackError('AlarmCubit._init', e, st);
-    }
-  }
+  // AlarmKit authorization is requested contextually (right before the user
+  // picks their alarm time in onboarding), not at launch. Firestore
+  // reconciliation lives in [sync] and is gated by access in AppGateWrapper.
+  AlarmCubit() : super(const AlarmState());
 
   /// Debug: dumps native AlarmKit alarms and cross-references with Flutter state.
   Future<void> printActiveAlarms() async {

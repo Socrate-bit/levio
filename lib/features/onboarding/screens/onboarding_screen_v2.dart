@@ -6,9 +6,11 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
+import '../../../shared/services/branch_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/loading_barrier.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
+import '../../alarms/services/alarm_channel.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/routine_picker_screen.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
@@ -167,6 +169,16 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     OnboardingState state,
     OnboardingCubit cubit,
   ) async {
+    // Ask for AlarmKit authorization right before the wake-up time picker, so
+    // the prompt lands in context (the next page is where they set the alarm).
+    if (_currentPage == 10) {
+      try {
+        await AlarmChannel.requestAuthorization();
+      } catch (e) {
+        debugPrint('[OnboardingScreenV2] requestAuthorization failed: $e');
+      }
+      if (!mounted) return;
+    }
     if (_currentPage == 11) {
       final alarm = _alarmTimeNotifier.value;
       cubit.setAlarmTime(alarm);
@@ -934,7 +946,11 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
       // 29: loading
       LoadingStep(
         onComplete: () {
-          if (mounted) _next();
+          if (!mounted) return;
+          // Reveal the plan recap, then ask for ad-tracking (ATT) so the
+          // prompt lands over the revealed plan.
+          _next();
+          BranchService.requestTrackingAuthorization();
         },
         steps: [
           l10n.onboardingV2LoadingStep1,

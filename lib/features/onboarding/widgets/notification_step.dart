@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
-import '../../alarms/services/alarm_channel.dart';
+import '../../alarms/services/notification_service.dart';
 
 class NotificationStep extends StatelessWidget {
   final VoidCallback onNext;
@@ -51,7 +51,7 @@ class NotificationStep extends StatelessWidget {
             height: 56.h,
             child: ElevatedButton(
               onPressed: withHaptic(() async {
-                await AlarmChannel.requestAuthorization();
+                await NotificationService.requestPermission();
                 onNext();
               }),
               style: ElevatedButton.styleFrom(
