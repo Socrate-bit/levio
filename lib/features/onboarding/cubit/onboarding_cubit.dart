@@ -573,7 +573,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       }
     }
 
-    final keepRinging = state.keepAlarmDuringMission ?? true;
+    final keepRinging = state.keepAlarmDuringMission ?? false;
     await settingsCubit.setKeepAlarmDuringMission(keepRinging);
 
     final uid = AuthService.uidOrNull;
