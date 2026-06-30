@@ -255,6 +255,9 @@ class _ForcedHuntTargetPickerScreenState
       itemBuilder: (_, i) {
         final label = _customObjects[i];
         return Stack(
+          // Expand so the tile fills the grid cell instead of shrinking to its
+          // content (default StackFit.loose would let the Column size to min).
+          fit: StackFit.expand,
           children: [
             _PickerTile(
               emoji: _customEmojis[label] ?? '\u{2b50}',
