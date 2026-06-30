@@ -357,6 +357,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           id: '',
           dateTime: nextOccurrence(state.sleepTime),
           missions: [
+            // Guided breathing precedes the habit routine on the sleep alarm.
+            const MissionConfig(type: MissionType.breathing),
             MissionConfig(type: MissionType.routine, selectedItems: steps),
           ],
           name: 'Levio',
@@ -523,6 +525,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           id: '',
           dateTime: nextOccurrence(state.sleepTime),
           missions: [
+            // Guided breathing precedes the habit routine on the sleep alarm.
+            const MissionConfig(type: MissionType.breathing),
             MissionConfig(type: MissionType.routine, selectedItems: steps),
           ],
           name: 'Levio',
