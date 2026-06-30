@@ -8,6 +8,7 @@ import 'package:levio/app.dart';
 import 'package:levio/features/alarms/services/notification_service.dart';
 import 'package:levio/features/onboarding/services/onboarding_ab_service.dart';
 import 'package:levio/features/subscription/services/analytics_service.dart';
+import 'package:levio/features/subscription/services/superwall_event_delegate.dart';
 import 'package:levio/firebase_options.dart';
 import 'package:levio/shared/services/branch_service.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
@@ -28,6 +29,8 @@ void main() async {
   // Match paywall locale to the device locale (e.g. "en_US", "fr_FR").
   final options = SuperwallOptions()..localeIdentifier = Platform.localeName;
   Superwall.configure('pk_H0nPpphGj3awY7K1T2ngX', options: options);
+  // Fire Branch PURCHASE on a real paid subscription (not a free trial).
+  Superwall.shared.setDelegate(SuperwallEventDelegate());
 
   // Initialize Branch (requests ATT, then inits + listens for sessions) after
   // the first frame. iOS only shows the ATT prompt when the app is in an
