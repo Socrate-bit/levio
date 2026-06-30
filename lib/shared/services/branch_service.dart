@@ -78,6 +78,43 @@ class BranchService {
     }
   }
 
+  /// Fires the Branch standard COMPLETE_REGISTRATION event when onboarding
+  /// finishes. No-ops (with a log) if Branch hasn't initialized yet.
+  static void trackCompleteRegistration() {
+    if (!_initialized) {
+      debugPrint(
+          '[BranchService] trackCompleteRegistration skipped: not initialized');
+      return;
+    }
+    try {
+      // Standard event: map COMPLETE_REGISTRATION -> TikTok's Complete
+      // Registration in Branch's Events Config tab (not automatic).
+      final event =
+          BranchEvent.standardEvent(BranchStandardEvent.COMPLETE_REGISTRATION);
+      FlutterBranchSdk.trackContentWithoutBuo(branchEvent: event);
+    } catch (e) {
+      debugPrint('[BranchService] trackCompleteRegistration failed: $e');
+    }
+  }
+
+  /// Fires the Branch standard PURCHASE event for a real paid subscription
+  /// (NOT a free trial — that is reported via [trackTrialStart]). No-ops (with
+  /// a log) if Branch hasn't initialized yet.
+  static void trackPurchase() {
+    if (!_initialized) {
+      debugPrint('[BranchService] trackPurchase skipped: not initialized');
+      return;
+    }
+    try {
+      // Standard event: map PURCHASE -> TikTok's Purchase in Branch's Events
+      // Config tab (not automatic).
+      final event = BranchEvent.standardEvent(BranchStandardEvent.PURCHASE);
+      FlutterBranchSdk.trackContentWithoutBuo(branchEvent: event);
+    } catch (e) {
+      debugPrint('[BranchService] trackPurchase failed: $e');
+    }
+  }
+
   /// Cancels the session listener. Not normally needed (lives for app
   /// lifetime), provided for completeness.
   static Future<void> dispose() async {

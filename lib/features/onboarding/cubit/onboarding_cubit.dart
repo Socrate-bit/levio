@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../shared/services/branch_service.dart';
 import '../../auth/auth_service.dart';
 import '../../subscription/services/analytics_service.dart';
 import '../../subscription/services/referral_service.dart';
@@ -44,6 +45,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       AnalyticsService.onboardingStep,
       {'step_name': 'finish'},
     );
+    // Branch conversion: registration funnel completed.
+    BranchService.trackCompleteRegistration();
   }
 
   // Formats a TimeOfDay as HH:mm for analytics properties.
