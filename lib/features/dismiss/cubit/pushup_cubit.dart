@@ -36,7 +36,7 @@ class PushUpCubit extends Cubit<PushUpState> {
   double? _smoothAngle; // EMA-smoothed elbow angle
   int _repCount = 0;
   static const double _upEnter = 160.0; // arms (near) extended
-  static const double _downEnter = 110.0; // full depth
+  static const double _downEnter = 125.0; // depth needed to count (relaxed)
   static const double _partial = 140.0; // started going down
   static const double _emaAlpha = 0.6; // weight of the newest sample
 
@@ -310,19 +310,17 @@ class PushUpCubit extends Cubit<PushUpState> {
 
   Future<void> stopSession({bool goalReached = false}) async {
     final count = _repCount;
-    _processing = false;
     await _camera?.stopImageStream();
-    // Emit the terminal state before disposing so the view stops building
-    // CameraPreview; disposing while it is still mounted throws.
+    _camera = null;
+    _detector?.close();
+    _detector = null;
+    _processing = false;
     if (goalReached) {
       emit(SessionGoalReached(repCount: count));
     } else {
       emit(SessionComplete(repCount: count));
     }
     await _camera?.dispose();
-    _camera = null;
-    _detector?.close();
-    _detector = null;
   }
 
   @override
