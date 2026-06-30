@@ -132,9 +132,7 @@ enum ScreenTimeStore {
             ? nil
             : .specific(selection.categoryTokens)
         // Prevent deleting apps (device-wide) while a window is open. (req #4)
-        // The app-removal restriction is only honored on the *default* store, so
-        // apply it there rather than on the named `.levio` store.
-        ManagedSettingsStore().application.denyAppRemoval = true
+        store.application.denyAppRemoval = true
     }
 
     static func clearShield() {
@@ -142,6 +140,5 @@ enum ScreenTimeStore {
         store.shield.applications = nil
         store.shield.applicationCategories = nil
         store.application.denyAppRemoval = false
-        ManagedSettingsStore().application.denyAppRemoval = false
     }
 }
