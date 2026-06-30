@@ -534,21 +534,25 @@ const routinePresetSteps = <String>[
 
 /// The built-in wind-down (night) routine step labels for the v2 funnel.
 const routineNightPresetSteps = <String>[
-  'Put your phone away',
+  // First 3 are the defaults pre-selected during onboarding.
   'Dim your light',
-  'Lower the room temperature',
   'Prepare your clothes',
+  'Put your phone away',
+  'Lower the room temperature',
+  'Take a shower',
+  'Brush your teeth',
   'Todo list for next day',
   'Read',
 ];
 
 /// The built-in wake-up (morning) routine step labels for the v2 funnel.
 const routineWakePresetSteps = <String>[
+  // First 3 are the defaults pre-selected during onboarding.
+  'Take a shower',
+  'Brush your teeth',
+  'Get dressed',
   'Open curtains or lights',
   'Do 10 push-ups or 20 squats',
   'Drink a glass of water',
-  'Take a shower',
   'Have breakfast',
-  'Brush your teeth',
-  'Get dressed',
 ];
