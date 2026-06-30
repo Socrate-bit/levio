@@ -143,16 +143,33 @@ class _SessionTile extends StatelessWidget {
     final secs = session.timeTakenSeconds % 60;
     final durationStr = mins > 0 ? '${mins}m ${secs}s' : '${secs}s';
 
-    final relapse = session.relapse;
-    final missed = !session.completed;
-    final iconColor = missed ? c.textSecondary : missionColor;
-    final iconBg = missed
-        ? c.textSecondary.withAlpha(20)
-        : missionColor.withAlpha(25);
-    final statusIcon =
-        relapse ? Icons.app_blocking : Icons.alarm_off_outlined;
-    final statusLabel =
-        relapse ? l10n.sessionsScreenTimeRelapse : l10n.sessionsMissed;
+    final disabled = session.screenTimeDisabled;
+    final incomplete = !session.completed; // disabled or a real missed alarm
+    final missed = incomplete && !disabled; // a real missed alarm only
+
+    // Per-type styling. Screen-time-disabled entries get their own look (its own
+    // icon/color, full opacity) so they read as a distinct event, not a missed
+    // alarm. Real missed alarms stay muted and dimmed.
+    final Color iconColor;
+    final Color iconBg;
+    final IconData statusIcon;
+    final String statusLabel;
+    if (disabled) {
+      iconColor = AppColors.error;
+      iconBg = AppColors.error.withAlpha(25);
+      statusIcon = Icons.app_blocking;
+      statusLabel = l10n.sessionsScreenTimeDisabled;
+    } else if (missed) {
+      iconColor = c.textSecondary;
+      iconBg = c.textSecondary.withAlpha(20);
+      statusIcon = Icons.alarm_off_outlined;
+      statusLabel = l10n.sessionsMissed;
+    } else {
+      iconColor = missionColor;
+      iconBg = missionColor.withAlpha(25);
+      statusIcon = Icons.wb_sunny;
+      statusLabel = missionLabel;
+    }
 
     return GestureDetector(
       onTap: onTap,
@@ -174,7 +191,7 @@ class _SessionTile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Center(
-                  child: missed
+                  child: incomplete
                       ? Icon(statusIcon, color: iconColor, size: 22.sp)
                       : session.missionType != null
                           ? MissionIcon(
@@ -200,7 +217,7 @@ class _SessionTile extends StatelessWidget {
                     ),
                     SizedBox(height: 2.h),
                     Text(
-                      missed ? statusLabel : missionLabel,
+                      incomplete ? statusLabel : missionLabel,
                       style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                     ),
                   ],
@@ -214,7 +231,7 @@ class _SessionTile extends StatelessWidget {
                     style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
                   ),
                   SizedBox(height: 2.h),
-                  if (!missed)
+                  if (!incomplete)
                     Row(
                       children: [
                         Icon(Icons.timer_outlined, size: 12.sp, color: c.textSecondary),

@@ -109,11 +109,11 @@ class HistoryService {
     });
   }
 
-  /// Records a screen-time relapse: the user unlocked the block during an
-  /// active window. Stored as an incomplete, alarm-less session flagged
-  /// `relapse` so it shows a distinct history label and counts as a missed day
-  /// for the streak. Does not increment totalWakeups.
-  static Future<String> recordRelapseSession() async {
+  /// Records the user deactivating screen-time blocking (unlocking the controls
+  /// during an active window). Stored as an incomplete, alarm-less session
+  /// flagged `screenTimeDisabled` so it shows its own distinct history entry and
+  /// counts as a missed day for the streak. Does not increment totalWakeups.
+  static Future<String> recordScreenTimeDisabledSession() async {
     final now = DateTime.now();
     final session = WakeupSession(
       id: '',
@@ -121,7 +121,7 @@ class HistoryService {
       timestamp: now,
       timeTakenSeconds: 0,
       completed: false,
-      relapse: true,
+      screenTimeDisabled: true,
     );
     final docId = now.millisecondsSinceEpoch.toString();
     await _sessions.doc(docId).set(session.toFirestore());

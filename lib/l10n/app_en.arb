@@ -547,7 +547,7 @@
   "sessionsTitle": "All Wakeups",
   "sessionsNoWakeups": "No wakeups yet",
   "sessionsMissed": "Missed",
-  "sessionsScreenTimeRelapse": "Screen-time relapse",
+  "sessionsScreenTimeDisabled": "Screen time disabled",
 
   "quoteEinstein": "In the middle of every difficulty lies opportunity.",
   "quoteEinsteinAuthor": "Albert Einstein",
@@ -1032,6 +1032,7 @@
   "screenTimeUnlockCountdownTitle": "You can unlock in",
   "screenTimeUnlockReadyTitle": "You can unlock now",
   "screenTimeUnlockCountdownHint": "Keep Levio open. Leaving the app restarts the timer.",
+  "screenTimeUnlockStreakWarning": "Deactivating will break your streak.",
   "screenTimeAuthDenied": "Screen Time access is required. Enable it for Levio in iOS Settings.",
   "osUpdateRequiredTitle": "Let's get you updated 🚀",
   "osUpdateRequiredBody": "Levio's alarms run on Apple's newest tech, so your iPhone needs the latest iOS to wake you up. It only takes a few minutes:",

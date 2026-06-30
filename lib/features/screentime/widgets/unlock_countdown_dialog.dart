@@ -62,6 +62,17 @@ class UnlockCountdownDialog extends StatelessWidget {
                         color: c.textPrimary,
                       ),
                     ),
+                    SizedBox(height: 8.h),
+                    // Make the consequence explicit: deactivating breaks the streak.
+                    Text(
+                      l10n.screenTimeUnlockStreakWarning,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.error,
+                      ),
+                    ),
                     SizedBox(height: 20.h),
                     SizedBox(
                       width: 96.w,
