@@ -310,17 +310,19 @@ class PushUpCubit extends Cubit<PushUpState> {
 
   Future<void> stopSession({bool goalReached = false}) async {
     final count = _repCount;
-    await _camera?.stopImageStream();
-    await _camera?.dispose();
-    _camera = null;
-    _detector?.close();
-    _detector = null;
     _processing = false;
+    await _camera?.stopImageStream();
+    // Emit the terminal state before disposing so the view stops building
+    // CameraPreview; disposing while it is still mounted throws.
     if (goalReached) {
       emit(SessionGoalReached(repCount: count));
     } else {
       emit(SessionComplete(repCount: count));
     }
+    await _camera?.dispose();
+    _camera = null;
+    _detector?.close();
+    _detector = null;
   }
 
   @override
