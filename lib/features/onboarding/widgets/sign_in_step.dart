@@ -13,6 +13,7 @@ class SignInStep extends StatefulWidget {
   final VoidCallback? onSignInComplete;
   final bool showSkip;
   final bool blockNewAccounts;
+  final bool showEmail;
   final String title;
   final String subtitle;
 
@@ -22,6 +23,7 @@ class SignInStep extends StatefulWidget {
     this.onSignInComplete,
     this.showSkip = true,
     this.blockNewAccounts = false,
+    this.showEmail = false,
     this.title = 'Create your account',
     this.subtitle = 'Save your progress and sync your plan.',
   });
@@ -184,18 +186,22 @@ class _SignInStepState extends State<SignInStep> {
             ),
           ),
           SizedBox(height: 16.h),
-          // GestureDetector(
-          //   onTap: _loading ? null : withHaptic(_handleEmailAuth),
-          //   child: Text(
-          //     l10n.onboardingSignInEmail,
-          //     style: TextStyle(
-          //       fontSize: 14.sp,
-          //       color: c.textSecondary,
-          //       decoration: TextDecoration.underline,
-          //     ),
-          //   ),
-          // ),
-          // SizedBox(height: 24.h),
+          // Email sign-in link — only on the start-page sign-in screen (Apple
+          // review parity); hidden in the in-funnel onboarding sign-in step.
+          if (widget.showEmail) ...[
+            GestureDetector(
+              onTap: _loading ? null : withHaptic(_handleEmailAuth),
+              child: Text(
+                l10n.onboardingSignInEmail,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: c.textSecondary,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+            SizedBox(height: 24.h),
+          ],
           if (_loading)
             const CircularProgressIndicator()
           else if (widget.showSkip)
