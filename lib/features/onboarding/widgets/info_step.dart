@@ -57,49 +57,49 @@ class InfoStep extends StatelessWidget {
                 Column(
                   crossAxisAlignment: cross,
                   children: [
-              if (imagePlaceholder != null) ...[
-                imagePlaceholder!,
-                SizedBox(height: 18.h),
-              ],
-              Text(
-                title,
-                textAlign: textAlign,
-                style: TextStyle(
-                  fontSize: 28.sp,
-                  fontWeight: FontWeight.bold,
-                  color: c.textPrimary,
-                  height: 1.2,
-                ),
-              ),
-              if (subtitle != null) ...[
-                SizedBox(height: 8.h),
-                Text(
-                  subtitle!,
-                  textAlign: textAlign,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: c.textSecondary,
-                  ),
-                ),
-              ],
-              if (chartPlaceholder != null) ...[
-                SizedBox(height: 18.h),
-                chartPlaceholder!,
-              ],
-              if (bodyText != null) ...[
-                SizedBox(height: 24.h),
-                Text(
-                  bodyText!,
-                  textAlign: textAlign,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    color: c.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ],
+                    if (imagePlaceholder != null) ...[
+                      imagePlaceholder!,
+                      SizedBox(height: 18.h),
+                    ],
+                    Text(
+                      title,
+                      textAlign: textAlign,
+                      style: TextStyle(
+                        fontSize: 28.sp,
+                        fontWeight: FontWeight.bold,
+                        color: c.textPrimary,
+                        height: 1.2,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      SizedBox(height: 8.h),
+                      Text(
+                        subtitle!,
+                        textAlign: textAlign,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: c.textSecondary,
+                        ),
+                      ),
+                    ],
+                    if (chartPlaceholder != null) ...[
+                      SizedBox(height: 18.h),
+                      chartPlaceholder!,
+                    ],
+                    if (bodyText != null) ...[
+                      SizedBox(height: 24.h),
+                      Text(
+                        bodyText!,
+                        textAlign: textAlign,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          color: c.textSecondary,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 // Scientific citations, boxed and badged to read as a research
                 // source, de-emphasized toward the bottom. When absent, a
@@ -121,8 +121,9 @@ class InfoStep extends StatelessWidget {
                             Text('🔬', style: TextStyle(fontSize: 14.sp)),
                             SizedBox(width: 6.w),
                             Text(
-                              AppLocalizations.of(context)
-                                  .onboardingScienceSays,
+                              AppLocalizations.of(
+                                context,
+                              ).onboardingScienceSays,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w700,
@@ -143,9 +144,9 @@ class InfoStep extends StatelessWidget {
                         ),
                       ],
                     ),
-                  )
-                else
-                  SizedBox(height: 24.h),
+                  ),
+
+                SizedBox(height: 24.h),
               ],
             ),
           ),
