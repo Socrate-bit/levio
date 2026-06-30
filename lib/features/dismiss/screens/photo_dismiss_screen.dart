@@ -95,6 +95,10 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   String? _rawError;
   final _startTime = DateTime.now();
   late final String _targetObject;
+  // True when [_targetObject] comes from the admin/UGC forced-target override.
+  // A forced target stays visible among the spinning candidates instead of
+  // being hidden until the final tick.
+  late final bool _forcedTarget;
   late final List<String> _candidates;
   String _displayLabel = '';
   bool _rouletteRunning = false;
@@ -103,8 +107,9 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
   // button, and the fly-up of the "FIND THIS" card.
   bool _targetLocked = false;
   Timer? _rouletteTimer;
-  // Holds the emoji in the viewfinder for a beat before it flies up to the card
-  // on missions with no roulette to spin (single object or sky/bed/grass).
+  // Holds the revealed target emoji in the viewfinder for a beat before it
+  // flies up to the card — after the roulette lands, or (for single-object /
+  // non-hunt missions with no spin) once the preview is live.
   Timer? _revealTimer;
   AlarmCascadeController? _cascade;
   // Emojis for user-created custom objects (name -> emoji), loaded async.
@@ -160,10 +165,12 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
     final forced = context.read<SettingsCubit>().state.forcedHuntTarget;
     if (_candidates.isNotEmpty && forced != null && forced.isNotEmpty) {
       _targetObject = forced;
+      _forcedTarget = true;
       if (!_candidates.contains(forced)) {
         _candidates.add(forced);
       }
     } else {
+      _forcedTarget = false;
       _targetObject = _candidates.isNotEmpty
           ? (List<String>.from(_candidates)..shuffle()).first
           : '';
@@ -212,24 +219,39 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
       final isLast = step == _rouletteDelays.length - 1;
       setState(() {
         if (isLast) {
+          // Roulette landed. Reveal the target but keep it in the viewfinder —
+          // the fly-up to the card is held back below.
           _displayLabel = _targetObject;
           _rouletteRunning = false;
-          _targetLocked = true;
         } else {
-          // Advance to next candidate, skipping the target until the final tick
-          // so the reveal is not spoiled mid-spin.
+          // Advance to next candidate. For a random target, skip it until the
+          // final tick so the reveal is not spoiled mid-spin; a forced target
+          // stays in the rotation so it shows as a real possibility.
           final currentIndex = _candidates.indexOf(_displayLabel);
           var nextIndex = (currentIndex + 1) % _candidates.length;
-          if (_candidates[nextIndex] == _targetObject &&
+          if (!_forcedTarget &&
+              _candidates[nextIndex] == _targetObject &&
               _candidates.length > 2) {
             nextIndex = (nextIndex + 1) % _candidates.length;
           }
           _displayLabel = _candidates[nextIndex];
         }
       });
+      // Spinning counts as activity so the inactivity watchdog doesn't bounce
+      // the user back mid-draw.
+      widget.onProgress?.call();
+      _cascade?.reportProgress();
       HapticFeedback.selectionClick();
-      if (isLast) HapticFeedback.mediumImpact();
-      if (!isLast) _scheduleRouletteTick(step + 1);
+      if (isLast) {
+        HapticFeedback.mediumImpact();
+        // Hold the revealed target for 3s before it flies up to the card.
+        _revealTimer = Timer(const Duration(seconds: 3), () {
+          if (!mounted) return;
+          setState(() => _targetLocked = true);
+        });
+      } else {
+        _scheduleRouletteTick(step + 1);
+      }
     });
   }
 
@@ -255,7 +277,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
 
     // Reveal the target once the preview has rendered. Multi-object missions
     // spin the roulette; single-object and non-hunt missions have nothing to
-    // spin, so they hold the emoji in the viewfinder for 4s before it flies up
+    // spin, so they hold the emoji in the viewfinder for 3s before it flies up
     // to the card — matching the rhythm of the roulette draw.
     if (_candidates.length > 1 && !_rouletteRunning) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -264,7 +286,7 @@ class _PhotoDismissScreenState extends State<PhotoDismissScreen> {
         _scheduleRouletteTick(0);
       });
     } else if (_candidates.length <= 1 && !_targetLocked) {
-      _revealTimer = Timer(const Duration(seconds: 4), () {
+      _revealTimer = Timer(const Duration(seconds: 3), () {
         if (!mounted) return;
         setState(() => _targetLocked = true);
       });
