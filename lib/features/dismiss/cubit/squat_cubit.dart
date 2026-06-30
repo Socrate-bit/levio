@@ -11,8 +11,6 @@ import 'pushup_state.dart';
 import '../../../shared/services/sound_service.dart';
 import '../../subscription/services/analytics_service.dart';
 
-enum _Phase { no, up, hdown, down }
-
 class SquatCubit extends Cubit<PushUpState> {
   SquatCubit({this.targetReps}) : super(const PushUpInitial());
 
@@ -24,14 +22,23 @@ class SquatCubit extends Cubit<PushUpState> {
   int _sensorOrientation = 0;
 
   int _lastSentMs = 0;
-  static const int _minIntervalMs = 200;
+  // ~14 fps: the _processing guard self-limits to the device's real capability,
+  // so this just stops us throttling below it. Higher rate is what lets rapid
+  // reps register (a fast rep cycle is shorter than the old 200ms cap).
+  static const int _minIntervalMs = 70;
 
-  // Counting — angle-based (knee joint)
-  _Phase _phase = _Phase.no;
+  // Counting — angle-based hysteresis on the knee joint. A rep = drop below
+  // _downEnter (full depth) then rise back above _upEnter. The wide gap between
+  // the two survives landmark jitter; _partial gates the "go deeper" hint.
+  bool _started = false; // seen standing (up position) at least once
+  bool _down = false; // currently in a descent (below _partial)
+  bool _reachedDepth = false; // hit full depth during the current descent
+  double? _smoothAngle; // EMA-smoothed knee angle
   int _repCount = 0;
-  static const double _kneeUpAngle = 170.0;   // straight (standing)
-  static const double _kneeDownAngle = 155.0; // squatted (relaxed depth)
-  static const double _kneeHalfAngle = 169.0; // halfway down
+  static const double _upEnter = 165.0; // standing (legs near straight)
+  static const double _downEnter = 130.0; // full depth
+  static const double _partial = 150.0; // started going down
+  static const double _emaAlpha = 0.6; // weight of the newest sample
 
   Future<void> startSession() async {
     emit(const CameraLoading());
@@ -59,7 +66,10 @@ class SquatCubit extends Cubit<PushUpState> {
       // Lock the camera preview so it doesn't rotate when the device tilts.
       await _camera!.lockCaptureOrientation(DeviceOrientation.portraitUp);
 
-      _phase = _Phase.no;
+      _started = false;
+      _down = false;
+      _reachedDepth = false;
+      _smoothAngle = null;
       _repCount = 0;
 
       emit(SessionActive(
@@ -130,41 +140,52 @@ class SquatCubit extends Cubit<PushUpState> {
         // Check landmark
         if (kneeAngle == null) {
           feedback = FeedbackKey.moveIntoFrame;
-          _phase = _Phase.no;
+          _resetRep();
           feedbackType = FeedbackType.warning;
           detectedPoses = const [];
         } else {
           // Check position
           final kneesAboveAnkles = _isKneesAboveAnkles(pose);
           if (!kneesAboveAnkles) {
-            _phase = _Phase.no;
+            _resetRep();
             feedback = FeedbackKey.squatPosition;
             feedbackType = FeedbackType.warning;
-          } else if (_phase == _Phase.no && kneeAngle >= _kneeUpAngle) {
-            _phase = _Phase.up;
-            feedback = FeedbackKey.startSquats;
-            feedbackType = FeedbackType.positive;
-          }
+          } else {
+            // Smoothed knee angle drives the hysteresis counter.
+            _smoothAngle = _smoothAngle == null
+                ? kneeAngle
+                : _emaAlpha * kneeAngle + (1 - _emaAlpha) * _smoothAngle!;
+            final angle = _smoothAngle!;
 
-          if (_phase == _Phase.up &&
-              kneeAngle < _kneeHalfAngle) {
-            _phase = _Phase.hdown;
-          } else if ((_phase == _Phase.up || _phase == _Phase.hdown) &&
-              kneeAngle < _kneeDownAngle) {
-            _phase = _Phase.down;
-          } else if (kneeAngle > _kneeUpAngle) {
-            if (_phase == _Phase.hdown) {
-              feedback = FeedbackKey.squatGoDeeper;
-              feedbackType = FeedbackType.warning;
-            } else if (_phase == _Phase.down) {
-              _phase = _Phase.up;
-              _repCount++;
-              feedback = FeedbackKey.keepGoing;
+            if (!_started && angle >= _upEnter) {
+              _started = true;
+              feedback = FeedbackKey.startSquats;
               feedbackType = FeedbackType.positive;
-              unawaited(SoundService.instance.playRepBell());
-              if (targetReps != null && _repCount >= targetReps!) {
-                unawaited(stopSession(goalReached: true));
-                return;
+            }
+
+            if (_started) {
+              if (!_down && angle < _partial) {
+                _down = true;
+                _reachedDepth = false;
+              }
+              if (_down) {
+                if (angle < _downEnter) _reachedDepth = true;
+                if (angle >= _upEnter) {
+                  _down = false;
+                  if (_reachedDepth) {
+                    _repCount++;
+                    feedback = FeedbackKey.keepGoing;
+                    feedbackType = FeedbackType.positive;
+                    unawaited(SoundService.instance.playRepBell());
+                    if (targetReps != null && _repCount >= targetReps!) {
+                      unawaited(stopSession(goalReached: true));
+                      return;
+                    }
+                  } else {
+                    feedback = FeedbackKey.squatGoDeeper;
+                    feedbackType = FeedbackType.warning;
+                  }
+                }
               }
             }
           }
@@ -186,6 +207,15 @@ class SquatCubit extends Cubit<PushUpState> {
       debugPrint('[SquatCubit] _processFrame error: $e');
       AnalyticsService.trackError('SquatCubit._processFrame', e, st);
     }
+  }
+
+  // Resets the rep state machine when the pose is lost or out of position,
+  // so a partial rep can't carry across an interruption.
+  void _resetRep() {
+    _started = false;
+    _down = false;
+    _reachedDepth = false;
+    _smoothAngle = null;
   }
 
   double _angleDeg(
