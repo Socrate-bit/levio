@@ -83,6 +83,13 @@ class _AuthWrapperState extends State<AuthWrapper> {
         // onboarding step / locale / theme rebuild.
         if (isAuth != _lastIsAuth) {
           _lastIsAuth = isAuth;
+          if (!isAuth) {
+            // Returning to a signed-out state (sign out / delete account) must
+            // land on the shared start screen, not whatever funnel page the
+            // previous session committed to.
+            _started = false;
+            _committedV2 = null;
+          }
           final uid = snap.data?.uid;
           debugPrint(
             '[AuthWrapper] auth state → ${isAuth ? 'signed in (uid=$uid)' : 'signed out'}',
