@@ -11,8 +11,6 @@ import 'pushup_state.dart';
 import '../../../shared/services/sound_service.dart';
 import '../../subscription/services/analytics_service.dart';
 
-enum _Phase { no, up, hdown, down }
-
 class PushUpCubit extends Cubit<PushUpState> {
   PushUpCubit({this.targetReps}) : super(const PushUpInitial());
 
@@ -24,14 +22,23 @@ class PushUpCubit extends Cubit<PushUpState> {
   int _sensorOrientation = 0;
 
   int _lastSentMs = 0;
-  static const int _minIntervalMs = 200; // ~5 fps detection
+  // ~14 fps: the _processing guard self-limits to the device's real capability,
+  // so this just stops us throttling below it. Higher rate is what lets rapid
+  // reps register (a fast rep cycle is shorter than the old 200ms cap).
+  static const int _minIntervalMs = 70;
 
-  // Counting — angle-based (elbow joint)
-  _Phase _phase = _Phase.no;
+  // Counting — angle-based hysteresis on the elbow joint. A rep = drop below
+  // _downEnter (full depth) then rise back above _upEnter. The wide gap between
+  // the two survives landmark jitter; _partial gates the "go deeper" hint.
+  bool _started = false; // seen in the ready (up) position at least once
+  bool _down = false; // currently in a descent (below _partial)
+  bool _reachedDepth = false; // hit full depth during the current descent
+  double? _smoothAngle; // EMA-smoothed elbow angle
   int _repCount = 0;
-  static const double _armsUpAngle = 175.0;
-  static const double _armsDownAngle = 165.0; // relaxed depth
-  static const double _armsHalfAngle = 174.0;
+  static const double _upEnter = 160.0; // arms (near) extended
+  static const double _downEnter = 110.0; // full depth
+  static const double _partial = 140.0; // started going down
+  static const double _emaAlpha = 0.6; // weight of the newest sample
 
   Future<void> startSession() async {
     emit(const CameraLoading());
@@ -57,7 +64,10 @@ class PushUpCubit extends Cubit<PushUpState> {
       // Lock the camera preview so it doesn't rotate when the device tilts.
       await _camera!.lockCaptureOrientation(DeviceOrientation.portraitUp);
 
-      _phase = _Phase.no;
+      _started = false;
+      _down = false;
+      _reachedDepth = false;
+      _smoothAngle = null;
       _repCount = 0;
 
       emit(
@@ -132,48 +142,53 @@ class PushUpCubit extends Cubit<PushUpState> {
         // Check landmark
         if (elbowAngles == null) {
           feedback = FeedbackKey.moveIntoFrame;
-          _phase = _Phase.no;
+          _resetRep();
           feedbackType = FeedbackType.warning;
           detectedPoses = const [];
         } else {
-          final leftAngle = elbowAngles.$1;
-          final rightAngle = elbowAngles.$2;
-
           // Check position
           final wristBelowElbow = _isWristsBelowElbows(pose);
           if (!wristBelowElbow) {
-            _phase = _Phase.no;
+            _resetRep();
             feedback = FeedbackKey.pushupPosition;
             feedbackType = FeedbackType.warning;
-          } else if (_phase == _Phase.no &&
-              leftAngle >= _armsUpAngle &&
-              rightAngle >= _armsUpAngle) {
-            _phase = _Phase.up;
-            feedback = FeedbackKey.startPushups;
-            feedbackType = FeedbackType.positive;
-          }
+          } else {
+            // Smoothed average elbow angle drives the hysteresis counter.
+            final raw = (elbowAngles.$1 + elbowAngles.$2) / 2;
+            _smoothAngle = _smoothAngle == null
+                ? raw
+                : _emaAlpha * raw + (1 - _emaAlpha) * _smoothAngle!;
+            final angle = _smoothAngle!;
 
-          if (_phase == _Phase.up &&
-              leftAngle < _armsHalfAngle &&
-              rightAngle < _armsHalfAngle) {
-            _phase = _Phase.hdown;
-          } else if ((_phase == _Phase.up || _phase == _Phase.hdown) &&
-              leftAngle < _armsDownAngle &&
-              rightAngle < _armsDownAngle) {
-            _phase = _Phase.down;
-          } else if (leftAngle > _armsUpAngle && rightAngle > _armsUpAngle) {
-            if (_phase == _Phase.hdown) {
-              feedback = FeedbackKey.pushupGoDeeper;
-              feedbackType = FeedbackType.warning;
-            } else if (_phase == _Phase.down) {
-              _phase = _Phase.up;
-              _repCount++;
-              feedback = FeedbackKey.keepGoing;
+            if (!_started && angle >= _upEnter) {
+              _started = true;
+              feedback = FeedbackKey.startPushups;
               feedbackType = FeedbackType.positive;
-              unawaited(SoundService.instance.playRepBell());
-              if (targetReps != null && _repCount >= targetReps!) {
-                unawaited(stopSession(goalReached: true));
-                return;
+            }
+
+            if (_started) {
+              if (!_down && angle < _partial) {
+                _down = true;
+                _reachedDepth = false;
+              }
+              if (_down) {
+                if (angle < _downEnter) _reachedDepth = true;
+                if (angle >= _upEnter) {
+                  _down = false;
+                  if (_reachedDepth) {
+                    _repCount++;
+                    feedback = FeedbackKey.keepGoing;
+                    feedbackType = FeedbackType.positive;
+                    unawaited(SoundService.instance.playRepBell());
+                    if (targetReps != null && _repCount >= targetReps!) {
+                      unawaited(stopSession(goalReached: true));
+                      return;
+                    }
+                  } else {
+                    feedback = FeedbackKey.pushupGoDeeper;
+                    feedbackType = FeedbackType.warning;
+                  }
+                }
               }
             }
           }
@@ -197,6 +212,15 @@ class PushUpCubit extends Cubit<PushUpState> {
       debugPrint('[PushUpCubit] _processFrame error: $e');
       AnalyticsService.trackError('PushUpCubit._processFrame', e, st);
     }
+  }
+
+  // Resets the rep state machine when the pose is lost or out of position,
+  // so a partial rep can't carry across an interruption.
+  void _resetRep() {
+    _started = false;
+    _down = false;
+    _reachedDepth = false;
+    _smoothAngle = null;
   }
 
   double _angleDeg(
@@ -287,6 +311,7 @@ class PushUpCubit extends Cubit<PushUpState> {
   Future<void> stopSession({bool goalReached = false}) async {
     final count = _repCount;
     await _camera?.stopImageStream();
+    await _camera?.dispose();
     _camera = null;
     _detector?.close();
     _detector = null;
@@ -296,7 +321,6 @@ class PushUpCubit extends Cubit<PushUpState> {
     } else {
       emit(SessionComplete(repCount: count));
     }
-    await _camera?.dispose();
   }
 
   @override
