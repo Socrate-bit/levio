@@ -112,6 +112,7 @@ class _StartSignInScreen extends StatelessWidget {
                 onSignInComplete: () => Navigator.of(context).pop(),
                 showSkip: false,
                 blockNewAccounts: true,
+                showEmail: true,
               ),
             ),
           ],
