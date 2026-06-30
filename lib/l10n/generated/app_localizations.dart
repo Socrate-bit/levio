@@ -2816,11 +2816,11 @@ abstract class AppLocalizations {
   /// **'Missed'**
   String get sessionsMissed;
 
-  /// No description provided for @sessionsScreenTimeRelapse.
+  /// No description provided for @sessionsScreenTimeDisabled.
   ///
   /// In en, this message translates to:
-  /// **'Screen-time relapse'**
-  String get sessionsScreenTimeRelapse;
+  /// **'Screen time disabled'**
+  String get sessionsScreenTimeDisabled;
 
   /// No description provided for @quoteEinstein.
   ///
@@ -4867,6 +4867,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep Levio open. Leaving the app restarts the timer.'**
   String get screenTimeUnlockCountdownHint;
+
+  /// No description provided for @screenTimeUnlockStreakWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivating will break your streak.'**
+  String get screenTimeUnlockStreakWarning;
 
   /// No description provided for @screenTimeAuthDenied.
   ///

@@ -1427,7 +1427,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionsMissed => 'Missed';
 
   @override
-  String get sessionsScreenTimeRelapse => 'Screen-time relapse';
+  String get sessionsScreenTimeDisabled => 'Screen time disabled';
 
   @override
   String get quoteEinstein =>
@@ -2576,6 +2576,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get screenTimeUnlockCountdownHint =>
       'Keep Levio open. Leaving the app restarts the timer.';
+
+  @override
+  String get screenTimeUnlockStreakWarning =>
+      'Deactivating will break your streak.';
 
   @override
   String get screenTimeAuthDenied =>

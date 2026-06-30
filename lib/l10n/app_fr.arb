@@ -499,7 +499,7 @@
   "sessionsTitle": "Tous les réveils",
   "sessionsNoWakeups": "Aucun réveil encore",
   "sessionsMissed": "Manqué",
-  "sessionsScreenTimeRelapse": "Rechute temps d'écran",
+  "sessionsScreenTimeDisabled": "Temps d'écran désactivé",
 
   "quoteEinstein": "Au milieu de chaque difficulté se trouve une opportunité.",
   "quoteEinsteinAuthor": "Albert Einstein",
@@ -885,6 +885,7 @@
   "screenTimeUnlockCountdownTitle": "Tu peux déverrouiller dans",
   "screenTimeUnlockReadyTitle": "Tu peux déverrouiller maintenant",
   "screenTimeUnlockCountdownHint": "Garde Levio ouvert. Quitter l'appli redémarre le minuteur.",
+  "screenTimeUnlockStreakWarning": "Désactiver brisera ta série.",
   "screenTimeAuthDenied": "L'accès au Temps d'écran est requis. Active-le pour Levio dans les Réglages iOS.",
   "osUpdateRequiredTitle": "Passons à la mise à jour 🚀",
   "osUpdateRequiredBody": "Les alarmes de Levio utilisent les dernières technologies d'Apple : ton iPhone a donc besoin de la version la plus récente d'iOS pour te réveiller. Ça ne prend que quelques minutes :",

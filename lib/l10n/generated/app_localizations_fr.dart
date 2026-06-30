@@ -1441,7 +1441,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sessionsMissed => 'Manqué';
 
   @override
-  String get sessionsScreenTimeRelapse => 'Rechute temps d\'écran';
+  String get sessionsScreenTimeDisabled => 'Temps d\'écran désactivé';
 
   @override
   String get quoteEinstein =>
@@ -2623,6 +2623,9 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get screenTimeUnlockCountdownHint =>
       'Garde Levio ouvert. Quitter l\'appli redémarre le minuteur.';
+
+  @override
+  String get screenTimeUnlockStreakWarning => 'Désactiver brisera ta série.';
 
   @override
   String get screenTimeAuthDenied =>

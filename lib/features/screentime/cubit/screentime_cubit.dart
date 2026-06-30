@@ -231,9 +231,9 @@ class ScreenTimeCubit extends Cubit<ScreenTimeState> with WidgetsBindingObserver
       unlockInProgress: false,
       unlockCountdown: 0,
     ));
-    // Unlocking during an active window is a relapse: record it so the streak
-    // counts the day as missed and history shows the relapse entry.
-    HistoryService.recordRelapseSession().ignore();
+    // Unlocking during an active window deactivates the block: record it so the
+    // streak counts the day as missed and history shows the disabled entry.
+    HistoryService.recordScreenTimeDisabledSession().ignore();
   }
 
   /// User dismissed the countdown dialog without finishing.

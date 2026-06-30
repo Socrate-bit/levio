@@ -14,10 +14,11 @@ class WakeupSession {
   /// totalWakeups (one physical wake-up, not several).
   final bool autoDismissed;
 
-  /// True when this entry records a screen-time relapse (the user unlocked the
-  /// block during an active window) rather than an alarm. Always incomplete;
-  /// counts as a missed day for the streak and shows a distinct history label.
-  final bool relapse;
+  /// True when this entry records the user deactivating screen-time blocking
+  /// (unlocking the controls during an active window) rather than an alarm.
+  /// Always incomplete; counts as a missed day for the streak and shows its own
+  /// distinct history entry (not styled as a missed alarm).
+  final bool screenTimeDisabled;
 
   /// True once the user has spun the Spin to Win bonus wheel for this session.
   /// Enforces one spin per day.
@@ -32,7 +33,7 @@ class WakeupSession {
     this.soundId = 'default',
     this.completed = true,
     this.autoDismissed = false,
-    this.relapse = false,
+    this.screenTimeDisabled = false,
     this.spinToWinUsed = false,
   });
 
@@ -44,7 +45,7 @@ class WakeupSession {
         'soundId': soundId,
         'completed': completed,
         'autoDismissed': autoDismissed,
-        'relapse': relapse,
+        'screenTimeDisabled': screenTimeDisabled,
         if (spinToWinUsed) 'spinToWinUsed': true,
       };
 
@@ -61,7 +62,7 @@ class WakeupSession {
       soundId: (data['soundId'] as String?) ?? 'default',
       completed: (data['completed'] as bool?) ?? true, // legacy docs are completed
       autoDismissed: (data['autoDismissed'] as bool?) ?? false,
-      relapse: (data['relapse'] as bool?) ?? false,
+      screenTimeDisabled: (data['screenTimeDisabled'] as bool?) ?? false,
       spinToWinUsed: (data['spinToWinUsed'] as bool?) ?? false,
     );
   }
