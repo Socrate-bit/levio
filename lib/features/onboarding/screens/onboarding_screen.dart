@@ -23,7 +23,7 @@ import '../widgets/energy_chart.dart';
 import '../widgets/info_step.dart';
 import '../widgets/loading_step.dart';
 import '../widgets/mission_picker_step.dart';
-import '../widgets/morning_plan_step.dart';
+import '../widgets/morning_plan_step_v1.dart';
 import '../widgets/notification_step.dart';
 import '../widgets/paywall_step.dart';
 import '../widgets/rating_step.dart';
@@ -759,15 +759,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 },
                               ),
                               // 32: Morning plan summary
-                              MorningPlanStep(
+                              MorningPlanStepV1(
                                 alarmTime: state.alarmTime,
                                 mission: state.selectedMission,
                                 soundId: state.soundId,
                                 repeatDays: state.repeatDays,
-                                hasSleep: false,
-                                sleepTime: state.sleepTime,
-                                relaxingActivities: const [],
-                                blockApps: false,
                               ),
                               // 33: Sign in — saves alarm + refreshes user type
                               SignInStep(
