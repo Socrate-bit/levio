@@ -39,6 +39,7 @@ class HistoryService {
       'alarm_id': alarmId,
       'mission_type': missionType?.name ?? 'none',
       'sound_id': soundId,
+      'alarm_type': isSleep ? 'sleep' : 'wakeup',
     });
     return docId;
   }
