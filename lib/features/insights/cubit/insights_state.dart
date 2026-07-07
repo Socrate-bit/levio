@@ -1,22 +1,19 @@
 import '../../milestones/models/badge_model.dart';
+import '../../milestones/services/streak_service.dart';
 import '../../wakeup/models/wakeup_session.dart';
 
 enum InsightsRange { week, month, allTime }
 
-/// A single calendar day in the streak heatmap.
+/// A single calendar day in the streak heatmap. [status] mirrors the home week
+/// view: [DayStatus.done] = win (blue), [DayStatus.frozen] = freeze,
+/// [DayStatus.missed] = loss (red), [DayStatus.none] = no alarm.
 class HeatmapDay {
   final DateTime date;
-
-  /// Number of completed wake-ups that day (drives colour intensity).
-  final int count;
-
-  /// True when the day only had missed alarms (no completion).
-  final bool missed;
+  final DayStatus status;
 
   const HeatmapDay({
     required this.date,
-    this.count = 0,
-    this.missed = false,
+    this.status = DayStatus.none,
   });
 }
 
@@ -37,6 +34,9 @@ class InsightsState {
   final int longestStreak;
   final int badgesEarned;
   final int totalBadges;
+
+  /// Highest streak badge already earned, or null before the first is reached.
+  final BadgeModel? currentBadge;
 
   /// Next unearned streak badge, or null once every streak badge is earned.
   final BadgeModel? nextBadge;
@@ -65,6 +65,7 @@ class InsightsState {
     this.longestStreak = 0,
     this.badgesEarned = 0,
     this.totalBadges = 13,
+    this.currentBadge,
     this.nextBadge,
     this.successCount = 0,
     this.successRate = 0,
@@ -87,6 +88,7 @@ class InsightsState {
     int? longestStreak,
     int? badgesEarned,
     int? totalBadges,
+    BadgeModel? currentBadge,
     BadgeModel? nextBadge,
     int? successCount,
     double? successRate,
@@ -108,8 +110,9 @@ class InsightsState {
         longestStreak: longestStreak ?? this.longestStreak,
         badgesEarned: badgesEarned ?? this.badgesEarned,
         totalBadges: totalBadges ?? this.totalBadges,
-        // nextBadge is nullable and can legitimately become null (all earned),
-        // so it is always passed explicitly from _recompute rather than merged.
+        // currentBadge/nextBadge are nullable and can legitimately be null, so
+        // they are always passed explicitly from _recompute rather than merged.
+        currentBadge: currentBadge,
         nextBadge: nextBadge,
         successCount: successCount ?? this.successCount,
         successRate: successRate ?? this.successRate,

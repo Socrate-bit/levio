@@ -1171,16 +1171,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsStats => 'Stats';
 
   @override
-  String get insightsAvgWakeTime => 'Avg Wake Time';
+  String get insightsAvgWakeTime => 'Wake Time';
 
   @override
   String get insightsAvgResponse => 'Avg Response';
 
   @override
-  String get insightsFavoriteMission => 'Favorite Mission';
+  String get insightsFavoriteMission => 'Top Mission';
 
   @override
-  String get insightsFavoriteSound => 'Favorite Sound';
+  String get insightsFavoriteSound => 'Top Sound';
 
   @override
   String get insightsWeek => 'Week';
@@ -1241,10 +1241,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsPreferences => 'Preferences';
 
   @override
-  String get insightsBestStreak => 'Best Streak';
+  String get insightsBestStreak => 'Best';
 
   @override
   String get insightsNextBadge => 'Next Badge';
+
+  @override
+  String get insightsCurrentBadge => 'Current Badge';
 
   @override
   String insightsDaysToBadge(int count) {
@@ -1258,22 +1261,33 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String insightsMoreDaysToBadge(int count, String badge) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more days to $badge',
+      one: '1 more day to $badge',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get insightsAllBadgesEarned => 'All badges earned!';
 
   @override
-  String get insightsSuccesses => 'Successes';
+  String get insightsSuccesses => 'Wins';
 
   @override
-  String get insightsSuccessRate => 'Success Rate';
+  String get insightsSuccessRate => 'Win Rate';
 
   @override
-  String get insightsAvgSleepTime => 'Avg Sleep Time';
+  String get insightsAvgSleepTime => 'Sleep Time';
 
   @override
-  String get insightsAvgWakeRoutine => 'Avg Wake-up Routine';
+  String get insightsAvgWakeRoutine => 'Wake Routine';
 
   @override
-  String get insightsAvgSleepRoutine => 'Avg Sleep Routine';
+  String get insightsAvgSleepRoutine => 'Sleep Routine';
 
   @override
   String get insightsHeatmapTitle => 'Activity';
@@ -1283,6 +1297,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get insightsNoData => 'Not enough data yet';
+
+  @override
+  String get insightsWin => 'Win';
+
+  @override
+  String get insightsLoss => 'Loss';
+
+  @override
+  String get insightsFreeze => 'Freeze';
 
   @override
   String get milestonesTitle => 'Milestones';

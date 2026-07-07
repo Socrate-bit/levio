@@ -80,9 +80,10 @@ class InsightsCubit extends Cubit<InsightsState> {
     final wake = sessions.where((s) => !s.isSleep).toList();
     final sleep = sessions.where((s) => s.isSleep).toList();
 
-    final currentStreak =
-        await StreakService.computeCurrentStreak(_allSessions);
-    if (isClosed) return;
+    // Single streak walk gives both the count and the freeze days the activity
+    // heatmap needs. Sessions include incomplete ones so misses are seen.
+    final streakResult = StreakService.computeStreak(sessions: _allSessions);
+    final currentStreak = streakResult.streak;
 
     final completed = sessions.where((s) => s.completed).length;
     final missed = sessions
@@ -96,6 +97,7 @@ class InsightsCubit extends Cubit<InsightsState> {
       longestStreak: _profile.longestStreak,
       badgesEarned: _profile.earnedBadgeIds.length,
       totalBadges: 13,
+      currentBadge: _computeCurrentBadge(),
       nextBadge: _computeNextBadge(currentStreak),
       successCount: completed,
       successRate: total == 0 ? 0 : completed / total * 100,
@@ -105,7 +107,7 @@ class InsightsCubit extends Cubit<InsightsState> {
       avgSleepRoutine: _computeAvgRoutine(sleep),
       favoriteMission: _computeFavoriteMission(sessions),
       favoriteSound: _computeFavoriteSound(sessions),
-      heatmap: _computeHeatmap(now),
+      heatmap: _computeHeatmap(now, streakResult.frozenDays),
       progression: _computeProgression(sessions, range, now),
       sessions: sessions,
       totalWakeups: _allSessions.where((s) => s.completed).length,
@@ -179,6 +181,15 @@ class InsightsCubit extends Cubit<InsightsState> {
     return '${avgSec}s';
   }
 
+  /// The highest streak badge the user has already earned, or null if none.
+  BadgeModel? _computeCurrentBadge() {
+    BadgeModel? latest;
+    for (final badge in buildStreakBadges()) {
+      if (_profile.earnedBadgeIds.contains(badge.id)) latest = badge;
+    }
+    return latest;
+  }
+
   /// The next streak badge the user hasn't reached, or null once all are earned.
   BadgeModel? _computeNextBadge(int currentStreak) {
     for (final badge in buildStreakBadges()) {
@@ -212,23 +223,27 @@ class InsightsCubit extends Cubit<InsightsState> {
   }
 
   /// Per-day activity for the trailing [_heatmapWeeks] weeks, aligned to whole
-  /// weeks (Sunday-start). Future days of the current week are included as empty
-  /// cells so the grid stays rectangular; the widget renders them faintly.
-  List<HeatmapDay> _computeHeatmap(DateTime now) {
+  /// weeks (Sunday-start). Each day is classed win / freeze / loss / none using
+  /// the same rules as the home week view; [frozenDays] comes from the streak
+  /// walk. Future days of the current week stay empty so the grid is rectangular.
+  List<HeatmapDay> _computeHeatmap(DateTime now, Set<String> frozenDays) {
     final today = DateTime(now.year, now.month, now.day);
     final startOfThisWeek = _startOfWeek(today);
     final start =
         startOfThisWeek.subtract(Duration(days: (_heatmapWeeks - 1) * 7));
 
-    final completedByDay = <String, int>{};
-    final missedByDay = <String, bool>{};
+    final completedDays = <String>{};
+    final disabledDays = <String>{};
+    final missedAlarmDays = <String>{};
     for (final s in _allSessions) {
       if (s.timestamp.isBefore(start)) continue;
       final key = _dayKey(s.timestamp);
       if (s.completed) {
-        completedByDay[key] = (completedByDay[key] ?? 0) + 1;
-      } else if (!s.screenTimeDisabled && s.alarmId != null) {
-        missedByDay[key] = true;
+        completedDays.add(key);
+      } else if (s.screenTimeDisabled) {
+        disabledDays.add(key);
+      } else if (s.alarmId != null) {
+        missedAlarmDays.add(key);
       }
     }
 
@@ -236,12 +251,19 @@ class InsightsCubit extends Cubit<InsightsState> {
     for (var i = 0; i < _heatmapWeeks * 7; i++) {
       final date = start.add(Duration(days: i));
       final key = _dayKey(date);
-      final count = completedByDay[key] ?? 0;
-      days.add(HeatmapDay(
-        date: date,
-        count: count,
-        missed: count == 0 && (missedByDay[key] ?? false),
-      ));
+
+      final DayStatus status;
+      if (frozenDays.contains(key)) {
+        status = DayStatus.frozen;
+      } else if (completedDays.contains(key) && !disabledDays.contains(key)) {
+        // Disabling screen time forces the day to a miss even if completed.
+        status = DayStatus.done;
+      } else if (disabledDays.contains(key) || missedAlarmDays.contains(key)) {
+        status = DayStatus.missed;
+      } else {
+        status = DayStatus.none;
+      }
+      days.add(HeatmapDay(date: date, status: status));
     }
     return days;
   }
@@ -321,7 +343,9 @@ class InsightsCubit extends Cubit<InsightsState> {
     ];
   }
 
-  String _dayKey(DateTime t) => '${t.year}-${t.month}-${t.day}';
+  // Must match StreakService's date-key format so frozenDays lookups line up.
+  String _dayKey(DateTime t) =>
+      '${t.year}-${t.month.toString().padLeft(2, '0')}-${t.day.toString().padLeft(2, '0')}';
 
   DateTime _startOfWeek(DateTime date) {
     final daysFromSunday = date.weekday % 7;

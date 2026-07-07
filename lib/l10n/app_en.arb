@@ -478,10 +478,10 @@
 
   "insightsTitle": "Insights",
   "insightsStats": "Stats",
-  "insightsAvgWakeTime": "Avg Wake Time",
+  "insightsAvgWakeTime": "Wake Time",
   "insightsAvgResponse": "Avg Response",
-  "insightsFavoriteMission": "Favorite Mission",
-  "insightsFavoriteSound": "Favorite Sound",
+  "insightsFavoriteMission": "Top Mission",
+  "insightsFavoriteSound": "Top Sound",
   "insightsWeek": "Week",
   "insightsMonth": "Month",
   "insightsAllTime": "All Time",
@@ -501,23 +501,34 @@
   "insightsSuccessSection": "Success",
   "insightsTiming": "Timing",
   "insightsPreferences": "Preferences",
-  "insightsBestStreak": "Best Streak",
+  "insightsBestStreak": "Best",
   "insightsNextBadge": "Next Badge",
+  "insightsCurrentBadge": "Current Badge",
   "insightsDaysToBadge": "{count, plural, =1{1 day to go} other{{count} days to go}}",
   "@insightsDaysToBadge": {
     "placeholders": {
       "count": { "type": "int" }
     }
   },
+  "insightsMoreDaysToBadge": "{count, plural, =1{1 more day to {badge}} other{{count} more days to {badge}}}",
+  "@insightsMoreDaysToBadge": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "badge": { "type": "String" }
+    }
+  },
   "insightsAllBadgesEarned": "All badges earned!",
-  "insightsSuccesses": "Successes",
-  "insightsSuccessRate": "Success Rate",
-  "insightsAvgSleepTime": "Avg Sleep Time",
-  "insightsAvgWakeRoutine": "Avg Wake-up Routine",
-  "insightsAvgSleepRoutine": "Avg Sleep Routine",
+  "insightsSuccesses": "Wins",
+  "insightsSuccessRate": "Win Rate",
+  "insightsAvgSleepTime": "Sleep Time",
+  "insightsAvgWakeRoutine": "Wake Routine",
+  "insightsAvgSleepRoutine": "Sleep Routine",
   "insightsHeatmapTitle": "Activity",
   "insightsProgressionTitle": "Success Over Time",
   "insightsNoData": "Not enough data yet",
+  "insightsWin": "Win",
+  "insightsLoss": "Loss",
+  "insightsFreeze": "Freeze",
 
   "milestonesTitle": "Milestones",
   "milestonesDayStreak": "Day Streak",
