@@ -2987,8 +2987,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingV2SleepChallengeNotEnough => 'Je ne dors jamais assez';
 
   @override
-  String get onboardingV2SleepChallengeScrolling =>
-      'Le scroll et les réseaux m\'empêchent de dormir';
+  String get onboardingV2SleepChallengeScrolling => 'Le scroll et les réseaux';
 
   @override
   String get onboardingV2SleepQualityTitle =>
