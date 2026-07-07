@@ -10,6 +10,9 @@ class HomeState {
   final List<String> earnedBadgeIds;
   final WakeupSession? lastSession;
   final int totalWakeups;
+  // Alarm ids that already have a completed session today (e.g. via "Start now"
+  // early completion). Used to hide "Start now" and skip today's fire on Home.
+  final Set<String> completedAlarmIdsToday;
   final bool loading;
 
   const HomeState({
@@ -27,6 +30,7 @@ class HomeState {
     this.earnedBadgeIds = const [],
     this.lastSession,
     this.totalWakeups = 0,
+    this.completedAlarmIdsToday = const {},
     this.loading = true,
   });
 
@@ -38,6 +42,7 @@ class HomeState {
     WakeupSession? lastSession,
     bool clearLastSession = false,
     int? totalWakeups,
+    Set<String>? completedAlarmIdsToday,
     bool? loading,
   }) =>
       HomeState(
@@ -47,6 +52,8 @@ class HomeState {
         earnedBadgeIds: earnedBadgeIds ?? this.earnedBadgeIds,
         lastSession: clearLastSession ? null : lastSession ?? this.lastSession,
         totalWakeups: totalWakeups ?? this.totalWakeups,
+        completedAlarmIdsToday:
+            completedAlarmIdsToday ?? this.completedAlarmIdsToday,
         loading: loading ?? this.loading,
       );
 }

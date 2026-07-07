@@ -105,7 +105,12 @@ class _HomeView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 if (next != null)
-                                  _NextAlarmCard(alarm: next)
+                                  _NextAlarmCard(
+                                    alarm: next,
+                                    completedToday: state
+                                        .completedAlarmIdsToday
+                                        .contains(next.id),
+                                  )
                                 else
                                   const _NoAlarmCard(),
                                 SizedBox(height: 16.h),
@@ -561,7 +566,10 @@ class _NoAlarmCard extends StatelessWidget {
 
 class _NextAlarmCard extends StatefulWidget {
   final AppAlarmEntry alarm;
-  const _NextAlarmCard({required this.alarm});
+  // True when this alarm's mission was already completed today, so today's fire
+  // is consumed: "Start now" is hidden and the countdown reflects the next day.
+  final bool completedToday;
+  const _NextAlarmCard({required this.alarm, this.completedToday = false});
 
   @override
   State<_NextAlarmCard> createState() => _NextAlarmCardState();
@@ -624,11 +632,17 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     final l10n = AppLocalizations.of(context);
     final alarm = widget.alarm;
     final now = DateTime.now();
-    final fireAt = alarm.nextFireAt(now) ?? alarm.dateTime;
+    // Once today's mission is done, treat the rest of today as elapsed so the
+    // countdown points at the next day's fire instead of the consumed one.
+    final reference = widget.completedToday
+        ? DateTime(now.year, now.month, now.day, 23, 59, 59)
+        : now;
+    final fireAt = alarm.nextFireAt(reference) ?? alarm.dateTime;
     final diff = fireAt.difference(now);
-    // Offer "Start now" when the next fire is within 90 min, the alarm is on,
-    // and it actually has a mission to run.
+    // Offer "Start now" when the next fire is within 90 min, the alarm is on, it
+    // has a mission to run, and today's occurrence hasn't already been completed.
     final canStartNow = alarm.isEnabled &&
+        !widget.completedToday &&
         !diff.isNegative &&
         diff.inMinutes <= 90 &&
         alarm.missions.isNotEmpty;
