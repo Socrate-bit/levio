@@ -456,6 +456,28 @@
   "insightsConsistencyScoreTitle": "Score de régularité",
   "insightsConsistencyScoreBody": "Ton score de régularité mesure la fréquence à laquelle tu te réveilles avec Levio. Il s'améliore au fur et à mesure que ta série grandit.",
   "insightsOk": "OK",
+  "insightsMilestones": "Étapes",
+  "insightsStreakSection": "Série",
+  "insightsSuccessSection": "Réussite",
+  "insightsTiming": "Horaires",
+  "insightsPreferences": "Préférences",
+  "insightsBestStreak": "Meilleure série",
+  "insightsNextBadge": "Prochain badge",
+  "insightsDaysToBadge": "{count, plural, =1{1 jour restant} other{{count} jours restants}}",
+  "@insightsDaysToBadge": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "insightsAllBadgesEarned": "Tous les badges obtenus !",
+  "insightsSuccesses": "Réussites",
+  "insightsSuccessRate": "Taux de réussite",
+  "insightsAvgSleepTime": "Heure moy. de coucher",
+  "insightsAvgWakeRoutine": "Routine de réveil moy.",
+  "insightsAvgSleepRoutine": "Routine de coucher moy.",
+  "insightsHeatmapTitle": "Activité",
+  "insightsProgressionTitle": "Réussite dans le temps",
+  "insightsNoData": "Pas encore assez de données",
 
   "milestonesTitle": "Étapes",
   "milestonesDayStreak": "Série de jours",

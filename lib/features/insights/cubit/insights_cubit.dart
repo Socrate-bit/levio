@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../milestones/models/badge_model.dart';
 import '../../milestones/services/streak_service.dart';
 import '../../wakeup/models/wakeup_session.dart';
 import '../../wakeup/services/history_service.dart';
@@ -17,6 +18,10 @@ class InsightsCubit extends Cubit<InsightsState> {
   StreakProfile _profile = const StreakProfile();
   bool _sessionsReady = false;
   bool _profileReady = false;
+  InsightsRange _range = InsightsRange.week;
+
+  /// How many trailing weeks the streak heatmap spans.
+  static const int _heatmapWeeks = 15;
 
   InsightsCubit() : super(const InsightsState()) {
     _subscribe();
@@ -51,14 +56,14 @@ class InsightsCubit extends Cubit<InsightsState> {
   }
 
   Future<void> changeRange(InsightsRange range) async {
-    if (state.range == range) return;
-    emit(state.copyWith(range: range));
+    if (_range == range) return;
+    _range = range;
     await _recompute();
   }
 
   Future<void> _recompute() async {
     if (isClosed) return;
-    final range = state.range;
+    final range = _range;
     final now = DateTime.now();
 
     final DateTime? since = switch (range) {
@@ -71,36 +76,40 @@ class InsightsCubit extends Cubit<InsightsState> {
         ? _allSessions.where((s) => s.timestamp.isAfter(since)).toList()
         : _allSessions;
 
-    // Week dots always reflect the current calendar week
-    final startOfWeek = _startOfWeek(now);
-    final weekSessions =
-        _allSessions.where((s) => s.timestamp.isAfter(startOfWeek)).toList();
-    final weekDays = List<bool>.filled(7, false);
-    for (final s in weekSessions) {
-      weekDays[s.timestamp.weekday % 7] = true;
-    }
+    // Split by alarm kind so timing stats read separately for sleep and wake.
+    final wake = sessions.where((s) => !s.isSleep).toList();
+    final sleep = sessions.where((s) => s.isSleep).toList();
 
     final currentStreak =
         await StreakService.computeCurrentStreak(_allSessions);
-
     if (isClosed) return;
 
-    // Total completed wakeups for numbering
-    final totalWakeups = _allSessions.where((s) => s.completed).length;
+    final completed = sessions.where((s) => s.completed).length;
+    final missed = sessions
+        .where((s) =>
+            !s.completed && !s.screenTimeDisabled && s.alarmId != null)
+        .length;
+    final total = completed + missed;
 
     emit(state.copyWith(
       currentStreak: currentStreak,
       longestStreak: _profile.longestStreak,
-      weekDays: weekDays,
       badgesEarned: _profile.earnedBadgeIds.length,
       totalBadges: 13,
-      avgWakeTime: _computeAvgWakeTime(sessions),
-      avgResponseTime: _computeAvgResponseTime(sessions),
+      nextBadge: _computeNextBadge(currentStreak),
+      successCount: completed,
+      successRate: total == 0 ? 0 : completed / total * 100,
+      avgWakeTime: _computeAvgClockTime(wake),
+      avgSleepTime: _computeAvgClockTime(sleep),
+      avgWakeRoutine: _computeAvgRoutine(wake),
+      avgSleepRoutine: _computeAvgRoutine(sleep),
       favoriteMission: _computeFavoriteMission(sessions),
       favoriteSound: _computeFavoriteSound(sessions),
-      consistency: _computeConsistency(sessions, range, now),
+      heatmap: _computeHeatmap(now),
+      progression: _computeProgression(sessions, range, now),
       sessions: sessions,
-      totalWakeups: totalWakeups,
+      totalWakeups: _allSessions.where((s) => s.completed).length,
+      range: range,
       loading: false,
     ));
 
@@ -127,12 +136,26 @@ class InsightsCubit extends Cubit<InsightsState> {
   // Computation helpers
   // ---------------------------------------------------------------------------
 
-  String _computeAvgWakeTime(List<WakeupSession> sessions) {
-    if (sessions.isEmpty) return '--:--';
-    final totalMinutes = sessions
-        .map((s) => s.timestamp.hour * 60 + s.timestamp.minute)
-        .reduce((a, b) => a + b);
-    final avgMin = totalMinutes ~/ sessions.length;
+  /// Average time-of-day (12h) across [sessions]. Excludes screen-time-disabled
+  /// entries, whose timestamps are unlock moments rather than alarm times.
+  ///
+  /// Uses a circular mean so times that straddle midnight (e.g. bedtimes at
+  /// 23:30 and 00:30) average to ~00:00 rather than midday.
+  String _computeAvgClockTime(List<WakeupSession> sessions) {
+    final timed = sessions.where((s) => !s.screenTimeDisabled).toList();
+    if (timed.isEmpty) return '--:--';
+    // Map each minute-of-day onto the unit circle, average, then convert back.
+    var sumSin = 0.0;
+    var sumCos = 0.0;
+    for (final s in timed) {
+      final minutes = s.timestamp.hour * 60 + s.timestamp.minute;
+      final angle = minutes / 1440 * 2 * pi;
+      sumSin += sin(angle);
+      sumCos += cos(angle);
+    }
+    var avgAngle = atan2(sumSin, sumCos);
+    if (avgAngle < 0) avgAngle += 2 * pi;
+    final avgMin = (avgAngle / (2 * pi) * 1440).round() % 1440;
     final h24 = avgMin ~/ 60;
     final m = (avgMin % 60).toString().padLeft(2, '0');
     final period = h24 < 12 ? 'AM' : 'PM';
@@ -140,11 +163,14 @@ class InsightsCubit extends Cubit<InsightsState> {
     return '$h12:$m $period';
   }
 
-  String _computeAvgResponseTime(List<WakeupSession> sessions) {
-    if (sessions.isEmpty) return '--';
+  /// Average mission/routine duration across completed [sessions] only, so
+  /// missed alarms (0s) don't drag the average down.
+  String _computeAvgRoutine(List<WakeupSession> sessions) {
+    final done = sessions.where((s) => s.completed).toList();
+    if (done.isEmpty) return '--';
     final totalSec =
-        sessions.map((s) => s.timeTakenSeconds).reduce((a, b) => a + b);
-    final avgSec = totalSec ~/ sessions.length;
+        done.map((s) => s.timeTakenSeconds).reduce((a, b) => a + b);
+    final avgSec = totalSec ~/ done.length;
     if (avgSec >= 60) {
       final m = avgSec ~/ 60;
       final s = avgSec % 60;
@@ -153,9 +179,16 @@ class InsightsCubit extends Cubit<InsightsState> {
     return '${avgSec}s';
   }
 
+  /// The next streak badge the user hasn't reached, or null once all are earned.
+  BadgeModel? _computeNextBadge(int currentStreak) {
+    for (final badge in buildStreakBadges()) {
+      if ((badge.requiredDays ?? 0) > currentStreak) return badge;
+    }
+    return null;
+  }
+
   /// Returns the raw MissionType.name (e.g. 'pushUps') or '--' if none.
   String _computeFavoriteMission(List<WakeupSession> sessions) {
-    if (sessions.isEmpty) return '--';
     final counts = <String, int>{};
     for (final s in sessions) {
       if (s.missionType != null) {
@@ -178,34 +211,120 @@ class InsightsCubit extends Cubit<InsightsState> {
     return counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
   }
 
-  double _computeConsistency(
+  /// Per-day activity for the trailing [_heatmapWeeks] weeks, aligned to whole
+  /// weeks (Sunday-start). Future days of the current week are included as empty
+  /// cells so the grid stays rectangular; the widget renders them faintly.
+  List<HeatmapDay> _computeHeatmap(DateTime now) {
+    final today = DateTime(now.year, now.month, now.day);
+    final startOfThisWeek = _startOfWeek(today);
+    final start =
+        startOfThisWeek.subtract(Duration(days: (_heatmapWeeks - 1) * 7));
+
+    final completedByDay = <String, int>{};
+    final missedByDay = <String, bool>{};
+    for (final s in _allSessions) {
+      if (s.timestamp.isBefore(start)) continue;
+      final key = _dayKey(s.timestamp);
+      if (s.completed) {
+        completedByDay[key] = (completedByDay[key] ?? 0) + 1;
+      } else if (!s.screenTimeDisabled && s.alarmId != null) {
+        missedByDay[key] = true;
+      }
+    }
+
+    final days = <HeatmapDay>[];
+    for (var i = 0; i < _heatmapWeeks * 7; i++) {
+      final date = start.add(Duration(days: i));
+      final key = _dayKey(date);
+      final count = completedByDay[key] ?? 0;
+      days.add(HeatmapDay(
+        date: date,
+        count: count,
+        missed: count == 0 && (missedByDay[key] ?? false),
+      ));
+    }
+    return days;
+  }
+
+  /// Success-rate buckets over the selected range: daily (week), weekly (month),
+  /// or monthly (all-time). Buckets with no alarms carry a null rate.
+  List<ProgressPoint> _computeProgression(
     List<WakeupSession> sessions,
     InsightsRange range,
     DateTime now,
   ) {
-    if (sessions.isEmpty) return 0;
+    final today = DateTime(now.year, now.month, now.day);
 
-    final distinctDays = sessions.map((s) {
-      final t = s.timestamp;
-      return '${t.year}-${t.month}-${t.day}';
-    }).toSet().length;
+    List<DateTime> bucketStarts;
+    DateTime Function(DateTime) bucketOf;
 
-    final int totalDays = switch (range) {
-      InsightsRange.week => 7,
-      InsightsRange.month => now.day,
-      InsightsRange.allTime => () {
-          if (sessions.isEmpty) return 1;
-          final oldest = sessions.last.timestamp;
-          return max(1, now.difference(oldest).inDays + 1);
-        }(),
-    };
+    switch (range) {
+      case InsightsRange.week:
+        // The 7 days of the current calendar week (Sunday-start), matching the
+        // `since` filter in _recompute so no bucket predates the kept sessions.
+        final startOfWeek = _startOfWeek(today);
+        bucketStarts = [
+          for (var i = 0; i < 7; i++) startOfWeek.add(Duration(days: i)),
+        ];
+        bucketOf = (d) => DateTime(d.year, d.month, d.day);
+      case InsightsRange.month:
+        final firstWeek = _startOfWeek(DateTime(now.year, now.month, 1));
+        final thisWeek = _startOfWeek(today);
+        bucketStarts = [];
+        for (var w = firstWeek;
+            !w.isAfter(thisWeek);
+            w = w.add(const Duration(days: 7))) {
+          bucketStarts.add(w);
+        }
+        bucketOf = (d) => _startOfWeek(DateTime(d.year, d.month, d.day));
+      case InsightsRange.allTime:
+        final oldest = sessions.isEmpty
+            ? DateTime(now.year, now.month, 1)
+            : DateTime(
+                sessions.last.timestamp.year,
+                sessions.last.timestamp.month,
+                1,
+              );
+        bucketStarts = [];
+        for (var m = oldest;
+            !m.isAfter(DateTime(now.year, now.month, 1));
+            m = DateTime(m.year, m.month + 1, 1)) {
+          bucketStarts.add(m);
+        }
+        // Cap to the most recent 12 months so the axis stays readable.
+        if (bucketStarts.length > 12) {
+          bucketStarts = bucketStarts.sublist(bucketStarts.length - 12);
+        }
+        bucketOf = (d) => DateTime(d.year, d.month, 1);
+    }
 
-    return min(distinctDays / totalDays * 100, 100);
+    final completed = <DateTime, int>{for (final b in bucketStarts) b: 0};
+    final missed = <DateTime, int>{for (final b in bucketStarts) b: 0};
+    for (final s in sessions) {
+      final b = bucketOf(s.timestamp);
+      if (!completed.containsKey(b)) continue;
+      if (s.completed) {
+        completed[b] = completed[b]! + 1;
+      } else if (!s.screenTimeDisabled && s.alarmId != null) {
+        missed[b] = missed[b]! + 1;
+      }
+    }
+
+    return [
+      for (final b in bucketStarts)
+        ProgressPoint(
+          date: b,
+          rate: (completed[b]! + missed[b]!) == 0
+              ? null
+              : completed[b]! / (completed[b]! + missed[b]!) * 100,
+        ),
+    ];
   }
+
+  String _dayKey(DateTime t) => '${t.year}-${t.month}-${t.day}';
 
   DateTime _startOfWeek(DateTime date) {
     final daysFromSunday = date.weekday % 7;
     return DateTime(date.year, date.month, date.day - daysFromSunday);
   }
-
 }

@@ -1223,6 +1223,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsOk => 'OK';
 
   @override
+  String get insightsMilestones => 'Milestones';
+
+  @override
+  String get insightsStreakSection => 'Streak';
+
+  @override
+  String get insightsSuccessSection => 'Success';
+
+  @override
+  String get insightsTiming => 'Timing';
+
+  @override
+  String get insightsPreferences => 'Preferences';
+
+  @override
+  String get insightsBestStreak => 'Best Streak';
+
+  @override
+  String get insightsNextBadge => 'Next Badge';
+
+  @override
+  String insightsDaysToBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days to go',
+      one: '1 day to go',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insightsAllBadgesEarned => 'All badges earned!';
+
+  @override
+  String get insightsSuccesses => 'Successes';
+
+  @override
+  String get insightsSuccessRate => 'Success Rate';
+
+  @override
+  String get insightsAvgSleepTime => 'Avg Sleep Time';
+
+  @override
+  String get insightsAvgWakeRoutine => 'Avg Wake-up Routine';
+
+  @override
+  String get insightsAvgSleepRoutine => 'Avg Sleep Routine';
+
+  @override
+  String get insightsHeatmapTitle => 'Activity';
+
+  @override
+  String get insightsProgressionTitle => 'Success Over Time';
+
+  @override
+  String get insightsNoData => 'Not enough data yet';
+
+  @override
   String get milestonesTitle => 'Milestones';
 
   @override

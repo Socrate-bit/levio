@@ -324,6 +324,7 @@ class AlarmCubit extends Cubit<AlarmState> {
               missionType: missionType,
               soundId: alarm.soundId,
               timestamp: alarm.dateTime,
+              isSleep: alarm.isSleep,
             );
             debugPrint('[AlarmCubit] marked missed (one-time): ${alarm.id}');
           }
@@ -371,6 +372,7 @@ class AlarmCubit extends Cubit<AlarmState> {
             missionType: missionType,
             soundId: alarm.soundId,
             timestamp: expectedFire,
+            isSleep: alarm.isSleep,
           );
           debugPrint(
             '[AlarmCubit] marked missed (recurrent): ${alarm.id} on ${expectedFire.toIso8601String()}',

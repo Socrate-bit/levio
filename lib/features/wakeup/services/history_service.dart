@@ -20,6 +20,7 @@ class HistoryService {
     required String alarmId,
     MissionType? missionType,
     String soundId = 'default',
+    bool isSleep = false,
   }) async {
     final now = DateTime.now();
     final session = WakeupSession(
@@ -30,6 +31,7 @@ class HistoryService {
       missionType: missionType,
       soundId: soundId,
       completed: false,
+      isSleep: isSleep,
     );
     final docId = now.millisecondsSinceEpoch.toString();
     await _sessions.doc(docId).set(session.toFirestore());
@@ -134,6 +136,7 @@ class HistoryService {
     MissionType? missionType,
     String soundId = 'default',
     required DateTime timestamp,
+    bool isSleep = false,
   }) async {
     final session = WakeupSession(
       id: '',
@@ -143,6 +146,7 @@ class HistoryService {
       missionType: missionType,
       soundId: soundId,
       completed: false,
+      isSleep: isSleep,
     );
     final docId = timestamp.millisecondsSinceEpoch.toString();
     await _sessions.doc(docId).set(session.toFirestore());

@@ -114,6 +114,7 @@ class AlarmService {
             alarmId: firestoreEntry.id,
             missionType: firstMission?.type,
             soundId: firestoreEntry.soundId,
+            isSleep: firestoreEntry.isSleep,
           ).ignore();
           debugPrint(
             '[AlarmService] ring → pushing dismiss  burstId=$burstId originalId=$originalId',
