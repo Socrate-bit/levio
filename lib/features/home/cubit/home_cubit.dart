@@ -53,6 +53,18 @@ class HomeCubit extends Cubit<HomeState> {
     final lastSession = _allSessions.isEmpty ? null : _allSessions.first;
     final result = StreakService.computeStreak(sessions: _allSessions);
 
+    // Alarms already completed today — used by Home to hide "Start now" and skip
+    // today's fire once its mission has been done (normally or via early start).
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final completedToday = _allSessions
+        .where((s) =>
+            s.completed &&
+            s.alarmId != null &&
+            !s.timestamp.isBefore(startOfDay))
+        .map((s) => s.alarmId!)
+        .toSet();
+
     emit(state.copyWith(
       currentStreak: result.streak,
       longestStreak: _profile.longestStreak,
@@ -61,6 +73,7 @@ class HomeCubit extends Cubit<HomeState> {
       lastSession: lastSession,
       clearLastSession: lastSession == null,
       totalWakeups: _profile.totalWakeups,
+      completedAlarmIdsToday: completedToday,
       loading: false,
     ));
 
