@@ -6,9 +6,7 @@ import 'package:levio/l10n/l10n_helpers.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
-import '../../missions/models/mission.dart';
-import '../../missions/models/mission_config.dart';
-import '../../missions/widgets/mission_icon.dart';
+import '../../missions/widgets/stacked_mission_icons.dart';
 import '../cubit/alarm_cubit.dart';
 import '../cubit/alarm_state.dart';
 import '../widgets/alarm_kind_icon.dart';
@@ -168,7 +166,7 @@ class _AlarmCard extends StatelessWidget {
                   Text(' · ',
                       style:
                           TextStyle(fontSize: 13.sp, color: c.textSecondary)),
-                  _StackedMissionIcons(missions: alarm.missions),
+                  StackedMissionIcons(missions: alarm.missions),
                   SizedBox(width: 6.w),
                   Text(
                     alarm.missions.length == 1
@@ -210,49 +208,6 @@ class _AlarmCard extends StatelessWidget {
       return l10n.alarmsWeekdays;
     }
     return selected.join(', ');
-  }
-}
-
-/// Stacked/overlapping mission icons.
-class _StackedMissionIcons extends StatelessWidget {
-  final List<MissionConfig> missions;
-  const _StackedMissionIcons({required this.missions});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = 20.w;
-    final overlap = 8.w;
-    final width = size + (missions.length - 1) * (size - overlap);
-    return SizedBox(
-      width: width,
-      height: size,
-      child: Stack(
-        children: [
-          for (int i = 0; i < missions.length; i++)
-            Positioned(
-              left: i * (size - overlap),
-              child: Container(
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  color: missionInfoFor(missions[i].type).iconBg,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.of(context).card,
-                    width: 1.5,
-                  ),
-                ),
-                child: Center(
-                  child: MissionIcon(
-                    info: missionInfoFor(missions[i].type),
-                    size: 14.sp,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
   }
 }
 
