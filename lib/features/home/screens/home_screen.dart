@@ -12,6 +12,7 @@ import '../../alarms/cubit/alarm_state.dart';
 import '../../alarms/screens/alarm_form_screen.dart';
 import '../../alarms/services/alarm_readiness_guard.dart';
 import '../../alarms/widgets/alarm_kind_icon.dart';
+import '../../insights/widgets/hexagon_badge.dart';
 import '../../milestones/models/badge_model.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
@@ -224,6 +225,9 @@ class _MotivationCard extends StatelessWidget {
     final progress = next != null
         ? (state.currentStreak / next.requiredDays!).clamp(0.0, 1.0)
         : 1.0;
+    // Show the actual streak badge: the highest one earned, otherwise the next
+    // goal rendered greyed-out.
+    final displayBadge = latest ?? (badges.isNotEmpty ? badges.first : null);
 
     return GestureDetector(
       onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(2)),
@@ -268,23 +272,14 @@ class _MotivationCard extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    _Pill(
-                      label: l10n.homeBestStreak(state.longestStreak),
-                      color: AppColors.orange,
-                    ),
-                    if (latest != null) ...[
-                      SizedBox(height: 6.h),
-                      _Pill(
-                        label: l10n.homeDayBadge(latest.requiredDays ?? 0),
-                        color: AppColors.success,
-                        icon: Icons.military_tech,
-                      ),
-                    ],
-                  ],
-                ),
+                if (displayBadge != null)
+                  HexagonBadge(
+                    label: displayBadge.displayValue,
+                    earned: latest != null,
+                    earnedColor: AppColors.orange,
+                    size: 60.w,
+                    onTap: () => BottomNavShell.of(context)?.navigateTo(2),
+                  ),
               ],
             ),
             SizedBox(height: 16.h),
@@ -330,41 +325,6 @@ class _MotivationCard extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  final String label;
-  final Color color;
-  final IconData? icon;
-  const _Pill({required this.label, required this.color, this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      decoration: BoxDecoration(
-        color: color.withAlpha(30),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 14.sp, color: color),
-            SizedBox(width: 4.w),
-          ],
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
       ),
     );
   }
