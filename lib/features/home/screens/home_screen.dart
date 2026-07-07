@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,11 +11,15 @@ import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../alarms/screens/alarm_form_screen.dart';
 import '../../alarms/services/alarm_readiness_guard.dart';
-import '../../alarms/screens/sound_picker_screen.dart';
+import '../../alarms/widgets/alarm_kind_icon.dart';
+import '../../milestones/models/badge_model.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/models/mission_config.dart';
 import '../../missions/widgets/mission_icon.dart';
+import '../../screentime/cubit/screentime_cubit.dart';
+import '../../screentime/cubit/screentime_state.dart';
+import '../../screentime/screens/screentime_detail_screen.dart';
 import '../../screentime/widgets/screentime_chip.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/bottom_nav_shell.dart';
@@ -48,7 +54,6 @@ class _HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         return Scaffold(
@@ -58,86 +63,61 @@ class _HomeView extends StatelessWidget {
             child: state.loading
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
                     child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 12.h),
-                          _TopBar(streak: state.currentStreak),
-                          SizedBox(height: 20.h),
-                          _WeekRow(weekDays: state.weekDays),
-                          SizedBox(height: 24.h),
-                          BlocBuilder<AlarmCubit, AlarmState>(
-                            builder: (context, alarmState) {
-                              final now = DateTime.now();
-                              // Pick the enabled alarm whose next real fire
-                              // time is the earliest in the future, respecting
-                              // repeatDays / isOneTime.
-                              final upcoming = alarmState.alarms
-                                  .where((a) => a.isEnabled)
-                                  .map((a) => (
-                                        alarm: a,
-                                        fireAt: a.nextFireAt(now),
-                                      ))
-                                  .where((e) => e.fireAt != null)
-                                  .toList()
-                                ..sort(
-                                  (a, b) => a.fireAt!.compareTo(b.fireAt!),
-                                );
-                              final next = upcoming.isNotEmpty
-                                  ? upcoming.first.alarm
-                                  : null;
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.homeNextWakeUp,
-                                    style: TextStyle(
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: c.textPrimary,
-                                    ),
-                                  ),
-                                  SizedBox(height: 10.h),
-                                  if (next != null)
-                                    _NextAlarmCard(alarm: next)
-                                  else
-                                    _NoAlarmCard(),
-                                  SizedBox(height: 24.h),
-                                ],
-                              );
-                            },
-                          ),
-                          BlocBuilder<AlarmCubit, AlarmState>(
-                            builder: (context, alarmState) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.alarmsTitle,
-                                    style: TextStyle(
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: c.textPrimary,
-                                    ),
-                                  ),
-                                  SizedBox(height: 10.h),
-                                  if (alarmState.alarms.isEmpty)
-                                    _EmptyAlarmsCard()
-                                  else
-                                    ...alarmState.alarms.map(
-                                      (alarm) => Padding(
-                                        padding: EdgeInsets.only(bottom: 12.h),
-                                        child: _AlarmCard(alarm: alarm),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                          SizedBox(height: 120.h),
-                        ],
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 12.h),
+                        _TopBar(streak: state.currentStreak),
+                        SizedBox(height: 18.h),
+                        _MotivationCard(state: state),
+                        SizedBox(height: 16.h),
+                        BlocBuilder<AlarmCubit, AlarmState>(
+                          builder: (context, alarmState) {
+                            final now = DateTime.now();
+                            // Enabled alarms with a real upcoming fire time.
+                            final upcoming = alarmState.alarms
+                                .where((a) => a.isEnabled)
+                                .map((a) =>
+                                    (alarm: a, fireAt: a.nextFireAt(now)))
+                                .where((e) => e.fireAt != null)
+                                .toList()
+                              ..sort((a, b) => a.fireAt!.compareTo(b.fireAt!));
+
+                            final next =
+                                upcoming.isNotEmpty ? upcoming.first.alarm : null;
+                            // Soonest wake-up and soonest sleep alarm for the
+                            // bedtime → wake-up ring.
+                            final wakeAlarm = upcoming
+                                .where((e) => !e.alarm.isSleep)
+                                .map((e) => e.alarm)
+                                .firstOrNull;
+                            final sleepAlarm = upcoming
+                                .where((e) => e.alarm.isSleep)
+                                .map((e) => e.alarm)
+                                .firstOrNull;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (next != null)
+                                  _NextAlarmCard(alarm: next)
+                                else
+                                  const _NoAlarmCard(),
+                                SizedBox(height: 16.h),
+                                _SleepScheduleCard(
+                                  sleepAlarm: sleepAlarm,
+                                  wakeAlarm: wakeAlarm,
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        SizedBox(height: 16.h),
+                        const _ScreenBlockerCard(),
+                        SizedBox(height: 120.h),
+                      ],
                     ),
                   ),
           ),
@@ -146,6 +126,10 @@ class _HomeView extends StatelessWidget {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Top bar
+// ---------------------------------------------------------------------------
 
 class _TopBar extends StatelessWidget {
   final int streak;
@@ -172,7 +156,8 @@ class _TopBar extends StatelessWidget {
         const ScreenTimeChip(),
         SizedBox(width: 8.w),
         GestureDetector(
-          onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(1)),
+          // Insights tab is index 2 now that Alarms sits at index 1.
+          onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(2)),
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             decoration: BoxDecoration(
@@ -203,6 +188,188 @@ class _TopBar extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Motivation card (streak / best / badge / week / next-badge progress)
+// ---------------------------------------------------------------------------
+
+class _MotivationCard extends StatelessWidget {
+  final HomeState state;
+  const _MotivationCard({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Warm surface + on-surface colors that read well on the cream card.
+    final cardColor = isDark ? const Color(0xFF2A2118) : AppColors.orangeLight;
+    final primary = isDark ? c.textPrimary : const Color(0xFF3D2E1E);
+    final secondary = isDark ? c.textSecondary : const Color(0xFF9B7B4B);
+
+    final badges = buildStreakBadges();
+    // Highest-value streak badge the user has already earned.
+    BadgeModel? latest;
+    for (final b in badges) {
+      if (state.earnedBadgeIds.contains(b.id)) latest = b;
+    }
+    // First streak badge still ahead of the current streak.
+    BadgeModel? next;
+    for (final b in badges) {
+      if ((b.requiredDays ?? 0) > state.currentStreak) {
+        next = b;
+        break;
+      }
+    }
+    final progress = next != null
+        ? (state.currentStreak / next.requiredDays!).clamp(0.0, 1.0)
+        : 1.0;
+
+    return GestureDetector(
+      onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(2)),
+      child: Container(
+        padding: EdgeInsets.all(18.w),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(8),
+              blurRadius: 12,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.asset('assets/streaks.png', width: 34.w, height: 34.h),
+                SizedBox(width: 10.w),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${state.currentStreak}',
+                      style: TextStyle(
+                        fontSize: 34.sp,
+                        fontWeight: FontWeight.bold,
+                        color: primary,
+                        height: 1.0,
+                        letterSpacing: -1,
+                      ),
+                    ),
+                    Text(
+                      l10n.homeCurrentStreak,
+                      style: TextStyle(fontSize: 13.sp, color: secondary),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _Pill(
+                      label: l10n.homeBestStreak(state.longestStreak),
+                      color: AppColors.orange,
+                    ),
+                    if (latest != null) ...[
+                      SizedBox(height: 6.h),
+                      _Pill(
+                        label: l10n.homeDayBadge(latest.requiredDays ?? 0),
+                        color: AppColors.success,
+                        icon: Icons.military_tech,
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 16.h),
+            _WeekRow(weekDays: state.weekDays),
+            SizedBox(height: 16.h),
+            if (next != null) ...[
+              Row(
+                children: [
+                  Text(
+                    l10n.homeNextBadge(next.requiredDays!),
+                    style: TextStyle(fontSize: 13.sp, color: secondary),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${state.currentStreak} / ${next.requiredDays}',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: secondary,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.h),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6.r),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 8.h,
+                  backgroundColor: AppColors.orange.withAlpha(40),
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(AppColors.orange),
+                ),
+              ),
+            ] else
+              Text(
+                l10n.homeAllBadgesEarned,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.orange,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  final String label;
+  final Color color;
+  final IconData? icon;
+  const _Pill({required this.label, required this.color, this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: color.withAlpha(30),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 14.sp, color: color),
+            SizedBox(width: 4.w),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _WeekRow extends StatelessWidget {
   final List<DayStatus> weekDays;
   const _WeekRow({required this.weekDays});
@@ -229,80 +396,34 @@ class _WeekRow extends StatelessWidget {
         final dayNum = dates[i].day.toString();
         final label = localizedDayShort(l10n, i);
 
-        // Build the circle widget based on status
         Widget circle;
         if (status == DayStatus.done) {
-          // Past succeeded: circle with a blue check inside
-          circle = Container(
-            width: 42.w,
-            height: 42.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.blue, width: 3),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.check_rounded,
-                size: 28.sp,
-                color: AppColors.blue,
-              ),
-            ),
+          circle = _circle(
+            child: Icon(Icons.check_rounded, size: 26.sp, color: AppColors.blue),
+            border: AppColors.blue,
           );
         } else if (status == DayStatus.frozen) {
-          // Frozen: solid blue circle
-          circle = Container(
-            width: 42.w,
-            height: 42.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.blue, width: 3),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.ac_unit,
-                size: 24.sp,
-                color: AppColors.blue,
-              ),
-            ),
+          circle = _circle(
+            child: Icon(Icons.ac_unit, size: 22.sp, color: AppColors.blue),
+            border: AppColors.blue,
           );
         } else if (status == DayStatus.missed) {
-          // Past missed (alarm fired but not completed): red cross
-          circle = Container(
-            width: 42.w,
-            height: 42.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.error, width: 3),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.close_rounded,
-                size: 28.sp,
-                color: AppColors.error,
-              ),
-            ),
+          circle = _circle(
+            child:
+                Icon(Icons.close_rounded, size: 26.sp, color: AppColors.error),
+            border: AppColors.error,
           );
         } else if (isFuture) {
-          // Future: plain light solid circle
-          circle = Container(
-            width: 42.w,
-            height: 42.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: c.textSecondary.withAlpha(50), width: 2.5),
+          circle = _circle(
+            child: Text(
+              dayNum,
+              style: TextStyle(
+                  fontSize: 15.sp, color: c.textSecondary.withAlpha(110)),
             ),
-            child: Center(
-              child: Text(
-                dayNum,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: c.textSecondary.withAlpha(100),
-                ),
-              ),
-            ),
+            border: c.textSecondary.withAlpha(50),
+            width: 2.5,
           );
         } else {
-          // Past with no alarm: dashed circle
           circle = CustomPaint(
             painter: _DashedCirclePainter(
               color: c.textSecondary.withAlpha(120),
@@ -311,45 +432,14 @@ class _WeekRow extends StatelessWidget {
               gapLength: 3,
             ),
             child: SizedBox(
-              width: 42.w,
-              height: 42.w,
+              width: 38.w,
+              height: 38.w,
               child: Center(
                 child: Text(
                   dayNum,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: c.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 15.sp, color: c.textSecondary),
                 ),
               ),
-            ),
-          );
-        }
-
-        // Today: wrap the status circle in a white card with a bold label.
-        if (isToday) {
-          return Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-            decoration: BoxDecoration(
-              color: c.card,
-              borderRadius: BorderRadius.circular(20.r),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 8),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.bold,
-                    color: c.textPrimary,
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                circle,
-              ],
             ),
           );
         }
@@ -360,7 +450,8 @@ class _WeekRow extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12.sp,
-                color: c.textSecondary,
+                fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                color: isToday ? c.textPrimary : c.textSecondary,
               ),
             ),
             SizedBox(height: 6.h),
@@ -370,9 +461,25 @@ class _WeekRow extends StatelessWidget {
       }),
     );
   }
+
+  Widget _circle({
+    required Widget child,
+    required Color border,
+    double width = 3,
+  }) {
+    return Container(
+      width: 38.w,
+      height: 38.w,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: border, width: width),
+      ),
+      child: Center(child: child),
+    );
+  }
 }
 
-/// Paints a dashed circle border
+/// Paints a dashed circle border.
 class _DashedCirclePainter extends CustomPainter {
   final Color color;
   final double strokeWidth;
@@ -395,10 +502,10 @@ class _DashedCirclePainter extends CustomPainter {
 
     final radius = (size.width - strokeWidth) / 2;
     final center = Offset(size.width / 2, size.height / 2);
-    final circumference = 2 * 3.14159265 * radius;
+    final circumference = 2 * math.pi * radius;
     final dashCount = (circumference / (dashLength + gapLength)).floor();
-    final dashAngle = (dashLength / circumference) * 2 * 3.14159265;
-    final totalAngle = 2 * 3.14159265 / dashCount;
+    final dashAngle = (dashLength / circumference) * 2 * math.pi;
+    final totalAngle = 2 * math.pi / dashCount;
 
     for (int i = 0; i < dashCount; i++) {
       final startAngle = i * totalAngle;
@@ -414,19 +521,22 @@ class _DashedCirclePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DashedCirclePainter oldDelegate) =>
-      color != oldDelegate.color ||
-      strokeWidth != oldDelegate.strokeWidth;
+      color != oldDelegate.color || strokeWidth != oldDelegate.strokeWidth;
 }
 
+// ---------------------------------------------------------------------------
+// Next alarm / mission card
+// ---------------------------------------------------------------------------
+
 class _NoAlarmCard extends StatelessWidget {
+  const _NoAlarmCard();
+
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: withHaptic(() async {
-        // Block creation when the device can't actually run alarms; the guard
-        // surfaces the OS-update / permission dialog instead.
         if (!await AlarmReadinessGuard.check(context)) return;
         if (!context.mounted) return;
         Navigator.push(
@@ -462,11 +572,8 @@ class _NoAlarmCard extends StatelessWidget {
                 color: AppColors.orange.withAlpha(25),
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(
-                Icons.add_alarm_rounded,
-                color: AppColors.orange,
-                size: 24.sp,
-              ),
+              child: Icon(Icons.add_alarm_rounded,
+                  color: AppColors.orange, size: 24.sp),
             ),
             SizedBox(width: 14.w),
             Expanded(
@@ -512,7 +619,6 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
       MaterialPageRoute(builder: (_) => const MissionPickerScreen()),
     );
     if (config == null || !mounted) return;
-    // Replace or add mission at index 0
     final updated = List<MissionConfig>.from(widget.alarm.missions);
     if (updated.isEmpty) {
       updated.add(config);
@@ -524,24 +630,12 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
         .editAlarm(widget.alarm, widget.alarm.copyWith(missions: updated));
   }
 
-  Future<void> _pickSound() async {
-    final result = await Navigator.push<Map<String, String>>(
-      context,
-      MaterialPageRoute(builder: (_) => const SoundPickerScreen()),
-    );
-    if (result == null || !mounted) return;
-    context
-        .read<AlarmCubit>()
-        .editAlarm(widget.alarm, widget.alarm.copyWith(soundId: result['id']));
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     final alarm = widget.alarm;
     final now = DateTime.now();
-    // Respect repeatDays / isOneTime when computing the countdown.
     final fireAt = alarm.nextFireAt(now) ?? alarm.dateTime;
     final diff = fireAt.difference(now);
     final hoursLeft = diff.inHours;
@@ -551,17 +645,24 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     final firstMission = alarm.missions.isNotEmpty
         ? missionInfoFor(alarm.missions.first.type)
         : missionInfoFor(MissionType.none);
+    final missionLabel = alarm.missions.length > 1
+        ? l10n.alarmsMissionsCount(alarm.missions.length)
+        : localizedMissionName(
+            l10n,
+            alarm.missions.isNotEmpty
+                ? alarm.missions.first.type
+                : MissionType.none);
 
     return GestureDetector(
       onTap: withHaptic(() => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: context.read<AlarmCubit>(),
-            child: AlarmFormScreen(alarm: alarm),
-          ),
-        ),
-      )),
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: context.read<AlarmCubit>(),
+                child: AlarmFormScreen(alarm: alarm),
+              ),
+            ),
+          )),
       child: Container(
         padding: EdgeInsets.all(18.w),
         decoration: BoxDecoration(
@@ -580,20 +681,28 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
           children: [
             Row(
               children: [
-                _AlarmKindIcon(isSleep: alarm.isSleep),
+                AlarmKindIcon(isSleep: alarm.isSleep),
                 SizedBox(width: 8.w),
                 Text(
-                  diff.isNegative
-                      ? l10n.homeToday
-                      : diff.inHours < 24
-                      ? l10n.homeToday
-                      : l10n.homeTomorrow,
+                  alarm.isSleep ? l10n.homeNextSleep : l10n.homeNextWake,
                   style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+                ),
+                const Spacer(),
+                Text(
+                  diff.isNegative
+                      ? l10n.homePastAlarm
+                      : l10n.homeRingsIn(hoursLeft, minsLeft),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.blue,
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: 6.h),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   timeStr,
@@ -602,13 +711,14 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                     fontWeight: FontWeight.bold,
                     color: c.textPrimary,
                     letterSpacing: -1,
+                    height: 1.0,
                   ),
                 ),
                 SizedBox(width: 4.w),
                 Padding(
-                  padding: EdgeInsets.only(top: 12.h),
+                  padding: EdgeInsets.only(bottom: 6.h),
                   child: Text(
-                    isPM ? 'pm' : 'am',
+                    isPM ? 'PM' : 'AM',
                     style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
                   ),
                 ),
@@ -617,7 +727,6 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                   value: alarm.isEnabled,
                   activeThumbColor: c.purpleDeep,
                   onChanged: withHapticValue((val) async {
-                    // Activating: ensure the device can ring before scheduling.
                     if (val && !await AlarmReadinessGuard.check(context)) return;
                     if (!context.mounted) return;
                     context.read<AlarmCubit>().toggleAlarm(alarm.id, val);
@@ -625,42 +734,31 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                 ),
               ],
             ),
-            Row(
-              children: [
-                Icon(
-                  Icons.access_time_outlined,
-                  size: 14.sp,
-                  color: c.textSecondary,
+            SizedBox(height: 12.h),
+            GestureDetector(
+              onTap: withHaptic(_pickMission),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: c.purpleDeep.withAlpha(30),
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
-                SizedBox(width: 4.w),
-                Text(
-                  diff.isNegative
-                      ? l10n.homePastAlarm
-                      : l10n.homeRingsIn(hoursLeft, minsLeft),
-                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MissionIcon(info: firstMission, size: 20.sp),
+                    SizedBox(width: 8.w),
+                    Text(
+                      '${l10n.homeMission} · $missionLabel',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: c.purpleDeep,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            SizedBox(height: 14.h),
-            Row(
-              children: [
-                _MiniInfoCard(
-                  icon: MissionIcon(info: firstMission, size: 26.sp),
-                  label: l10n.homeMission,
-                  value: alarm.missions.length > 1
-                      ? '${alarm.missions.length} Missions'
-                      : localizedMissionName(l10n, alarm.missions.isNotEmpty ? alarm.missions.first.type : MissionType.none),
-                  onTap: _pickMission,
-                ),
-                SizedBox(width: 10.w),
-                _MiniInfoCard(
-                  icon: Icon(Icons.music_note,
-                      size: 22.sp, color: const Color(0xFFFFCC00)),
-                  label: l10n.homeSound,
-                  value: alarm.soundId == 'default' ? l10n.generalDefault : localizedSoundName(l10n, alarm.soundId),
-                  onTap: _pickSound,
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -675,294 +773,392 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
   }
 }
 
-class _MiniInfoCard extends StatelessWidget {
-  final Widget icon;
-  final String label;
-  final String value;
-  final VoidCallback? onTap;
+// ---------------------------------------------------------------------------
+// Sleep-schedule ring card
+// ---------------------------------------------------------------------------
 
-  const _MiniInfoCard({
+class _SleepScheduleCard extends StatelessWidget {
+  final AppAlarmEntry? sleepAlarm;
+  final AppAlarmEntry? wakeAlarm;
+  const _SleepScheduleCard({required this.sleepAlarm, required this.wakeAlarm});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+
+    // Missing one or both alarms: show compact setup CTA(s) instead of a ring.
+    if (sleepAlarm == null || wakeAlarm == null) {
+      return Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 12),
+          ],
+        ),
+        child: Column(
+          children: [
+            if (sleepAlarm == null)
+              _SetupCta(isSleep: true),
+            if (sleepAlarm == null && wakeAlarm == null) SizedBox(height: 10.h),
+            if (wakeAlarm == null) _SetupCta(isSleep: false),
+          ],
+        ),
+      );
+    }
+
+    final bedMin = sleepAlarm!.dateTime.hour * 60 + sleepAlarm!.dateTime.minute;
+    final wakeMin = wakeAlarm!.dateTime.hour * 60 + wakeAlarm!.dateTime.minute;
+    var inBed = wakeMin - bedMin;
+    if (inBed <= 0) inBed += 24 * 60;
+    final inBedH = inBed ~/ 60;
+    final inBedM = inBed % 60;
+
+    return Container(
+      padding: EdgeInsets.all(18.w),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 12),
+        ],
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 130.w,
+            height: 130.w,
+            child: CustomPaint(
+              painter: _SleepRingPainter(
+                bedMinutes: bedMin,
+                wakeMinutes: wakeMin,
+                trackColor: c.textSecondary.withAlpha(45),
+                arcColor: c.purpleDeep,
+                dotColor: AppColors.orangeLight,
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${inBedH}h ${inBedM}m',
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      AppLocalizations.of(context).homeInBed,
+                      style: TextStyle(fontSize: 12.sp, color: c.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 20.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SleepInfoRow(
+                  icon: Icons.nightlight_round,
+                  color: AppColors.blue,
+                  label: AppLocalizations.of(context).homeBedtime,
+                  time: _fmt(sleepAlarm!.dateTime),
+                ),
+                SizedBox(height: 16.h),
+                _SleepInfoRow(
+                  icon: Icons.notifications_active_rounded,
+                  color: AppColors.orange,
+                  label: AppLocalizations.of(context).homeWakeUp,
+                  time: _fmt(wakeAlarm!.dateTime),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _fmt(DateTime dt) {
+    final h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final m = dt.minute.toString().padLeft(2, '0');
+    final ap = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$h:$m $ap';
+  }
+}
+
+class _SleepInfoRow extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String time;
+  const _SleepInfoRow({
     required this.icon,
+    required this.color,
     required this.label,
-    required this.value,
-    this.onTap,
+    required this.time,
   });
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    return Expanded(
-      child: GestureDetector(
-        onTap: withHaptic(onTap),
-        child: Container(
-        padding: EdgeInsets.all(12.w),
-        decoration: BoxDecoration(
-          color: c.background,
-          borderRadius: BorderRadius.circular(12.r),
+    return Row(
+      children: [
+        Container(
+          width: 40.w,
+          height: 40.w,
+          decoration: BoxDecoration(
+            color: color.withAlpha(25),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(icon, size: 20.sp, color: color),
         ),
-        child: Column(
+        SizedBox(width: 12.w),
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label,
-
-            style: TextStyle(fontSize: 12.sp, color: c.textSecondary)),
-            SizedBox(height: 4.h),
             Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+              label,
+              style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
             ),
-            SizedBox(height: 8.h),
-            icon,
+            Text(
+              time,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: c.textPrimary,
+              ),
+            ),
           ],
         ),
-      ),
-      ),
+      ],
     );
   }
 }
 
-class _AlarmCard extends StatelessWidget {
-  final AppAlarmEntry alarm;
-  const _AlarmCard({required this.alarm});
+class _SetupCta extends StatelessWidget {
+  final bool isSleep;
+  const _SetupCta({required this.isSleep});
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    final t = alarm.dateTime;
-    final h = t.hour > 12 ? t.hour - 12 : (t.hour == 0 ? 12 : t.hour);
-    final m = t.minute.toString().padLeft(2, '0');
-    final isPM = t.hour >= 12;
-    final dayStr = alarm.isOneTime ? l10n.alarmsOneTime : _daysLabel(l10n, alarm.repeatDays);
-
     return GestureDetector(
-      onTap: withHaptic(() => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: context.read<AlarmCubit>(),
-            child: AlarmFormScreen(alarm: alarm),
+      onTap: withHaptic(() async {
+        if (!await AlarmReadinessGuard.check(context)) return;
+        if (!context.mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+              value: context.read<AlarmCubit>(),
+              child: AlarmFormScreen(initialIsSleep: isSleep),
+            ),
           ),
-        ),
-      )),
-      child: Container(
-        padding: EdgeInsets.all(18.w),
-        decoration: BoxDecoration(
-          color: c.card,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(6),
-              blurRadius: 10,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                _AlarmKindIcon(isSleep: alarm.isSleep),
-                SizedBox(width: 8.w),
-                Text(
-                  dayStr,
-                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
-                ),
-              ],
-            ),
-            SizedBox(height: 4.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '$h:$m',
-                  style: TextStyle(
-                    fontSize: 44.sp,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -1,
-                    color: c.textPrimary,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 8.h, left: 4.w),
-                  child: Text(
-                    isPM ? 'PM' : 'AM',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                      color: c.textSecondary,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 10.h),
-                  child: Switch(
-                    value: alarm.isEnabled,
-                    activeThumbColor: c.purpleDeep,
-                    onChanged: withHapticValue((val) async {
-                      // Activating: ensure the device can ring before scheduling.
-                      if (val && !await AlarmReadinessGuard.check(context)) {
-                        return;
-                      }
-                      if (!context.mounted) return;
-                      context.read<AlarmCubit>().toggleAlarm(alarm.id, val);
-                    }),
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  alarm.name.isNotEmpty ? alarm.name : l10n.alarmsDefaultName(1),
-                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
-                ),
-                if (alarm.missions.isNotEmpty) ...[
-                  Text(' · ', style: TextStyle(fontSize: 13.sp, color: c.textSecondary)),
-                  _StackedMissionIcons(missions: alarm.missions),
-                  SizedBox(width: 6.w),
-                  Text(
-                    alarm.missions.length == 1
-                        ? localizedMissionName(l10n, alarm.missions.first.type)
-                        : l10n.alarmsMissionsCount(alarm.missions.length),
-                    style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
-                  ),
-                ],
-                const Spacer(),
-                GestureDetector(
-                  onTap: withHaptic(() =>
-                      context.read<AlarmCubit>().removeAlarm(alarm.id)),
-                  child: Icon(Icons.delete_outline,
-                      size: 32.sp, color: c.textSecondary.withAlpha(140)),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _daysLabel(AppLocalizations l10n, List<bool> days) {
-    if (days.every((d) => d)) return l10n.alarmsEveryDay;
-    if (days.every((d) => !d)) return l10n.alarmsOneTime;
-
-    final selected = <String>[];
-    for (int i = 0; i < days.length; i++) {
-      if (days[i]) selected.add(localizedDayShort(l10n, i));
-    }
-    if (days[1] && days[2] && days[3] && days[4] && days[5] &&
-        !days[0] && !days[6]) {
-      return l10n.alarmsWeekdays;
-    }
-    return selected.join(', ');
-  }
-}
-
-/// Small sun/moon badge distinguishing a wake-up alarm from a sleep (bedtime)
-/// alarm.
-class _AlarmKindIcon extends StatelessWidget {
-  final bool isSleep;
-  const _AlarmKindIcon({required this.isSleep});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isSleep ? AppColors.blue : AppColors.orange;
-    return Container(
-      width: 26.w,
-      height: 26.w,
-      decoration: BoxDecoration(
-        color: color.withAlpha(25),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        isSleep ? Icons.nightlight_round : Icons.wb_sunny,
-        size: 15.sp,
-        color: color,
-      ),
-    );
-  }
-}
-
-/// Stacked/overlapping mission icons
-class _StackedMissionIcons extends StatelessWidget {
-  final List<MissionConfig> missions;
-  const _StackedMissionIcons({required this.missions});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = 20.w;
-    final overlap = 8.w;
-    final width = size + (missions.length - 1) * (size - overlap);
-    return SizedBox(
-      width: width,
-      height: size,
-      child: Stack(
+        );
+      }),
+      child: Row(
         children: [
-          for (int i = 0; i < missions.length; i++)
-            Positioned(
-              left: i * (size - overlap),
-              child: Container(
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  color: missionInfoFor(missions[i].type).iconBg,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.of(context).card,
-                    width: 1.5,
-                  ),
-                ),
-                child: Center(
-                  child: MissionIcon(
-                    info: missionInfoFor(missions[i].type),
-                    size: 14.sp,
-                  ),
-                ),
+          AlarmKindIcon(isSleep: isSleep, size: 40),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Text(
+              isSleep ? l10n.homeSetBedtime : l10n.homeSetWakeUp,
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+                color: c.textPrimary,
               ),
             ),
+          ),
+          Icon(Icons.chevron_right, color: c.textSecondary, size: 20.sp),
         ],
       ),
     );
   }
 }
 
-class _EmptyAlarmsCard extends StatelessWidget {
+/// Draws the "time in bed" ring: a full track plus a coloured arc spanning the
+/// bedtime → wake-up window on a 24h clock, with a dot at each endpoint.
+class _SleepRingPainter extends CustomPainter {
+  final int bedMinutes;
+  final int wakeMinutes;
+  final Color trackColor;
+  final Color arcColor;
+  final Color dotColor;
+
+  _SleepRingPainter({
+    required this.bedMinutes,
+    required this.wakeMinutes,
+    required this.trackColor,
+    required this.arcColor,
+    required this.dotColor,
+  });
+
+  // Angle (radians) for a minute-of-day, with midnight at the top (12 o'clock).
+  double _angle(int minutes) => -math.pi / 2 + (minutes / 1440) * 2 * math.pi;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const stroke = 10.0;
+    final radius = (size.width - stroke) / 2;
+    final center = Offset(size.width / 2, size.height / 2);
+    final rect = Rect.fromCircle(center: center, radius: radius);
+
+    final track = Paint()
+      ..color = trackColor
+      ..strokeWidth = stroke
+      ..style = PaintingStyle.stroke;
+    canvas.drawCircle(center, radius, track);
+
+    final start = _angle(bedMinutes);
+    var sweepMin = wakeMinutes - bedMinutes;
+    if (sweepMin <= 0) sweepMin += 1440;
+    final sweep = (sweepMin / 1440) * 2 * math.pi;
+
+    final arc = Paint()
+      ..color = arcColor
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    canvas.drawArc(rect, start, sweep, false, arc);
+
+    // Endpoint dots.
+    final dot = Paint()..color = dotColor;
+    final dotBorder = Paint()
+      ..color = arcColor
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+    for (final a in [start, start + sweep]) {
+      final p = Offset(
+        center.dx + radius * math.cos(a),
+        center.dy + radius * math.sin(a),
+      );
+      canvas.drawCircle(p, stroke / 1.6, dot);
+      canvas.drawCircle(p, stroke / 1.6, dotBorder);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SleepRingPainter old) =>
+      old.bedMinutes != bedMinutes ||
+      old.wakeMinutes != wakeMinutes ||
+      old.trackColor != trackColor ||
+      old.arcColor != arcColor ||
+      old.dotColor != dotColor;
+}
+
+// ---------------------------------------------------------------------------
+// Screen-blocker card
+// ---------------------------------------------------------------------------
+
+class _ScreenBlockerCard extends StatelessWidget {
+  const _ScreenBlockerCard();
+
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: EdgeInsets.all(32.w),
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Center(
-        child: Column(
-          children: [
-            Image.asset('assets/siren.png', width: 48.w, height: 48.h),
-            SizedBox(height: 12.h),
-            Text(
-              l10n.alarmsEmpty,
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: c.textPrimary,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return BlocBuilder<ScreenTimeCubit, ScreenTimeState>(
+      builder: (context, state) {
+        final active = state.isActiveNow;
+
+        String status;
+        if (active && state.activeUntil != null) {
+          final until =
+              TimeOfDay.fromDateTime(state.activeUntil!).format(context);
+          status = l10n.homeBlockerActiveUntil(until);
+        } else if (state.enabled && state.activeIn != null) {
+          final d = state.activeIn!;
+          status = l10n.homeBlockerActiveIn(d.inHours, d.inMinutes % 60);
+        } else {
+          status = l10n.homeBlockerOff;
+        }
+
+        final cardColor = active
+            ? AppColors.success.withAlpha(isDark ? 45 : 30)
+            : c.card;
+
+        return GestureDetector(
+          onTap: withHaptic(() {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: context.read<ScreenTimeCubit>(),
+                  child: const ScreenTimeDetailScreen(),
+                ),
               ),
+            );
+          }),
+          child: Container(
+            padding: EdgeInsets.all(18.w),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(16.r),
+              border: active
+                  ? Border.all(color: AppColors.success.withAlpha(80), width: 1.5)
+                  : null,
+              boxShadow: [
+                BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 12),
+              ],
             ),
-            SizedBox(height: 4.h),
-            Text(
-              l10n.alarmsEmptyHint,
-              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+            child: Row(
+              children: [
+                Icon(
+                  active ? Icons.shield : Icons.shield_outlined,
+                  size: 26.sp,
+                  color: active ? AppColors.success : c.textSecondary,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.homeScreenBlocker,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: c.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        status,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: active
+                              ? AppColors.success
+                              : c.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: state.enabled,
+                  activeThumbColor: AppColors.success,
+                  // Locked while a window is live and not yet unlocked.
+                  onChanged: state.controlsLocked
+                      ? null
+                      : withHapticValue((val) {
+                          context.read<ScreenTimeCubit>().setEnabled(val);
+                        }),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
-

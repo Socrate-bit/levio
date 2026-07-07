@@ -9,6 +9,7 @@ import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
 import 'package:levio/features/alarms/screens/alarm_form_screen.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
+import '../features/alarms/screens/alarms_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/insights/screens/insights_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
@@ -34,7 +35,7 @@ class BottomNavShellState extends State<BottomNavShell> {
     _index = widget.initialIndex;
   }
 
-  static const _tabNames = ['home', 'insights', 'settings'];
+  static const _tabNames = ['home', 'alarms', 'insights', 'settings'];
 
   void _selectTab(int index) {
     if (index == _index) return;
@@ -61,7 +62,12 @@ class BottomNavShellState extends State<BottomNavShell> {
     );
   }
 
-  static const _tabs = [HomeScreen(), InsightsScreen(), SettingsScreen()];
+  static const _tabs = [
+    HomeScreen(),
+    AlarmsScreen(),
+    InsightsScreen(),
+    SettingsScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +121,10 @@ class BottomNavShellState extends State<BottomNavShell> {
                   LiquidGlassBarItem(
                     iconData: Icons.home_rounded,
                     label: l10n.navHome,
+                  ),
+                  LiquidGlassBarItem(
+                    iconData: Icons.alarm_rounded,
+                    label: l10n.navAlarms,
                   ),
                   LiquidGlassBarItem(
                     iconData: Icons.bar_chart_rounded,
