@@ -137,6 +137,7 @@
     }
   },
   "homeMission": "Mission",
+  "homeStartNow": "Start now",
   "homeSound": "Sound",
   "homeNoWakeupsYet": "No wakeups yet",
   "homeSetAlarmToStart": "Set an alarm to get started",

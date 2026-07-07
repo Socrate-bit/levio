@@ -12,6 +12,7 @@ import '../../alarms/cubit/alarm_state.dart';
 import '../../alarms/screens/alarm_form_screen.dart';
 import '../../alarms/services/alarm_readiness_guard.dart';
 import '../../alarms/widgets/alarm_kind_icon.dart';
+import '../../dismiss/screens/mission_sequence_screen.dart';
 import '../../insights/widgets/hexagon_badge.dart';
 import '../../milestones/models/badge_model.dart';
 import '../../missions/screens/mission_picker_screen.dart';
@@ -20,6 +21,7 @@ import '../../missions/models/mission_config.dart';
 import '../../missions/widgets/mission_icon.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
 import '../../screentime/cubit/screentime_state.dart';
+import '../../wakeup/services/history_service.dart';
 import '../../screentime/screens/screentime_detail_screen.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -583,6 +585,39 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
         .editAlarm(widget.alarm, widget.alarm.copyWith(missions: updated));
   }
 
+  /// Runs the alarm's mission early (before it rings). Creates a pending session
+  /// so the completion is recorded, then launches the full mission flow in
+  /// [MissionSequenceScreen] with `earlyStart`, which consumes today's occurrence
+  /// on completion so the alarm won't also ring today.
+  Future<void> _startNow() async {
+    final alarm = widget.alarm;
+    if (alarm.missions.isEmpty) return;
+    final alarmCubit = context.read<AlarmCubit>();
+    await HistoryService.createPendingSession(
+      alarmId: alarm.id,
+      missionType: alarm.missions.first.type,
+      soundId: alarm.soundId,
+      isSleep: alarm.isSleep,
+    );
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: alarmCubit,
+          child: MissionSequenceScreen(
+            missions: alarm.missions,
+            alarmId: alarm.id,
+            nativeAlarmId: alarm.id,
+            alarmLabel: alarm.name,
+            isSleep: alarm.isSleep,
+            earlyStart: true,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -591,6 +626,12 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     final now = DateTime.now();
     final fireAt = alarm.nextFireAt(now) ?? alarm.dateTime;
     final diff = fireAt.difference(now);
+    // Offer "Start now" when the next fire is within 90 min, the alarm is on,
+    // and it actually has a mission to run.
+    final canStartNow = alarm.isEnabled &&
+        !diff.isNegative &&
+        diff.inMinutes <= 90 &&
+        alarm.missions.isNotEmpty;
     final hoursLeft = diff.inHours;
     final minsLeft = diff.inMinutes % 60;
     final timeStr = _formatTime(alarm.dateTime);
@@ -688,30 +729,71 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
               ],
             ),
             SizedBox(height: 12.h),
-            GestureDetector(
-              onTap: withHaptic(_pickMission),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                decoration: BoxDecoration(
-                  color: c.purpleDeep.withAlpha(30),
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    MissionIcon(info: firstMission, size: 20.sp),
-                    SizedBox(width: 8.w),
-                    Text(
-                      '${l10n.homeMission} · $missionLabel',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: c.purpleDeep,
+            Row(
+              children: [
+                Flexible(
+                  child: GestureDetector(
+                    onTap: withHaptic(_pickMission),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: c.purpleDeep.withAlpha(30),
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          MissionIcon(info: firstMission, size: 20.sp),
+                          SizedBox(width: 8.w),
+                          Flexible(
+                            child: Text(
+                              '${l10n.homeMission} · $missionLabel',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: c.purpleDeep,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                if (canStartNow) ...[
+                  SizedBox(width: 8.w),
+                  GestureDetector(
+                    onTap: withHaptic(_startNow),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: c.purpleDeep,
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.play_arrow_rounded,
+                              size: 20.sp, color: Colors.white),
+                          SizedBox(width: 4.w),
+                          Text(
+                            l10n.homeStartNow,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),

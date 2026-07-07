@@ -195,6 +195,21 @@ class AlarmChannel {
     }
   }
 
+  /// Early mission completion (Home "Start now"): consumes today's occurrence so
+  /// the alarm does not ring today, then re-arms it for its next fire. Fully
+  /// cancels the current cascade (master + bursts); one-shot alarms are purged,
+  /// recurring alarms are rescheduled for the next matching day strictly after
+  /// today. Use instead of [cancelBurstsKeepMaster]+[rescheduleForNextFire] when
+  /// the alarm has not rung yet.
+  static Future<void> consumeTodayAndReschedule(String originalId) async {
+    try {
+      await _method.invokeMethod('consumeTodayAndReschedule', {'id': originalId});
+    } on PlatformException catch (e, st) {
+      debugPrint('[AlarmChannel] consumeTodayAndReschedule($originalId) failed: ${e.message}');
+      AnalyticsService.trackError('AlarmChannel.consumeTodayAndReschedule', e, st);
+    }
+  }
+
   /// Tops up the burst queue to 20 when the cascade is under-filled. Invoked
   /// on app open over a ringing alarm, on sync, and on ring events — no-op
   /// if the queue is already full. Lock-guarded natively against overlapping

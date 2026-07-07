@@ -350,6 +350,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeMission => 'Mission';
 
   @override
+  String get homeStartNow => 'Commencer';
+
+  @override
   String get homeSound => 'Son';
 
   @override

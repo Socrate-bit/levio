@@ -25,6 +25,10 @@ class MissionSequenceScreen extends StatefulWidget {
   final String alarmLabel;
   // Sleep (bedtime) alarm vs wake-up — drives the start-screen greeting.
   final bool isSleep;
+  // True when launched EARLY from Home ("Start now") before the alarm rang — on
+  // completion we consume today's still-scheduled occurrence instead of the
+  // normal dismiss path.
+  final bool earlyStart;
 
   const MissionSequenceScreen({
     super.key,
@@ -33,6 +37,7 @@ class MissionSequenceScreen extends StatefulWidget {
     required this.nativeAlarmId,
     required this.alarmLabel,
     this.isSleep = false,
+    this.earlyStart = false,
   });
 
   @override
@@ -59,6 +64,7 @@ class _MissionSequenceScreenState extends State<MissionSequenceScreen> {
     _cascade = AlarmCascadeController(
       alarmId: widget.alarmId,
       onInactivityTimeout: _onInactivityTimeout,
+      earlyStart: widget.earlyStart,
     );
     // Top up the burst queue — if the user skipped prior cascades, only the
     // master may be live when the app opens. No-op when the queue is full.
