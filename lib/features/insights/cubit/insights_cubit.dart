@@ -191,9 +191,14 @@ class InsightsCubit extends Cubit<InsightsState> {
   }
 
   /// The next streak badge the user hasn't reached, or null once all are earned.
+  /// Skips badges already earned so a streak reset below an earned threshold
+  /// doesn't surface an already-earned badge as the next target.
   BadgeModel? _computeNextBadge(int currentStreak) {
     for (final badge in buildStreakBadges()) {
-      if ((badge.requiredDays ?? 0) > currentStreak) return badge;
+      if ((badge.requiredDays ?? 0) > currentStreak &&
+          !_profile.earnedBadgeIds.contains(badge.id)) {
+        return badge;
+      }
     }
     return null;
   }
