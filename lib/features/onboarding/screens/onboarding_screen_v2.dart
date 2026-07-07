@@ -859,9 +859,9 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
               emoji: '⏳',
               label: l10n.onboardingV2SleepChallengeNotEnough),
           MultiSelectOption(
-              value: 'groggy',
+              value: 'scrolling',
               emoji: '📱',
-              label: l10n.onboardingV2SleepChallengeGroggy),
+              label: l10n.onboardingV2SleepChallengeScrolling),
         ],
       ),
       // 20: EDU PB — sleep quality is the #1 predictor
