@@ -439,10 +439,10 @@
 
   "insightsTitle": "Statistiques",
   "insightsStats": "Stats",
-  "insightsAvgWakeTime": "Heure moy. de réveil",
+  "insightsAvgWakeTime": "Réveil",
   "insightsAvgResponse": "Temps moy. de réponse",
-  "insightsFavoriteMission": "Mission préférée",
-  "insightsFavoriteSound": "Son préféré",
+  "insightsFavoriteMission": "Mission",
+  "insightsFavoriteSound": "Son",
   "insightsWeek": "Semaine",
   "insightsMonth": "Mois",
   "insightsAllTime": "Tout",
@@ -462,23 +462,34 @@
   "insightsSuccessSection": "Réussite",
   "insightsTiming": "Horaires",
   "insightsPreferences": "Préférences",
-  "insightsBestStreak": "Meilleure série",
+  "insightsBestStreak": "Record",
   "insightsNextBadge": "Prochain badge",
+  "insightsCurrentBadge": "Badge actuel",
   "insightsDaysToBadge": "{count, plural, =1{1 jour restant} other{{count} jours restants}}",
   "@insightsDaysToBadge": {
     "placeholders": {
       "count": { "type": "int" }
     }
   },
+  "insightsMoreDaysToBadge": "{count, plural, =1{1 jour avant {badge}} other{{count} jours avant {badge}}}",
+  "@insightsMoreDaysToBadge": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "badge": { "type": "String" }
+    }
+  },
   "insightsAllBadgesEarned": "Tous les badges obtenus !",
-  "insightsSuccesses": "Réussites",
-  "insightsSuccessRate": "Taux de réussite",
-  "insightsAvgSleepTime": "Heure moy. de coucher",
-  "insightsAvgWakeRoutine": "Routine de réveil moy.",
-  "insightsAvgSleepRoutine": "Routine de coucher moy.",
+  "insightsSuccesses": "Victoires",
+  "insightsSuccessRate": "% Victoire",
+  "insightsAvgSleepTime": "Coucher",
+  "insightsAvgWakeRoutine": "Routine réveil",
+  "insightsAvgSleepRoutine": "Routine coucher",
   "insightsHeatmapTitle": "Activité",
   "insightsProgressionTitle": "Réussite dans le temps",
   "insightsNoData": "Pas encore assez de données",
+  "insightsWin": "Gagné",
+  "insightsLoss": "Perdu",
+  "insightsFreeze": "Gelé",
 
   "milestonesTitle": "Étapes",
   "milestonesDayStreak": "Série de jours",

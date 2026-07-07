@@ -19,7 +19,15 @@ class StreakResult {
   /// Sun..Sat statuses for the current calendar week.
   final List<DayStatus> weekDays;
 
-  const StreakResult({required this.streak, required this.weekDays});
+  /// Date strings (yyyy-MM-dd) of every day the walk bridged with a freeze,
+  /// across the full walked range — used by the insights activity heatmap.
+  final Set<String> frozenDays;
+
+  const StreakResult({
+    required this.streak,
+    required this.weekDays,
+    this.frozenDays = const {},
+  });
 }
 
 class StreakProfile {
@@ -344,6 +352,7 @@ class StreakService {
       }
     }
 
+    final frozenDays = <String>{};
     final effectiveStop =
         stopDate != null ? _dateOnly(stopDate) : oldestSessionDay;
     if (effectiveStop == null) {
@@ -370,6 +379,9 @@ class StreakService {
       } else if (weekFreezes < 2 && consecutiveFreezes < 2) {
         weekFreezes++;
         consecutiveFreezes++;
+        // Record every frozen day for the heatmap (today excluded — it is still
+        // in-progress and never shown as frozen).
+        if (!_isSameDay(cursor, today)) frozenDays.add(_dateStr(cursor));
         // Mark the display week as frozen for past days only — today stays
         // `none` because it is still in-progress visually.
         if (!_isSameDay(cursor, today) &&
@@ -396,7 +408,8 @@ class StreakService {
       }
     }
 
-    return StreakResult(streak: streak, weekDays: weekDays);
+    return StreakResult(
+        streak: streak, weekDays: weekDays, frozenDays: frozenDays);
   }
 
   /// Backward-compatible wrapper. [firstAlarmDate] is accepted but ignored —

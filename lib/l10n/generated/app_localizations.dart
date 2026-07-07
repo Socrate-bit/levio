@@ -2321,7 +2321,7 @@ abstract class AppLocalizations {
   /// No description provided for @insightsAvgWakeTime.
   ///
   /// In en, this message translates to:
-  /// **'Avg Wake Time'**
+  /// **'Wake Time'**
   String get insightsAvgWakeTime;
 
   /// No description provided for @insightsAvgResponse.
@@ -2333,13 +2333,13 @@ abstract class AppLocalizations {
   /// No description provided for @insightsFavoriteMission.
   ///
   /// In en, this message translates to:
-  /// **'Favorite Mission'**
+  /// **'Top Mission'**
   String get insightsFavoriteMission;
 
   /// No description provided for @insightsFavoriteSound.
   ///
   /// In en, this message translates to:
-  /// **'Favorite Sound'**
+  /// **'Top Sound'**
   String get insightsFavoriteSound;
 
   /// No description provided for @insightsWeek.
@@ -2459,7 +2459,7 @@ abstract class AppLocalizations {
   /// No description provided for @insightsBestStreak.
   ///
   /// In en, this message translates to:
-  /// **'Best Streak'**
+  /// **'Best'**
   String get insightsBestStreak;
 
   /// No description provided for @insightsNextBadge.
@@ -2468,11 +2468,23 @@ abstract class AppLocalizations {
   /// **'Next Badge'**
   String get insightsNextBadge;
 
+  /// No description provided for @insightsCurrentBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Badge'**
+  String get insightsCurrentBadge;
+
   /// No description provided for @insightsDaysToBadge.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 day to go} other{{count} days to go}}'**
   String insightsDaysToBadge(int count);
+
+  /// No description provided for @insightsMoreDaysToBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more day to {badge}} other{{count} more days to {badge}}}'**
+  String insightsMoreDaysToBadge(int count, String badge);
 
   /// No description provided for @insightsAllBadgesEarned.
   ///
@@ -2483,31 +2495,31 @@ abstract class AppLocalizations {
   /// No description provided for @insightsSuccesses.
   ///
   /// In en, this message translates to:
-  /// **'Successes'**
+  /// **'Wins'**
   String get insightsSuccesses;
 
   /// No description provided for @insightsSuccessRate.
   ///
   /// In en, this message translates to:
-  /// **'Success Rate'**
+  /// **'Win Rate'**
   String get insightsSuccessRate;
 
   /// No description provided for @insightsAvgSleepTime.
   ///
   /// In en, this message translates to:
-  /// **'Avg Sleep Time'**
+  /// **'Sleep Time'**
   String get insightsAvgSleepTime;
 
   /// No description provided for @insightsAvgWakeRoutine.
   ///
   /// In en, this message translates to:
-  /// **'Avg Wake-up Routine'**
+  /// **'Wake Routine'**
   String get insightsAvgWakeRoutine;
 
   /// No description provided for @insightsAvgSleepRoutine.
   ///
   /// In en, this message translates to:
-  /// **'Avg Sleep Routine'**
+  /// **'Sleep Routine'**
   String get insightsAvgSleepRoutine;
 
   /// No description provided for @insightsHeatmapTitle.
@@ -2527,6 +2539,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not enough data yet'**
   String get insightsNoData;
+
+  /// No description provided for @insightsWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Win'**
+  String get insightsWin;
+
+  /// No description provided for @insightsLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss'**
+  String get insightsLoss;
+
+  /// No description provided for @insightsFreeze.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze'**
+  String get insightsFreeze;
 
   /// No description provided for @milestonesTitle.
   ///

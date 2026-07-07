@@ -88,6 +88,7 @@ class _InsightsView extends StatelessWidget {
                           _SectionTitle(l10n.insightsMilestones),
                           SizedBox(height: 12.h),
                           NextBadgeCard(
+                            currentBadge: state.currentBadge,
                             nextBadge: state.nextBadge,
                             currentStreak: state.currentStreak,
                             onTap: () => _openMilestones(ctx),
@@ -455,7 +456,7 @@ class _StatCard extends StatelessWidget {
     final c = AppColors.of(context);
     return Expanded(
       child: Container(
-        padding: EdgeInsets.all(14.w),
+        padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: c.card,
           borderRadius: BorderRadius.circular(14.r),
@@ -465,13 +466,14 @@ class _StatCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 14.sp, color: c.textSecondary),
-                SizedBox(width: 4.w),
+                Icon(icon, size: 13.sp, color: c.textSecondary),
+                SizedBox(width: 3.w),
                 Expanded(
                   child: Text(
                     label,
+                    maxLines: 1,
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: 10.sp,
                       color: c.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -479,16 +481,16 @@ class _StatCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 6.h),
+            SizedBox(height: 5.h),
             Text(
               value,
-              maxLines: 1,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-
-                fontSize: 18.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.bold,
                 color: c.textPrimary,
-                                   overflow: TextOverflow.ellipsis,
+                height: 1.1,
               ),
             ),
           ],

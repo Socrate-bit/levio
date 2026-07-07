@@ -3,11 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../../shared/theme/app_theme.dart';
+import '../../milestones/services/streak_service.dart';
 import '../cubit/insights_state.dart';
 
 /// GitHub-style contribution grid: one column per week, one rounded cell per
-/// day. Cell colour reflects completed wake-ups (orange, brighter with more)
-/// versus missed-only days (faint red).
+/// day. Colours match the home week view — win (blue), freeze (light blue),
+/// loss (red), no alarm (faint).
 class StreakHeatmap extends StatelessWidget {
   final List<HeatmapDay> days;
 
@@ -18,8 +19,11 @@ class StreakHeatmap extends StatelessWidget {
     final c = AppColors.of(context);
     final l10n = AppLocalizations.of(context);
     final weeks = (days.length / 7).ceil();
-    final today = DateTime.now();
-    final todayKey = _key(DateTime(today.year, today.month, today.day));
+
+    final winColor = AppColors.blue;
+    final freezeColor = AppColors.blue.withAlpha(90);
+    final lossColor = AppColors.error;
+    final emptyColor = c.textSecondary.withAlpha(20);
 
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -52,52 +56,58 @@ class StreakHeatmap extends StatelessWidget {
                     days: days,
                     cell: cell,
                     gap: gap,
-                    todayKey: todayKey,
-                    emptyColor: c.textSecondary.withAlpha(20),
-                    missedColor: AppColors.error.withAlpha(60),
-                    completedColor: AppColors.orange,
+                    winColor: winColor,
+                    freezeColor: freezeColor,
+                    lossColor: lossColor,
+                    emptyColor: emptyColor,
                     todayBorder: c.textPrimary.withAlpha(120),
                   ),
                 ),
               );
             },
           ),
-          SizedBox(height: 10.h),
-          _Legend(c: c),
+          SizedBox(height: 12.h),
+          Row(
+            children: [
+              _LegendItem(color: winColor, label: l10n.insightsWin),
+              SizedBox(width: 14.w),
+              _LegendItem(color: freezeColor, label: l10n.insightsFreeze),
+              SizedBox(width: 14.w),
+              _LegendItem(color: lossColor, label: l10n.insightsLoss),
+            ],
+          ),
         ],
       ),
     );
   }
-
-  String _key(DateTime t) => '${t.year}-${t.month}-${t.day}';
 }
 
 class _HeatmapPainter extends CustomPainter {
   final List<HeatmapDay> days;
   final double cell;
   final double gap;
-  final String todayKey;
+  final Color winColor;
+  final Color freezeColor;
+  final Color lossColor;
   final Color emptyColor;
-  final Color missedColor;
-  final Color completedColor;
   final Color todayBorder;
 
   _HeatmapPainter({
     required this.days,
     required this.cell,
     required this.gap,
-    required this.todayKey,
+    required this.winColor,
+    required this.freezeColor,
+    required this.lossColor,
     required this.emptyColor,
-    required this.missedColor,
-    required this.completedColor,
     required this.todayBorder,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final radius = Radius.circular(cell * 0.28);
-    final today = DateTime.now();
-    final todayDate = DateTime(today.year, today.month, today.day);
+    final now = DateTime.now();
+    final todayDate = DateTime(now.year, now.month, now.day);
 
     for (var i = 0; i < days.length; i++) {
       final day = days[i];
@@ -112,19 +122,23 @@ class _HeatmapPainter extends CustomPainter {
 
       final Color color;
       if (day.date.isAfter(todayDate)) {
-        // Future days: keep the grid rectangular but barely visible.
         color = emptyColor.withAlpha(10);
-      } else if (day.count > 0) {
-        color = completedColor.withAlpha(_intensityAlpha(day.count));
-      } else if (day.missed) {
-        color = missedColor;
       } else {
-        color = emptyColor;
+        switch (day.status) {
+          case DayStatus.done:
+            color = winColor;
+          case DayStatus.frozen:
+            color = freezeColor;
+          case DayStatus.missed:
+            color = lossColor;
+          case DayStatus.none:
+            color = emptyColor;
+        }
       }
 
       canvas.drawRRect(rect, Paint()..color = color);
 
-      if ('${day.date.year}-${day.date.month}-${day.date.day}' == todayKey) {
+      if (day.date == todayDate) {
         canvas.drawRRect(
           rect,
           Paint()
@@ -136,39 +150,35 @@ class _HeatmapPainter extends CustomPainter {
     }
   }
 
-  int _intensityAlpha(int count) {
-    if (count >= 3) return 255;
-    if (count == 2) return 190;
-    return 120;
-  }
-
   @override
   bool shouldRepaint(covariant _HeatmapPainter oldDelegate) =>
       oldDelegate.days != days || oldDelegate.cell != cell;
 }
 
-class _Legend extends StatelessWidget {
-  final AppColors c;
-  const _Legend({required this.c});
+class _LegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+  const _LegendItem({required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
-    Widget swatch(Color color) => Container(
-          width: 12.w,
-          height: 12.w,
-          margin: EdgeInsets.symmetric(horizontal: 2.w),
+    final c = AppColors.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 11.w,
+          height: 11.w,
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(3.r),
           ),
-        );
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        swatch(c.textSecondary.withAlpha(20)),
-        swatch(AppColors.orange.withAlpha(120)),
-        swatch(AppColors.orange.withAlpha(190)),
-        swatch(AppColors.orange),
+        ),
+        SizedBox(width: 5.w),
+        Text(
+          label,
+          style: TextStyle(fontSize: 11.sp, color: c.textSecondary),
+        ),
       ],
     );
   }
