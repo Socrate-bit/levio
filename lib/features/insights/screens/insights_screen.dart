@@ -7,6 +7,9 @@ import '../../../shared/utils/haptic_utils.dart';
 
 import '../../../shared/theme/app_theme.dart';
 import '../widgets/hexagon_badge.dart';
+import '../widgets/next_badge_card.dart';
+import '../widgets/streak_heatmap.dart';
+import '../widgets/success_progression_chart.dart';
 import '../../milestones/screens/milestones_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/mission_icon.dart';
@@ -39,6 +42,11 @@ class _InsightsScreenState extends State<InsightsScreen>
 class _InsightsView extends StatelessWidget {
   const _InsightsView();
 
+  void _openMilestones(BuildContext ctx) => Navigator.push(
+        ctx,
+        MaterialPageRoute(builder: (_) => const MilestonesScreen()),
+      );
+
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -51,7 +59,10 @@ class _InsightsView extends StatelessWidget {
             bottom: false,
             child: state.loading
                 ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
+                : RefreshIndicator(
+                    onRefresh: () => ctx.read<InsightsCubit>().load(),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 120.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,20 +82,23 @@ class _InsightsView extends StatelessWidget {
                             onChanged: (r) =>
                                 ctx.read<InsightsCubit>().changeRange(r),
                           ),
+
+                          // ── Milestones ──────────────────────────────────
                           SizedBox(height: 20.h),
-                          // Streak + Badges cards row
+                          _SectionTitle(l10n.insightsMilestones),
+                          SizedBox(height: 12.h),
+                          NextBadgeCard(
+                            nextBadge: state.nextBadge,
+                            currentStreak: state.currentStreak,
+                            onTap: () => _openMilestones(ctx),
+                          ),
+                          SizedBox(height: 12.h),
                           Row(
                             children: [
                               Expanded(
                                 child: _StreakCard(
                                   streak: state.currentStreak,
-                                  onTap: () => Navigator.push(
-                                    ctx,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const MilestonesScreen(),
-                                    ),
-                                  ),
+                                  onTap: () => _openMilestones(ctx),
                                 ),
                               ),
                               SizedBox(width: 12.w),
@@ -92,42 +106,88 @@ class _InsightsView extends StatelessWidget {
                                 child: _BadgesCard(
                                   earned: state.badgesEarned,
                                   total: state.totalBadges,
-                                  onTap: () => Navigator.push(
-                                    ctx,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const MilestonesScreen(),
-                                    ),
-                                  ),
+                                  onTap: () => _openMilestones(ctx),
                                 ),
                               ),
                             ],
                           ),
+
+                          // ── Streak ──────────────────────────────────────
                           SizedBox(height: 22.h),
-                          Text(
-                            l10n.insightsStats,
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: c.textPrimary,
-                            ),
-                          ),
+                          _SectionTitle(l10n.insightsStreakSection),
                           SizedBox(height: 12.h),
                           Row(
                             children: [
                               _StatCard(
-                                icon: Icons.access_time_outlined,
+                                icon: Icons.local_fire_department_outlined,
+                                label: l10n.insightsBestStreak,
+                                value: '${state.longestStreak}',
+                              ),
+                              SizedBox(width: 12.w),
+                              _StatCard(
+                                icon: Icons.check_circle_outline,
+                                label: l10n.insightsSuccesses,
+                                value: '${state.successCount}',
+                              ),
+                              SizedBox(width: 12.w),
+                              _StatCard(
+                                icon: Icons.percent_outlined,
+                                label: l10n.insightsSuccessRate,
+                                value: '${state.successRate.round()}%',
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          StreakHeatmap(days: state.heatmap),
+
+                          // ── Success over time ───────────────────────────
+                          SizedBox(height: 22.h),
+                          _SectionTitle(l10n.insightsSuccessSection),
+                          SizedBox(height: 12.h),
+                          SuccessProgressionChart(
+                            points: state.progression,
+                            range: state.range,
+                          ),
+
+                          // ── Timing ──────────────────────────────────────
+                          SizedBox(height: 22.h),
+                          _SectionTitle(l10n.insightsTiming),
+                          SizedBox(height: 12.h),
+                          Row(
+                            children: [
+                              _StatCard(
+                                icon: Icons.wb_sunny_outlined,
                                 label: l10n.insightsAvgWakeTime,
                                 value: state.avgWakeTime,
                               ),
                               SizedBox(width: 12.w),
                               _StatCard(
-                                icon: Icons.timer_outlined,
-                                label: l10n.insightsAvgResponse,
-                                value: state.avgResponseTime,
+                                icon: Icons.nightlight_outlined,
+                                label: l10n.insightsAvgSleepTime,
+                                value: state.avgSleepTime,
                               ),
                             ],
                           ),
+                          SizedBox(height: 12.h),
+                          Row(
+                            children: [
+                              _StatCard(
+                                icon: Icons.timer_outlined,
+                                label: l10n.insightsAvgWakeRoutine,
+                                value: state.avgWakeRoutine,
+                              ),
+                              SizedBox(width: 12.w),
+                              _StatCard(
+                                icon: Icons.bedtime_outlined,
+                                label: l10n.insightsAvgSleepRoutine,
+                                value: state.avgSleepRoutine,
+                              ),
+                            ],
+                          ),
+
+                          // ── Preferences ─────────────────────────────────
+                          SizedBox(height: 22.h),
+                          _SectionTitle(l10n.insightsPreferences),
                           SizedBox(height: 12.h),
                           Row(
                             children: [
@@ -136,7 +196,9 @@ class _InsightsView extends StatelessWidget {
                                 label: l10n.insightsFavoriteMission,
                                 value: state.favoriteMission == '--'
                                     ? '--'
-                                    : localizedMissionName(l10n, MissionType.values.byName(state.favoriteMission)),
+                                    : localizedMissionName(l10n,
+                                        MissionType.values
+                                            .byName(state.favoriteMission)),
                               ),
                               SizedBox(width: 12.w),
                               _StatCard(
@@ -144,20 +206,15 @@ class _InsightsView extends StatelessWidget {
                                 label: l10n.insightsFavoriteSound,
                                 value: state.favoriteSound == '--'
                                     ? '--'
-                                    : localizedSoundName(l10n, state.favoriteSound),
+                                    : localizedSoundName(
+                                        l10n, state.favoriteSound),
                               ),
                             ],
                           ),
+
+                          // ── Sessions ────────────────────────────────────
                           SizedBox(height: 24.h),
-                          // History section
-                          Text(
-                            l10n.sessionsTitle,
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: c.textPrimary,
-                            ),
-                          ),
+                          _SectionTitle(l10n.sessionsTitle),
                           SizedBox(height: 12.h),
                           if (state.sessions.isEmpty)
                             Center(
@@ -174,21 +231,40 @@ class _InsightsView extends StatelessWidget {
                             )
                           else
                             ...state.sessions.asMap().entries.map(
-                              (entry) => Padding(
-                                padding: EdgeInsets.only(bottom: 10.h),
-                                child: _SessionTile(
-                                  session: entry.value,
-                                  wakeupNumber:
-                                      state.totalWakeups - entry.key,
+                                  (entry) => Padding(
+                                    padding: EdgeInsets.only(bottom: 10.h),
+                                    child: _SessionTile(
+                                      session: entry.value,
+                                      wakeupNumber:
+                                          state.totalWakeups - entry.key,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
                         ],
                       ),
                     ),
+                  ),
           ),
         );
       },
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  const _SectionTitle(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 18.sp,
+        fontWeight: FontWeight.bold,
+        color: c.textPrimary,
+      ),
     );
   }
 }
@@ -418,174 +494,6 @@ class _StatCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ConsistencyCard extends StatelessWidget {
-  final double score;
-  const _ConsistencyCard({required this.score});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                l10n.insightsConsistency,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: c.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: withHaptic(() => _showInfo(context)),
-                child: Icon(Icons.help_outline,
-                    size: 18.sp, color: c.textSecondary),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          if (score < 30)
-            Text(
-              l10n.insightsNeed3Wakeups,
-              style: TextStyle(
-                fontSize: 13.sp,
-                color: c.textSecondary,
-              ),
-            ),
-          SizedBox(height: 12.h),
-          // Multi-color progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6.r),
-            child: SizedBox(
-              height: 12.h,
-              child: Stack(
-                children: [
-                  // Background gradient
-                  const Row(
-                    children: [
-                      Expanded(
-                        flex: 30,
-                        child: ColoredBox(color: Color(0xFFFC8181)),
-                      ),
-                      Expanded(
-                        flex: 20,
-                        child: ColoredBox(color: Color(0xFFED8936)),
-                      ),
-                      Expanded(
-                        flex: 20,
-                        child: ColoredBox(color: Color(0xFF4299E1)),
-                      ),
-                      Expanded(
-                        flex: 30,
-                        child: ColoredBox(color: Color(0xFF48BB78)),
-                      ),
-                    ],
-                  ),
-                  // Dark overlay to show "unfilled" portion
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: (1 - score / 100) *
-                        (MediaQuery.of(context).size.width - 72.w),
-                    child: Container(
-                      color: c.card.withAlpha(200),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('0',
-                  style: TextStyle(
-                      fontSize: 11.sp, color: c.textSecondary)),
-              Text('30',
-                  style: TextStyle(
-                      fontSize: 11.sp, color: c.textSecondary)),
-              Text('50',
-                  style: TextStyle(
-                      fontSize: 11.sp, color: c.textSecondary)),
-              Text('70',
-                  style: TextStyle(
-                      fontSize: 11.sp, color: c.textSecondary)),
-              Text('100',
-                  style: TextStyle(
-                      fontSize: 11.sp, color: c.textSecondary)),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          Wrap(
-            spacing: 12.w,
-            children: [
-              _LegendDot(color: const Color(0xFFFC8181), label: l10n.insightsConsistencyVariable),
-              _LegendDot(color: const Color(0xFFED8936), label: l10n.insightsConsistencyImproving),
-              _LegendDot(color: const Color(0xFF4299E1), label: l10n.insightsConsistencyRegular),
-              _LegendDot(color: const Color(0xFF48BB78), label: l10n.insightsConsistencyConsistent),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showInfo(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(l10n.insightsConsistencyScoreTitle),
-        content: Text(l10n.insightsConsistencyScoreBody),
-        actions: [
-          TextButton(
-            onPressed: withHaptic(() => Navigator.pop(context)),
-            child: Text(l10n.insightsOk),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LegendDot extends StatelessWidget {
-  final Color color;
-  final String label;
-
-  const _LegendDot({required this.color, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 8.w,
-          height: 8.h,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        SizedBox(width: 4.w),
-        Text(label,
-            style: TextStyle(
-                fontSize: 11.sp, color: c.textSecondary)),
-      ],
     );
   }
 }

@@ -452,6 +452,28 @@
   "insightsConsistencyScoreTitle": "Consistency Score",
   "insightsConsistencyScoreBody": "Your consistency score measures how regularly you wake up with Levio. It improves as your streak grows.",
   "insightsOk": "OK",
+  "insightsMilestones": "Milestones",
+  "insightsStreakSection": "Streak",
+  "insightsSuccessSection": "Success",
+  "insightsTiming": "Timing",
+  "insightsPreferences": "Preferences",
+  "insightsBestStreak": "Best Streak",
+  "insightsNextBadge": "Next Badge",
+  "insightsDaysToBadge": "{count, plural, =1{1 day to go} other{{count} days to go}}",
+  "@insightsDaysToBadge": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "insightsAllBadgesEarned": "All badges earned!",
+  "insightsSuccesses": "Successes",
+  "insightsSuccessRate": "Success Rate",
+  "insightsAvgSleepTime": "Avg Sleep Time",
+  "insightsAvgWakeRoutine": "Avg Wake-up Routine",
+  "insightsAvgSleepRoutine": "Avg Sleep Routine",
+  "insightsHeatmapTitle": "Activity",
+  "insightsProgressionTitle": "Success Over Time",
+  "insightsNoData": "Not enough data yet",
 
   "milestonesTitle": "Milestones",
   "milestonesDayStreak": "Day Streak",

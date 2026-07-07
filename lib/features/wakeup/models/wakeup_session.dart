@@ -24,6 +24,11 @@ class WakeupSession {
   /// Enforces one spin per day.
   final bool spinToWinUsed;
 
+  /// True when this session came from a bedtime (sleep) alarm rather than a
+  /// wake-up alarm. Drives the sleep-vs-wake-up split on the insights page.
+  /// Legacy docs without the field default to wake-up (false).
+  final bool isSleep;
+
   const WakeupSession({
     required this.id,
     this.alarmId,
@@ -35,6 +40,7 @@ class WakeupSession {
     this.autoDismissed = false,
     this.screenTimeDisabled = false,
     this.spinToWinUsed = false,
+    this.isSleep = false,
   });
 
   Map<String, dynamic> toFirestore() => {
@@ -47,6 +53,7 @@ class WakeupSession {
         'autoDismissed': autoDismissed,
         'screenTimeDisabled': screenTimeDisabled,
         if (spinToWinUsed) 'spinToWinUsed': true,
+        if (isSleep) 'isSleep': true,
       };
 
   factory WakeupSession.fromFirestore(String id, Map<String, dynamic> data) {
@@ -64,6 +71,7 @@ class WakeupSession {
       autoDismissed: (data['autoDismissed'] as bool?) ?? false,
       screenTimeDisabled: (data['screenTimeDisabled'] as bool?) ?? false,
       spinToWinUsed: (data['spinToWinUsed'] as bool?) ?? false,
+      isSleep: (data['isSleep'] as bool?) ?? false,
     );
   }
 }

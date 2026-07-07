@@ -1174,6 +1174,65 @@ class AppLocalizationsFr extends AppLocalizations {
   String get insightsOk => 'OK';
 
   @override
+  String get insightsMilestones => 'Étapes';
+
+  @override
+  String get insightsStreakSection => 'Série';
+
+  @override
+  String get insightsSuccessSection => 'Réussite';
+
+  @override
+  String get insightsTiming => 'Horaires';
+
+  @override
+  String get insightsPreferences => 'Préférences';
+
+  @override
+  String get insightsBestStreak => 'Meilleure série';
+
+  @override
+  String get insightsNextBadge => 'Prochain badge';
+
+  @override
+  String insightsDaysToBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours restants',
+      one: '1 jour restant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insightsAllBadgesEarned => 'Tous les badges obtenus !';
+
+  @override
+  String get insightsSuccesses => 'Réussites';
+
+  @override
+  String get insightsSuccessRate => 'Taux de réussite';
+
+  @override
+  String get insightsAvgSleepTime => 'Heure moy. de coucher';
+
+  @override
+  String get insightsAvgWakeRoutine => 'Routine de réveil moy.';
+
+  @override
+  String get insightsAvgSleepRoutine => 'Routine de coucher moy.';
+
+  @override
+  String get insightsHeatmapTitle => 'Activité';
+
+  @override
+  String get insightsProgressionTitle => 'Réussite dans le temps';
+
+  @override
+  String get insightsNoData => 'Pas encore assez de données';
+
+  @override
   String get milestonesTitle => 'Étapes';
 
   @override

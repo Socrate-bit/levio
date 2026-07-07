@@ -2324,6 +2324,108 @@ abstract class AppLocalizations {
   /// **'OK'**
   String get insightsOk;
 
+  /// No description provided for @insightsMilestones.
+  ///
+  /// In en, this message translates to:
+  /// **'Milestones'**
+  String get insightsMilestones;
+
+  /// No description provided for @insightsStreakSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get insightsStreakSection;
+
+  /// No description provided for @insightsSuccessSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get insightsSuccessSection;
+
+  /// No description provided for @insightsTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'Timing'**
+  String get insightsTiming;
+
+  /// No description provided for @insightsPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get insightsPreferences;
+
+  /// No description provided for @insightsBestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Streak'**
+  String get insightsBestStreak;
+
+  /// No description provided for @insightsNextBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Badge'**
+  String get insightsNextBadge;
+
+  /// No description provided for @insightsDaysToBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day to go} other{{count} days to go}}'**
+  String insightsDaysToBadge(int count);
+
+  /// No description provided for @insightsAllBadgesEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'All badges earned!'**
+  String get insightsAllBadgesEarned;
+
+  /// No description provided for @insightsSuccesses.
+  ///
+  /// In en, this message translates to:
+  /// **'Successes'**
+  String get insightsSuccesses;
+
+  /// No description provided for @insightsSuccessRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Success Rate'**
+  String get insightsSuccessRate;
+
+  /// No description provided for @insightsAvgSleepTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Sleep Time'**
+  String get insightsAvgSleepTime;
+
+  /// No description provided for @insightsAvgWakeRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Wake-up Routine'**
+  String get insightsAvgWakeRoutine;
+
+  /// No description provided for @insightsAvgSleepRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Sleep Routine'**
+  String get insightsAvgSleepRoutine;
+
+  /// No description provided for @insightsHeatmapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get insightsHeatmapTitle;
+
+  /// No description provided for @insightsProgressionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Success Over Time'**
+  String get insightsProgressionTitle;
+
+  /// No description provided for @insightsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data yet'**
+  String get insightsNoData;
+
   /// No description provided for @milestonesTitle.
   ///
   /// In en, this message translates to:

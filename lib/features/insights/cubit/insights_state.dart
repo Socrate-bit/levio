@@ -1,18 +1,60 @@
+import '../../milestones/models/badge_model.dart';
 import '../../wakeup/models/wakeup_session.dart';
 
 enum InsightsRange { week, month, allTime }
 
+/// A single calendar day in the streak heatmap.
+class HeatmapDay {
+  final DateTime date;
+
+  /// Number of completed wake-ups that day (drives colour intensity).
+  final int count;
+
+  /// True when the day only had missed alarms (no completion).
+  final bool missed;
+
+  const HeatmapDay({
+    required this.date,
+    this.count = 0,
+    this.missed = false,
+  });
+}
+
+/// A single bucket on the success-rate progression chart. [date] is the bucket
+/// start; the widget formats the axis label from it (day / week / month) using
+/// l10n, so the cubit stays localization-free.
+class ProgressPoint {
+  final DateTime date;
+
+  /// Success rate for the bucket, 0–100. Null when the bucket had no alarms.
+  final double? rate;
+
+  const ProgressPoint({required this.date, this.rate});
+}
+
 class InsightsState {
   final int currentStreak;
   final int longestStreak;
-  final List<bool> weekDays;
   final int badgesEarned;
   final int totalBadges;
+
+  /// Next unearned streak badge, or null once every streak badge is earned.
+  final BadgeModel? nextBadge;
+
+  final int successCount;
+  final double successRate; // 0–100
+
   final String avgWakeTime;
-  final String avgResponseTime;
+  final String avgSleepTime;
+  final String avgWakeRoutine;
+  final String avgSleepRoutine;
+
   final String favoriteMission;
   final String favoriteSound;
-  final double consistency; // 0–100
+
+  final List<HeatmapDay> heatmap;
+  final List<ProgressPoint> progression;
+
   final InsightsRange range;
   final bool loading;
   final List<WakeupSession> sessions;
@@ -21,14 +63,19 @@ class InsightsState {
   const InsightsState({
     this.currentStreak = 0,
     this.longestStreak = 0,
-    this.weekDays = const [false, false, false, false, false, false, false],
     this.badgesEarned = 0,
     this.totalBadges = 13,
+    this.nextBadge,
+    this.successCount = 0,
+    this.successRate = 0,
     this.avgWakeTime = '--:--',
-    this.avgResponseTime = '--',
+    this.avgSleepTime = '--:--',
+    this.avgWakeRoutine = '--',
+    this.avgSleepRoutine = '--',
     this.favoriteMission = '--',
     this.favoriteSound = '--',
-    this.consistency = 0,
+    this.heatmap = const [],
+    this.progression = const [],
     this.range = InsightsRange.week,
     this.loading = true,
     this.sessions = const [],
@@ -38,14 +85,19 @@ class InsightsState {
   InsightsState copyWith({
     int? currentStreak,
     int? longestStreak,
-    List<bool>? weekDays,
     int? badgesEarned,
     int? totalBadges,
+    BadgeModel? nextBadge,
+    int? successCount,
+    double? successRate,
     String? avgWakeTime,
-    String? avgResponseTime,
+    String? avgSleepTime,
+    String? avgWakeRoutine,
+    String? avgSleepRoutine,
     String? favoriteMission,
     String? favoriteSound,
-    double? consistency,
+    List<HeatmapDay>? heatmap,
+    List<ProgressPoint>? progression,
     InsightsRange? range,
     bool? loading,
     List<WakeupSession>? sessions,
@@ -54,14 +106,21 @@ class InsightsState {
       InsightsState(
         currentStreak: currentStreak ?? this.currentStreak,
         longestStreak: longestStreak ?? this.longestStreak,
-        weekDays: weekDays ?? this.weekDays,
         badgesEarned: badgesEarned ?? this.badgesEarned,
         totalBadges: totalBadges ?? this.totalBadges,
+        // nextBadge is nullable and can legitimately become null (all earned),
+        // so it is always passed explicitly from _recompute rather than merged.
+        nextBadge: nextBadge,
+        successCount: successCount ?? this.successCount,
+        successRate: successRate ?? this.successRate,
         avgWakeTime: avgWakeTime ?? this.avgWakeTime,
-        avgResponseTime: avgResponseTime ?? this.avgResponseTime,
+        avgSleepTime: avgSleepTime ?? this.avgSleepTime,
+        avgWakeRoutine: avgWakeRoutine ?? this.avgWakeRoutine,
+        avgSleepRoutine: avgSleepRoutine ?? this.avgSleepRoutine,
         favoriteMission: favoriteMission ?? this.favoriteMission,
         favoriteSound: favoriteSound ?? this.favoriteSound,
-        consistency: consistency ?? this.consistency,
+        heatmap: heatmap ?? this.heatmap,
+        progression: progression ?? this.progression,
         range: range ?? this.range,
         loading: loading ?? this.loading,
         sessions: sessions ?? this.sessions,
