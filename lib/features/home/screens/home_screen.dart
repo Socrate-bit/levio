@@ -689,7 +689,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.blue,
+                    color: AppColors.orange,
                   ),
                 ),
               ],
