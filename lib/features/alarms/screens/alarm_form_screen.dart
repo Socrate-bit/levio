@@ -28,7 +28,16 @@ class AlarmFormScreen extends StatefulWidget {
   /// When false, the mission picker is hidden.
   final bool showMission;
 
-  const AlarmFormScreen({super.key, this.alarm, this.showMission = true});
+  /// For create mode: preselects the wake-up/sleep type toggle. Ignored when
+  /// editing an existing alarm.
+  final bool? initialIsSleep;
+
+  const AlarmFormScreen({
+    super.key,
+    this.alarm,
+    this.showMission = true,
+    this.initialIsSleep,
+  });
 
   @override
   State<AlarmFormScreen> createState() => _AlarmFormScreenState();
@@ -88,7 +97,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       _missions = (def != null && def.type != MissionType.none) ? [def] : [];
       _soundId = settings.defaultSoundId;
       _soundName = settings.defaultSoundName;
-      _isSleep = false;
+      _isSleep = widget.initialIsSleep ?? false;
       _gentle = false;
       _reminderEnabled = false;
       _reminderMinutes = 15;

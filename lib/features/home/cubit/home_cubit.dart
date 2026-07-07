@@ -55,7 +55,9 @@ class HomeCubit extends Cubit<HomeState> {
 
     emit(state.copyWith(
       currentStreak: result.streak,
+      longestStreak: _profile.longestStreak,
       weekDays: result.weekDays,
+      earnedBadgeIds: _profile.earnedBadgeIds,
       lastSession: lastSession,
       clearLastSession: lastSession == null,
       totalWakeups: _profile.totalWakeups,

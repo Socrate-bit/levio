@@ -141,6 +141,49 @@
   "homeNoWakeupsYet": "No wakeups yet",
   "homeSetAlarmToStart": "Set an alarm to get started",
 
+  "homeCurrentStreak": "current streak",
+  "homeBestStreak": "Best · {days}",
+  "@homeBestStreak": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "homeDayBadge": "{days}-day badge",
+  "@homeDayBadge": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "homeNextBadge": "Next badge · {days} days",
+  "@homeNextBadge": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "homeAllBadgesEarned": "All badges earned",
+  "homeNextWake": "Next · Wake-up",
+  "homeNextSleep": "Next · Sleep",
+  "homeInBed": "in bed",
+  "homeBedtime": "Bedtime",
+  "homeWakeUp": "Wake up",
+  "homeSetBedtime": "Set bedtime",
+  "homeSetWakeUp": "Set wake-up",
+  "homeScreenBlocker": "Screen blocker",
+  "homeBlockerActiveUntil": "Active until {time}",
+  "@homeBlockerActiveUntil": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "homeBlockerActiveIn": "Active in {hours}h {minutes}m",
+  "@homeBlockerActiveIn": {
+    "placeholders": {
+      "hours": { "type": "int" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "homeBlockerOff": "Off",
+
   "monthJan": "Jan",
   "monthFeb": "Feb",
   "monthMar": "Mar",

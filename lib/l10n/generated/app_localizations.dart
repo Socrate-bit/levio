@@ -770,6 +770,102 @@ abstract class AppLocalizations {
   /// **'Set an alarm to get started'**
   String get homeSetAlarmToStart;
 
+  /// No description provided for @homeCurrentStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'current streak'**
+  String get homeCurrentStreak;
+
+  /// No description provided for @homeBestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best · {days}'**
+  String homeBestStreak(int days);
+
+  /// No description provided for @homeDayBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}-day badge'**
+  String homeDayBadge(int days);
+
+  /// No description provided for @homeNextBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Next badge · {days} days'**
+  String homeNextBadge(int days);
+
+  /// No description provided for @homeAllBadgesEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'All badges earned'**
+  String get homeAllBadgesEarned;
+
+  /// No description provided for @homeNextWake.
+  ///
+  /// In en, this message translates to:
+  /// **'Next · Wake-up'**
+  String get homeNextWake;
+
+  /// No description provided for @homeNextSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Next · Sleep'**
+  String get homeNextSleep;
+
+  /// No description provided for @homeInBed.
+  ///
+  /// In en, this message translates to:
+  /// **'in bed'**
+  String get homeInBed;
+
+  /// No description provided for @homeBedtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Bedtime'**
+  String get homeBedtime;
+
+  /// No description provided for @homeWakeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake up'**
+  String get homeWakeUp;
+
+  /// No description provided for @homeSetBedtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Set bedtime'**
+  String get homeSetBedtime;
+
+  /// No description provided for @homeSetWakeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set wake-up'**
+  String get homeSetWakeUp;
+
+  /// No description provided for @homeScreenBlocker.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen blocker'**
+  String get homeScreenBlocker;
+
+  /// No description provided for @homeBlockerActiveUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Active until {time}'**
+  String homeBlockerActiveUntil(String time);
+
+  /// No description provided for @homeBlockerActiveIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Active in {hours}h {minutes}m'**
+  String homeBlockerActiveIn(int hours, int minutes);
+
+  /// No description provided for @homeBlockerOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get homeBlockerOff;
+
   /// No description provided for @monthJan.
   ///
   /// In en, this message translates to:

@@ -358,6 +358,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeSetAlarmToStart => 'Set an alarm to get started';
 
   @override
+  String get homeCurrentStreak => 'current streak';
+
+  @override
+  String homeBestStreak(int days) {
+    return 'Best · $days';
+  }
+
+  @override
+  String homeDayBadge(int days) {
+    return '$days-day badge';
+  }
+
+  @override
+  String homeNextBadge(int days) {
+    return 'Next badge · $days days';
+  }
+
+  @override
+  String get homeAllBadgesEarned => 'All badges earned';
+
+  @override
+  String get homeNextWake => 'Next · Wake-up';
+
+  @override
+  String get homeNextSleep => 'Next · Sleep';
+
+  @override
+  String get homeInBed => 'in bed';
+
+  @override
+  String get homeBedtime => 'Bedtime';
+
+  @override
+  String get homeWakeUp => 'Wake up';
+
+  @override
+  String get homeSetBedtime => 'Set bedtime';
+
+  @override
+  String get homeSetWakeUp => 'Set wake-up';
+
+  @override
+  String get homeScreenBlocker => 'Screen blocker';
+
+  @override
+  String homeBlockerActiveUntil(String time) {
+    return 'Active until $time';
+  }
+
+  @override
+  String homeBlockerActiveIn(int hours, int minutes) {
+    return 'Active in ${hours}h ${minutes}m';
+  }
+
+  @override
+  String get homeBlockerOff => 'Off';
+
+  @override
   String get monthJan => 'Jan';
 
   @override
