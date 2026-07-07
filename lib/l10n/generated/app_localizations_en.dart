@@ -2322,6 +2322,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingReferralLimit => 'This code has reached its usage limit';
 
   @override
+  String get onboardingPhoneTitle => 'What\'s your\nphone number?';
+
+  @override
+  String get onboardingPhoneSubtitle =>
+      'We\'ll reach out with early access to new beta features.';
+
+  @override
+  String get onboardingPhoneHint => 'Phone number';
+
+  @override
+  String get onboardingPhoneInvalid => 'Please enter a valid phone number';
+
+  @override
   String get onboardingSignatureTitle => 'Lock in your\ncommitment';
 
   @override

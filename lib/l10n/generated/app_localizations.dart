@@ -4388,6 +4388,30 @@ abstract class AppLocalizations {
   /// **'This code has reached its usage limit'**
   String get onboardingReferralLimit;
 
+  /// No description provided for @onboardingPhoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your\nphone number?'**
+  String get onboardingPhoneTitle;
+
+  /// No description provided for @onboardingPhoneSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll reach out with early access to new beta features.'**
+  String get onboardingPhoneSubtitle;
+
+  /// No description provided for @onboardingPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get onboardingPhoneHint;
+
+  /// No description provided for @onboardingPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number'**
+  String get onboardingPhoneInvalid;
+
   /// No description provided for @onboardingSignatureTitle.
   ///
   /// In en, this message translates to:

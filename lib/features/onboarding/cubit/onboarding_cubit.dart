@@ -272,6 +272,30 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     emit(state.copyWith(referralCode: code, referralStatus: ReferralStatus.none));
   }
 
+  // --- Beta phone step (gated by beta_phone flag) ---
+
+  void setPhoneNumber(String value) {
+    emit(state.copyWith(phoneNumber: value));
+  }
+
+  /// Persists the collected phone number on the user doc. Runs after sign-in
+  /// (paywall precedes trial), so the uid is available.
+  Future<void> savePhoneNumber() async {
+    final uid = AuthService.uidOrNull;
+    if (uid == null) return;
+    final phone = state.phoneNumber.trim();
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set({'phone': phone}, SetOptions(merge: true));
+      AnalyticsService.setUserProperty('phone', phone);
+    } catch (e, st) {
+      debugPrint('[OnboardingCubit] phone save failed: $e');
+      AnalyticsService.trackError('OnboardingCubit.savePhoneNumber', e, st);
+    }
+  }
+
   /// Client-side validation only — redemption happens in completeOnboarding.
   Future<void> submitReferralCode() async {
     if (state.referralCode.trim().isEmpty) return;

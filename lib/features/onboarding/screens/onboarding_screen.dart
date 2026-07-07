@@ -18,6 +18,7 @@ import '../../subscription/cubit/subscription_cubit.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
 import '../data/mission_explanations.dart';
+import '../onboarding_config.dart';
 import '../widgets/day_picker_step.dart';
 import '../widgets/energy_chart.dart';
 import '../widgets/info_step.dart';
@@ -26,6 +27,7 @@ import '../widgets/mission_picker_step.dart';
 import '../widgets/morning_plan_step_v1.dart';
 import '../widgets/notification_step.dart';
 import '../widgets/paywall_step.dart';
+import '../widgets/phone_number_step.dart';
 import '../widgets/rating_step.dart';
 import '../widgets/referral_step.dart';
 import '../widgets/sign_in_step.dart';
@@ -37,7 +39,7 @@ import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
 import '../widgets/time_picker_step.dart';
 
-const _totalPages = 36;
+const _totalPages = 37;
 
 class OnboardingScreen extends StatefulWidget {
   /// Called when the user backs out of the first step. The welcome page is now
@@ -108,11 +110,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  // Ordered list of absolute page indices. The flow is linear (no conditional
-  // pages), so this is simply every page — kept as the single source of truth
-  // for navigation and the progress bar.
-  List<int> _visiblePages(OnboardingState s) =>
-      [for (var i = 0; i < _totalPages; i++) i];
+  // Ordered list of absolute page indices. The only conditional page is the
+  // beta phone step (34), hidden unless the beta_phone flag is on.
+  List<int> _visiblePages(OnboardingState s) => [
+        for (var i = 0; i < _totalPages; i++)
+          if (!(i == 34 && !betaPhoneEnabled.value)) i,
+      ];
 
   double _progressFraction(OnboardingState s) {
     final visible = _visiblePages(s);
@@ -188,6 +191,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_currentPage == 28) {
       InAppReview.instance.requestReview();
     }
+    // Beta phone step: persist the number before advancing to the paywall.
+    if (_currentPage == 34) {
+      FocusScope.of(context).unfocus();
+      await cubit.savePhoneNumber();
+      if (!mounted) return;
+    }
     _next();
   }
 
@@ -195,8 +204,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // Pages that disallow going back (loading, morning plan, paywall, trial).
     if (_currentPage == 31 ||
         _currentPage == 32 ||
-        _currentPage == 34 ||
-        _currentPage == 35) {
+        _currentPage == 35 ||
+        _currentPage == 36) {
       return;
     }
     final visible = _visiblePages(context.read<OnboardingCubit>().state);
@@ -273,8 +282,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 31: // loading — auto-advances
       case 32: // morning plan summary
       case 33: // sign in — has own buttons
-      case 34: // paywall — has own button
-      case 35: // trial reminder — has own button
+        return true;
+      case 34: // beta phone — requires a valid number
+        return isValidPhone(state.phoneNumber);
+      case 35: // paywall — has own button
+      case 36: // trial reminder — has own button
         return true;
       default:
         return true;
@@ -288,8 +300,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       page == 30 ||
       page == 31 ||
       page == 33 ||
-      page == 34 ||
-      page == 35;
+      page == 35 ||
+      page == 36;
 
   @override
   Widget build(BuildContext context) {
@@ -773,9 +785,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 onSkip: _finalizeSignInStep,
                                 onSignInComplete: _finalizeSignInStep,
                               ),
-                              // 34: Paywall - Try for free
+                              // 34: Beta phone number (only when beta_phone on)
+                              PhoneNumberStep(
+                                onChanged: cubit.setPhoneNumber,
+                                showInvalid: state.phoneNumber.isNotEmpty &&
+                                    !isValidPhone(state.phoneNumber),
+                              ),
+                              // 35: Paywall - Try for free
                               PaywallStep(onContinue: _next),
-                              // 35: Trial reminder — finishes onboarding;
+                              // 36: Trial reminder — finishes onboarding;
                               // AuthWrapper reactively swaps to AppGateWrapper.
                               TrialReminderStep(
                                 onContinue: cubit.finishOnboarding,

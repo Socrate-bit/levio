@@ -22,6 +22,8 @@ class OnboardingState extends Equatable {
   final List<bool> repeatDays;
   final String referralCode;
   final ReferralStatus referralStatus;
+  // Phone number collected in the beta phone step (gated by beta_phone flag).
+  final String phoneNumber;
   final bool? keepAlarmDuringMission;
 
   // --- Sleep section (bedtime alarm + screen block + wind-down routine) ---
@@ -59,6 +61,7 @@ class OnboardingState extends Equatable {
     this.repeatDays = const [false, true, true, true, true, true, false],
     this.referralCode = '',
     this.referralStatus = ReferralStatus.none,
+    this.phoneNumber = '',
     this.keepAlarmDuringMission,
     this.wantsSleepAlarm,
     this.sleepTime = const TimeOfDay(hour: 22, minute: 30),
@@ -100,6 +103,7 @@ class OnboardingState extends Equatable {
     List<bool>? repeatDays,
     String? referralCode,
     ReferralStatus? referralStatus,
+    String? phoneNumber,
     bool? keepAlarmDuringMission,
     bool? wantsSleepAlarm,
     TimeOfDay? sleepTime,
@@ -129,6 +133,7 @@ class OnboardingState extends Equatable {
         repeatDays: repeatDays ?? this.repeatDays,
         referralCode: referralCode ?? this.referralCode,
         referralStatus: referralStatus ?? this.referralStatus,
+        phoneNumber: phoneNumber ?? this.phoneNumber,
         keepAlarmDuringMission:
             keepAlarmDuringMission ?? this.keepAlarmDuringMission,
         wantsSleepAlarm: wantsSleepAlarm ?? this.wantsSleepAlarm,
@@ -161,6 +166,7 @@ class OnboardingState extends Equatable {
         repeatDays,
         referralCode,
         referralStatus,
+        phoneNumber,
         keepAlarmDuringMission,
         wantsSleepAlarm,
         sleepTime,

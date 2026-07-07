@@ -833,6 +833,11 @@
   "onboardingReferralInvalid": "Code de parrainage invalide",
   "onboardingReferralLimit": "Ce code a atteint sa limite d'utilisation",
 
+  "onboardingPhoneTitle": "Quel est ton\nnuméro de téléphone ?",
+  "onboardingPhoneSubtitle": "On te contactera pour un accès anticipé aux nouvelles fonctionnalités bêta.",
+  "onboardingPhoneHint": "Numéro de téléphone",
+  "onboardingPhoneInvalid": "Merci d'entrer un numéro de téléphone valide",
+
   "onboardingSignatureTitle": "Engage-toi\nà te lever",
   "onboardingSignatureSubtitle": "Signe ci-dessous pour sortir du lit à {time}. Les pieds au sol.",
   "onboardingSignatureCommit": "Je m'engage",
