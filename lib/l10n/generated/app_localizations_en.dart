@@ -403,6 +403,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeScreenBlocker => 'Screen blocker';
 
   @override
+  String get homeManage => 'Manage';
+
+  @override
   String homeBlockerActiveUntil(String time) {
     return 'Active until $time';
   }

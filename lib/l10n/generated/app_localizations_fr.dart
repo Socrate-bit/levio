@@ -404,6 +404,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeScreenBlocker => 'Blocage d\'écran';
 
   @override
+  String get homeManage => 'Gérer';
+
+  @override
   String homeBlockerActiveUntil(String time) {
     return 'Actif jusqu\'à $time';
   }

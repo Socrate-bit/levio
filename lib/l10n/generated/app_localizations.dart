@@ -848,6 +848,12 @@ abstract class AppLocalizations {
   /// **'Screen blocker'**
   String get homeScreenBlocker;
 
+  /// No description provided for @homeManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get homeManage;
+
   /// No description provided for @homeBlockerActiveUntil.
   ///
   /// In en, this message translates to:

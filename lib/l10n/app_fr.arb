@@ -148,6 +148,7 @@
   "homeSetBedtime": "Définir le coucher",
   "homeSetWakeUp": "Définir le réveil",
   "homeScreenBlocker": "Blocage d'écran",
+  "homeManage": "Gérer",
   "homeBlockerActiveUntil": "Actif jusqu'à {time}",
   "@homeBlockerActiveUntil": {
     "placeholders": {
