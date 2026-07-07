@@ -492,8 +492,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                             child: (_currentPage > 0 &&
                                     _currentPage != 29 &&
                                     _currentPage != 30 &&
-                                    _currentPage != 37 &&
-                                    _currentPage != 38)
+                                    _currentPage != 38 &&
+                                    _currentPage != 39)
                                 ? GestureDetector(
                                     onTap: withHaptic(_back),
                                     child: Container(
