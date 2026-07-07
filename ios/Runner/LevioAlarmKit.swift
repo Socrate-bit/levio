@@ -582,13 +582,15 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
         let soundName = prepareSoundFile(soundPath: soundPath)
         let burstCount = config["burstCount"] as? Int ?? kBurstCount
 
-        // Strictly after today so the next fire is never today.
-        let startOfTomorrow = Calendar.current.startOfDay(
-            for: Date().addingTimeInterval(24 * 60 * 60)
+        // Re-arm strictly after the occurrence being consumed (the imminent fire
+        // at/after now), not merely after today. "Start now" can be tapped for a
+        // fire early tomorrow (e.g. a 00:15 alarm started the prior night); using
+        // "today" would resolve right back onto that same fire and still ring.
+        let consumedFire = nextMatchingDate(
+            mask: mask, hour: hour, minute: minute, strictlyAfter: Date()
         )
         let masterDate = nextMatchingDate(
-            mask: mask, hour: hour, minute: minute,
-            strictlyAfter: startOfTomorrow.addingTimeInterval(-1)
+            mask: mask, hour: hour, minute: minute, strictlyAfter: consumedFire
         )
 
         // Flag so the next normal dismissal restores the `.relative` weekly master.
