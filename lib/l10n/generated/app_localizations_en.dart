@@ -2935,7 +2935,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingV2SleepChallengeNotEnough => 'I never get enough sleep';
 
   @override
-  String get onboardingV2SleepChallengeGroggy => 'I scroll on my phone';
+  String get onboardingV2SleepChallengeScrolling =>
+      'Social media / scrolling keeps me up';
 
   @override
   String get onboardingV2SleepQualityTitle => 'Sleep matters most';

@@ -5498,11 +5498,11 @@ abstract class AppLocalizations {
   /// **'I never get enough sleep'**
   String get onboardingV2SleepChallengeNotEnough;
 
-  /// No description provided for @onboardingV2SleepChallengeGroggy.
+  /// No description provided for @onboardingV2SleepChallengeScrolling.
   ///
   /// In en, this message translates to:
-  /// **'I scroll on my phone'**
-  String get onboardingV2SleepChallengeGroggy;
+  /// **'Social media / scrolling keeps me up'**
+  String get onboardingV2SleepChallengeScrolling;
 
   /// No description provided for @onboardingV2SleepQualityTitle.
   ///
