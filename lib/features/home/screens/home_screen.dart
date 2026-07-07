@@ -357,8 +357,8 @@ class _WeekRow extends StatelessWidget {
         Widget circle;
         if (status == DayStatus.done) {
           circle = _circle(
-            child: Icon(Icons.check_rounded, size: 26.sp, color: AppColors.blue),
-            border: AppColors.blue,
+            child: Icon(Icons.check_rounded, size: 26.sp, color: AppColors.orange),
+            border: AppColors.orange,
           );
         } else if (status == DayStatus.frozen) {
           circle = _circle(
@@ -670,7 +670,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
           children: [
             Row(
               children: [
-                AlarmKindIcon(isSleep: alarm.isSleep),
+                AlarmKindIcon(isSleep: alarm.isSleep, size: 32.sp,),
                 SizedBox(width: 8.w),
                 Text(
                   dayLabel,
@@ -899,7 +899,7 @@ class _SleepScheduleCard extends StatelessWidget {
                 if (sleepAlarm != null)
                   _SleepInfoRow(
                     icon: Icons.nightlight_round,
-                    color: AppColors.blue,
+                    color: AppColors.of(context).purpleDeep,
                     label: l10n.homeBedtime,
                     time: _fmt(sleepAlarm!.dateTime),
                     onTap: () => _openAlarm(context, sleepAlarm!),

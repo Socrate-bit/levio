@@ -20,7 +20,7 @@ class StreakHeatmap extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final weeks = (days.length / 7).ceil();
 
-    final winColor = AppColors.blue;
+    final winColor = AppColors.orange;
     final freezeColor = AppColors.blue.withAlpha(90);
     final lossColor = AppColors.error;
     final emptyColor = c.textSecondary.withAlpha(20);

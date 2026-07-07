@@ -12,7 +12,7 @@ class AlarmKindIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isSleep ? AppColors.blue : AppColors.orange;
+    final color = isSleep ? AppColors.of(context).purpleDeep : AppColors.orange;
     return Container(
       width: size.w,
       height: size.w,
