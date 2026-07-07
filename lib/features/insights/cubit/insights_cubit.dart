@@ -98,7 +98,7 @@ class InsightsCubit extends Cubit<InsightsState> {
       badgesEarned: _profile.earnedBadgeIds.length,
       totalBadges: 13,
       currentBadge: _computeCurrentBadge(),
-      nextBadge: _computeNextBadge(currentStreak),
+      nextBadge: _computeNextBadge(),
       successCount: completed,
       successRate: total == 0 ? 0 : completed / total * 100,
       avgWakeTime: _computeAvgClockTime(wake),
@@ -190,15 +190,13 @@ class InsightsCubit extends Cubit<InsightsState> {
     return latest;
   }
 
-  /// The next streak badge the user hasn't reached, or null once all are earned.
-  /// Skips badges already earned so a streak reset below an earned threshold
-  /// doesn't surface an already-earned badge as the next target.
-  BadgeModel? _computeNextBadge(int currentStreak) {
+  /// The next higher badge the user hasn't unlocked yet (the lowest streak badge
+  /// not in [earnedBadgeIds]), or null once every streak badge is earned. Keyed
+  /// off unlocked status, not the current streak, so a reset below an earned
+  /// threshold still targets the next locked badge rather than an earned one.
+  BadgeModel? _computeNextBadge() {
     for (final badge in buildStreakBadges()) {
-      if ((badge.requiredDays ?? 0) > currentStreak &&
-          !_profile.earnedBadgeIds.contains(badge.id)) {
-        return badge;
-      }
+      if (!_profile.earnedBadgeIds.contains(badge.id)) return badge;
     }
     return null;
   }
