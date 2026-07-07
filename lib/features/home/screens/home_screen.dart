@@ -248,9 +248,9 @@ class _MotivationCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset('assets/streaks.png', width: 34.w, height: 34.h),
+                Image.asset('assets/streaks.png', width: 50.w, height: 50.h),
                 SizedBox(width: 10.w),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
