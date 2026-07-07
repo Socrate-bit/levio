@@ -20,6 +20,7 @@ import '../../subscription/cubit/subscription_cubit.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
 import '../data/mission_explanations.dart';
+import '../onboarding_config.dart';
 import '../widgets/day_picker_step.dart';
 import '../widgets/energy_chart.dart';
 import '../widgets/first_room_step.dart';
@@ -31,6 +32,7 @@ import '../widgets/morning_plan_step.dart';
 import '../widgets/multi_select_step.dart';
 import '../widgets/notification_step.dart';
 import '../widgets/paywall_step.dart';
+import '../widgets/phone_number_step.dart';
 import '../widgets/rating_step.dart';
 import '../widgets/referral_step.dart';
 import '../widgets/relaxing_activities_step.dart';
@@ -43,7 +45,7 @@ import '../widgets/time_picker_step.dart';
 import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
 
-const _totalPages = 39;
+const _totalPages = 40;
 
 /// Redesigned onboarding funnel (v2). Runs in parallel with the original
 /// [OnboardingScreen]; which one shows is chosen by `useOnboardingV2` in
@@ -121,6 +123,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           !(s.wantsScreenBlock == true && s.wantsSleepAlarm != true)) {
         continue;
       }
+      // 37: beta phone step — only when the beta_phone flag is on.
+      if (i == 37 && !betaPhoneEnabled.value) continue;
       pages.add(i);
     }
     return pages;
@@ -145,8 +149,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     // Loading, plan recap, paywall, trial disallow going back.
     if (_currentPage == 29 ||
         _currentPage == 30 ||
-        _currentPage == 37 ||
-        _currentPage == 38) {
+        _currentPage == 38 ||
+        _currentPage == 39) {
       return;
     }
     final visible = _visiblePages(context.read<OnboardingCubit>().state);
@@ -228,6 +232,12 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     if (_currentPage == 35) {
       InAppReview.instance.requestReview();
     }
+    // Beta phone step: persist the number before advancing to the paywall.
+    if (_currentPage == 37) {
+      FocusScope.of(context).unfocus();
+      await cubit.savePhoneNumber();
+      if (!mounted) return;
+    }
     _next();
   }
 
@@ -268,6 +278,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         return state.referralStatus != ReferralStatus.checking &&
             state.referralStatus != ReferralStatus.invalid &&
             state.referralStatus != ReferralStatus.exhausted;
+      case 37: // beta phone — requires a valid number
+        return isValidPhone(state.phoneNumber);
       default:
         return true;
     }
@@ -280,8 +292,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
       page == 29 || // loading
       page == 32 || // sign in
       page == 36 || // signature
-      page == 37 || // paywall
-      page == 38; // trial reminder
+      page == 38 || // paywall
+      page == 39; // trial reminder
 
   // ---- Editable plan-recap pickers (modal sheets) ----
 
@@ -480,8 +492,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                             child: (_currentPage > 0 &&
                                     _currentPage != 29 &&
                                     _currentPage != 30 &&
-                                    _currentPage != 37 &&
-                                    _currentPage != 38)
+                                    _currentPage != 38 &&
+                                    _currentPage != 39)
                                 ? GestureDetector(
                                     onTap: withHaptic(_back),
                                     child: Container(
@@ -593,7 +605,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     });
   }
 
-  // The ordered PageView children (pages 1..38; welcome is outside the view).
+  // The ordered PageView children (pages 1..39; welcome is outside the view).
   List<Widget> _pages(OnboardingState state, OnboardingCubit cubit,
       AppLocalizations l10n, AppColors c) {
     final missionName = localizedMissionName(l10n, state.selectedMission);
@@ -1024,9 +1036,15 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         hasSleep: state.wantsSleepAlarm == true,
         onCommit: _next,
       ),
-      // 37: paywall
+      // 37: beta phone number (only visible when beta_phone flag is on)
+      PhoneNumberStep(
+        onChanged: cubit.setPhoneNumber,
+        showInvalid: state.phoneNumber.isNotEmpty &&
+            !isValidPhone(state.phoneNumber),
+      ),
+      // 38: paywall
       PaywallStep(onContinue: _next),
-      // 38: trial reminder
+      // 39: trial reminder
       TrialReminderStep(onContinue: cubit.finishOnboarding),
     ];
   }
