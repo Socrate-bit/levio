@@ -95,12 +95,9 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
                   body: Center(child: CircularProgressIndicator()),
                 );
               }
-              // Only show alarm spinner when we actually triggered a sync.
-              if (sub.hasAccess && alarm.isLoading) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                );
-              }
+              // Alarm sync runs in the background — never block the home page
+              // with a spinner. Alarms are already loaded via loadAlarm() on
+              // auth, and the UI updates reactively when sync re-emits.
               if (sub.hasAccess) {
                 alarmCubit.restoreSubscriptionDisabled();
                 if (_alarmReady) return const BottomNavShell();
