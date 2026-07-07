@@ -146,7 +146,7 @@ class _TopBar extends StatelessWidget {
         Text(
           l10n.appTitle,
           style: TextStyle(
-            fontSize: 28.sp,
+            fontSize: 30.sp,
             fontWeight: FontWeight.bold,
             color: c.textPrimary,
             letterSpacing: -0.5,
@@ -172,7 +172,7 @@ class _TopBar extends StatelessWidget {
             ),
             child: Icon(
               Icons.settings_rounded,
-              size: 20.sp,
+              size: 24.sp,
               color: c.textSecondary,
             ),
           ),
