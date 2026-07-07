@@ -785,35 +785,21 @@ class _SleepScheduleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final bothSet = sleepAlarm != null && wakeAlarm != null;
 
-    // Missing one or both alarms: show compact setup CTA(s) instead of a ring.
-    if (sleepAlarm == null || wakeAlarm == null) {
-      return Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: c.card,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 12),
-          ],
-        ),
-        child: Column(
-          children: [
-            if (sleepAlarm == null)
-              _SetupCta(isSleep: true),
-            if (sleepAlarm == null && wakeAlarm == null) SizedBox(height: 10.h),
-            if (wakeAlarm == null) _SetupCta(isSleep: false),
-          ],
-        ),
-      );
+    int? bedMin;
+    int? wakeMin;
+    int inBedH = 0;
+    int inBedM = 0;
+    if (bothSet) {
+      bedMin = sleepAlarm!.dateTime.hour * 60 + sleepAlarm!.dateTime.minute;
+      wakeMin = wakeAlarm!.dateTime.hour * 60 + wakeAlarm!.dateTime.minute;
+      var inBed = wakeMin - bedMin;
+      if (inBed <= 0) inBed += 24 * 60;
+      inBedH = inBed ~/ 60;
+      inBedM = inBed % 60;
     }
-
-    final bedMin = sleepAlarm!.dateTime.hour * 60 + sleepAlarm!.dateTime.minute;
-    final wakeMin = wakeAlarm!.dateTime.hour * 60 + wakeAlarm!.dateTime.minute;
-    var inBed = wakeMin - bedMin;
-    if (inBed <= 0) inBed += 24 * 60;
-    final inBedH = inBed ~/ 60;
-    final inBedM = inBed % 60;
 
     return Container(
       padding: EdgeInsets.all(18.w),
@@ -830,6 +816,8 @@ class _SleepScheduleCard extends StatelessWidget {
             width: 130.w,
             height: 130.w,
             child: CustomPaint(
+              // A grey track always renders; the coloured arc only appears once
+              // both a bedtime and a wake-up alarm are set.
               painter: _SleepRingPainter(
                 bedMinutes: bedMin,
                 wakeMinutes: wakeMin,
@@ -838,23 +826,30 @@ class _SleepScheduleCard extends StatelessWidget {
                 dotColor: AppColors.orangeLight,
               ),
               child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${inBedH}h ${inBedM}m',
-                      style: TextStyle(
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.bold,
-                        color: c.textPrimary,
+                child: bothSet
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${inBedH}h ${inBedM}m',
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
+                              color: c.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            l10n.homeInBed,
+                            style: TextStyle(
+                                fontSize: 12.sp, color: c.textSecondary),
+                          ),
+                        ],
+                      )
+                    : Icon(
+                        Icons.bedtime_outlined,
+                        size: 30.sp,
+                        color: c.textSecondary.withAlpha(120),
                       ),
-                    ),
-                    Text(
-                      AppLocalizations.of(context).homeInBed,
-                      style: TextStyle(fontSize: 12.sp, color: c.textSecondary),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),
@@ -863,23 +858,43 @@ class _SleepScheduleCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _SleepInfoRow(
-                  icon: Icons.nightlight_round,
-                  color: AppColors.blue,
-                  label: AppLocalizations.of(context).homeBedtime,
-                  time: _fmt(sleepAlarm!.dateTime),
-                ),
+                if (sleepAlarm != null)
+                  _SleepInfoRow(
+                    icon: Icons.nightlight_round,
+                    color: AppColors.blue,
+                    label: l10n.homeBedtime,
+                    time: _fmt(sleepAlarm!.dateTime),
+                    onTap: () => _openAlarm(context, sleepAlarm!),
+                  )
+                else
+                  const _SetupCta(isSleep: true),
                 SizedBox(height: 16.h),
-                _SleepInfoRow(
-                  icon: Icons.notifications_active_rounded,
-                  color: AppColors.orange,
-                  label: AppLocalizations.of(context).homeWakeUp,
-                  time: _fmt(wakeAlarm!.dateTime),
-                ),
+                if (wakeAlarm != null)
+                  _SleepInfoRow(
+                    icon: Icons.notifications_active_rounded,
+                    color: AppColors.orange,
+                    label: l10n.homeWakeUp,
+                    time: _fmt(wakeAlarm!.dateTime),
+                    onTap: () => _openAlarm(context, wakeAlarm!),
+                  )
+                else
+                  const _SetupCta(isSleep: false),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _openAlarm(BuildContext context, AppAlarmEntry alarm) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<AlarmCubit>(),
+          child: AlarmFormScreen(alarm: alarm),
+        ),
       ),
     );
   }
@@ -897,46 +912,52 @@ class _SleepInfoRow extends StatelessWidget {
   final Color color;
   final String label;
   final String time;
+  final VoidCallback? onTap;
   const _SleepInfoRow({
     required this.icon,
     required this.color,
     required this.label,
     required this.time,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    return Row(
-      children: [
-        Container(
-          width: 40.w,
-          height: 40.w,
-          decoration: BoxDecoration(
-            color: color.withAlpha(25),
-            borderRadius: BorderRadius.circular(12.r),
+    return GestureDetector(
+      onTap: withHaptic(onTap),
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        children: [
+          Container(
+            width: 40.w,
+            height: 40.w,
+            decoration: BoxDecoration(
+              color: color.withAlpha(25),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Icon(icon, size: 20.sp, color: color),
           ),
-          child: Icon(icon, size: 20.sp, color: color),
-        ),
-        SizedBox(width: 12.w),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
-            ),
-            Text(
-              time,
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: c.textPrimary,
+          SizedBox(width: 12.w),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
               ),
-            ),
-          ],
-        ),
-      ],
+              Text(
+                time,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: c.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -987,8 +1008,8 @@ class _SetupCta extends StatelessWidget {
 /// Draws the "time in bed" ring: a full track plus a coloured arc spanning the
 /// bedtime → wake-up window on a 24h clock, with a dot at each endpoint.
 class _SleepRingPainter extends CustomPainter {
-  final int bedMinutes;
-  final int wakeMinutes;
+  final int? bedMinutes;
+  final int? wakeMinutes;
   final Color trackColor;
   final Color arcColor;
   final Color dotColor;
@@ -1017,8 +1038,11 @@ class _SleepRingPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(center, radius, track);
 
-    final start = _angle(bedMinutes);
-    var sweepMin = wakeMinutes - bedMinutes;
+    // Only draw the coloured window when both endpoints exist.
+    if (bedMinutes == null || wakeMinutes == null) return;
+
+    final start = _angle(bedMinutes!);
+    var sweepMin = wakeMinutes! - bedMinutes!;
     if (sweepMin <= 0) sweepMin += 1440;
     final sweep = (sweepMin / 1440) * 2 * math.pi;
 
@@ -1087,18 +1111,20 @@ class _ScreenBlockerCard extends StatelessWidget {
             ? AppColors.success.withAlpha(isDark ? 45 : 30)
             : c.card;
 
-        return GestureDetector(
-          onTap: withHaptic(() {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
-                  value: context.read<ScreenTimeCubit>(),
-                  child: const ScreenTimeDetailScreen(),
-                ),
+        void openDetail() {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: context.read<ScreenTimeCubit>(),
+                child: const ScreenTimeDetailScreen(),
               ),
-            );
-          }),
+            ),
+          );
+        }
+
+        return GestureDetector(
+          onTap: withHaptic(openDetail),
           child: Container(
             padding: EdgeInsets.all(18.w),
             decoration: BoxDecoration(
@@ -1144,15 +1170,38 @@ class _ScreenBlockerCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Switch(
-                  value: state.enabled,
-                  activeThumbColor: AppColors.success,
-                  // Locked while a window is live and not yet unlocked.
-                  onChanged: state.controlsLocked
-                      ? null
-                      : withHapticValue((val) {
-                          context.read<ScreenTimeCubit>().setEnabled(val);
-                        }),
+                GestureDetector(
+                  onTap: withHaptic(openDetail),
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                    decoration: BoxDecoration(
+                      color: active
+                          ? AppColors.success.withAlpha(45)
+                          : c.background,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          l10n.homeManage,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                active ? AppColors.success : c.textPrimary,
+                          ),
+                        ),
+                        SizedBox(width: 2.w),
+                        Icon(
+                          Icons.chevron_right,
+                          size: 18.sp,
+                          color: active ? AppColors.success : c.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

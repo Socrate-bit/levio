@@ -169,6 +169,7 @@
   "homeSetBedtime": "Set bedtime",
   "homeSetWakeUp": "Set wake-up",
   "homeScreenBlocker": "Screen blocker",
+  "homeManage": "Manage",
   "homeBlockerActiveUntil": "Active until {time}",
   "@homeBlockerActiveUntil": {
     "placeholders": {
