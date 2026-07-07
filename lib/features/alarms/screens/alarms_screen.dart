@@ -39,15 +39,14 @@ class _AlarmsScreenState extends State<AlarmsScreen>
         bottom: false,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 120.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 12.h),
               Text(
                 l10n.alarmsTitle,
                 style: TextStyle(
-                  fontSize: 26.sp,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
                   color: c.textPrimary,
                   letterSpacing: -0.5,
@@ -64,14 +63,13 @@ class _AlarmsScreenState extends State<AlarmsScreen>
                     children: [
                       for (final alarm in state.alarms)
                         Padding(
-                          padding: EdgeInsets.only(bottom: 12.h),
+                          padding: EdgeInsets.only(bottom: 10.h),
                           child: _AlarmCard(alarm: alarm),
                         ),
                     ],
                   );
                 },
               ),
-              SizedBox(height: 120.h),
             ],
           ),
         ),
@@ -106,13 +104,10 @@ class _AlarmCard extends StatelessWidget {
             ),
           )),
       child: Container(
-        padding: EdgeInsets.all(18.w),
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: c.card,
           borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withAlpha(6), blurRadius: 10),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
