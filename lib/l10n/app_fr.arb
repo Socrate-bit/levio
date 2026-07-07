@@ -116,6 +116,7 @@
   "homePastAlarm": "Alarme passée",
   "homeRingsIn": "Sonne dans {hours}h {minutes}m",
   "homeMission": "Mission",
+  "homeStartNow": "Commencer",
   "homeSound": "Son",
   "homeNoWakeupsYet": "Aucun réveil encore",
   "homeSetAlarmToStart": "Crée une alarme pour commencer",

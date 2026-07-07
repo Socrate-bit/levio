@@ -32,6 +32,11 @@ class AlarmCascadeController {
   final String alarmId;
   final VoidCallback? onInactivityTimeout;
 
+  /// True when the mission was launched EARLY from Home ("Start now"), before the
+  /// alarm rang. On [finish] this consumes today's occurrence (which is still
+  /// scheduled, not alerting) instead of the normal dismiss path.
+  final bool earlyStart;
+
   static const _inactivityTimeout = Duration(seconds: 30);
   static const _suppressionWindowMs = 10000;
 
@@ -42,7 +47,11 @@ class AlarmCascadeController {
   bool _disposed = false;
   bool _keepRinging = false;
 
-  AlarmCascadeController({required this.alarmId, this.onInactivityTimeout});
+  AlarmCascadeController({
+    required this.alarmId,
+    this.onInactivityTimeout,
+    this.earlyStart = false,
+  });
 
   /// Starts the suppression timer and inactivity watchdog. Call when the user
   /// taps Start on the mission screen. Captures the `keep_alarm_during_mission`
@@ -100,7 +109,14 @@ class AlarmCascadeController {
   Future<void> finish() async {
     _disposed = true;
     stopSuppression();
-    await _dismissCascade(alarmId);
+    if (earlyStart) {
+      // The alarm never rang — its master is still scheduled, so the normal
+      // path would leave it to fire today. Consume today's occurrence and
+      // re-arm for the next fire.
+      await AlarmChannel.consumeTodayAndReschedule(alarmId);
+    } else {
+      await _dismissCascade(alarmId);
+    }
     await _sweepConcurrentAlarms();
   }
 

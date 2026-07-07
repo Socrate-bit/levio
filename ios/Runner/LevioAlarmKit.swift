@@ -141,6 +141,8 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             Task { await dismissMasterRingIfAlerting(call: call, result: result) }
         case "rescheduleForNextFire":
             Task { await rescheduleForNextFire(call: call, result: result) }
+        case "consumeTodayAndReschedule":
+            Task { await consumeTodayAndReschedule(call: call, result: result) }
         case "primeCascadeIfNeeded":
             Task { await primeCascadeIfNeeded(call: call, result: result) }
         case "getNextBurst":
@@ -445,7 +447,7 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
 
         let defaults = UserDefaults.standard
         guard let data = defaults.data(forKey: "levio_config_\(originalId)"),
-              let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+              var config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             result(nil)
             return
         }
@@ -483,6 +485,34 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             strictlyAfter: startOfTomorrow.addingTimeInterval(-1)
         )
 
+        // If the fire we just dismissed was a skip-today placeholder scheduled by
+        // `consumeTodayAndReschedule` (early completion), its master was a `.fixed`
+        // one-shot, so the normal `.relative` weekly backbone is gone. Recreate it
+        // now — the placeholder occurrence has fired, so the fresh `.relative`
+        // master's next fire is next week, not today. scheduleMasterAndBursts also
+        // re-arms the bursts, so we're done.
+        if (config["masterIsFixedSkip"] as? Bool) == true {
+            config["masterIsFixedSkip"] = false
+            if let updated = try? JSONSerialization.data(withJSONObject: config) {
+                defaults.set(updated, forKey: "levio_config_\(originalId)")
+            }
+            await scheduleMasterAndBursts(
+                originalId: originalUUID,
+                masterDate: masterDate,
+                isOneShot: false,
+                weeklyRecurrence: weekdaysFromMask(mask),
+                recurrenceHour: hour,
+                recurrenceMinute: minute,
+                title: title,
+                sfSymbol: sfSymbol,
+                secondaryLabel: secondaryLabel,
+                soundName: soundName,
+                burstCount: burstCount
+            )
+            result(nil)
+            return
+        }
+
         await scheduleBurstsOnly(
             originalId: originalUUID,
             masterDate: masterDate,
@@ -492,6 +522,94 @@ public class LevioAlarmKit: NSObject, FlutterPlugin {
             soundName: soundName,
             burstCount: burstCount,
             replaceCascade: true
+        )
+
+        result(nil)
+    }
+
+    // MARK: - Consume Today (early mission completion)
+
+    /// Called when the user completes the alarm's mission EARLY (before it rings)
+    /// via the Home "Start now" button. The normal dismiss path relies on the
+    /// master having already fired; here it is still `.scheduled`, so we must
+    /// actively skip today:
+    ///
+    /// 1. Fully cancel the current cascade (master + bursts) so nothing rings today.
+    /// 2. One-shot: purge config — the alarm is done.
+    /// 3. Recurring: re-arm the next matching day STRICTLY AFTER today. The master
+    ///    is scheduled `.fixed` (via `isOneShot: true`) so it does not fire again
+    ///    today, while the persisted config stays recurring and is flagged
+    ///    `masterIsFixedSkip` so the next normal dismissal restores the `.relative`
+    ///    weekly master (see `rescheduleForNextFire`).
+    private func consumeTodayAndReschedule(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+        guard let args = call.arguments as? [String: Any],
+              let originalId = args["id"] as? String else {
+            result(FlutterError(code: "BAD_ARGS", message: "Missing id", details: nil))
+            return
+        }
+
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: "levio_config_\(originalId)"),
+              var config = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            result(nil)
+            return
+        }
+
+        // 1. No ring today: drop the whole cascade (master + bursts).
+        cancelCascadeInternal(originalId: originalId)
+
+        // 2. One-shot: nothing more to schedule.
+        if (config["isOneShot"] as? Bool) == true {
+            cleanupConfigInternal(originalId: originalId)
+            result(nil)
+            return
+        }
+
+        // 3. Recurring: re-arm the next matching day after today.
+        guard let mask = config["weekdayMask"] as? Int,
+              let hour = config["hour"] as? Int,
+              let minute = config["minute"] as? Int,
+              let originalUUID = UUID(uuidString: originalId),
+              mask != 0 else {
+            result(nil)
+            return
+        }
+
+        let title = config["title"] as? String ?? "Alarm"
+        let sfSymbol = config["sfSymbol"] as? String ?? "alarm"
+        let secondaryLabel = config["secondaryLabel"] as? String ?? "Open"
+        let soundPath = config["soundPath"] as? String
+        let soundName = prepareSoundFile(soundPath: soundPath)
+        let burstCount = config["burstCount"] as? Int ?? kBurstCount
+
+        // Strictly after today so the next fire is never today.
+        let startOfTomorrow = Calendar.current.startOfDay(
+            for: Date().addingTimeInterval(24 * 60 * 60)
+        )
+        let masterDate = nextMatchingDate(
+            mask: mask, hour: hour, minute: minute,
+            strictlyAfter: startOfTomorrow.addingTimeInterval(-1)
+        )
+
+        // Flag so the next normal dismissal restores the `.relative` weekly master.
+        config["masterIsFixedSkip"] = true
+        if let updated = try? JSONSerialization.data(withJSONObject: config) {
+            defaults.set(updated, forKey: "levio_config_\(originalId)")
+        }
+
+        // Schedule a `.fixed` master (isOneShot: true) so it does NOT ring today.
+        await scheduleMasterAndBursts(
+            originalId: originalUUID,
+            masterDate: masterDate,
+            isOneShot: true,
+            weeklyRecurrence: [],
+            recurrenceHour: hour,
+            recurrenceMinute: minute,
+            title: title,
+            sfSymbol: sfSymbol,
+            secondaryLabel: secondaryLabel,
+            soundName: soundName,
+            burstCount: burstCount
         )
 
         result(nil)
