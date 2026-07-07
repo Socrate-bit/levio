@@ -1287,7 +1287,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get insightsSuccesses => 'Victoires';
 
   @override
-  String get insightsSuccessRate => '% Victoire';
+  String get insightsSuccessRate => 'Victoire';
 
   @override
   String get insightsAvgSleepTime => 'Coucher';

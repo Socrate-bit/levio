@@ -141,12 +141,12 @@ class _TopBar extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Row(
       children: [
-        Image.asset('assets/icon.png', width: 36.w, height: 36.h),
+        Image.asset('assets/icon.png', width: 42.w, height: 42.h),
         SizedBox(width: 8.w),
         Text(
           l10n.appTitle,
           style: TextStyle(
-            fontSize: 26.sp,
+            fontSize: 28.sp,
             fontWeight: FontWeight.bold,
             color: c.textPrimary,
             letterSpacing: -0.5,
