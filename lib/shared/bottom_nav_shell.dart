@@ -12,7 +12,6 @@ import 'package:levio/l10n/generated/app_localizations.dart';
 import '../features/alarms/screens/alarms_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/insights/screens/insights_screen.dart';
-import '../features/settings/screens/settings_screen.dart';
 import '../features/subscription/services/analytics_service.dart';
 
 class BottomNavShell extends StatefulWidget {
@@ -35,7 +34,7 @@ class BottomNavShellState extends State<BottomNavShell> {
     _index = widget.initialIndex;
   }
 
-  static const _tabNames = ['home', 'alarms', 'insights', 'settings'];
+  static const _tabNames = ['home', 'alarms', 'insights'];
 
   void _selectTab(int index) {
     if (index == _index) return;
@@ -66,7 +65,6 @@ class BottomNavShellState extends State<BottomNavShell> {
     HomeScreen(),
     AlarmsScreen(),
     InsightsScreen(),
-    SettingsScreen(),
   ];
 
   @override
@@ -129,10 +127,6 @@ class BottomNavShellState extends State<BottomNavShell> {
                   LiquidGlassBarItem(
                     iconData: Icons.bar_chart_rounded,
                     label: l10n.navInsights,
-                  ),
-                  LiquidGlassBarItem(
-                    iconData: Icons.settings_rounded,
-                    label: l10n.navSettings,
                   ),
                 ],
               ),

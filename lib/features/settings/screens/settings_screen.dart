@@ -184,6 +184,24 @@ class _SettingsScreenState extends State<SettingsScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Close button (mirrors the badge detail screen).
+              GestureDetector(
+                onTap: withHaptic(() => Navigator.pop(context)),
+                child: Container(
+                  width: 36.w,
+                  height: 36.h,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.close,
+                    size: 18.sp,
+                    color: c.textPrimary,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.h),
               Text(
                 l10n.settingsTitle,
                 style: TextStyle(

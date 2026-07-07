@@ -12,6 +12,7 @@ import '../../alarms/cubit/alarm_state.dart';
 import '../../alarms/screens/alarm_form_screen.dart';
 import '../../alarms/services/alarm_readiness_guard.dart';
 import '../../alarms/widgets/alarm_kind_icon.dart';
+import '../../insights/widgets/hexagon_badge.dart';
 import '../../milestones/models/badge_model.dart';
 import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
@@ -20,7 +21,7 @@ import '../../missions/widgets/mission_icon.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
 import '../../screentime/cubit/screentime_state.dart';
 import '../../screentime/screens/screentime_detail_screen.dart';
-import '../../screentime/widgets/screentime_chip.dart';
+import '../../settings/screens/settings_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/bottom_nav_shell.dart';
 import '../cubit/home_cubit.dart';
@@ -69,7 +70,7 @@ class _HomeView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 12.h),
-                        _TopBar(streak: state.currentStreak),
+                        const _TopBar(),
                         SizedBox(height: 18.h),
                         _MotivationCard(state: state),
                         SizedBox(height: 16.h),
@@ -132,8 +133,7 @@ class _HomeView extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _TopBar extends StatelessWidget {
-  final int streak;
-  const _TopBar({required this.streak});
+  const _TopBar();
 
   @override
   Widget build(BuildContext context) {
@@ -141,25 +141,28 @@ class _TopBar extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Row(
       children: [
-        Image.asset('assets/icon.png', width: 36.w, height: 36.h),
+        Image.asset('assets/icon.png', width: 42.w, height: 42.h),
         SizedBox(width: 8.w),
         Text(
           l10n.appTitle,
           style: TextStyle(
-            fontSize: 26.sp,
+            fontSize: 28.sp,
             fontWeight: FontWeight.bold,
             color: c.textPrimary,
             letterSpacing: -0.5,
           ),
         ),
         const Spacer(),
-        const ScreenTimeChip(),
-        SizedBox(width: 8.w),
+        // Settings now lives in the top bar (no longer a bottom-nav tab).
         GestureDetector(
-          // Insights tab is index 2 now that Alarms sits at index 1.
-          onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(2)),
+          onTap: withHaptic(
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
+          ),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
             decoration: BoxDecoration(
               color: c.card,
               borderRadius: BorderRadius.circular(20.r),
@@ -167,19 +170,10 @@ class _TopBar extends StatelessWidget {
                 BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 8),
               ],
             ),
-            child: Row(
-              children: [
-                Image.asset('assets/streaks.png', width: 20.w, height: 20.h),
-                SizedBox(width: 4.w),
-                Text(
-                  '$streak',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
-                    color: c.textPrimary,
-                  ),
-                ),
-              ],
+            child: Icon(
+              Icons.settings_rounded,
+              size: 20.sp,
+              color: c.textSecondary,
             ),
           ),
         ),
@@ -224,6 +218,9 @@ class _MotivationCard extends StatelessWidget {
     final progress = next != null
         ? (state.currentStreak / next.requiredDays!).clamp(0.0, 1.0)
         : 1.0;
+    // Show the actual streak badge: the highest one earned, otherwise the next
+    // goal rendered greyed-out.
+    final displayBadge = latest ?? (badges.isNotEmpty ? badges.first : null);
 
     return GestureDetector(
       onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(2)),
@@ -244,9 +241,9 @@ class _MotivationCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset('assets/streaks.png', width: 34.w, height: 34.h),
+                Image.asset('assets/streaks.png', width: 50.w, height: 50.h),
                 SizedBox(width: 10.w),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,23 +265,14 @@ class _MotivationCard extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    _Pill(
-                      label: l10n.homeBestStreak(state.longestStreak),
-                      color: AppColors.orange,
-                    ),
-                    if (latest != null) ...[
-                      SizedBox(height: 6.h),
-                      _Pill(
-                        label: l10n.homeDayBadge(latest.requiredDays ?? 0),
-                        color: AppColors.success,
-                        icon: Icons.military_tech,
-                      ),
-                    ],
-                  ],
-                ),
+                if (displayBadge != null)
+                  HexagonBadge(
+                    label: displayBadge.displayValue,
+                    earned: latest != null,
+                    earnedColor: AppColors.orange,
+                    size: 60.w,
+                    onTap: () => BottomNavShell.of(context)?.navigateTo(2),
+                  ),
               ],
             ),
             SizedBox(height: 16.h),
@@ -330,41 +318,6 @@ class _MotivationCard extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  final String label;
-  final Color color;
-  final IconData? icon;
-  const _Pill({required this.label, required this.color, this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      decoration: BoxDecoration(
-        color: color.withAlpha(30),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 14.sp, color: color),
-            SizedBox(width: 4.w),
-          ],
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
       ),
     );
   }
