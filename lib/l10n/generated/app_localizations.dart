@@ -752,6 +752,12 @@ abstract class AppLocalizations {
   /// **'Mission'**
   String get homeMission;
 
+  /// No description provided for @homeStartNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Start now'**
+  String get homeStartNow;
+
   /// No description provided for @homeSound.
   ///
   /// In en, this message translates to:
