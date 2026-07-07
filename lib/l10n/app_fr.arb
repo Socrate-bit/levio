@@ -120,6 +120,49 @@
   "homeNoWakeupsYet": "Aucun réveil encore",
   "homeSetAlarmToStart": "Crée une alarme pour commencer",
 
+  "homeCurrentStreak": "série actuelle",
+  "homeBestStreak": "Record · {days}",
+  "@homeBestStreak": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "homeDayBadge": "Badge {days} jours",
+  "@homeDayBadge": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "homeNextBadge": "Prochain badge · {days} jours",
+  "@homeNextBadge": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "homeAllBadgesEarned": "Tous les badges obtenus",
+  "homeNextWake": "Prochain · Réveil",
+  "homeNextSleep": "Prochain · Coucher",
+  "homeInBed": "au lit",
+  "homeBedtime": "Coucher",
+  "homeWakeUp": "Réveil",
+  "homeSetBedtime": "Définir le coucher",
+  "homeSetWakeUp": "Définir le réveil",
+  "homeScreenBlocker": "Blocage d'écran",
+  "homeBlockerActiveUntil": "Actif jusqu'à {time}",
+  "@homeBlockerActiveUntil": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "homeBlockerActiveIn": "Actif dans {hours}h {minutes}m",
+  "@homeBlockerActiveIn": {
+    "placeholders": {
+      "hours": { "type": "int" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "homeBlockerOff": "Désactivé",
+
   "monthJan": "Jan",
   "monthFeb": "Fév",
   "monthMar": "Mar",

@@ -359,6 +359,64 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeSetAlarmToStart => 'Crée une alarme pour commencer';
 
   @override
+  String get homeCurrentStreak => 'série actuelle';
+
+  @override
+  String homeBestStreak(int days) {
+    return 'Record · $days';
+  }
+
+  @override
+  String homeDayBadge(int days) {
+    return 'Badge $days jours';
+  }
+
+  @override
+  String homeNextBadge(int days) {
+    return 'Prochain badge · $days jours';
+  }
+
+  @override
+  String get homeAllBadgesEarned => 'Tous les badges obtenus';
+
+  @override
+  String get homeNextWake => 'Prochain · Réveil';
+
+  @override
+  String get homeNextSleep => 'Prochain · Coucher';
+
+  @override
+  String get homeInBed => 'au lit';
+
+  @override
+  String get homeBedtime => 'Coucher';
+
+  @override
+  String get homeWakeUp => 'Réveil';
+
+  @override
+  String get homeSetBedtime => 'Définir le coucher';
+
+  @override
+  String get homeSetWakeUp => 'Définir le réveil';
+
+  @override
+  String get homeScreenBlocker => 'Blocage d\'écran';
+
+  @override
+  String homeBlockerActiveUntil(String time) {
+    return 'Actif jusqu\'à $time';
+  }
+
+  @override
+  String homeBlockerActiveIn(int hours, int minutes) {
+    return 'Actif dans ${hours}h ${minutes}m';
+  }
+
+  @override
+  String get homeBlockerOff => 'Désactivé';
+
+  @override
   String get monthJan => 'Jan';
 
   @override
