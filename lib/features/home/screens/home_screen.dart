@@ -530,8 +530,8 @@ class _NoAlarmCard extends StatelessWidget {
                 color: AppColors.orange.withAlpha(25),
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(Icons.add_alarm_rounded,
-                  color: AppColors.orange, size: 24.sp),
+              padding: EdgeInsets.all(9.w),
+              child: Image.asset('assets/siren.png'),
             ),
             SizedBox(width: 14.w),
             Expanded(
