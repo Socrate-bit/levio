@@ -945,6 +945,11 @@
   "onboardingReferralInvalid": "Invalid referral code",
   "onboardingReferralLimit": "This code has reached its usage limit",
 
+  "onboardingPhoneTitle": "What's your\nphone number?",
+  "onboardingPhoneSubtitle": "We'll reach out with early access to new beta features.",
+  "onboardingPhoneHint": "Phone number",
+  "onboardingPhoneInvalid": "Please enter a valid phone number",
+
   "onboardingSignatureTitle": "Lock in your\ncommitment",
   "onboardingSignatureSubtitle": "Sign below to get out of bed at {time}. Feet on the floor.",
   "@onboardingSignatureSubtitle": {

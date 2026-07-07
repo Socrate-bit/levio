@@ -10,3 +10,11 @@ import 'package:flutter/foundation.dart';
 /// background from the Firebase `ratio_ab` A/B rollout; `AuthWrapper` listens
 /// and swaps funnels reactively while the user is still on the start screen.
 final ValueNotifier<bool> useOnboardingV2 = ValueNotifier<bool>(true);
+
+/// Gates the beta phone-number collection step (shown just before the paywall
+/// in both onboarding funnels).
+///
+/// Driven by Firestore `settings/app_settings`.`beta_phone`. Defaults to `false`
+/// so the step stays hidden until the flag is confirmed on;
+/// `OnboardingAbService.resolveVariant()` updates it in the background at launch.
+final ValueNotifier<bool> betaPhoneEnabled = ValueNotifier<bool>(false);
