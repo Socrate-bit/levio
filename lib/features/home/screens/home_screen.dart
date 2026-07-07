@@ -15,10 +15,8 @@ import '../../alarms/widgets/alarm_kind_icon.dart';
 import '../../dismiss/screens/mission_sequence_screen.dart';
 import '../../insights/widgets/hexagon_badge.dart';
 import '../../milestones/models/badge_model.dart';
-import '../../missions/screens/mission_picker_screen.dart';
 import '../../missions/models/mission.dart';
-import '../../missions/models/mission_config.dart';
-import '../../missions/widgets/mission_icon.dart';
+import '../../missions/widgets/stacked_mission_icons.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
 import '../../screentime/cubit/screentime_state.dart';
 import '../../wakeup/services/history_service.dart';
@@ -576,23 +574,6 @@ class _NextAlarmCard extends StatefulWidget {
 }
 
 class _NextAlarmCardState extends State<_NextAlarmCard> {
-  Future<void> _pickMission() async {
-    final config = await Navigator.push<MissionConfig>(
-      context,
-      MaterialPageRoute(builder: (_) => const MissionPickerScreen()),
-    );
-    if (config == null || !mounted) return;
-    final updated = List<MissionConfig>.from(widget.alarm.missions);
-    if (updated.isEmpty) {
-      updated.add(config);
-    } else {
-      updated[0] = config;
-    }
-    context
-        .read<AlarmCubit>()
-        .editAlarm(widget.alarm, widget.alarm.copyWith(missions: updated));
-  }
-
   /// Runs the alarm's mission early (before it rings). Creates a pending session
   /// so the completion is recorded, then launches the full mission flow in
   /// [MissionSequenceScreen] with `earlyStart`, which consumes today's occurrence
@@ -650,9 +631,6 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     final minsLeft = diff.inMinutes % 60;
     final timeStr = _formatTime(alarm.dateTime);
     final isPM = alarm.dateTime.hour >= 12;
-    final firstMission = alarm.missions.isNotEmpty
-        ? missionInfoFor(alarm.missions.first.type)
-        : missionInfoFor(MissionType.none);
     final missionLabel = alarm.missions.length > 1
         ? l10n.alarmsMissionsCount(alarm.missions.length)
         : localizedMissionName(
@@ -660,6 +638,9 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
             alarm.missions.isNotEmpty
                 ? alarm.missions.first.type
                 : MissionType.none);
+    final dayLabel = diff.isNegative || diff.inHours < 24
+        ? l10n.homeToday
+        : l10n.homeTomorrow;
 
     return GestureDetector(
       onTap: withHaptic(() => Navigator.push(
@@ -692,25 +673,13 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                 AlarmKindIcon(isSleep: alarm.isSleep),
                 SizedBox(width: 8.w),
                 Text(
-                  alarm.isSleep ? l10n.homeNextSleep : l10n.homeNextWake,
+                  dayLabel,
                   style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
-                ),
-                const Spacer(),
-                Text(
-                  diff.isNegative
-                      ? l10n.homePastAlarm
-                      : l10n.homeRingsIn(hoursLeft, minsLeft),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.orange,
-                  ),
                 ),
               ],
             ),
-            SizedBox(height: 6.h),
+            SizedBox(height: 4.h),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   timeStr,
@@ -719,14 +688,13 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                     fontWeight: FontWeight.bold,
                     color: c.textPrimary,
                     letterSpacing: -1,
-                    height: 1.0,
                   ),
                 ),
                 SizedBox(width: 4.w),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 6.h),
+                  padding: EdgeInsets.only(top: 12.h),
                   child: Text(
-                    isPM ? 'PM' : 'AM',
+                    isPM ? 'pm' : 'am',
                     style: TextStyle(fontSize: 16.sp, color: c.textSecondary),
                   ),
                 ),
@@ -742,39 +710,60 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                 ),
               ],
             ),
-            SizedBox(height: 12.h),
             Row(
               children: [
-                Flexible(
-                  child: GestureDetector(
-                    onTap: withHaptic(_pickMission),
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                      decoration: BoxDecoration(
-                        color: c.purpleDeep.withAlpha(30),
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          MissionIcon(info: firstMission, size: 20.sp),
-                          SizedBox(width: 8.w),
-                          Flexible(
-                            child: Text(
-                              '${l10n.homeMission} · $missionLabel',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: c.purpleDeep,
-                              ),
-                            ),
+                Icon(
+                  Icons.access_time_outlined,
+                  size: 14.sp,
+                  color: c.textSecondary,
+                ),
+                SizedBox(width: 4.w),
+                Text(
+                  diff.isNegative
+                      ? l10n.homePastAlarm
+                      : l10n.homeRingsIn(hoursLeft, minsLeft),
+                  style: TextStyle(fontSize: 13.sp, color: c.textSecondary),
+                ),
+              ],
+            ),
+            SizedBox(height: 14.h),
+            // Alarm name + stacked mission icons, mirroring the alarm-list card.
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          alarm.name.isNotEmpty
+                              ? alarm.name
+                              : l10n.alarmsDefaultName(1),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: c.textPrimary,
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      if (alarm.missions.isNotEmpty) ...[
+                        Text(' · ',
+                            style: TextStyle(
+                                fontSize: 13.sp, color: c.textSecondary)),
+                        StackedMissionIcons(missions: alarm.missions),
+                        SizedBox(width: 6.w),
+                        Flexible(
+                          child: Text(
+                            missionLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 13.sp, color: c.textSecondary),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 if (canStartNow) ...[
