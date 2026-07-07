@@ -21,7 +21,7 @@ import '../../missions/widgets/mission_icon.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
 import '../../screentime/cubit/screentime_state.dart';
 import '../../screentime/screens/screentime_detail_screen.dart';
-import '../../screentime/widgets/screentime_chip.dart';
+import '../../settings/screens/settings_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/bottom_nav_shell.dart';
 import '../cubit/home_cubit.dart';
@@ -70,7 +70,7 @@ class _HomeView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 12.h),
-                        _TopBar(streak: state.currentStreak),
+                        const _TopBar(),
                         SizedBox(height: 18.h),
                         _MotivationCard(state: state),
                         SizedBox(height: 16.h),
@@ -133,8 +133,7 @@ class _HomeView extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _TopBar extends StatelessWidget {
-  final int streak;
-  const _TopBar({required this.streak});
+  const _TopBar();
 
   @override
   Widget build(BuildContext context) {
@@ -154,13 +153,16 @@ class _TopBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        const ScreenTimeChip(),
-        SizedBox(width: 8.w),
+        // Settings now lives in the top bar (no longer a bottom-nav tab).
         GestureDetector(
-          // Insights tab is index 2 now that Alarms sits at index 1.
-          onTap: withHaptic(() => BottomNavShell.of(context)?.navigateTo(2)),
+          onTap: withHaptic(
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
+          ),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
             decoration: BoxDecoration(
               color: c.card,
               borderRadius: BorderRadius.circular(20.r),
@@ -168,19 +170,10 @@ class _TopBar extends StatelessWidget {
                 BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 8),
               ],
             ),
-            child: Row(
-              children: [
-                Image.asset('assets/streaks.png', width: 20.w, height: 20.h),
-                SizedBox(width: 4.w),
-                Text(
-                  '$streak',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
-                    color: c.textPrimary,
-                  ),
-                ),
-              ],
+            child: Icon(
+              Icons.settings_rounded,
+              size: 20.sp,
+              color: c.textSecondary,
             ),
           ),
         ),
