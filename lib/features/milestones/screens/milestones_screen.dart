@@ -76,19 +76,6 @@ class _MilestonesView extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 20.h),
-                              // Badges summary
-                              SizedBox(
-                                height: 120.h,
-                                child: _BadgeTopCard(
-                                  earned: state.badgesEarned,
-                                ),
-                              ),
-                              SizedBox(height: 12.h),
-                              _BadgeProgressBox(
-                                earned: state.badgesEarned,
-                                total: state.totalBadges,
-                              ),
-                              SizedBox(height: 20.h),
                               // Streak Badges
                               Text(
                                 l10n.milestonesStreakBadges,
@@ -133,92 +120,6 @@ class _MilestonesView extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _BadgeTopCard extends StatelessWidget {
-  final int earned;
-
-  const _BadgeTopCard({required this.earned});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: Column(
-        children: [
-          HexagonBadge(
-            label: '$earned',
-            earned: earned > 0,
-            size: 56.w,
-            earnedColor: const Color(0xFFB8860B),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            l10n.milestonesBadgesEarned,
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
-              color: c.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BadgeProgressBox extends StatelessWidget {
-  final int earned;
-  final int total;
-
-  const _BadgeProgressBox({required this.earned, required this.total});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text('🏅', style: TextStyle(fontSize: 16.sp)),
-              SizedBox(width: 6.w),
-              Text(
-                AppLocalizations.of(context).milestonesBadgeCount(earned, total),
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                  color: c.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4.r),
-            child: LinearProgressIndicator(
-              value: total > 0 ? earned / total : 0,
-              minHeight: 6.h,
-              backgroundColor: c.separator,
-              valueColor: const AlwaysStoppedAnimation(Color(0xFFB8860B)),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

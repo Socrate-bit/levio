@@ -73,11 +73,28 @@ class _StreakView extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 20.h),
-                              // Current streak
-                              _CurrentStreakCard(streak: state.currentStreak),
-                              SizedBox(height: 12.h),
-                              // Longest streak
-                              _LongestStreakBox(longest: state.longestStreak),
+                              // Day streak / Best streak
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _StreakStatCard(
+                                      icon: Image.asset('assets/streaks.png',
+                                          width: 56.w, height: 56.h),
+                                      value: '${state.currentStreak}',
+                                      label: l10n.milestonesDayStreak,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: _StreakStatCard(
+                                      icon: Text('🏆',
+                                          style: TextStyle(fontSize: 44.sp)),
+                                      value: '${state.longestStreak}',
+                                      label: l10n.milestonesLongestStreakLabel,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               SizedBox(height: 16.h),
                               // How Streaks Work (always visible here)
                               const HowStreaksWork(),
@@ -94,15 +111,20 @@ class _StreakView extends StatelessWidget {
   }
 }
 
-class _CurrentStreakCard extends StatelessWidget {
-  final int streak;
+class _StreakStatCard extends StatelessWidget {
+  final Widget icon;
+  final String value;
+  final String label;
 
-  const _CurrentStreakCard({required this.streak});
+  const _StreakStatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
       decoration: BoxDecoration(
@@ -111,10 +133,10 @@ class _CurrentStreakCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Image.asset('assets/streaks.png', width: 72.w, height: 72.h),
+          SizedBox(height: 56.h, child: Center(child: icon)),
           SizedBox(height: 8.h),
           Text(
-            '$streak',
+            value,
             style: TextStyle(
               fontSize: 40.sp,
               fontWeight: FontWeight.bold,
@@ -125,57 +147,12 @@ class _CurrentStreakCard extends StatelessWidget {
           ),
           SizedBox(height: 4.h),
           Text(
-            l10n.milestonesDayStreak,
+            label,
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,
               color: c.textSecondary,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LongestStreakBox extends StatelessWidget {
-  final int longest;
-
-  const _LongestStreakBox({required this.longest});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Row(
-        children: [
-          Image.asset('assets/streaks.png', width: 20.w, height: 20.h),
-          SizedBox(width: 8.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.milestonesLongestStreak(longest),
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.bold,
-                  color: c.textPrimary,
-                ),
-              ),
-              Text(
-                l10n.milestonesLongestStreakLabel,
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  color: c.textSecondary,
-                ),
-              ),
-            ],
           ),
         ],
       ),
