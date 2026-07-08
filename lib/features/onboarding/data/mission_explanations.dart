@@ -59,4 +59,9 @@ Map<MissionType, Map<String, String>> getMissionExplanations(
     'subtitle': l10n.missionExplAffirmationSubtitle,
     'body': l10n.missionExplAffirmationBody,
   },
+  MissionType.flappyBird: {
+    'title': l10n.missionExplFlappyBirdTitle,
+    'subtitle': l10n.missionExplFlappyBirdSubtitle,
+    'body': l10n.missionExplFlappyBirdBody,
+  },
 };

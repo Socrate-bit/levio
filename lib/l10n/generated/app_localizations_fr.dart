@@ -559,6 +559,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get missionBedDesc => 'Prends une photo de ton lit';
 
   @override
+  String get missionFlappyBird => 'Flappy Bird';
+
+  @override
+  String get missionFlappyBirdDesc =>
+      'Joue à Flappy Bird pour atteindre un score';
+
+  @override
   String get missionRandom => 'Aléatoire';
 
   @override
@@ -665,6 +672,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get missionConfigMinutes => 'Minutes minimum';
+
+  @override
+  String get missionConfigTargetScore => 'Score à atteindre';
 
   @override
   String get missionConfigNumberOfProblems => 'Nombre de problèmes';
@@ -2606,6 +2616,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get missionExplAffirmationBody =>
       'Prononcer une affirmation à voix haute active ta voix, ton souffle et ta concentration simultanément. L\'acte de lire et de répéter engage plusieurs régions du cerveau — te faisant passer de la somnolence passive à la pensée intentionnelle et consciente.';
+
+  @override
+  String get missionExplFlappyBirdTitle => 'Pourquoi jouer te réveille';
+
+  @override
+  String get missionExplFlappyBirdSubtitle =>
+      'Aiguise ta concentration et tes réflexes';
+
+  @override
+  String get missionExplFlappyBirdBody =>
+      'Guider l\'oiseau entre les tuyaux exige des réactions rapides et une bonne coordination œil-main. Viser un score te garde l\'esprit engagé et alerte — te sortant de la torpeur pour te mettre dans un état actif et éveillé.';
 
   @override
   String get generalOk => 'OK';

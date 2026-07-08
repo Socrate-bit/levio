@@ -554,6 +554,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionBedDesc => 'Take a photo of your bed';
 
   @override
+  String get missionFlappyBird => 'Flappy Bird';
+
+  @override
+  String get missionFlappyBirdDesc => 'Play Flappy Bird to reach a score';
+
+  @override
   String get missionRandom => 'Random';
 
   @override
@@ -660,6 +666,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missionConfigMinutes => 'Minimum minutes';
+
+  @override
+  String get missionConfigTargetScore => 'Score to reach';
 
   @override
   String get missionConfigNumberOfProblems => 'Number of problems';
@@ -2560,6 +2569,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get missionExplAffirmationBody =>
       'Speaking an affirmation out loud activates your voice, breath, and focus simultaneously. The act of reading and repeating engages multiple brain regions — shifting you from passive drowsiness to intentional, conscious thought.';
+
+  @override
+  String get missionExplFlappyBirdTitle => 'Why playing a game wakes you up';
+
+  @override
+  String get missionExplFlappyBirdSubtitle =>
+      'Sharpens your focus and reflexes';
+
+  @override
+  String get missionExplFlappyBirdBody =>
+      'Guiding the bird through the pipes demands quick reactions and steady hand-eye coordination. Chasing a target score keeps your brain engaged and alert — pulling you out of grogginess and into an active, awake state.';
 
   @override
   String get generalOk => 'OK';

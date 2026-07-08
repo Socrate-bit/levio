@@ -36,6 +36,8 @@ String localizedMissionName(AppLocalizations l10n, MissionType type) {
       return l10n.missionMeditation;
     case MissionType.bedPhoto:
       return l10n.missionBed;
+    case MissionType.flappyBird:
+      return l10n.missionFlappyBird;
     case MissionType.random:
       return l10n.missionRandom;
     case MissionType.none:
@@ -78,6 +80,8 @@ String localizedMissionDesc(AppLocalizations l10n, MissionType type) {
       return l10n.missionMeditationDesc;
     case MissionType.bedPhoto:
       return l10n.missionBedDesc;
+    case MissionType.flappyBird:
+      return l10n.missionFlappyBirdDesc;
     case MissionType.random:
       return l10n.missionRandomDesc;
     case MissionType.none:

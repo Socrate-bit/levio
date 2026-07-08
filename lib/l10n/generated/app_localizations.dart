@@ -1142,6 +1142,18 @@ abstract class AppLocalizations {
   /// **'Take a photo of your bed'**
   String get missionBedDesc;
 
+  /// No description provided for @missionFlappyBird.
+  ///
+  /// In en, this message translates to:
+  /// **'Flappy Bird'**
+  String get missionFlappyBird;
+
+  /// No description provided for @missionFlappyBirdDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Flappy Bird to reach a score'**
+  String get missionFlappyBirdDesc;
+
   /// No description provided for @missionRandom.
   ///
   /// In en, this message translates to:
@@ -1351,6 +1363,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Minimum minutes'**
   String get missionConfigMinutes;
+
+  /// No description provided for @missionConfigTargetScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score to reach'**
+  String get missionConfigTargetScore;
 
   /// No description provided for @missionConfigNumberOfProblems.
   ///
@@ -4831,6 +4849,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Speaking an affirmation out loud activates your voice, breath, and focus simultaneously. The act of reading and repeating engages multiple brain regions — shifting you from passive drowsiness to intentional, conscious thought.'**
   String get missionExplAffirmationBody;
+
+  /// No description provided for @missionExplFlappyBirdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why playing a game wakes you up'**
+  String get missionExplFlappyBirdTitle;
+
+  /// No description provided for @missionExplFlappyBirdSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharpens your focus and reflexes'**
+  String get missionExplFlappyBirdSubtitle;
+
+  /// No description provided for @missionExplFlappyBirdBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Guiding the bird through the pipes demands quick reactions and steady hand-eye coordination. Chasing a target score keeps your brain engaged and alert — pulling you out of grogginess and into an active, awake state.'**
+  String get missionExplFlappyBirdBody;
 
   /// No description provided for @generalOk.
   ///
