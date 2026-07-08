@@ -125,7 +125,7 @@ class _FlappyBirdDismissScreenState extends State<FlappyBirdDismissScreen> {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+                  padding: EdgeInsets.fromLTRB(16.w, 32.h, 16.w, 0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -134,14 +134,14 @@ class _FlappyBirdDismissScreenState extends State<FlappyBirdDismissScreen> {
                         children: [
                           Image.asset(
                             'assets/icon.png',
-                            width: 28.w,
-                            height: 28.h,
+                            width: 64.w,
+                            height: 64.h,
                           ),
                           SizedBox(width: 8.w),
                           Text(
                             'LEVIO',
                             style: TextStyle(
-                              fontSize: 18.sp,
+                              fontSize: 32.sp,
                               fontWeight: FontWeight.w900,
                               color: Colors.white,
                               letterSpacing: 0,
@@ -201,7 +201,7 @@ class _FlappyBirdDismissScreenState extends State<FlappyBirdDismissScreen> {
                       child: Text(
                         '$score/${widget.targetScore}',
                         style: TextStyle(
-                          fontSize: 22.sp,
+                          fontSize: 32.sp,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
                           letterSpacing: 0,
