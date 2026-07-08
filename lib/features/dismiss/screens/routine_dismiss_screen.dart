@@ -148,7 +148,7 @@ class _RoutineDismissScreenState extends State<RoutineDismissScreen> {
                   child: ElevatedButton(
                     onPressed: _allDone ? withHaptic(_validate) : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.orange,
+                      backgroundColor: c.textPrimary,
                       foregroundColor: Colors.white,
                       disabledBackgroundColor: c.separator,
                       disabledForegroundColor: c.textSecondary,
@@ -216,10 +216,10 @@ class _StepCard extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
         decoration: BoxDecoration(
-          color: done ? AppColors.orange.withAlpha(20) : c.card,
+          color: done ? c.textPrimary.withAlpha(20) : c.card,
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: done ? AppColors.orange : Colors.transparent,
+            color: done ? c.textPrimary : Colors.transparent,
             width: 1.5,
           ),
         ),
@@ -230,10 +230,10 @@ class _StepCard extends StatelessWidget {
               width: 26.w,
               height: 26.h,
               decoration: BoxDecoration(
-                color: done ? AppColors.orange : Colors.transparent,
+                color: done ? c.textPrimary : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: done ? AppColors.orange : c.separator,
+                  color: done ? c.textPrimary : c.separator,
                   width: 2,
                 ),
               ),

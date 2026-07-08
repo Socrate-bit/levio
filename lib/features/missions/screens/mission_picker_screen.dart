@@ -99,7 +99,7 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                         padding: EdgeInsets.symmetric(
                             horizontal: 14.w, vertical: 8.h),
                         decoration: BoxDecoration(
-                          color: selected ? AppColors.orange : c.card,
+                          color: selected ? c.textPrimary : c.card,
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Text(

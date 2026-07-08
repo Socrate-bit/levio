@@ -150,7 +150,7 @@ class _SoundPickerStepState extends State<SoundPickerStep> {
                                         ? Icons.pause
                                         : Icons.play_arrow,
                                     color: isPlaying
-                                        ? AppColors.orange
+                                        ? c.textPrimary
                                         : c.textSecondary,
                                     size: 22.sp,
                                   ),

@@ -59,6 +59,9 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
 
   bool get _isEditing => widget.alarm != null;
 
+  /// Accent color for the form.
+  Color get _accent => AppColors.of(context).textPrimary;
+
   /// Spin to Win is a creator-only feature, gated to UGC users.
   bool get _isCreator {
     final t = context.read<SubscriptionCubit>().state.userType;
@@ -220,7 +223,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         vertical: 8.h,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.orange,
+                        color: _accent,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Text(
@@ -333,6 +336,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         label: l10n.alarmFormWakeUp,
                         icon: Icons.wb_sunny,
                         selected: !_isSleep,
+                        accent: _accent,
                         onTap: () => setState(() => _isSleep = false),
                       ),
                     ),
@@ -342,6 +346,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         label: l10n.alarmFormSleep,
                         icon: Icons.nightlight_round,
                         selected: _isSleep,
+                        accent: _accent,
                         onTap: () => setState(() => _isSleep = true),
                       ),
                     ),
@@ -396,6 +401,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       child: _TogglePill(
                         label: l10n.alarmFormScheduled,
                         selected: _isScheduled,
+                        accent: _accent,
                         onTap: () => setState(() => _isScheduled = true),
                       ),
                     ),
@@ -404,6 +410,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       child: _TogglePill(
                         label: l10n.alarmFormOneTime,
                         selected: !_isScheduled,
+                        accent: _accent,
                         onTap: () => setState(() => _isScheduled = false),
                       ),
                     ),
@@ -612,7 +619,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       ),
                       Switch(
                         value: _spinToWin,
-                        activeTrackColor: AppColors.orange,
+                        activeTrackColor: _accent,
                         onChanged: (v) => setState(() => _spinToWin = v),
                       ),
                     ],
@@ -687,7 +694,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                           ),
                           Switch(
                             value: _reminderEnabled,
-                            activeTrackColor: AppColors.orange,
+                            activeTrackColor: _accent,
                             onChanged: (v) =>
                                 setState(() => _reminderEnabled = v),
                           ),
@@ -739,7 +746,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
               child: ElevatedButton(
                 onPressed: _canSave ? withHaptic(() => _save(context)) : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _canSave ? AppColors.orange : c.separator,
+                  backgroundColor: _canSave ? _accent : c.separator,
                   foregroundColor: _canSave ? Colors.white : c.textSecondary,
                   minimumSize: Size(double.infinity, 56.h),
                   shape: RoundedRectangleBorder(
@@ -884,11 +891,13 @@ class _TogglePill extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final IconData? icon;
+  final Color accent;
 
   const _TogglePill({
     required this.label,
     required this.selected,
     required this.onTap,
+    required this.accent,
     this.icon,
   });
 
@@ -903,7 +912,7 @@ class _TogglePill extends StatelessWidget {
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: selected ? AppColors.orange : c.background,
+          color: selected ? accent : c.background,
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Row(

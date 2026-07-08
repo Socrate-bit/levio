@@ -1,8 +1,9 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:levio/features/alarms/services/alarm_readiness_guard.dart';
-import 'package:liquid_glass_bar/liquid_glass_bar.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'theme/app_theme.dart';
 import 'utils/haptic_utils.dart';
 import 'package:levio/features/alarms/cubit/alarm_cubit.dart';
@@ -119,71 +120,73 @@ class BottomNavShellState extends State<BottomNavShell>
         padding: EdgeInsets.only(bottom: 16.h, left: 24.w, right: 24.w),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: LiquidGlassBar(
-                currentIndex: _index,
-                onTap: withHapticValue(_selectTab)!,
-                style: LiquidGlassBarStyle(
-                  activeColor: AppColors.orange,
-                  inactiveColor: c.textSecondary,
-                  borderRadius: 28.r,
-                  height: 72.h,
-                  iconSize: 32.sp,
-                  selectedIconScale: 1.15,
-                  animationDuration: const Duration(milliseconds: 250),
-                  padding: EdgeInsets.fromLTRB(20.w, 12.h, 4.w, 0),
-                  labelStyle: TextStyle(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: c.textSecondary,
-                  ),
-                  borderColor: isDark
-                      ? Colors.white.withValues(alpha: 0.12)
-                      : const Color(0xE6FFFFFF),
-                  borderWidth: isDark ? 0.1 : 1.0,
-                  indicatorBorderColor: isDark
-                      ? Colors.white.withValues(alpha: 0.2)
-                      : const Color(0x99FFFFFF),
-                  indicatorBorderWidth: 1.5,
-                  liquidGlassSettings: LiquidGlassSettings(
-                    blur: 10.0,
-                    thickness: 20,
-                    glassColor: isDark
-                        ? Colors.white.withValues(alpha: 0.1)
-                        : Colors.white.withValues(alpha: 0.85),
-                  ),
+              child: GlassBottomBar(
+                selectedIndex: _index,
+                onTabSelected: withHapticValue(_selectTab)!,
+                // Outer Padding owns the margins; let the bar fill the slot.
+                horizontalPadding: 0,
+                verticalPadding: 0,
+                barHeight: 85.h,
+                iconSize: 35.sp,
+                labelFontSize: 11.sp,
+                selectedIconColor: c.textPrimary,
+                unselectedIconColor: c.textSecondary,
+                selectedLabelColor: c.textPrimary,
+                unselectedLabelColor: c.textSecondary,
+                indicatorColor: isDark
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : Colors.black.withValues(alpha: 0.1),
+                quality: GlassQuality.premium,
+                interactionBehavior: GlassInteractionBehavior.full,
+                settings: LiquidGlassSettings(
+                  glassColor: isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : Colors.white.withValues(alpha: 0.85),
+                  thickness: 20,
+                  blur: 2,
                 ),
-                items: [
-                  LiquidGlassBarItem(
-                    iconData: Icons.home_rounded,
+                tabs: [
+                  GlassBottomBarTab(
                     label: l10n.navHome,
+                    icon: const Icon(Icons.home_rounded),
                   ),
-                  LiquidGlassBarItem(
-                    iconData: Icons.alarm_rounded,
+                  GlassBottomBarTab(
                     label: l10n.navAlarms,
+                    icon: const Icon(Icons.alarm_rounded),
                   ),
-                  LiquidGlassBarItem(
-                    iconData: Icons.bar_chart_rounded,
+                  GlassBottomBarTab(
                     label: l10n.navInsights,
+                    icon: const Icon(Icons.bar_chart_rounded),
                   ),
                 ],
               ),
             ),
-            // Animate the add-alarm button in/out; its horizontal footprint
-            // collapses to zero so the nav bar re-centers when hidden.
-            SizeTransition(
-              axis: Axis.horizontal,
-              axisAlignment: -1.0,
-              sizeFactor: _fabSize,
-              child: FadeTransition(
-                opacity: _fabSize,
-                child: ScaleTransition(
-                  scale: _fabScale,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 12.w),
-                    child: _AddAlarmCircleButton(
-                      onTap: () => _openAlarmForm(context),
+            // The button pops in place with a little rebound (no sliding),
+            // while its reserved footprint collapses so the nav bar re-centers
+            // when hidden. OverflowBox keeps the button full-size (pinned to the
+            // right) as the surrounding slot width animates.
+            AnimatedBuilder(
+              animation: _fabSize,
+              builder: (context, child) {
+                final t = _fabSize.value.clamp(0.0, 1.0);
+                return SizedBox(width: (80.w + 12.w) * t, child: child);
+              },
+              child: OverflowBox(
+                minWidth: 80.w + 12.w,
+                maxWidth: 80.w + 12.w,
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 12.w),
+                  child: ScaleTransition(
+                    scale: _fabScale,
+                    child: FadeTransition(
+                      opacity: _fabSize,
+                      child: _AddAlarmCircleButton(
+                        onTap: () => _openAlarmForm(context),
+                      ),
                     ),
                   ),
                 ),
@@ -207,8 +210,8 @@ class _AddAlarmCircleButton extends StatelessWidget {
       child: Container(
         width: 80.w,
         height: 80.h,
-        decoration: const BoxDecoration(
-          color: AppColors.orange,
+        decoration: BoxDecoration(
+          color: AppColors.of(context).textPrimary,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(

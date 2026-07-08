@@ -302,7 +302,7 @@ class _RangeToggle extends StatelessWidget {
                 padding: EdgeInsets.symmetric(vertical: 8.h),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.orange
+                      ? AppColors.of(context).textPrimary
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10.r),
                 ),

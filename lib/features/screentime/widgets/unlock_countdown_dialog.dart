@@ -126,7 +126,7 @@ class UnlockCountdownDialog extends StatelessWidget {
                             () => context.read<ScreenTimeCubit>().confirmUnlock(),
                           ),
                           style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.orange,
+                            backgroundColor: c.textPrimary,
                             minimumSize: Size(double.infinity, 52.h),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14.r),

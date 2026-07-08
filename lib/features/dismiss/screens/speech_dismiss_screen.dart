@@ -305,7 +305,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _isListening
-                                  ? AppColors.orange
+                                  ? c.textPrimary
                                   : c.separator,
                             ),
                             child: Icon(

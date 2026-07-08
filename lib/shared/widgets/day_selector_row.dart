@@ -53,7 +53,7 @@ class DaySelectorRow extends StatelessWidget {
                   duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: selected ? AppColors.orange : c.background,
+                    color: selected ? c.textPrimary : c.background,
                   ),
                   child: Center(
                     child: Text(

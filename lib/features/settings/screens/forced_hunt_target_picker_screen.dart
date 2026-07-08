@@ -208,7 +208,7 @@ class _ForcedHuntTargetPickerScreenState
                               color: c.card,
                               borderRadius: BorderRadius.circular(12.r),
                               border: Border.all(
-                                color: AppColors.orange.withAlpha(120),
+                                color: c.textPrimary.withAlpha(120),
                                 width: 1.5,
                               ),
                             ),
@@ -216,13 +216,13 @@ class _ForcedHuntTargetPickerScreenState
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.add,
-                                    color: AppColors.orange, size: 20.sp),
+                                    color: c.textPrimary, size: 20.sp),
                                 SizedBox(width: 8.w),
                                 Text(
                                   l10n.itemPickerAddCustom,
                                   style: TextStyle(
                                     fontSize: 15.sp,
-                                    color: AppColors.orange,
+                                    color: c.textPrimary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),

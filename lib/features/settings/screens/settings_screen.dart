@@ -59,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           return ListTile(
             title: Text(_spinModeLabels[mode]!),
             trailing: mode == current
-                ? const Icon(Icons.check, color: AppColors.orange)
+                ? Icon(Icons.check, color: AppColors.of(context).textPrimary)
                 : null,
             onTap: () => Navigator.of(dialogContext).pop(mode),
           );
@@ -500,7 +500,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           _ActionRow(
                             icon: Icons.bug_report_outlined,
                             label: l10n.settingsPrintAllAlarms,
-                            color: AppColors.orange,
+                            color: c.textPrimary,
                             onTap: () => context
                                 .read<AlarmCubit>()
                                 .printActiveAlarms(),
@@ -509,7 +509,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           _ActionRow(
                             icon: Icons.list_alt_outlined,
                             label: l10n.settingsPrintRawAlarms,
-                            color: AppColors.orange,
+                            color: c.textPrimary,
                             onTap: () =>
                                 context.read<AlarmCubit>().printRawAlarms(),
                           ),
@@ -517,7 +517,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           _ActionRow(
                             icon: Icons.storage_outlined,
                             label: l10n.settingsPrintSharedPreferences,
-                            color: AppColors.orange,
+                            color: c.textPrimary,
                             onTap: () => context
                                 .read<SettingsCubit>()
                                 .printSharedPrefs(),

@@ -276,8 +276,8 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                             child: Container(
                               width: 96.w,
                               height: 96.w,
-                              decoration: const BoxDecoration(
-                                color: AppColors.orange,
+                              decoration: BoxDecoration(
+                                color: c.textPrimary,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -292,10 +292,10 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                         SliderTheme(
                           data: SliderTheme.of(context).copyWith(
                             trackHeight: 4.h,
-                            activeTrackColor: AppColors.orange,
+                            activeTrackColor: c.textPrimary,
                             inactiveTrackColor: c.separator,
-                            thumbColor: AppColors.orange,
-                            overlayColor: AppColors.orange.withAlpha(40),
+                            thumbColor: c.textPrimary,
+                            overlayColor: c.textPrimary.withAlpha(40),
                           ),
                           child: Slider(
                             value: sliderValue,
@@ -345,7 +345,7 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                   child: ElevatedButton(
                     onPressed: _canFinish ? _finish : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.orange,
+                      backgroundColor: c.textPrimary,
                       foregroundColor: Colors.white,
                       disabledBackgroundColor: c.separator,
                       disabledForegroundColor: c.textSecondary,

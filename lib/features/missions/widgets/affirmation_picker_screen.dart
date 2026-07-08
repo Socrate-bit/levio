@@ -214,7 +214,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                         height: 32.h,
                         decoration: BoxDecoration(
                           color: _count > 1
-                              ? AppColors.orange
+                              ? c.textPrimary
                               : c.separator,
                           shape: BoxShape.circle,
                         ),
@@ -249,7 +249,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                         height: 32.h,
                         decoration: BoxDecoration(
                           color: _count < 10
-                              ? AppColors.orange
+                              ? c.textPrimary
                               : c.separator,
                           shape: BoxShape.circle,
                         ),
@@ -356,11 +356,11 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                       width: 44.w,
                       height: 44.h,
                       decoration: BoxDecoration(
-                        color: AppColors.orange,
+                        color: c.textPrimary,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Icon(Icons.add,
-                          color: Colors.white, size: 22.sp),
+                          color: c.background, size: 22.sp),
                     ),
                   ),
                 ],

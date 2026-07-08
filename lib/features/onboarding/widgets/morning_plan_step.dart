@@ -247,7 +247,7 @@ class _TimelineItem extends StatelessWidget {
             ),
           ),
           if (onTap != null)
-            Icon(Icons.edit, size: 14.sp, color: AppColors.orange),
+            Icon(Icons.edit, size: 14.sp, color: colors.textPrimary),
         ],
       ),
     );
@@ -287,7 +287,7 @@ class _DayCircle extends StatelessWidget {
         height: 36.h,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isActive ? AppColors.orange : Colors.transparent,
+          color: isActive ? colors.textPrimary : Colors.transparent,
           border: isActive
               ? null
               : Border.all(color: colors.textSecondary, width: 1),

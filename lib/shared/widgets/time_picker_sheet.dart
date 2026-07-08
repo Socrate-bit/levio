@@ -51,7 +51,7 @@ Future<TimeOfDay?> showTimePickerSheet(
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                     decoration: BoxDecoration(
-                      color: AppColors.orange,
+                      color: c.textPrimary,
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     child: Text(

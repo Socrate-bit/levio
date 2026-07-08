@@ -393,7 +393,7 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                                 color: c.card,
                                 borderRadius: BorderRadius.circular(12.r),
                                 border: Border.all(
-                                  color: AppColors.orange.withAlpha(120),
+                                  color: c.textPrimary.withAlpha(120),
                                   width: 1.5,
                                 ),
                               ),
@@ -401,13 +401,13 @@ class _ItemPickerScreenState extends State<ItemPickerScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.add,
-                                      color: AppColors.orange, size: 20.sp),
+                                      color: c.textPrimary, size: 20.sp),
                                   SizedBox(width: 8.w),
                                   Text(
                                     l10n.itemPickerAddCustom,
                                     style: TextStyle(
                                       fontSize: 15.sp,
-                                      color: AppColors.orange,
+                                      color: c.textPrimary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -690,7 +690,7 @@ class _AddCustomObjectSheetState extends State<AddCustomObjectSheet> {
                       color: c.background,
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(
-                        color: _showEmoji ? AppColors.orange : Colors.transparent,
+                        color: _showEmoji ? c.textPrimary : Colors.transparent,
                         width: 2,
                       ),
                     ),
@@ -736,7 +736,7 @@ class _AddCustomObjectSheetState extends State<AddCustomObjectSheet> {
                 onTap: withHaptic(_toggleEmoji),
                 child: Text(
                   l10n.itemPickerChooseEmoji,
-                  style: TextStyle(fontSize: 13.sp, color: AppColors.orange),
+                  style: TextStyle(fontSize: 13.sp, color: c.textPrimary),
                 ),
               ),
             ],
@@ -793,10 +793,10 @@ class _AddCustomObjectSheetState extends State<AddCustomObjectSheet> {
             ElevatedButton(
               onPressed: _canAdd ? withHaptic(_submit) : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.orange,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: AppColors.orange.withAlpha(80),
-                disabledForegroundColor: Colors.white70,
+                backgroundColor: c.textPrimary,
+                foregroundColor: c.background,
+                disabledBackgroundColor: c.textPrimary.withAlpha(80),
+                disabledForegroundColor: c.background.withValues(alpha: 0.7),
                 minimumSize: Size(double.infinity, 54.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.r),

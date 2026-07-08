@@ -110,7 +110,7 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
               child: ElevatedButton(
                 onPressed: _dismiss,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.orange,
+                  backgroundColor: c.textPrimary,
                   foregroundColor: Colors.white,
                   minimumSize: Size(double.infinity, 56.h),
                   shape: RoundedRectangleBorder(

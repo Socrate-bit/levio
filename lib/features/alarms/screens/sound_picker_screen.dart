@@ -289,7 +289,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                           ? Icons.equalizer
                                           : Icons.play_circle_outline,
                                       color: isPlaying
-                                          ? AppColors.orange
+                                          ? c.textPrimary
                                           : c.textSecondary,
                                       size: 22.sp,
                                     ),
@@ -384,7 +384,7 @@ class _SoundPickerScreenState extends State<SoundPickerScreen> {
                                               ? Icons.equalizer
                                               : Icons.play_circle_outline,
                                           color: isPlaying
-                                              ? AppColors.orange
+                                              ? c.textPrimary
                                               : c.textSecondary,
                                           size: 22.sp,
                                         ),

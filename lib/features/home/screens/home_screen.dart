@@ -178,7 +178,7 @@ class _TopBar extends StatelessWidget {
             child: Icon(
               Icons.settings_rounded,
               size: 24.sp,
-              color: c.textSecondary,
+              color: c.textPrimary,
             ),
           ),
         ),

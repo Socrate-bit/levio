@@ -126,14 +126,14 @@ class _RelaxingActivitiesStepState extends State<RelaxingActivitiesStep> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(widget.leadingIcon, size: 20.sp, color: AppColors.orange),
+                  Icon(widget.leadingIcon, size: 20.sp, color: c.textPrimary),
                   SizedBox(width: 10.w),
                   Text(
                     l10n.onboardingRoutineModify,
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.orange,
+                      color: c.textPrimary,
                     ),
                   ),
                 ],

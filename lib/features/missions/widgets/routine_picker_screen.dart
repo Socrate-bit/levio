@@ -123,8 +123,8 @@ class _RoutinePickerScreenState extends State<RoutinePickerScreen> {
                         () => Navigator.pop(context, _result.toList()),
                       ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.orange,
-                  foregroundColor: Colors.white,
+                  backgroundColor: c.textPrimary,
+                  foregroundColor: c.background,
                   disabledBackgroundColor: c.separator,
                   minimumSize: Size(double.infinity, 54.h),
                   shape: RoundedRectangleBorder(
@@ -453,7 +453,7 @@ class _AddCustomStepSheetState extends State<_AddCustomStepSheet> {
                   child: FilledButton(
                     onPressed: () => Navigator.pop(context, _ctrl.text.trim()),
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.orange,
+                      backgroundColor: c.textPrimary,
                       minimumSize: Size(0, 50.h),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.r),
@@ -461,7 +461,7 @@ class _AddCustomStepSheetState extends State<_AddCustomStepSheet> {
                     ),
                     child: Text(
                       l10n.screenTimeAddSchedule,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: c.background),
                     ),
                   ),
                 ),
@@ -621,10 +621,10 @@ class _Chip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: selected ? AppColors.orange : c.card,
+          color: selected ? c.textPrimary : c.card,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
-            color: selected ? AppColors.orange : c.separator,
+            color: selected ? c.textPrimary : c.separator,
             width: 1.5,
           ),
         ),
@@ -641,7 +641,7 @@ class _Chip extends StatelessWidget {
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
                 color: selected
-                    ? Colors.white
+                    ? c.background
                     : (isAdd ? c.textSecondary : c.textPrimary),
               ),
             ),

@@ -335,14 +335,14 @@ class _SchedulesSection extends StatelessWidget {
                 onTap: withHaptic(() => _addSchedule(context)),
                 child: Row(
                   children: [
-                    Icon(Icons.add, size: 18.sp, color: AppColors.orange),
+                    Icon(Icons.add, size: 18.sp, color: c.textPrimary),
                     SizedBox(width: 2.w),
                     Text(
                       l10n.screenTimeAddSchedule,
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.orange,
+                        color: c.textPrimary,
                       ),
                     ),
                   ],
@@ -502,7 +502,7 @@ class _UnlockSection extends StatelessWidget {
                 child: FilledButton(
                   onPressed: () => Navigator.pop(ctx, _UnlockChoice.keepLocked),
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.orange,
+                    backgroundColor: AppColors.of(context).textPrimary,
                     minimumSize: Size(double.infinity, 48.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.r),

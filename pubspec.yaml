@@ -57,6 +57,7 @@ dependencies:
   firebase_storage: ^13.4.3
   video_player: ^2.11.1
   emoji_picker_flutter: ^4.4.0
+  liquid_glass_widgets: ^0.18.4
 
 dev_dependencies:
   flutter_test:

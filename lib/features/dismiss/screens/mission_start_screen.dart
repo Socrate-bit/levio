@@ -91,7 +91,7 @@ class MissionStartScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: withHaptic(onStart),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.orange,
+                  backgroundColor: c.textPrimary,
                   foregroundColor: Colors.white,
                   minimumSize: Size(double.infinity, 54.h),
                   shape: RoundedRectangleBorder(

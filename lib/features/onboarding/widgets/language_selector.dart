@@ -125,7 +125,7 @@ Future<void> showLanguageSheet(BuildContext context) {
                         ),
                         if (lang.code == current)
                           Icon(Icons.check_circle,
-                              size: 22.sp, color: AppColors.orange),
+                              size: 22.sp, color: c.textPrimary),
                       ],
                     ),
                   ),

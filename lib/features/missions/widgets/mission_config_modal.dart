@@ -363,7 +363,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                           right: d != MathDifficulty.hard ? 8.w : 0),
                       padding: EdgeInsets.symmetric(vertical: 10.h),
                       decoration: BoxDecoration(
-                        color: selected ? AppColors.orange : c.background,
+                        color: selected ? c.textPrimary : c.background,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Center(
@@ -372,7 +372,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
-                            color: selected ? Colors.white : c.textSecondary,
+                            color: selected ? c.background : c.textSecondary,
                           ),
                         ),
                       ),
@@ -413,8 +413,8 @@ class _ConfigSheetState extends State<_ConfigSheet> {
                 child: ElevatedButton(
                   onPressed: withHaptic(() => Navigator.pop(context, _buildConfig())),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.orange,
-                    foregroundColor: Colors.white,
+                    backgroundColor: c.textPrimary,
+                    foregroundColor: c.background,
                     minimumSize: Size(0, 50.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14.r),
@@ -496,12 +496,12 @@ class _Stepper extends StatelessWidget {
         width: 44.w,
         height: 44.h,
         decoration: BoxDecoration(
-          color: enabled ? AppColors.orange : c.separator,
+          color: enabled ? c.textPrimary : c.separator,
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
-          color: enabled ? Colors.white : c.textSecondary,
+          color: enabled ? c.background : c.textSecondary,
           size: 22.sp,
         ),
       ),
