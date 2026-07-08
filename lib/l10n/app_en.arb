@@ -655,6 +655,7 @@
   "dismissSpinningWheelWin": "You won a trip! ✈️",
   "dismissSpinningWheelMissed": "Better luck tomorrow!",
   "dismissSpinningWheelAlreadyUsed": "You already spun today. Come back tomorrow! ✈️",
+  "dismissFlappyBirdPrompt": "Flap through the pipes to turn off your alarm",
   "dismissMathProgress": "{current} / {total}",
   "@dismissMathProgress": {
     "placeholders": {

@@ -1680,6 +1680,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Tu as déjà tourné aujourd\'hui. Reviens demain ! ✈️';
 
   @override
+  String get dismissFlappyBirdPrompt =>
+      'Passe entre les tuyaux pour arrêter l\'alarme';
+
+  @override
   String dismissMathProgress(int current, int total) {
     return '$current / $total';
   }
