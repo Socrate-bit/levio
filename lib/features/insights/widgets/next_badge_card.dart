@@ -61,6 +61,7 @@ class NextBadgeCard extends StatelessWidget {
               earned: earned,
               size: 62.w,
               earnedColor: AppColors.orange,
+              imageAsset: badge?.imageAsset,
             ),
             SizedBox(width: 14.w),
             Expanded(
