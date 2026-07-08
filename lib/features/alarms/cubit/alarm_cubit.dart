@@ -19,6 +19,14 @@ class AlarmCubit extends Cubit<AlarmState> {
   // reconciliation lives in [sync] and is gated by access in AppGateWrapper.
   AlarmCubit() : super(const AlarmState());
 
+  // Re-entrancy guards. These methods reschedule alarms (create native cascade
+  // + rotate the Firestore doc id) and only emit the cleared state after their
+  // awaits complete. Without a synchronous guard, a caller that fires them on
+  // every rebuild would re-enter mid-flight, read the same stale alarms, and
+  // schedule duplicates. Set at entry, cleared in `finally`.
+  bool _restoreInProgress = false;
+  bool _disableInProgress = false;
+
   /// Debug: dumps native AlarmKit alarms and cross-references with Flutter state.
   Future<void> printActiveAlarms() async {
     final flutterAlarms = state.alarms;
@@ -143,9 +151,51 @@ class AlarmCubit extends Cubit<AlarmState> {
     final firestoreAlarms = results[0] as List<AppAlarmEntry>;
     final nativeIds = (results[1] as List<String>).toSet();
     final now = DateTime.now();
+
+    // Collapse strictly-identical duplicate docs (same content, different id)
+    // that a prior reschedule race may have left behind. Two alarms are treated
+    // as duplicates only when every field except `id`/`createdAt` matches — the
+    // normalized entry is used as an Equatable-hashable key. Keep one per key,
+    // preferring the copy already backed by a live native cascade, and
+    // cancel + delete the rest so they stop ringing.
+    AppAlarmEntry contentKey(AppAlarmEntry a) =>
+        a.copyWith(id: '', createdAt: DateTime.fromMillisecondsSinceEpoch(0));
+    final deduped = <AppAlarmEntry>[];
+    final keptByKey = <AppAlarmEntry, AppAlarmEntry>{};
+    for (final alarm in firestoreAlarms) {
+      final key = contentKey(alarm);
+      final kept = keptByKey[key];
+      if (kept == null) {
+        keptByKey[key] = alarm;
+        deduped.add(alarm);
+        continue;
+      }
+      // Duplicate: keep the one with a live cascade, drop the other.
+      final replaceKept =
+          nativeIds.contains(alarm.id) && !nativeIds.contains(kept.id);
+      final winner = replaceKept ? alarm : kept;
+      final loser = replaceKept ? kept : alarm;
+      if (replaceKept) {
+        keptByKey[key] = alarm;
+        final idx = deduped.indexOf(kept);
+        if (idx != -1) deduped[idx] = alarm;
+      }
+      debugPrint(
+        '[AlarmCubit] collapsing duplicate alarm ${loser.id} (keeping ${winner.id})',
+      );
+      try {
+        await AlarmChannel.cancel(loser.id);
+        await AlarmChannel.cleanupConfig(loser.id);
+        await AlarmFirestoreService.deleteAlarm(loser.id);
+      } catch (e, st) {
+        debugPrint('[AlarmCubit] duplicate cleanup failed for ${loser.id}: $e');
+        AnalyticsService.trackError('AlarmCubit._reconcileWithNative.dedup', e, st);
+      }
+    }
+
     final resolved = <AppAlarmEntry>[];
 
-    for (final alarm in firestoreAlarms) {
+    for (final alarm in deduped) {
       // Disabled alarm — if a cascade leaked (e.g. a prior toggle-off failed
       // mid-flight) cancel it now so it doesn't keep ringing. Without this,
       // the orphan-cancel loop below would skip it because its id is in
@@ -693,74 +743,84 @@ class AlarmCubit extends Cubit<AlarmState> {
 
   /// Disables all enabled alarms because the user lost their subscription.
   Future<void> disableAllForSubscription() async {
+    if (_disableInProgress) return;
     final enabledAlarms = state.alarms.where((a) => a.isEnabled).toList();
     if (enabledAlarms.isEmpty) return;
+    _disableInProgress = true;
+    try {
+      // Optimistic: mark all as disabled in one emit
+      final updated = state.alarms.map((a) {
+        if (!a.isEnabled) return a;
+        return a.copyWith(isEnabled: false, disabledBySubscription: true);
+      }).toList();
+      emit(state.copyWith(alarms: updated));
 
-    // Optimistic: mark all as disabled in one emit
-    final updated = state.alarms.map((a) {
-      if (!a.isEnabled) return a;
-      return a.copyWith(isEnabled: false, disabledBySubscription: true);
-    }).toList();
-    emit(state.copyWith(alarms: updated));
-
-    for (final alarm in enabledAlarms) {
-      final disabled = alarm.copyWith(
-        isEnabled: false,
-        disabledBySubscription: true,
-      );
-      try {
-        await AlarmFirestoreService.saveAlarm(disabled);
-      } catch (e, st) {
-        debugPrint(
-          '[AlarmCubit] disableAllForSubscription save failed ${alarm.id}: $e',
+      for (final alarm in enabledAlarms) {
+        final disabled = alarm.copyWith(
+          isEnabled: false,
+          disabledBySubscription: true,
         );
-        AnalyticsService.trackError('AlarmCubit.disableAllForSubscription.save', e, st);
+        try {
+          await AlarmFirestoreService.saveAlarm(disabled);
+        } catch (e, st) {
+          debugPrint(
+            '[AlarmCubit] disableAllForSubscription save failed ${alarm.id}: $e',
+          );
+          AnalyticsService.trackError('AlarmCubit.disableAllForSubscription.save', e, st);
+        }
+        try {
+          await AlarmChannel.cancel(alarm.id);
+        } catch (e, st) {
+          debugPrint(
+            '[AlarmCubit] disableAllForSubscription cancel failed ${alarm.id}: $e',
+          );
+          AnalyticsService.trackError('AlarmCubit.disableAllForSubscription.cancel', e, st);
+        }
       }
-      try {
-        await AlarmChannel.cancel(alarm.id);
-      } catch (e, st) {
-        debugPrint(
-          '[AlarmCubit] disableAllForSubscription cancel failed ${alarm.id}: $e',
-        );
-        AnalyticsService.trackError('AlarmCubit.disableAllForSubscription.cancel', e, st);
-      }
+    } finally {
+      _disableInProgress = false;
     }
   }
 
   /// Re-enables alarms that were auto-disabled by a subscription lapse.
   Future<void> restoreSubscriptionDisabled() async {
+    if (_restoreInProgress) return;
     final toRestore = state.alarms
         .where((a) => a.disabledBySubscription)
         .toList();
     if (toRestore.isEmpty) return;
+    _restoreInProgress = true;
+    try {
+      final updatedAlarms = List<AppAlarmEntry>.from(state.alarms);
 
-    final updatedAlarms = List<AppAlarmEntry>.from(state.alarms);
+      for (final alarm in toRestore) {
+        try {
+          final toSchedule = alarm.copyWith(
+            dateTime: _nextFutureDay(alarm.dateTime),
+            isEnabled: true,
+            disabledBySubscription: false,
+            createdAt: DateTime.now(),
+          );
+          final newId = await _scheduleNative(toSchedule);
+          final rescheduled = toSchedule.copyWith(id: newId);
 
-    for (final alarm in toRestore) {
-      try {
-        final toSchedule = alarm.copyWith(
-          dateTime: _nextFutureDay(alarm.dateTime),
-          isEnabled: true,
-          disabledBySubscription: false,
-          createdAt: DateTime.now(),
-        );
-        final newId = await _scheduleNative(toSchedule);
-        final rescheduled = toSchedule.copyWith(id: newId);
+          final idx = updatedAlarms.indexWhere((a) => a.id == alarm.id);
+          if (idx != -1) updatedAlarms[idx] = rescheduled;
 
-        final idx = updatedAlarms.indexWhere((a) => a.id == alarm.id);
-        if (idx != -1) updatedAlarms[idx] = rescheduled;
-
-        await AlarmFirestoreService.deleteAlarm(alarm.id);
-        await AlarmFirestoreService.saveAlarm(rescheduled);
-      } catch (e, st) {
-        debugPrint(
-          '[AlarmCubit] restoreSubscriptionDisabled failed ${alarm.id}: $e',
-        );
-        AnalyticsService.trackError('AlarmCubit.restoreSubscriptionDisabled', e, st);
+          await AlarmFirestoreService.deleteAlarm(alarm.id);
+          await AlarmFirestoreService.saveAlarm(rescheduled);
+        } catch (e, st) {
+          debugPrint(
+            '[AlarmCubit] restoreSubscriptionDisabled failed ${alarm.id}: $e',
+          );
+          AnalyticsService.trackError('AlarmCubit.restoreSubscriptionDisabled', e, st);
+        }
       }
-    }
 
-    emit(state.copyWith(alarms: updatedAlarms));
+      emit(state.copyWith(alarms: updatedAlarms));
+    } finally {
+      _restoreInProgress = false;
+    }
   }
 
   String _systemImageFor(MissionType type) {
