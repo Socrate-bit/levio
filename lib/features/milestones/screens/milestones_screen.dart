@@ -273,6 +273,7 @@ class _BadgeCell extends StatelessWidget {
             earnedColor: badge.kind == BadgeKind.streak
                 ? const Color(0xFFE05C1A)
                 : const Color(0xFF7B61FF),
+            imageAsset: badge.imageAsset,
           ),
           SizedBox(height: 8.h),
           Text(

@@ -69,12 +69,17 @@ class BadgeUnlockScreen extends StatelessWidget {
                           ),
                         ),
                         child: Center(
-                          child: LargeHexagonBadge(
-                            label:
-                                badge.requiredDays?.toString() ?? '★',
-                            color: const Color(0xFFE05C1A),
-                            size: 130.w,
-                          ),
+                          child: badge.imageAsset != null
+                              ? StreakBadgeImage(
+                                  asset: badge.imageAsset!,
+                                  size: 130.w,
+                                  earned: true,
+                                )
+                              : LargeHexagonBadge(
+                                  label: badge.requiredDays?.toString() ?? '★',
+                                  color: const Color(0xFFE05C1A),
+                                  size: 130.w,
+                                ),
                         ),
                       ),
                       SizedBox(height: 32.h),

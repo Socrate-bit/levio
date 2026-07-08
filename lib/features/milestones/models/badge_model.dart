@@ -11,6 +11,9 @@ class BadgeModel {
   // For achievement badges: display number on hex
   final String displayValue;
 
+  // Optional PNG art shown instead of the drawn hexagon (streak badges only).
+  final String? imageAsset;
+
   bool earned;
   DateTime? earnedDate;
 
@@ -22,6 +25,7 @@ class BadgeModel {
     required this.kind,
     this.requiredDays,
     this.displayValue = '?',
+    this.imageAsset,
     this.earned = false,
     this.earnedDate,
   });
@@ -34,6 +38,7 @@ class BadgeModel {
         kind: kind,
         requiredDays: requiredDays,
         displayValue: displayValue,
+        imageAsset: imageAsset,
         earned: earned ?? this.earned,
         earnedDate: earnedDate ?? this.earnedDate,
       );
@@ -50,6 +55,7 @@ List<BadgeModel> buildStreakBadges() => [
         kind: BadgeKind.streak,
         requiredDays: 1,
         displayValue: '1',
+        imageAsset: 'assets/streak_badges/1.png',
       ),
       BadgeModel(
         id: 'ignite',
@@ -59,6 +65,7 @@ List<BadgeModel> buildStreakBadges() => [
         kind: BadgeKind.streak,
         requiredDays: 3,
         displayValue: '3',
+        imageAsset: 'assets/streak_badges/3.png',
       ),
       BadgeModel(
         id: 'horizon',
@@ -68,6 +75,7 @@ List<BadgeModel> buildStreakBadges() => [
         kind: BadgeKind.streak,
         requiredDays: 7,
         displayValue: '7',
+        imageAsset: 'assets/streak_badges/7.png',
       ),
       BadgeModel(
         id: 'aurora',
@@ -77,6 +85,7 @@ List<BadgeModel> buildStreakBadges() => [
         kind: BadgeKind.streak,
         requiredDays: 14,
         displayValue: '14',
+        imageAsset: 'assets/streak_badges/14.png',
       ),
       BadgeModel(
         id: 'celestial',
@@ -86,6 +95,7 @@ List<BadgeModel> buildStreakBadges() => [
         kind: BadgeKind.streak,
         requiredDays: 30,
         displayValue: '30',
+        imageAsset: 'assets/streak_badges/30.png',
       ),
       BadgeModel(
         id: 'nebula',
@@ -95,6 +105,7 @@ List<BadgeModel> buildStreakBadges() => [
         kind: BadgeKind.streak,
         requiredDays: 100,
         displayValue: '100',
+        imageAsset: 'assets/streak_badges/100.png',
       ),
       BadgeModel(
         id: 'eternal',
@@ -104,6 +115,7 @@ List<BadgeModel> buildStreakBadges() => [
         kind: BadgeKind.streak,
         requiredDays: 365,
         displayValue: '365',
+        imageAsset: 'assets/streak_badges/365.png',
       ),
     ];
 

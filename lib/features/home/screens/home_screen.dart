@@ -290,6 +290,7 @@ class _MotivationCard extends StatelessWidget {
                     earned: latest != null,
                     earnedColor: AppColors.orange,
                     size: 60.w,
+                    imageAsset: displayBadge.imageAsset,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -792,7 +793,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                       decoration: BoxDecoration(
-                        color: c.textSecondary,
+                        color: c.textPrimary,
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Row(
