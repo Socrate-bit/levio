@@ -11,6 +11,7 @@ import '../widgets/next_badge_card.dart';
 import '../widgets/streak_heatmap.dart';
 import '../widgets/success_progression_chart.dart';
 import '../../milestones/screens/milestones_screen.dart';
+import '../../milestones/screens/streak_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/mission_icon.dart';
 import '../../wakeup/models/wakeup_session.dart';
@@ -45,6 +46,11 @@ class _InsightsView extends StatelessWidget {
   void _openMilestones(BuildContext ctx) => Navigator.push(
         ctx,
         MaterialPageRoute(builder: (_) => const MilestonesScreen()),
+      );
+
+  void _openStreak(BuildContext ctx) => Navigator.push(
+        ctx,
+        MaterialPageRoute(builder: (_) => const StreakScreen()),
       );
 
   @override
@@ -99,7 +105,7 @@ class _InsightsView extends StatelessWidget {
                               Expanded(
                                 child: _StreakCard(
                                   streak: state.currentStreak,
-                                  onTap: () => _openMilestones(ctx),
+                                  onTap: () => _openStreak(ctx),
                                 ),
                               ),
                               SizedBox(width: 12.w),
