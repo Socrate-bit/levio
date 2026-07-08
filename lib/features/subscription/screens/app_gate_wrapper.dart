@@ -39,15 +39,32 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
       canDismiss: () => context.read<SubscriptionCubit>().state.hasAccess,
       onRingBlocked: () => Superwall.shared.registerPlacement('app_start'),
     );
-    // Sync once on mount if access is already known. Defer past build so
-    // cubits are settled before we trigger work.
+    // Reconcile once on mount if access is already known (the BlocListener only
+    // fires on an access *change*, so it misses the "already true/false at first
+    // build" case). Defer past build so cubits are settled before we trigger
+    // work. These side effects must NOT run from build() — they reschedule
+    // alarms and would duplicate them on every rebuild.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (context.read<SubscriptionCubit>().state.hasAccess) {
-        context.read<AlarmCubit>().sync();
-        _checkAlarmReadiness();
-      }
+      _applyAccess(context.read<SubscriptionCubit>().state.hasAccess);
     });
+  }
+
+  /// Runs the access-gated alarm reconciliation for the given access state.
+  /// Called from the mount postFrame callback and the access-change listener —
+  /// never from build(), because these methods reschedule alarms and firing
+  /// them on every rebuild duplicates them.
+  void _applyAccess(bool hasAccess) {
+    if (!mounted) return;
+    final alarmCubit = context.read<AlarmCubit>();
+    if (hasAccess) {
+      alarmCubit.restoreSubscriptionDisabled();
+      alarmCubit.sync();
+      _checkAlarmReadiness();
+    } else {
+      alarmCubit.disableAllForSubscription();
+      Superwall.shared.registerPlacement('app_start');
+    }
   }
 
   /// Surfaces the OS-update / alarm-permission dialog while the device isn't
@@ -73,21 +90,11 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
   Widget build(BuildContext context) {
     return BlocListener<SubscriptionCubit, SubscriptionState>(
       listenWhen: (prev, curr) => prev.hasAccess != curr.hasAccess,
-      listener: (context, sub) {
-        final alarmCubit = context.read<AlarmCubit>();
-        if (sub.hasAccess) {
-          alarmCubit.restoreSubscriptionDisabled();
-          alarmCubit.sync();
-          _checkAlarmReadiness();
-        } else {
-          alarmCubit.disableAllForSubscription();
-        }
-      },
+      listener: (context, sub) => _applyAccess(sub.hasAccess),
       child: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         builder: (context, sub) {
           return BlocBuilder<AlarmCubit, AlarmState>(
             builder: (context, alarm) {
-              final alarmCubit = context.read<AlarmCubit>();
               final subReady =
                   sub.isLoaded && sub.status != SubscriptionGateStatus.unknown;
               if (!subReady) {
@@ -95,11 +102,13 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
                   body: Center(child: CircularProgressIndicator()),
                 );
               }
-              // Alarm sync runs in the background — never block the home page
-              // with a spinner. Alarms are already loaded via loadAlarm() on
-              // auth, and the UI updates reactively when sync re-emits.
+              // build() stays pure — alarm reconciliation (restore/disable/sync)
+              // is driven by _applyAccess from the mount callback and the
+              // access-change listener, never from here. Alarm sync runs in the
+              // background — never block the home page with a spinner. Alarms are
+              // already loaded via loadAlarm() on auth, and the UI updates
+              // reactively when sync re-emits.
               if (sub.hasAccess) {
-                alarmCubit.restoreSubscriptionDisabled();
                 if (_alarmReady) return const BottomNavShell();
                 // Device can't run alarms (old iOS / no permission): gate the
                 // app and re-pop the readiness dialog on every tap.
@@ -116,8 +125,6 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
                 );
               }
 
-              alarmCubit.disableAllForSubscription();
-              Superwall.shared.registerPlacement('app_start');
               return Stack(
                 children: [
                   const BottomNavShell(),
