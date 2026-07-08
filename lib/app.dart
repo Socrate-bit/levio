@@ -14,6 +14,7 @@ import 'features/alarms/services/alarm_firestore_service.dart';
 import 'features/alarms/services/alarm_service.dart';
 import 'features/dismiss/screens/alarm_dismiss_screen.dart';
 import 'features/dismiss/screens/breathing_mission_screen.dart';
+import 'features/dismiss/screens/flappy_bird_dismiss_screen.dart';
 import 'features/dismiss/screens/gratefulness_dismiss_screen.dart';
 import 'features/dismiss/screens/math_dismiss_screen.dart';
 import 'features/dismiss/screens/meditation_dismiss_screen.dart';
@@ -289,6 +290,17 @@ Widget buildDismissScreen({
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
         minMinutes: config.meditationMinutes ?? 2,
+        onComplete: onComplete,
+        onProgress: onProgress,
+        manageAlarm: manageAlarm,
+        isPreview: isPreview,
+      );
+    case MissionType.flappyBird:
+      return FlappyBirdDismissScreen(
+        alarmId: alarmId,
+        nativeAlarmId: nativeAlarmId,
+        alarmLabel: alarmLabel,
+        targetScore: config.flappyTargetScore ?? 3,
         onComplete: onComplete,
         onProgress: onProgress,
         manageAlarm: manageAlarm,

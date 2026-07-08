@@ -58,6 +58,8 @@ dependencies:
   video_player: ^2.11.1
   emoji_picker_flutter: ^4.4.0
   liquid_glass_widgets: ^0.18.4
+  flame: ^1.37.0
+  flame_audio: ^2.12.1
 
 dev_dependencies:
   flutter_test:
@@ -101,3 +103,5 @@ flutter:
     - assets/exemple.png
     - assets/wheel_moving.png
     - assets/wheel_static.png
+    - assets/flappybird/sprites/
+    - assets/flappybird/audios/

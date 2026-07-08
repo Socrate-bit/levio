@@ -852,6 +852,8 @@ class AlarmCubit extends Cubit<AlarmState> {
         return 'function';
       case MissionType.routine:
         return 'checklist';
+      case MissionType.flappyBird:
+        return 'gamecontroller.fill';
       case MissionType.random:
         return 'dice.fill';
     }

@@ -18,6 +18,7 @@ enum MissionType {
   gratefulness,
   meditation,
   bedPhoto,
+  flappyBird,
   random,
 }
 
@@ -217,6 +218,16 @@ const allMissions = <MissionInfo>[
     icon: Icons.checklist,
     iconAsset: 'assets/icon_missions/exercise-routine.png',
     categories: [MissionCategory.trending, MissionCategory.sleep],
+  ),
+  MissionInfo(
+    type: MissionType.flappyBird,
+    name: 'Flappy Bird',
+    description: 'Play Flappy Bird to reach a score',
+    iconColor: Color(0xFFF5B400),
+    iconBg: Color(0xFFFFF6E0),
+    icon: Icons.flutter_dash,
+    iconAsset: 'assets/flappybird/sprites/yellowbird-midflap.png',
+    categories: [MissionCategory.trending, MissionCategory.wakeup],
   ),
   MissionInfo(
     type: MissionType.random,

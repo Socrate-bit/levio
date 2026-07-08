@@ -34,6 +34,9 @@ class MissionConfig extends Equatable {
   /// Minimum meditation listen time in minutes (default 2).
   final int? meditationMinutes;
 
+  /// Score to reach in the Flappy Bird mission (default 3).
+  final int? flappyTargetScore;
+
   const MissionConfig({
     required this.type,
     this.repCount,
@@ -45,6 +48,7 @@ class MissionConfig extends Equatable {
     this.randomPool,
     this.breathingRounds,
     this.meditationMinutes,
+    this.flappyTargetScore,
   });
 
   Map<String, dynamic> toMap() => {
@@ -60,6 +64,7 @@ class MissionConfig extends Equatable {
           'randomPool': randomPool!.map((t) => t.name).toList(),
         if (breathingRounds != null) 'breathingRounds': breathingRounds,
         if (meditationMinutes != null) 'meditationMinutes': meditationMinutes,
+        if (flappyTargetScore != null) 'flappyTargetScore': flappyTargetScore,
       };
 
   factory MissionConfig.fromMap(Map<String, dynamic> m) {
@@ -90,6 +95,7 @@ class MissionConfig extends Equatable {
           .toList(),
       breathingRounds: m['breathingRounds'] as int?,
       meditationMinutes: m['meditationMinutes'] as int?,
+      flappyTargetScore: m['flappyTargetScore'] as int?,
     );
   }
 
@@ -113,6 +119,8 @@ class MissionConfig extends Equatable {
     bool clearBreathingRounds = false,
     int? meditationMinutes,
     bool clearMeditationMinutes = false,
+    int? flappyTargetScore,
+    bool clearFlappyTargetScore = false,
   }) =>
       MissionConfig(
         type: type ?? this.type,
@@ -137,6 +145,9 @@ class MissionConfig extends Equatable {
         meditationMinutes: clearMeditationMinutes
             ? null
             : meditationMinutes ?? this.meditationMinutes,
+        flappyTargetScore: clearFlappyTargetScore
+            ? null
+            : flappyTargetScore ?? this.flappyTargetScore,
       );
 
   @override
@@ -151,5 +162,6 @@ class MissionConfig extends Equatable {
         randomPool,
         breathingRounds,
         meditationMinutes,
+        flappyTargetScore,
       ];
 }

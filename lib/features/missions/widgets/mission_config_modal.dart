@@ -166,6 +166,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
   late int _mathProblemCount;
   late int _breathingRounds;
   late int _meditationMinutes;
+  late int _flappyTargetScore;
 
   @override
   void initState() {
@@ -185,6 +186,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
     _mathProblemCount = e?.mathProblemCount ?? 3;
     _breathingRounds = e?.breathingRounds ?? 3;
     _meditationMinutes = e?.meditationMinutes ?? 2;
+    _flappyTargetScore = e?.flappyTargetScore ?? 3;
   }
 
   MissionConfig _buildConfig() {
@@ -208,6 +210,11 @@ class _ConfigSheetState extends State<_ConfigSheet> {
         return MissionConfig(
           type: widget.info.type,
           meditationMinutes: _meditationMinutes,
+        );
+      case MissionType.flappyBird:
+        return MissionConfig(
+          type: widget.info.type,
+          flappyTargetScore: _flappyTargetScore,
         );
       default:
         return MissionConfig(type: widget.info.type);
@@ -241,6 +248,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
         widget.info.type == MissionType.shakePhone;
     final isBreathing = widget.info.type == MissionType.breathing;
     final isMeditation = widget.info.type == MissionType.meditation;
+    final isFlappy = widget.info.type == MissionType.flappyBird;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -323,6 +331,22 @@ class _ConfigSheetState extends State<_ConfigSheet> {
               min: 1,
               max: 30,
               onChanged: (v) => setState(() => _meditationMinutes = v),
+            ),
+            SizedBox(height: 24.h),
+          ],
+
+          // Flappy Bird target-score stepper
+          if (isFlappy) ...[
+            Text(
+              l10n.missionConfigTargetScore,
+              style: TextStyle(fontSize: 14.sp, color: c.textSecondary),
+            ),
+            SizedBox(height: 12.h),
+            _Stepper(
+              value: _flappyTargetScore,
+              min: 1,
+              max: 30,
+              onChanged: (v) => setState(() => _flappyTargetScore = v),
             ),
             SizedBox(height: 24.h),
           ],
