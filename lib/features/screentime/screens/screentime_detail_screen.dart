@@ -142,7 +142,7 @@ class _StatusCard extends StatelessWidget {
       label = l10n.screenTimeStatusInactive;
     }
 
-    final color = active ? AppColors.orange : c.textSecondary;
+    final color = active ? AppColors.of(context).purpleDeep : c.textSecondary;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(18.w),

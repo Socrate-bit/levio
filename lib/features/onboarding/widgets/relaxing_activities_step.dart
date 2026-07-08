@@ -172,8 +172,8 @@ class _LockedStepCard extends StatelessWidget {
             width: 26.w,
             height: 26.w,
             alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: AppColors.orange,
+            decoration: BoxDecoration(
+              color: c.textPrimary,
               shape: BoxShape.circle,
             ),
             child: Text(
@@ -181,7 +181,7 @@ class _LockedStepCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: c.background,
               ),
             ),
           ),

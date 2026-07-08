@@ -774,7 +774,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                       decoration: BoxDecoration(
-                        color: c.purpleDeep,
+                        color: c.textSecondary,
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Row(
@@ -1146,7 +1146,7 @@ class _ScreenBlockerCard extends StatelessWidget {
         }
 
         final cardColor = active
-            ? AppColors.success.withAlpha(isDark ? 45 : 30)
+            ? AppColors.of(context).purpleDeep.withAlpha(isDark ? 45 : 30)
             : c.card;
 
         void openDetail() {
@@ -1169,7 +1169,7 @@ class _ScreenBlockerCard extends StatelessWidget {
               color: cardColor,
               borderRadius: BorderRadius.circular(16.r),
               border: active
-                  ? Border.all(color: AppColors.success.withAlpha(80), width: 1.5)
+                  ? Border.all(color: AppColors.of(context).purpleDeep.withAlpha(80), width: 1.5)
                   : null,
               boxShadow: [
                 BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 12),
@@ -1180,7 +1180,7 @@ class _ScreenBlockerCard extends StatelessWidget {
                 Icon(
                   active ? Icons.shield : Icons.shield_outlined,
                   size: 26.sp,
-                  color: active ? AppColors.success : c.textSecondary,
+                  color: active ? AppColors.of(context).purpleDeep : c.textSecondary,
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
@@ -1201,7 +1201,7 @@ class _ScreenBlockerCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13.sp,
                           color: active
-                              ? AppColors.success
+                              ? AppColors.of(context).purpleDeep
                               : c.textSecondary,
                         ),
                       ),
@@ -1215,7 +1215,7 @@ class _ScreenBlockerCard extends StatelessWidget {
                         EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                     decoration: BoxDecoration(
                       color: active
-                          ? AppColors.success.withAlpha(45)
+                          ? AppColors.of(context).purpleDeep.withAlpha(45)
                           : c.background,
                       borderRadius: BorderRadius.circular(20.r),
                     ),
@@ -1228,14 +1228,14 @@ class _ScreenBlockerCard extends StatelessWidget {
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             color:
-                                active ? AppColors.success : c.textPrimary,
+                                active ? AppColors.of(context).purpleDeep : c.textPrimary,
                           ),
                         ),
                         SizedBox(width: 2.w),
                         Icon(
                           Icons.chevron_right,
                           size: 18.sp,
-                          color: active ? AppColors.success : c.textSecondary,
+                          color: active ? AppColors.of(context).purpleDeep : c.textSecondary,
                         ),
                       ],
                     ),

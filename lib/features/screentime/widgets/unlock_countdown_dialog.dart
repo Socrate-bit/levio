@@ -81,7 +81,7 @@ class UnlockCountdownDialog extends StatelessWidget {
                           ? Icon(
                               Icons.lock_open_rounded,
                               size: 64.w,
-                              color: AppColors.orange,
+                              color: AppColors.of(context).purpleDeep,
                             )
                           : Stack(
                               alignment: Alignment.center,
@@ -94,8 +94,8 @@ class UnlockCountdownDialog extends StatelessWidget {
                                         kUnlockCountdownSeconds,
                                     strokeWidth: 6,
                                     backgroundColor: c.separator,
-                                    valueColor: const AlwaysStoppedAnimation(
-                                      AppColors.orange,
+                                    valueColor: AlwaysStoppedAnimation(
+                                      AppColors.of(context).purpleDeep,
                                     ),
                                   ),
                                 ),
