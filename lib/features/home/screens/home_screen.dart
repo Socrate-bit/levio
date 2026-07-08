@@ -209,7 +209,7 @@ class _MotivationCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Warm surface + on-surface colors that read well on the cream card.
-    final cardColor = isDark ? const Color(0xFF2A2118) : AppColors.orangeLight;
+    final cardColor = isDark ? const Color.fromARGB(29, 255, 128, 0) : AppColors.orangeLight;
     final primary = isDark ? c.textPrimary : const Color(0xFF3D2E1E);
     final secondary = isDark ? c.textSecondary : const Color(0xFF9B7B4B);
 
