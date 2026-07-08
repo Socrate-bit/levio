@@ -36,7 +36,7 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
 
   final _images = Images(prefix: 'assets/flappybird/spritesV2/');
   final _gameSpeed = 90.0;
-  final _birdSize = Vector2(34.0, 24.0);
+  final _birdSize = Vector2(50.0, 50.0);
   final _pipeFullSize = Vector2(52.0, 520.0);
   static const _baseHeight = 112.0;
   late PositionComponent _pipeLayer;
@@ -75,6 +75,7 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
     final bgComponent = await loadParallaxComponent(
       [ParallaxImageData('bgDay.png')],
       baseVelocity: Vector2(5, 0),
+      filterQuality: FilterQuality.none,
       images: _images,
     );
     add(bgComponent);
@@ -91,6 +92,8 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
       fill: LayerFill.height,
       position: Vector2(0, size.y - _baseHeight),
       size: Vector2(size.x, _baseHeight),
+      filterQuality: FilterQuality.none
+      
     );
     add(baseComponent);
   }
@@ -130,7 +133,7 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
   void _createPipe() {
     const pipeSpace = 220.0; // horizontal gap between pipe groups
     const minPipeHeight = 120.0; // minimum pipe height
-    const gapHeight = 90.0; // vertical gap the bird flies through
+    const gapHeight = 120.0; // vertical gap the bird flies through
     const gapMaxRandomRange = 300.0; // gap position random range
 
     var lastPipePos = (_pipes.isEmpty
