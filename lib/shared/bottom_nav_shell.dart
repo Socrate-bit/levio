@@ -221,7 +221,11 @@ class _AddAlarmCircleButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(Icons.add_rounded, color: Colors.white, size: 44.sp),
+        child: Icon(
+          Icons.add_rounded,
+          color: AppColors.of(context).background,
+          size: 44.sp,
+        ),
       ),
     );
   }

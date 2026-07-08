@@ -831,7 +831,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                           Icon(
                             Icons.play_arrow_rounded,
                             size: 20.sp,
-                            color: Colors.white,
+                            color: c.background,
                           ),
                           SizedBox(width: 4.w),
                           Text(
@@ -839,7 +839,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: c.background,
                             ),
                           ),
                         ],

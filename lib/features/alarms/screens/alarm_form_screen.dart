@@ -228,8 +228,8 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       ),
                       child: Text(
                         l10n.alarmFormDone,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: AppColors.of(context).background,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -747,7 +747,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                 onPressed: _canSave ? withHaptic(() => _save(context)) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _canSave ? _accent : c.separator,
-                  foregroundColor: _canSave ? Colors.white : c.textSecondary,
+                  foregroundColor: _canSave ? c.background : c.textSecondary,
                   minimumSize: Size(double.infinity, 56.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),
@@ -904,7 +904,7 @@ class _TogglePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    final fg = selected ? Colors.white : c.textSecondary;
+    final fg = selected ? c.background : c.textSecondary;
     return GestureDetector(
       onTap: withHaptic(onTap),
       child: AnimatedContainer(

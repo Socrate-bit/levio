@@ -282,7 +282,7 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                               ),
                               child: Icon(
                                 _playing ? Icons.pause : Icons.play_arrow,
-                                color: Colors.white,
+                                color: c.background,
                                 size: 48.sp,
                               ),
                             ),
@@ -346,7 +346,7 @@ class _MeditationDismissScreenState extends State<MeditationDismissScreen> {
                     onPressed: _canFinish ? _finish : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: c.textPrimary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: c.background,
                       disabledBackgroundColor: c.separator,
                       disabledForegroundColor: c.textSecondary,
                       minimumSize: Size(double.infinity, 54.h),

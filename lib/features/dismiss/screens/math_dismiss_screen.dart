@@ -296,7 +296,7 @@ class _MathDismissScreenState extends State<MathDismissScreen> {
                           onPressed: _check,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: c.textPrimary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: c.background,
                             minimumSize: Size(double.infinity, 54.h),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14.r),

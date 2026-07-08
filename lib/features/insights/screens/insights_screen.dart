@@ -319,7 +319,7 @@ class _RangeToggle extends StatelessWidget {
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
                     color: isSelected
-                        ? Colors.white
+                        ? c.background
                         : c.textSecondary,
                   ),
                 ),

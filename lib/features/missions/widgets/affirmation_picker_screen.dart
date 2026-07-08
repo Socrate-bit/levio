@@ -222,7 +222,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                           Icons.remove,
                           size: 18.sp,
                           color: _count > 1
-                              ? Colors.white
+                              ? c.background
                               : c.textSecondary,
                         ),
                       ),
@@ -257,7 +257,7 @@ class _AffirmationPickerScreenState extends State<AffirmationPickerScreen> {
                           Icons.add,
                           size: 18.sp,
                           color: _count < 10
-                              ? Colors.white
+                              ? c.background
                               : c.textSecondary,
                         ),
                       ),

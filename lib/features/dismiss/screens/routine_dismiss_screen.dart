@@ -149,7 +149,7 @@ class _RoutineDismissScreenState extends State<RoutineDismissScreen> {
                     onPressed: _allDone ? withHaptic(_validate) : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: c.textPrimary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: c.background,
                       disabledBackgroundColor: c.separator,
                       disabledForegroundColor: c.textSecondary,
                       minimumSize: Size(double.infinity, 56.h),
@@ -238,7 +238,7 @@ class _StepCard extends StatelessWidget {
                 ),
               ),
               child: done
-                  ? Icon(Icons.check, size: 16.sp, color: Colors.white)
+                  ? Icon(Icons.check, size: 16.sp, color: c.background)
                   : null,
             ),
             SizedBox(width: 14.w),

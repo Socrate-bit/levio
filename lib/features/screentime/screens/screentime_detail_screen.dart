@@ -510,8 +510,8 @@ class _UnlockSection extends StatelessWidget {
                   ),
                   child: Text(
                     l10n.screenTimeUnlockConfirmCancel,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: AppColors.of(context).background,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
