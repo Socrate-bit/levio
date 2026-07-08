@@ -104,4 +104,5 @@ flutter:
     - assets/wheel_moving.png
     - assets/wheel_static.png
     - assets/flappybird/sprites/
+    - assets/flappybird/spritesV2/
     - assets/flappybird/audios/

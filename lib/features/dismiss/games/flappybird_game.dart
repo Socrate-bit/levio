@@ -34,9 +34,11 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
   /// Called once when [targetScore] is reached.
   final VoidCallback onWin;
 
-  final _images = Images(prefix: 'assets/flappybird/sprites/');
+  final _images = Images(prefix: 'assets/flappybird/spritesV2/');
   final _gameSpeed = 90.0;
+  final _birdSize = Vector2(34.0, 24.0);
   final _pipeFullSize = Vector2(52.0, 520.0);
+  static const _baseHeight = 112.0;
   late PositionComponent _pipeLayer;
   bool _won = false;
   int _score = 0;
@@ -71,7 +73,7 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
   // Background: static day sky + scrolling base platform.
   Future<void> _setupBg() async {
     final bgComponent = await loadParallaxComponent(
-      [ParallaxImageData('background-day.png')],
+      [ParallaxImageData('bgDay.png')],
       baseVelocity: Vector2(5, 0),
       images: _images,
     );
@@ -86,7 +88,9 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
       images: _images,
       alignment: Alignment.bottomLeft,
       repeat: ImageRepeat.repeatX,
-      fill: LayerFill.none,
+      fill: LayerFill.height,
+      position: Vector2(0, size.y - _baseHeight),
+      size: Vector2(size.x, _baseHeight),
     );
     add(baseComponent);
   }
@@ -98,12 +102,12 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
 
   Future<void> _setupBird() async {
     final sprites = [
-      await Sprite.load('yellowbird-downflap.png', images: _images),
-      await Sprite.load('yellowbird-midflap.png', images: _images),
-      await Sprite.load('yellowbird-upflap.png', images: _images),
+      await Sprite.load('bird0.png', images: _images),
+      await Sprite.load('bird1.png', images: _images),
+      await Sprite.load('bird2.png', images: _images),
     ];
     final anim = SpriteAnimation.spriteList(sprites, stepTime: 0.2);
-    _bird = _Bird(animation: anim, size: Vector2(34, 24));
+    _bird = _Bird(animation: anim, size: _birdSize);
     add(_bird);
   }
 
@@ -127,42 +131,59 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
     const pipeSpace = 220.0; // horizontal gap between pipe groups
     const minPipeHeight = 120.0; // minimum pipe height
     const gapHeight = 90.0; // vertical gap the bird flies through
-    const baseHeight = 112.0; // bottom platform height
     const gapMaxRandomRange = 300.0; // gap position random range
 
-    var lastPipePos = (_pipes.isEmpty ? size.x - pipeSpace : _pipes.last.position.x);
+    var lastPipePos = (_pipes.isEmpty
+        ? size.x - pipeSpace
+        : _pipes.last.position.x);
     lastPipePos += pipeSpace;
 
-    final gapCenter = min(
+    final gapCenter =
+        min(
               gapMaxRandomRange,
-              size.y - minPipeHeight * 2 - baseHeight - gapHeight,
+              size.y - minPipeHeight * 2 - _baseHeight - gapHeight,
             ) *
             Random().nextDouble() +
         minPipeHeight +
         gapHeight * 0.5;
 
-    final topPipe = _Pipe(images: _images, isUpsideDown: true, size: _pipeFullSize)
-      ..position = Vector2(lastPipePos, (gapCenter - gapHeight * 0.5) - _pipeFullSize.y);
+    final topPipe =
+        _Pipe(images: _images, spriteName: 'pipeTop.png', size: _pipeFullSize)
+          ..position = Vector2(
+            lastPipePos,
+            (gapCenter - gapHeight * 0.5) - _pipeFullSize.y,
+          );
     _pipeLayer.add(topPipe);
     _pipes.add(topPipe);
 
-    final bottomPipe = _Pipe(images: _images, size: _pipeFullSize)
-      ..position = Vector2(lastPipePos, gapCenter + gapHeight * 0.5);
+    final bottomPipe = _Pipe(
+      images: _images,
+      spriteName: 'pipeBottom.png',
+      size: _pipeFullSize,
+    )..position = Vector2(lastPipePos, gapCenter + gapHeight * 0.5);
     _pipeLayer.add(bottomPipe);
     _pipes.add(bottomPipe);
 
-    final bonusZone = _BonusZone(onPass: _onPass, size: Vector2(_pipeFullSize.x, gapHeight))
-      ..position = Vector2(lastPipePos, gapCenter - gapHeight * 0.5);
+    final bonusZone = _BonusZone(
+      onPass: _onPass,
+      size: Vector2(_pipeFullSize.x, gapHeight),
+    )..position = Vector2(lastPipePos, gapCenter - gapHeight * 0.5);
     add(bonusZone);
     _bonusZones.add(bonusZone);
   }
 
   void _updatePipes(double dt) {
     for (final pipe in _pipes) {
-      pipe.position = Vector2(pipe.position.x - dt * _gameSpeed, pipe.position.y);
+      pipe.position = Vector2(
+        pipe.position.x - dt * _gameSpeed,
+        pipe.position.y,
+      );
     }
     for (final zone in _bonusZones) {
-      zone.position = Vector2(zone.position.x - dt * _gameSpeed, zone.position.y);
+      zone.position = Vector2(
+        zone.position.x - dt * _gameSpeed,
+        zone.position.y,
+      );
     }
     _pipes.removeWhere((p) {
       final remove = p.position.x < -100;
@@ -233,7 +254,10 @@ class _Bird extends SpriteAnimationComponent with CollisionCallbacks {
   }
 
   @override
-  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+  void onCollisionStart(
+    Set<Vector2> intersectionPoints,
+    PositionComponent other,
+  ) {
     super.onCollisionStart(intersectionPoints, other);
     if (other is _Pipe) {
       isDead = true;
@@ -241,25 +265,17 @@ class _Bird extends SpriteAnimationComponent with CollisionCallbacks {
   }
 }
 
-/// A single green pipe (top or bottom), stretched with a nine-tile box so the
-/// cap stays crisp.
+/// A single pipe using the new explicit top/bottom artwork.
 class _Pipe extends PositionComponent with CollisionCallbacks {
-  final bool isUpsideDown;
   final Images images;
+  final String spriteName;
 
-  _Pipe({required this.images, this.isUpsideDown = false, super.size});
+  _Pipe({required this.images, required this.spriteName, super.size});
 
   @override
   FutureOr<void> onLoad() async {
-    final sprite = await Sprite.load('pipe-green.png', images: images);
-    final nineBox = NineTileBox(sprite)
-      ..setGrid(leftWidth: 10, rightWidth: 10, topHeight: 60, bottomHeight: 60);
-    final box = NineTileBoxComponent(nineTileBox: nineBox, size: size);
-    if (isUpsideDown) {
-      box.flipVerticallyAroundCenter();
-    }
-    box.anchor = Anchor.topLeft;
-    add(box);
+    final sprite = await Sprite.load(spriteName, images: images);
+    add(SpriteComponent(sprite: sprite, size: size)..anchor = Anchor.topLeft);
     add(RectangleHitbox(size: size));
     return super.onLoad();
   }

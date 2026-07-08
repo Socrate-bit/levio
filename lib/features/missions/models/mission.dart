@@ -226,7 +226,7 @@ const allMissions = <MissionInfo>[
     iconColor: Color(0xFFF5B400),
     iconBg: Color(0xFFFFF6E0),
     icon: Icons.flutter_dash,
-    iconAsset: 'assets/flappybird/sprites/yellowbird-midflap.png',
+    iconAsset: 'assets/flappybird/spritesV2/bird1.png',
     categories: [MissionCategory.trending, MissionCategory.wakeup],
   ),
   MissionInfo(
