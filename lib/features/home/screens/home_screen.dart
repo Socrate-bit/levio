@@ -774,7 +774,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                       decoration: BoxDecoration(
-                        color: c.textSecondary,
+                        color: c.textPrimary,
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Row(
