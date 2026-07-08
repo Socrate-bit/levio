@@ -1663,6 +1663,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You already spun today. Come back tomorrow! ✈️';
 
   @override
+  String get dismissFlappyBirdPrompt =>
+      'Flap through the pipes to turn off your alarm';
+
+  @override
   String dismissMathProgress(int current, int total) {
     return '$current / $total';
   }

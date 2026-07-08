@@ -3224,6 +3224,12 @@ abstract class AppLocalizations {
   /// **'You already spun today. Come back tomorrow! ✈️'**
   String get dismissSpinningWheelAlreadyUsed;
 
+  /// No description provided for @dismissFlappyBirdPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Flap through the pipes to turn off your alarm'**
+  String get dismissFlappyBirdPrompt;
+
   /// No description provided for @dismissMathProgress.
   ///
   /// In en, this message translates to:

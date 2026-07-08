@@ -2,13 +2,13 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:levio/l10n/generated/app_localizations.dart';
 
 import '../../alarms/services/alarm_cascade_controller.dart';
 import '../../missions/models/mission.dart';
 import '../../wakeup/screens/wakeup_complete_screen.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../games/flappybird_game.dart';
-import '../widgets/levio_brand_header.dart';
 
 /// Alarm-dismiss mission that runs the Flappy Bird mini-game. The alarm is
 /// dismissed once the player reaches [targetScore].
@@ -106,6 +106,7 @@ class _FlappyBirdDismissScreenState extends State<FlappyBirdDismissScreen> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: c.background,
@@ -120,26 +121,99 @@ class _FlappyBirdDismissScreenState extends State<FlappyBirdDismissScreen> {
                 child: GameWidget(game: _game),
               ),
             ),
-            Column(
-              children: [
-                const LevioBrandHeader(),
-                SizedBox(height: 8.h),
-                // Live score / target overlay.
-                ValueListenableBuilder<int>(
-                  valueListenable: _scoreNotifier,
-                  builder: (context, score, _) => Text(
-                    '$score / ${widget.targetScore}',
-                    style: TextStyle(
-                      fontSize: 40.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: const [
-                        Shadow(color: Colors.black54, blurRadius: 6),
-                      ],
+            IgnorePointer(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/icon.png',
+                            width: 28.w,
+                            height: 28.h,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'LEVIO',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 0,
+                              shadows: const [
+                                Shadow(color: Colors.black45, blurRadius: 5),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      Container(
+                        constraints: BoxConstraints(maxWidth: 340.w),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 14.w,
+                          vertical: 7.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.62),
+                          borderRadius: BorderRadius.circular(14.r),
+                        ),
+                        child: Text(
+                          l10n.dismissFlappyBirdPrompt,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 120.h,
+              child: IgnorePointer(
+                child: Center(
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: _scoreNotifier,
+                    builder: (context, score, _) => Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14.w,
+                        vertical: 6.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.64),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                        '$score/${widget.targetScore}',
+                        style: TextStyle(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 0,
+                          shadows: const [
+                            Shadow(color: Colors.black38, blurRadius: 3),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
             if (widget.isPreview)
               Positioned(

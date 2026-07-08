@@ -607,6 +607,7 @@
   "dismissSpinningWheelWin": "Tu as gagné un voyage ! ✈️",
   "dismissSpinningWheelMissed": "Meilleure chance demain !",
   "dismissSpinningWheelAlreadyUsed": "Tu as déjà tourné aujourd'hui. Reviens demain ! ✈️",
+  "dismissFlappyBirdPrompt": "Passe entre les tuyaux pour arrêter l'alarme",
   "dismissMathProgress": "{current} / {total}",
   "dismissMathWrong": "Faux — réessaie !",
   "dismissMathConfirm": "Confirmer",
