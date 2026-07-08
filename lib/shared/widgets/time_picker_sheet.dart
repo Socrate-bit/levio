@@ -56,8 +56,8 @@ Future<TimeOfDay?> showTimePickerSheet(
                     ),
                     child: Text(
                       l10n.alarmFormDone,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: c.background,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

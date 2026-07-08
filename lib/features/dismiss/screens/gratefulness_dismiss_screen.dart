@@ -207,7 +207,7 @@ class _GratefulnessDismissScreenState extends State<GratefulnessDismissScreen> {
                           onPressed: _canAdvance ? _next : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: c.textPrimary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: c.background,
                             disabledBackgroundColor: c.separator,
                             minimumSize: Size(double.infinity, 54.h),
                             shape: RoundedRectangleBorder(

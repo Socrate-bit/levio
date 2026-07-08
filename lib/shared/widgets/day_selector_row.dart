@@ -61,7 +61,7 @@ class DaySelectorRow extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
-                        color: selected ? Colors.white : c.textSecondary,
+                        color: selected ? c.background : c.textSecondary,
                       ),
                     ),
                   ),

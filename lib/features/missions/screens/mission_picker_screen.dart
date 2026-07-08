@@ -108,7 +108,7 @@ class _MissionPickerScreenState extends State<MissionPickerScreen> {
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w600,
                             color: selected
-                                ? Colors.white
+                                ? c.background
                                 : c.textSecondary,
                           ),
                         ),

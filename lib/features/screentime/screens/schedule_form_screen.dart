@@ -165,7 +165,7 @@ class _ScheduleFormScreenState extends State<ScheduleFormScreen> {
                 onPressed: _canSave ? withHaptic(_save) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _canSave ? c.textPrimary : c.separator,
-                  foregroundColor: _canSave ? Colors.white : c.textSecondary,
+                  foregroundColor: _canSave ? c.background : c.textSecondary,
                   minimumSize: Size(double.infinity, 56.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),
