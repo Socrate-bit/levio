@@ -76,57 +76,19 @@ class _MilestonesView extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 20.h),
-                              // Header row
-                              Container(
+                              // Badges summary
+                              SizedBox(
                                 height: 120.h,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: _TopCard(
-                                        icon: Image.asset('assets/streaks.png', width: 56.w, height: 56.h),
-                                        label: l10n.milestonesDayStreak,
-                                      ),
-                                    ),
-                                    SizedBox(width: 12.w),
-                                    Expanded(
-                                      child: _BadgeTopCard(
-                                        earned: state.badgesEarned,
-                                      ),
-                                    ),
-                                  ],
+                                child: _BadgeTopCard(
+                                  earned: state.badgesEarned,
                                 ),
                               ),
                               SizedBox(height: 12.h),
-                              // Stats row
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _InfoBox(
-                                      icon: Image.asset('assets/streaks.png', width: 20.w, height: 20.h),
-                                      value:
-                                          l10n.milestonesLongestStreak(state.longestStreak),
-                                      label: l10n.milestonesLongestStreakLabel,
-                                    ),
-                                  ),
-                                  SizedBox(width: 12.w),
-                                  Expanded(
-                                    child: _BadgeProgressBox(
-                                      earned: state.badgesEarned,
-                                      total: state.totalBadges,
-                                    ),
-                                  ),
-                                ],
+                              _BadgeProgressBox(
+                                earned: state.badgesEarned,
+                                total: state.totalBadges,
                               ),
-                              SizedBox(height: 16.h),
-                              // How Streaks Work
-                              if (state.showHowStreaksWork) ...[
-                                _HowStreaksWork(
-                                  onDismiss: () => ctx
-                                      .read<MilestonesCubit>()
-                                      .dismissHowStreaksWork(),
-                                ),
-                                SizedBox(height: 20.h),
-                              ],
+                              SizedBox(height: 20.h),
                               // Streak Badges
                               Text(
                                 l10n.milestonesStreakBadges,
@@ -175,39 +137,6 @@ class _MilestonesView extends StatelessWidget {
   }
 }
 
-class _TopCard extends StatelessWidget {
-  final Widget icon;
-  final String label;
-
-  const _TopCard({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: Column(
-        children: [
-          icon,
-          SizedBox(height: 6.h),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
-              color: c.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _BadgeTopCard extends StatelessWidget {
   final int earned;
 
@@ -239,56 +168,6 @@ class _BadgeTopCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoBox extends StatelessWidget {
-  final Widget icon;
-  final String value;
-  final String label;
-
-  const _InfoBox({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Row(
-        children: [
-          icon,
-          SizedBox(width: 8.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.bold,
-                  color: c.textPrimary,
-                ),
-              ),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  color: c.textSecondary,
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -336,60 +215,6 @@ class _BadgeProgressBox extends StatelessWidget {
               minHeight: 6.h,
               backgroundColor: c.separator,
               valueColor: const AlwaysStoppedAnimation(Color(0xFFB8860B)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HowStreaksWork extends StatelessWidget {
-  final VoidCallback onDismiss;
-
-  const _HowStreaksWork({required this.onDismiss});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline,
-                  size: 18.sp, color: c.textSecondary),
-              SizedBox(width: 8.w),
-              Text(
-                l10n.milestonesHowStreaksWork,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.bold,
-                  color: c.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: withHaptic(onDismiss),
-                child: Icon(Icons.close,
-                    size: 18.sp, color: c.textSecondary),
-              ),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          Text(
-            l10n.milestonesStreakExplanation,
-            style: TextStyle(
-              fontSize: 13.sp,
-              color: c.textSecondary,
-              height: 1.5,
             ),
           ),
         ],

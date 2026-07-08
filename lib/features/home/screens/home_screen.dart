@@ -15,6 +15,8 @@ import '../../alarms/widgets/alarm_kind_icon.dart';
 import '../../dismiss/screens/mission_sequence_screen.dart';
 import '../../insights/widgets/hexagon_badge.dart';
 import '../../milestones/models/badge_model.dart';
+import '../../milestones/screens/milestones_screen.dart';
+import '../../milestones/screens/streak_screen.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/stacked_mission_icons.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
@@ -248,26 +250,38 @@ class _MotivationCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset('assets/streaks.png', width: 50.w, height: 50.h),
-                SizedBox(width: 10.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${state.currentStreak}',
-                      style: TextStyle(
-                        fontSize: 34.sp,
-                        fontWeight: FontWeight.bold,
-                        color: primary,
-                        height: 1.0,
-                        letterSpacing: -1,
+                GestureDetector(
+                  onTap: withHaptic(() => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const StreakScreen()),
+                      )),
+                  child: Row(
+                    children: [
+                      Image.asset('assets/streaks.png',
+                          width: 50.w, height: 50.h),
+                      SizedBox(width: 10.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${state.currentStreak}',
+                            style: TextStyle(
+                              fontSize: 34.sp,
+                              fontWeight: FontWeight.bold,
+                              color: primary,
+                              height: 1.0,
+                              letterSpacing: -1,
+                            ),
+                          ),
+                          Text(
+                            l10n.homeCurrentStreak,
+                            style: TextStyle(fontSize: 13.sp, color: secondary),
+                          ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      l10n.homeCurrentStreak,
-                      style: TextStyle(fontSize: 13.sp, color: secondary),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const Spacer(),
                 if (displayBadge != null)
@@ -277,7 +291,11 @@ class _MotivationCard extends StatelessWidget {
                     earnedColor: AppColors.orange,
                     size: 60.w,
                     imageAsset: displayBadge.imageAsset,
-                    onTap: () => BottomNavShell.of(context)?.navigateTo(2),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const MilestonesScreen()),
+                    ),
                   ),
               ],
             ),
