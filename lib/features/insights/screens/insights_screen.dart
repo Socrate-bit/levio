@@ -310,7 +310,7 @@ class _RangeToggle extends StatelessWidget {
                   labels[r]!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
                     color: isSelected
                         ? Colors.white

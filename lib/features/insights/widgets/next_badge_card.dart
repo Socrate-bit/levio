@@ -59,7 +59,7 @@ class NextBadgeCard extends StatelessWidget {
             HexagonBadge(
               label: badge?.displayValue ?? '?',
               earned: earned,
-              size: 62.w,
+              size: 80.w,
               earnedColor: AppColors.orange,
               imageAsset: badge?.imageAsset,
             ),

@@ -78,16 +78,22 @@ class _HomeView extends StatelessWidget {
                           builder: (context, alarmState) {
                             final now = DateTime.now();
                             // Enabled alarms with a real upcoming fire time.
-                            final upcoming = alarmState.alarms
-                                .where((a) => a.isEnabled)
-                                .map((a) =>
-                                    (alarm: a, fireAt: a.nextFireAt(now)))
-                                .where((e) => e.fireAt != null)
-                                .toList()
-                              ..sort((a, b) => a.fireAt!.compareTo(b.fireAt!));
+                            final upcoming =
+                                alarmState.alarms
+                                    .where((a) => a.isEnabled)
+                                    .map(
+                                      (a) =>
+                                          (alarm: a, fireAt: a.nextFireAt(now)),
+                                    )
+                                    .where((e) => e.fireAt != null)
+                                    .toList()
+                                  ..sort(
+                                    (a, b) => a.fireAt!.compareTo(b.fireAt!),
+                                  );
 
-                            final next =
-                                upcoming.isNotEmpty ? upcoming.first.alarm : null;
+                            final next = upcoming.isNotEmpty
+                                ? upcoming.first.alarm
+                                : null;
                             // Soonest wake-up and soonest sleep alarm for the
                             // bedtime → wake-up ring.
                             final wakeAlarm = upcoming
@@ -105,8 +111,7 @@ class _HomeView extends StatelessWidget {
                                 if (next != null)
                                   _NextAlarmCard(
                                     alarm: next,
-                                    completedToday: state
-                                        .completedAlarmIdsToday
+                                    completedToday: state.completedAlarmIdsToday
                                         .contains(next.id),
                                   )
                                 else
@@ -275,14 +280,13 @@ class _MotivationCard extends StatelessWidget {
                     label: displayBadge.displayValue,
                     earned: latest != null,
                     earnedColor: AppColors.orange,
-                    size: 60.w,
+                    size: 70.w,
                     imageAsset: displayBadge.imageAsset,
                     onTap: () => BottomNavShell.of(context)?.navigateTo(2),
                   ),
               ],
             ),
-            SizedBox(height: 16.h),
-            _WeekRow(weekDays: state.weekDays),
+
             SizedBox(height: 16.h),
             if (next != null) ...[
               Row(
@@ -309,8 +313,9 @@ class _MotivationCard extends StatelessWidget {
                   value: progress,
                   minHeight: 8.h,
                   backgroundColor: AppColors.orange.withAlpha(40),
-                  valueColor:
-                      const AlwaysStoppedAnimation<Color>(AppColors.orange),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.orange,
+                  ),
                 ),
               ),
             ] else
@@ -322,6 +327,8 @@ class _MotivationCard extends StatelessWidget {
                   color: AppColors.orange,
                 ),
               ),
+            SizedBox(height: 16.h),
+            _WeekRow(weekDays: state.weekDays),
           ],
         ),
       ),
@@ -358,7 +365,11 @@ class _WeekRow extends StatelessWidget {
         Widget circle;
         if (status == DayStatus.done) {
           circle = _circle(
-            child: Icon(Icons.check_rounded, size: 26.sp, color: AppColors.orange),
+            child: Icon(
+              Icons.check_rounded,
+              size: 26.sp,
+              color: AppColors.orange,
+            ),
             border: AppColors.orange,
           );
         } else if (status == DayStatus.frozen) {
@@ -368,8 +379,11 @@ class _WeekRow extends StatelessWidget {
           );
         } else if (status == DayStatus.missed) {
           circle = _circle(
-            child:
-                Icon(Icons.close_rounded, size: 26.sp, color: AppColors.error),
+            child: Icon(
+              Icons.close_rounded,
+              size: 26.sp,
+              color: AppColors.error,
+            ),
             border: AppColors.error,
           );
         } else if (isFuture) {
@@ -377,7 +391,9 @@ class _WeekRow extends StatelessWidget {
             child: Text(
               dayNum,
               style: TextStyle(
-                  fontSize: 15.sp, color: c.textSecondary.withAlpha(110)),
+                fontSize: 15.sp,
+                color: c.textSecondary.withAlpha(110),
+              ),
             ),
             border: c.textSecondary.withAlpha(50),
             width: 2.5,
@@ -623,7 +639,8 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
     final diff = fireAt.difference(now);
     // Offer "Start now" when the next fire is within 90 min, the alarm is on, it
     // has a mission to run, and today's occurrence hasn't already been completed.
-    final canStartNow = alarm.isEnabled &&
+    final canStartNow =
+        alarm.isEnabled &&
         !widget.completedToday &&
         !diff.isNegative &&
         diff.inMinutes <= 90 &&
@@ -638,21 +655,24 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
             l10n,
             alarm.missions.isNotEmpty
                 ? alarm.missions.first.type
-                : MissionType.none);
+                : MissionType.none,
+          );
     final dayLabel = diff.isNegative || diff.inHours < 24
         ? l10n.homeToday
         : l10n.homeTomorrow;
 
     return GestureDetector(
-      onTap: withHaptic(() => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => BlocProvider.value(
-                value: context.read<AlarmCubit>(),
-                child: AlarmFormScreen(alarm: alarm),
-              ),
+      onTap: withHaptic(
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+              value: context.read<AlarmCubit>(),
+              child: AlarmFormScreen(alarm: alarm),
             ),
-          )),
+          ),
+        ),
+      ),
       child: Container(
         padding: EdgeInsets.all(18.w),
         decoration: BoxDecoration(
@@ -671,7 +691,7 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
           children: [
             Row(
               children: [
-                AlarmKindIcon(isSleep: alarm.isSleep, size: 32.sp,),
+                AlarmKindIcon(isSleep: alarm.isSleep, size: 32.sp),
                 SizedBox(width: 8.w),
                 Text(
                   dayLabel,
@@ -704,7 +724,8 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                   value: alarm.isEnabled,
                   activeThumbColor: c.purpleDeep,
                   onChanged: withHapticValue((val) async {
-                    if (val && !await AlarmReadinessGuard.check(context)) return;
+                    if (val && !await AlarmReadinessGuard.check(context))
+                      return;
                     if (!context.mounted) return;
                     context.read<AlarmCubit>().toggleAlarm(alarm.id, val);
                   }),
@@ -749,9 +770,13 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                         ),
                       ),
                       if (alarm.missions.isNotEmpty) ...[
-                        Text(' · ',
-                            style: TextStyle(
-                                fontSize: 13.sp, color: c.textSecondary)),
+                        Text(
+                          ' · ',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: c.textSecondary,
+                          ),
+                        ),
                         StackedMissionIcons(missions: alarm.missions),
                         SizedBox(width: 6.w),
                         Flexible(
@@ -760,7 +785,9 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                                fontSize: 13.sp, color: c.textSecondary),
+                              fontSize: 13.sp,
+                              color: c.textSecondary,
+                            ),
                           ),
                         ),
                       ],
@@ -772,8 +799,10 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                   GestureDetector(
                     onTap: withHaptic(_startNow),
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14.w,
+                        vertical: 8.h,
+                      ),
                       decoration: BoxDecoration(
                         color: c.textPrimary,
                         borderRadius: BorderRadius.circular(20.r),
@@ -781,8 +810,11 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.play_arrow_rounded,
-                              size: 20.sp, color: Colors.white),
+                          Icon(
+                            Icons.play_arrow_rounded,
+                            size: 20.sp,
+                            color: Colors.white,
+                          ),
                           SizedBox(width: 4.w),
                           Text(
                             l10n.homeStartNow,
@@ -880,7 +912,9 @@ class _SleepScheduleCard extends StatelessWidget {
                           Text(
                             l10n.homeInBed,
                             style: TextStyle(
-                                fontSize: 12.sp, color: c.textSecondary),
+                              fontSize: 12.sp,
+                              color: c.textSecondary,
+                            ),
                           ),
                         ],
                       )
@@ -1136,8 +1170,9 @@ class _ScreenBlockerCard extends StatelessWidget {
 
         String status;
         if (active && state.activeUntil != null) {
-          final until =
-              TimeOfDay.fromDateTime(state.activeUntil!).format(context);
+          final until = TimeOfDay.fromDateTime(
+            state.activeUntil!,
+          ).format(context);
           status = l10n.homeBlockerActiveUntil(until);
         } else if (state.enabled && state.activeIn != null) {
           final d = state.activeIn!;
@@ -1170,7 +1205,10 @@ class _ScreenBlockerCard extends StatelessWidget {
               color: cardColor,
               borderRadius: BorderRadius.circular(16.r),
               border: active
-                  ? Border.all(color: AppColors.of(context).purpleDeep.withAlpha(80), width: 1.5)
+                  ? Border.all(
+                      color: AppColors.of(context).purpleDeep.withAlpha(80),
+                      width: 1.5,
+                    )
                   : null,
               boxShadow: [
                 BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 12),
@@ -1181,7 +1219,9 @@ class _ScreenBlockerCard extends StatelessWidget {
                 Icon(
                   active ? Icons.shield : Icons.shield_outlined,
                   size: 26.sp,
-                  color: active ? AppColors.of(context).purpleDeep : c.textSecondary,
+                  color: active
+                      ? AppColors.of(context).purpleDeep
+                      : c.textSecondary,
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
@@ -1212,8 +1252,10 @@ class _ScreenBlockerCard extends StatelessWidget {
                 GestureDetector(
                   onTap: withHaptic(openDetail),
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 8.h,
+                    ),
                     decoration: BoxDecoration(
                       color: active
                           ? AppColors.of(context).purpleDeep.withAlpha(45)
@@ -1228,15 +1270,18 @@ class _ScreenBlockerCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
-                            color:
-                                active ? AppColors.of(context).purpleDeep : c.textPrimary,
+                            color: active
+                                ? AppColors.of(context).purpleDeep
+                                : c.textPrimary,
                           ),
                         ),
                         SizedBox(width: 2.w),
                         Icon(
                           Icons.chevron_right,
                           size: 18.sp,
-                          color: active ? AppColors.of(context).purpleDeep : c.textSecondary,
+                          color: active
+                              ? AppColors.of(context).purpleDeep
+                              : c.textSecondary,
                         ),
                       ],
                     ),

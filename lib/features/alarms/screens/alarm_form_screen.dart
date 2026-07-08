@@ -759,7 +759,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       ? l10n.alarmFormUpdateAlarm
                       : l10n.alarmFormSaveAlarm,
                   style: TextStyle(
-                    fontSize: 17.sp,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
