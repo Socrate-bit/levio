@@ -25,13 +25,51 @@ class BottomNavShell extends StatefulWidget {
       context.findAncestorStateOfType<BottomNavShellState>();
 }
 
-class BottomNavShellState extends State<BottomNavShell> {
+class BottomNavShellState extends State<BottomNavShell>
+    with SingleTickerProviderStateMixin {
   late int _index;
+
+  // Drives the add-alarm button's appearance on the alarms tab.
+  late final AnimationController _fabController;
+  late final Animation<double> _fabSize; // width/fade (no overshoot)
+  late final Animation<double> _fabScale; // pop-in scale (overshoots)
+
+  static const _alarmsIndex = 1;
 
   @override
   void initState() {
     super.initState();
     _index = widget.initialIndex;
+    _fabController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      value: _index == _alarmsIndex ? 1.0 : 0.0,
+    );
+    _fabSize = CurvedAnimation(
+      parent: _fabController,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+    _fabScale = CurvedAnimation(
+      parent: _fabController,
+      curve: Curves.easeOutBack,
+      reverseCurve: Curves.easeInBack,
+    );
+  }
+
+  @override
+  void dispose() {
+    _fabController.dispose();
+    super.dispose();
+  }
+
+  // Show the add-alarm button only on the alarms tab.
+  void _syncFab() {
+    if (_index == _alarmsIndex) {
+      _fabController.forward();
+    } else {
+      _fabController.reverse();
+    }
   }
 
   static const _tabNames = ['home', 'alarms', 'insights'];
@@ -39,6 +77,7 @@ class BottomNavShellState extends State<BottomNavShell> {
   void _selectTab(int index) {
     if (index == _index) return;
     setState(() => _index = index);
+    _syncFab();
     AnalyticsService.capture(AnalyticsService.navTabSelected, {
       'tab': _tabNames[index],
       'index': index,
@@ -77,7 +116,7 @@ class BottomNavShellState extends State<BottomNavShell> {
       extendBody: true,
       body: IndexedStack(index: _index, children: _tabs),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: 16.h),
+        padding: EdgeInsets.only(bottom: 16.h, left: 24.w, right: 24.w),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -131,10 +170,23 @@ class BottomNavShellState extends State<BottomNavShell> {
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(right: 24.w, left: 6.w),
-              child: _AddAlarmCircleButton(
-                onTap: () => _openAlarmForm(context),
+            // Animate the add-alarm button in/out; its horizontal footprint
+            // collapses to zero so the nav bar re-centers when hidden.
+            SizeTransition(
+              axis: Axis.horizontal,
+              axisAlignment: -1.0,
+              sizeFactor: _fabSize,
+              child: FadeTransition(
+                opacity: _fabSize,
+                child: ScaleTransition(
+                  scale: _fabScale,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 12.w),
+                    child: _AddAlarmCircleButton(
+                      onTap: () => _openAlarmForm(context),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
