@@ -276,6 +276,7 @@ class _MotivationCard extends StatelessWidget {
                     earned: latest != null,
                     earnedColor: AppColors.orange,
                     size: 60.w,
+                    imageAsset: displayBadge.imageAsset,
                     onTap: () => BottomNavShell.of(context)?.navigateTo(2),
                   ),
               ],
