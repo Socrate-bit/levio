@@ -311,7 +311,7 @@ class _SpeechDismissScreenState extends State<SpeechDismissScreen> {
                             child: Icon(
                               _isListening ? Icons.mic : Icons.mic_none,
                               color: _isListening
-                                  ? Colors.white
+                                  ? c.background
                                   : c.textSecondary,
                               size: 36.sp,
                             ),

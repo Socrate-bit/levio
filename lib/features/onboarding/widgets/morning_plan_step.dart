@@ -298,7 +298,7 @@ class _DayCircle extends StatelessWidget {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,
-              color: isActive ? Colors.white : colors.textSecondary,
+              color: isActive ? colors.background : colors.textSecondary,
             ),
           ),
         ),
