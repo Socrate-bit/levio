@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Levio'**
+  /// **'LEVIO'**
   String get appTitle;
 
   /// No description provided for @navHome.
@@ -4391,13 +4391,13 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingPhoneTitle.
   ///
   /// In en, this message translates to:
-  /// **'What\'s your\nphone number?'**
+  /// **'Phone number'**
   String get onboardingPhoneTitle;
 
   /// No description provided for @onboardingPhoneSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'We\'ll reach out with early access to new beta features.'**
+  /// **'Enter your phone number to access Levio.'**
   String get onboardingPhoneSubtitle;
 
   /// No description provided for @onboardingPhoneHint.

@@ -101,6 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Future<void> _confirmDeleteAccount(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -125,8 +126,10 @@ class _SettingsScreenState extends State<SettingsScreen>
     setState(() => _deletingAccount = true);
     try {
       await AuthService.deleteAccount();
-      // On success the auth state flips and AuthWrapper swaps this screen out,
-      // taking the spinner with it — no need to reset _deletingAccount.
+      // Auth flips to signed-out and AuthWrapper rebuilds the root beneath into
+      // the onboarding start screen — but this settings route sits on top of it,
+      // so it must be popped explicitly or the spinner lingers forever.
+      if (mounted) navigator.popUntil((route) => route.isFirst);
     } on FirebaseAuthException catch (e, st) {
       debugPrint('[SettingsScreen] deleteAccount failed: ${e.code}');
       AnalyticsService.trackError('SettingsScreen._confirmDeleteAccount.firebaseAuth', e, st);

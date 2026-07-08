@@ -151,7 +151,7 @@ class _TopBar extends StatelessWidget {
         Text(
           l10n.appTitle,
           style: TextStyle(
-            fontSize: 30.sp,
+            fontSize: 24.sp,
             fontWeight: FontWeight.bold,
             color: c.textPrimary,
             letterSpacing: -0.5,

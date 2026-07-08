@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appTitle": "Levio",
+  "appTitle": "LEVIO",
 
   "navHome": "Home",
   "navAlarms": "Alarms",
@@ -945,8 +945,8 @@
   "onboardingReferralInvalid": "Invalid referral code",
   "onboardingReferralLimit": "This code has reached its usage limit",
 
-  "onboardingPhoneTitle": "What's your\nphone number?",
-  "onboardingPhoneSubtitle": "We'll reach out with early access to new beta features.",
+  "onboardingPhoneTitle": "Phone number",
+  "onboardingPhoneSubtitle": "Enter your phone number to access Levio.",
   "onboardingPhoneHint": "Phone number",
   "onboardingPhoneInvalid": "Please enter a valid phone number",
 

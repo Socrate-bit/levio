@@ -1,7 +1,7 @@
 {
   "@@locale": "fr",
 
-  "appTitle": "Levio",
+  "appTitle": "LEVIO",
 
   "navHome": "Accueil",
   "navAlarms": "Alarmes",
@@ -833,8 +833,8 @@
   "onboardingReferralInvalid": "Code de parrainage invalide",
   "onboardingReferralLimit": "Ce code a atteint sa limite d'utilisation",
 
-  "onboardingPhoneTitle": "Quel est ton\nnuméro de téléphone ?",
-  "onboardingPhoneSubtitle": "On te contactera pour un accès anticipé aux nouvelles fonctionnalités bêta.",
+  "onboardingPhoneTitle": "Numéro de téléphone",
+  "onboardingPhoneSubtitle": "Renseigne ton numéro pour accéder à Levio.",
   "onboardingPhoneHint": "Numéro de téléphone",
   "onboardingPhoneInvalid": "Merci d'entrer un numéro de téléphone valide",
 

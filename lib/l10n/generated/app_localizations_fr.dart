@@ -9,7 +9,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitle => 'Levio';
+  String get appTitle => 'LEVIO';
 
   @override
   String get navHome => 'Accueil';
@@ -2356,11 +2356,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ce code a atteint sa limite d\'utilisation';
 
   @override
-  String get onboardingPhoneTitle => 'Quel est ton\nnuméro de téléphone ?';
+  String get onboardingPhoneTitle => 'Numéro de téléphone';
 
   @override
   String get onboardingPhoneSubtitle =>
-      'On te contactera pour un accès anticipé aux nouvelles fonctionnalités bêta.';
+      'Renseigne ton numéro pour accéder à Levio.';
 
   @override
   String get onboardingPhoneHint => 'Numéro de téléphone';
