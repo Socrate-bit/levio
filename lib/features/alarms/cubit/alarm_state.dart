@@ -145,6 +145,8 @@ extension AppAlarmEntryRingLock on AppAlarmEntry {
     DateTime now, {
     Duration window = const Duration(minutes: 30),
   }) {
+    // A disabled alarm never fires, so it is never lock-eligible.
+    if (!isEnabled) return null;
     if (isOneTime) {
       final start = dateTime;
       return (!now.isBefore(start) && now.isBefore(start.add(window)))
