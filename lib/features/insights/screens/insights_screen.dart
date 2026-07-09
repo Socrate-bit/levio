@@ -6,12 +6,11 @@ import 'package:levio/l10n/l10n_helpers.dart';
 import '../../../shared/utils/haptic_utils.dart';
 
 import '../../../shared/theme/app_theme.dart';
-import '../widgets/hexagon_badge.dart';
 import '../widgets/next_badge_card.dart';
 import '../widgets/streak_heatmap.dart';
 import '../widgets/success_progression_chart.dart';
 import '../../milestones/screens/milestones_screen.dart';
-import '../../milestones/screens/streak_screen.dart';
+import '../../milestones/widgets/how_streaks_work.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/mission_icon.dart';
 import '../../wakeup/models/wakeup_session.dart';
@@ -46,11 +45,6 @@ class _InsightsView extends StatelessWidget {
   void _openMilestones(BuildContext ctx) => Navigator.push(
         ctx,
         MaterialPageRoute(builder: (_) => const MilestonesScreen()),
-      );
-
-  void _openStreak(BuildContext ctx) => Navigator.push(
-        ctx,
-        MaterialPageRoute(builder: (_) => const StreakScreen()),
       );
 
   @override
@@ -104,20 +98,25 @@ class _InsightsView extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: _StreakCard(
-                                  streak: state.currentStreak,
-                                  onTap: () => _openStreak(ctx),
+                                  icon: Image.asset('assets/streaks.png',
+                                      width: 56.w, height: 56.h),
+                                  value: '${state.currentStreak}',
+                                  label: l10n.insightsDayStreak,
                                 ),
                               ),
                               SizedBox(width: 12.w),
                               Expanded(
-                                child: _BadgesCard(
-                                  earned: state.badgesEarned,
-                                  total: state.totalBadges,
-                                  onTap: () => _openMilestones(ctx),
+                                child: _StreakCard(
+                                  icon: Text('🏆',
+                                      style: TextStyle(fontSize: 44.sp)),
+                                  value: '${state.longestStreak}',
+                                  label: l10n.insightsBestStreak,
                                 ),
                               ),
                             ],
                           ),
+                          SizedBox(height: 12.h),
+                          const HowStreaksWork(),
 
                           // ── Streak ──────────────────────────────────────
                           SizedBox(height: 22.h),
@@ -125,12 +124,6 @@ class _InsightsView extends StatelessWidget {
                           SizedBox(height: 12.h),
                           Row(
                             children: [
-                              _StatCard(
-                                icon: Icons.local_fire_department_outlined,
-                                label: l10n.insightsBestStreak,
-                                value: '${state.longestStreak}',
-                              ),
-                              SizedBox(width: 12.w),
                               _StatCard(
                                 icon: Icons.check_circle_outline,
                                 label: l10n.insightsSuccesses,
@@ -333,113 +326,49 @@ class _RangeToggle extends StatelessWidget {
 }
 
 class _StreakCard extends StatelessWidget {
-  final int streak;
-  final VoidCallback onTap;
+  final Widget icon;
+  final String value;
+  final String label;
 
   const _StreakCard({
-    required this.streak,
-    required this.onTap,
+    required this.icon,
+    required this.value,
+    required this.label,
   });
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
-    return GestureDetector(
-      onTap: withHaptic(onTap),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: c.card,
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/streaks.png', width: 56.w, height: 56.h),
-              SizedBox(height: 4.h),
-              Text(
-                '$streak',
-                style: TextStyle(
-                  fontSize: 32.sp,
-                  fontWeight: FontWeight.bold,
-                  color: c.textPrimary,
-                ),
-              ),
-              Text(
-                l10n.insightsDayStreak,
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: c.textSecondary,
-                ),
-              ),
-            ],
-          ),
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(16.r),
         ),
-      ),
-    );
-  }
-}
-
-class _BadgesCard extends StatelessWidget {
-  final int earned;
-  final int total;
-  final VoidCallback onTap;
-
-  const _BadgesCard({
-    required this.earned,
-    required this.total,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
-    return GestureDetector(
-      onTap: withHaptic(onTap),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: c.card,
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              HexagonBadge(
-                label: '$earned',
-                earned: earned > 0,
-                size: 64.w,
-                earnedColor: const Color(0xFFB8860B),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 56.h, child: Center(child: icon)),
+            SizedBox(height: 4.h),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 32.sp,
+                fontWeight: FontWeight.bold,
+                color: c.textPrimary,
               ),
-              SizedBox(height: 8.h),
-              Text(
-                l10n.insightsBadgesEarned,
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: c.textPrimary,
-                ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: c.textSecondary,
               ),
-              if (earned > 0)
-                Padding(
-                  padding: EdgeInsets.only(top: 6.h),
-                  child: Text(
-                    '$earned/$total',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: c.textSecondary,
-                    ),
-                  ),
-                ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
