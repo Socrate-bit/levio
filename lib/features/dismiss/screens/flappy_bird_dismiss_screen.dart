@@ -110,18 +110,18 @@ class _FlappyBirdDismissScreenState extends State<FlappyBirdDismissScreen> {
 
     return Scaffold(
       backgroundColor: c.background,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // The game fills the screen; tapping anywhere flaps the bird.
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _game.flap,
-                child: GameWidget(game: _game),
-              ),
+      body: Stack(
+        children: [
+          // The game fills the screen; tapping anywhere flaps the bird.
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _game.flap,
+              child: GameWidget(game: _game),
             ),
-            IgnorePointer(
+          ),
+          SafeArea(
+            child: IgnorePointer(
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Padding(
@@ -181,59 +181,68 @@ class _FlappyBirdDismissScreenState extends State<FlappyBirdDismissScreen> {
                 ),
               ),
             ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 120.h,
-              child: IgnorePointer(
-                child: Center(
-                  child: ValueListenableBuilder<int>(
-                    valueListenable: _scoreNotifier,
-                    builder: (context, score, _) => Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 14.w,
-                        vertical: 6.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.64),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Text(
-                        '$score/${widget.targetScore}',
-                        style: TextStyle(
-                          fontSize: 32.sp,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 0,
-                          shadows: const [
-                            Shadow(color: Colors.black38, blurRadius: 3),
-                          ],
-                        ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 120.h,
+            child: IgnorePointer(
+              child: Center(
+                child: ValueListenableBuilder<int>(
+                  valueListenable: _scoreNotifier,
+                  builder: (context, score, _) => Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 6.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.64),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      '$score/${widget.targetScore}',
+                      style: TextStyle(
+                        fontSize: 32.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 0,
+                        shadows: const [
+                          Shadow(color: Colors.black38, blurRadius: 3),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-            if (widget.isPreview)
-              Positioned(
-                top: 16.h,
-                right: 16.w,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: 36.w,
-                    height: 36.h,
-                    decoration: const BoxDecoration(
-                      color: Colors.black54,
-                      shape: BoxShape.circle,
+          ),
+          if (widget.isPreview)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 16.h, right: 16.w),
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: 36.w,
+                      height: 36.h,
+                      decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        size: 18.sp,
+                        color: Colors.white,
+                      ),
                     ),
-                    child: Icon(Icons.close, size: 18.sp, color: Colors.white),
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
