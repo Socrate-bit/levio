@@ -13,20 +13,28 @@ enum DayStatus { none, done, frozen, missed }
 
 /// Result of [StreakService.computeStreak].
 class StreakResult {
-  /// Number of consecutive days (sessions + freezes) walking backward from today.
+  /// Number of consecutive validated days in the live streak ending today.
   final int streak;
 
   /// Sun..Sat statuses for the current calendar week.
   final List<DayStatus> weekDays;
 
-  /// Date strings (yyyy-MM-dd) of every day the walk bridged with a freeze,
-  /// across the full walked range — used by the insights activity heatmap.
+  /// Date strings (yyyy-MM-dd) of every day resolved to a freeze, across the
+  /// full history — used by the insights activity heatmap. Today is excluded
+  /// (it is in-progress and never shown as frozen).
   final Set<String> frozenDays;
+
+  /// Raw per-day model status (done/frozen/missed) for every day in the walked
+  /// range, today included. Unlike [frozenDays]/[weekDays] this is not filtered
+  /// for display — it exposes the full labeling for tests and callers that want
+  /// each day's true status.
+  final Map<String, DayStatus> dayStatuses;
 
   const StreakResult({
     required this.streak,
     required this.weekDays,
     this.frozenDays = const {},
+    this.dayStatuses = const {},
   });
 }
 
@@ -298,16 +306,19 @@ class StreakService {
   // Streak computation (single source of truth)
   // ---------------------------------------------------------------------------
 
-  /// Walks backward from today through [sessions], applying freeze rules:
-  ///   - At most 2 freezes per Mon–Sun calendar week.
-  ///   - At most 2 consecutive freezes in a row.
-  /// The walk stops when it would cross before [stopDate]. If [stopDate] is
-  /// null, the walk stops at the day of the oldest completed session — so
-  /// pre-app-start days never count as misses.
+  /// Labels every day from the oldest completed session (or [stopDate]) up to
+  /// today with a [DayStatus], applying the freeze rules:
+  ///   - A day is `done` if it has ≥1 completed, non-screen-time-disabled session.
+  ///   - An unvalidated day may `freeze` only if the previous day was done or
+  ///     frozen, at most 2 freezes per Mon–Sun week, and at most 2 consecutive.
+  ///   - Freezes inside a gap between two validated days are kept even when the
+  ///     gap doesn't fully bridge (historical record). A dead tail — the run
+  ///     after the last validated day that fails to reach today alive — reverts
+  ///     its freezes to `missed`, so a broken current streak shows clean misses.
   ///
-  /// Returns the streak count and Sun..Sat statuses for the current calendar
-  /// week (today displays as `none` when there is no completed session, even
-  /// if a freeze was internally applied, because today is in-progress).
+  /// The current [streak] is the run of consecutive validated days ending in the
+  /// live segment that reaches today. Today displays as `none` (in-progress)
+  /// even when it is internally frozen or missed.
   ///
   /// [now] is injectable for testing.
   static StreakResult computeStreak({
@@ -317,12 +328,13 @@ class StreakService {
   }) {
     final today = _dateOnly(now ?? DateTime.now());
 
-    // Index completed sessions by date; track the oldest. Also track days that
-    // had any session at all, so days with only an incomplete (missed) session
-    // can be distinguished from days with no alarm.
+    // Index completed sessions by date; track the oldest and the newest. Also
+    // track days that had any session at all, so days with only an incomplete
+    // (missed) session can be distinguished from days with no alarm.
     final sessionDays = <String>{};
     final anySessionDays = <String>{};
     final disabledDays = <String>{};
+    final validatedDates = <DateTime>[];
     DateTime? oldestSessionDay;
     for (final s in sessions) {
       final d = _dateOnly(s.timestamp);
@@ -330,6 +342,7 @@ class StreakService {
       if (s.screenTimeDisabled) disabledDays.add(_dateStr(d));
       if (!s.completed) continue;
       sessionDays.add(_dateStr(d));
+      validatedDates.add(d);
       if (oldestSessionDay == null || d.isBefore(oldestSessionDay)) {
         oldestSessionDay = d;
       }
@@ -337,79 +350,116 @@ class StreakService {
 
     // Deactivating screen-time blocking forces its day to count as missed: drop
     // it from the completed set even if a wake-up also happened that day, so the
-    // streak walk treats it as a (freezable) miss.
+    // walk treats it as a (freezable) miss.
     sessionDays.removeAll(disabledDays);
 
-    // Build the display week (Sun..Sat) with done marks; freezes filled in
-    // during the walk below.
-    final startOfDisplayWeek = _startOfDisplayWeek(today);
-    final endOfDisplayWeek = _addDays(startOfDisplayWeek, 6);
-    final weekDays = List<DayStatus>.filled(7, DayStatus.none);
-    for (int i = 0; i < 7; i++) {
-      final d = _addDays(startOfDisplayWeek, i);
-      if (sessionDays.contains(_dateStr(d))) {
-        weekDays[i] = DayStatus.done;
+    // Newest day still counting as validated after the screen-time removal.
+    // Used to tell a middle gap (validated day still ahead) from a dead tail.
+    DateTime? lastValidatedDay;
+    for (final d in validatedDates) {
+      if (sessionDays.contains(_dateStr(d)) &&
+          (lastValidatedDay == null || d.isAfter(lastValidatedDay))) {
+        lastValidatedDay = d;
       }
     }
 
-    final frozenDays = <String>{};
+    final startOfDisplayWeek = _startOfDisplayWeek(today);
+    final weekDays = List<DayStatus>.filled(7, DayStatus.none);
+
     final effectiveStop =
         stopDate != null ? _dateOnly(stopDate) : oldestSessionDay;
     if (effectiveStop == null) {
       return StreakResult(streak: 0, weekDays: weekDays);
     }
 
-    int streak = 0;
+    // Forward pass from the oldest day to today, labeling each day. `pending`
+    // holds the freezes applied since the last validated day (or last break);
+    // they are committed on a validated day / middle break, or reverted on a
+    // dead tail.
+    final dayStatuses = <String, DayStatus>{};
+    final pending = <String>[];
+    int streak = 0; // validated days in the current (un-broken) run
     int weekFreezes = 0;
     int consecutiveFreezes = 0;
-    DateTime currentMonday = _getMondayOfWeek(today);
-    DateTime cursor = today;
+    bool prevGood = false; // previous day was done or frozen
+    DateTime currentMonday = _getMondayOfWeek(effectiveStop);
 
-    while (!cursor.isBefore(effectiveStop)) {
-      // Reset the per-week freeze budget when crossing a Monday backward.
+    for (DateTime cursor = effectiveStop;
+        !cursor.isAfter(today);
+        cursor = _addDays(cursor, 1)) {
+      // Reset the per-week freeze budget on each Mon–Sun boundary. The
+      // consecutive-freeze cap intentionally persists across weeks.
       final cursorMonday = _getMondayOfWeek(cursor);
       if (!_isSameDay(cursorMonday, currentMonday)) {
         weekFreezes = 0;
         currentMonday = cursorMonday;
       }
 
-      if (sessionDays.contains(_dateStr(cursor))) {
+      final key = _dateStr(cursor);
+
+      if (sessionDays.contains(key)) {
+        dayStatuses[key] = DayStatus.done;
+        pending.clear(); // these freezes bridged to a validated day — keep them
         streak++;
         consecutiveFreezes = 0;
-      } else if (weekFreezes < 2 && consecutiveFreezes < 2) {
+        prevGood = true;
+      } else if (prevGood && weekFreezes < 2 && consecutiveFreezes < 2) {
+        dayStatuses[key] = DayStatus.frozen; // tentative until the run resolves
+        pending.add(key);
         weekFreezes++;
         consecutiveFreezes++;
-        // Record every frozen day for the heatmap (today excluded — it is still
-        // in-progress and never shown as frozen).
-        if (!_isSameDay(cursor, today)) frozenDays.add(_dateStr(cursor));
-        // Mark the display week as frozen for past days only — today stays
-        // `none` because it is still in-progress visually.
-        if (!_isSameDay(cursor, today) &&
-            !cursor.isBefore(startOfDisplayWeek) &&
-            !cursor.isAfter(endOfDisplayWeek)) {
-          final idx = cursor.difference(startOfDisplayWeek).inDays;
-          weekDays[idx] = DayStatus.frozen;
-        }
+        prevGood = true;
       } else {
-        break;
+        // Break: this day is missed. If a validated day exists later, the freezes
+        // in `pending` are a real (middle) bridge attempt — keep them frozen.
+        // Otherwise the run is a dead tail — revert its freezes to missed.
+        dayStatuses[key] = DayStatus.missed;
+        final hasFutureValidated =
+            lastValidatedDay != null && lastValidatedDay.isAfter(cursor);
+        if (!hasFutureValidated) {
+          for (final p in pending) {
+            dayStatuses[p] = DayStatus.missed;
+          }
+        }
+        pending.clear();
+        streak = 0;
+        consecutiveFreezes = 0;
+        prevGood = false;
       }
-
-      cursor = _addDays(cursor, -1);
     }
 
-    // Mark past display-week days that had an alarm but no completed session as
-    // missed. Done/frozen days keep their status; today and future stay `none`.
+    // Build the display week (Sun..Sat) and the frozen-day set from the resolved
+    // statuses. Today always renders `none` (in-progress) and is excluded from
+    // the frozen set; days with no alarm/session stay `none` rather than missed.
+    final frozenDays = <String>{};
+    for (final entry in dayStatuses.entries) {
+      if (entry.value == DayStatus.frozen && entry.key != _dateStr(today)) {
+        frozenDays.add(entry.key);
+      }
+    }
     for (int i = 0; i < 7; i++) {
       final d = _addDays(startOfDisplayWeek, i);
-      if (weekDays[i] != DayStatus.none) continue;
-      if (!d.isBefore(today)) continue; // skip today and future
-      if (anySessionDays.contains(_dateStr(d))) {
+      if (d.isAfter(today)) continue; // future stays `none`
+      final status = dayStatuses[_dateStr(d)];
+      if (_isSameDay(d, today)) {
+        // Today is in-progress: only a completed session shows; an internal
+        // freeze or miss renders as `none`.
+        if (status == DayStatus.done) weekDays[i] = DayStatus.done;
+      } else if (status == DayStatus.done || status == DayStatus.frozen) {
+        weekDays[i] = status!;
+      } else if (status == DayStatus.missed &&
+          anySessionDays.contains(_dateStr(d))) {
+        // Only show a miss where an alarm actually fired that day.
         weekDays[i] = DayStatus.missed;
       }
     }
 
     return StreakResult(
-        streak: streak, weekDays: weekDays, frozenDays: frozenDays);
+      streak: streak,
+      weekDays: weekDays,
+      frozenDays: frozenDays,
+      dayStatuses: dayStatuses,
+    );
   }
 
   /// Backward-compatible wrapper. [firstAlarmDate] is accepted but ignored —
