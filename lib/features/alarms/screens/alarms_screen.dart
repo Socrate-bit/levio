@@ -150,8 +150,15 @@ class _AlarmCard extends StatelessWidget {
                   child: Switch(
                     value: alarm.isEnabled,
                     activeThumbColor: c.purpleDeep,
-                    onChanged: withHapticValue((val) =>
-                        context.read<AlarmCubit>().toggleAlarm(alarm.id, val)),
+                    onChanged: withHapticValue((val) async {
+                      try {
+                        await context
+                            .read<AlarmCubit>()
+                            .toggleAlarm(alarm.id, val);
+                      } on AlarmLockedException {
+                        if (context.mounted) _showLockedMessage(context);
+                      }
+                    }),
                   ),
                 ),
               ],
@@ -177,8 +184,13 @@ class _AlarmCard extends StatelessWidget {
                 ],
                 const Spacer(),
                 GestureDetector(
-                  onTap: withHaptic(
-                      () => context.read<AlarmCubit>().removeAlarm(alarm.id)),
+                  onTap: withHaptic(() async {
+                    try {
+                      await context.read<AlarmCubit>().removeAlarm(alarm.id);
+                    } on AlarmLockedException {
+                      if (context.mounted) _showLockedMessage(context);
+                    }
+                  }),
                   child: Icon(Icons.delete_outline,
                       size: 32.sp, color: c.textSecondary.withAlpha(140)),
                 ),
@@ -187,6 +199,13 @@ class _AlarmCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLockedMessage(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.alarmsLockedWhileRinging)),
     );
   }
 

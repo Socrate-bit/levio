@@ -26,6 +26,7 @@
   "alarmsOneTime": "One-time",
   "alarmsEveryDay": "Every day",
   "alarmsWeekdays": "Mon, Tue, Wed, Thu, Fri",
+  "alarmsLockedWhileRinging": "Finish the mission — you can't turn this alarm off while it's active.",
   "daySun": "Sun",
   "dayMon": "Mon",
   "dayTue": "Tue",

@@ -77,7 +77,9 @@ class _WakeupCompleteScreenState extends State<WakeupCompleteScreen> {
       final cubit = context.read<AlarmCubit>();
       final isOneTime = cubit.state.alarms
           .any((a) => a.id == widget.alarmId && a.isOneTime);
-      if (isOneTime) await cubit.toggleAlarm(widget.alarmId, false);
+      if (isOneTime) {
+        await cubit.toggleAlarm(widget.alarmId, false, force: true);
+      }
 
       final session = await HistoryService.getPendingSession(widget.alarmId);
 
