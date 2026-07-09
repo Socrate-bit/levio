@@ -158,7 +158,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
         final count = config.randomPool?.length ?? 0;
         return count == 0 ? 'All missions' : '$count in pool';
       case MissionType.flappyBird:
-        return 'Score: ${config.flappyTargetScore ?? 3}';
+        return 'Score: ${config.flappyTargetScore ?? 5}';
       default:
         return '';
     }

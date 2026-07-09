@@ -34,7 +34,7 @@ class MissionConfig extends Equatable {
   /// Minimum meditation listen time in minutes (default 2).
   final int? meditationMinutes;
 
-  /// Score to reach in the Flappy Bird mission (default 3).
+  /// Score to reach in the Flappy Bird mission (default 5).
   final int? flappyTargetScore;
 
   const MissionConfig({

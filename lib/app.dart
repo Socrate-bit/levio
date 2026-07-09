@@ -300,7 +300,7 @@ Widget buildDismissScreen({
         alarmId: alarmId,
         nativeAlarmId: nativeAlarmId,
         alarmLabel: alarmLabel,
-        targetScore: config.flappyTargetScore ?? 3,
+        targetScore: config.flappyTargetScore ?? 5,
         onComplete: onComplete,
         onProgress: onProgress,
         manageAlarm: manageAlarm,

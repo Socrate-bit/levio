@@ -186,7 +186,7 @@ class _ConfigSheetState extends State<_ConfigSheet> {
     _mathProblemCount = e?.mathProblemCount ?? 3;
     _breathingRounds = e?.breathingRounds ?? 3;
     _meditationMinutes = e?.meditationMinutes ?? 2;
-    _flappyTargetScore = e?.flappyTargetScore ?? 3;
+    _flappyTargetScore = e?.flappyTargetScore ?? 5;
   }
 
   MissionConfig _buildConfig() {
