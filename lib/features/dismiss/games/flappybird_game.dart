@@ -75,6 +75,10 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
     final bgComponent = await loadParallaxComponent(
       [ParallaxImageData('bgDay.png')],
       baseVelocity: Vector2(5, 0),
+      repeat: ImageRepeat.noRepeat,
+      alignment: Alignment.bottomCenter,
+      fill: LayerFill.height,
+      size: size.clone(),
       filterQuality: FilterQuality.none,
       images: _images,
     );
@@ -92,8 +96,7 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
       fill: LayerFill.height,
       position: Vector2(0, size.y - _baseHeight),
       size: Vector2(size.x, _baseHeight),
-      filterQuality: FilterQuality.none
-      
+      filterQuality: FilterQuality.none,
     );
     add(baseComponent);
   }
@@ -121,7 +124,7 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
     _bird.anchor = Anchor.center;
     _bird.angle = clampDouble(_birdYVelocity / 180, -pi * 0.25, pi * 0.25);
 
-    if (newY > size.y) {
+    if (newY + _birdSize.y * 0.5 >= size.y - _baseHeight) {
       _gameOver();
     }
   }
@@ -206,6 +209,7 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
 
   // Scoring.
   void _onPass() {
+    if (_won || _bird.isDead) return;
     _score++;
     scoreNotifier.value = _score;
     _playSafe('point.wav');
@@ -233,6 +237,7 @@ class FlappyBirdGame extends FlameGame with HasCollisionDetection {
     }
     _pipes.clear();
     for (final z in _bonusZones) {
+      z.disable();
       z.removeFromParent();
     }
     _bonusZones.clear();
@@ -287,6 +292,7 @@ class _Pipe extends PositionComponent with CollisionCallbacks {
 /// Invisible hitbox in each pipe gap; scores a point when the bird passes it.
 class _BonusZone extends PositionComponent with CollisionCallbacks {
   final VoidCallback onPass;
+  bool _active = true;
 
   _BonusZone({required this.onPass, super.size});
 
@@ -299,9 +305,14 @@ class _BonusZone extends PositionComponent with CollisionCallbacks {
   @override
   void onCollisionEnd(PositionComponent other) {
     super.onCollisionEnd(other);
-    if (other is _Bird) {
+    if (_active && other is _Bird && !other.isDead) {
+      _active = false;
       onPass();
       removeFromParent();
     }
+  }
+
+  void disable() {
+    _active = false;
   }
 }
