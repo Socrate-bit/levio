@@ -93,6 +93,7 @@ flutter:
     - assets/icon.png
     - assets/app_icon.png
     - assets/streaks.png
+    - assets/trophy.png
     - assets/streak_badges/
     - assets/siren.png
     - assets/animations/

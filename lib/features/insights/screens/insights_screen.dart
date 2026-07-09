@@ -107,8 +107,8 @@ class _InsightsView extends StatelessWidget {
                               SizedBox(width: 12.w),
                               Expanded(
                                 child: _StreakCard(
-                                  icon: Text('🏆',
-                                      style: TextStyle(fontSize: 44.sp)),
+                                  icon: Image.asset('assets/trophy.png',
+                                      width: 56.w, height: 56.h),
                                   value: '${state.longestStreak}',
                                   label: l10n.insightsBestStreak,
                                 ),
