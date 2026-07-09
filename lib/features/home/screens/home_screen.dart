@@ -207,7 +207,9 @@ class _MotivationCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Warm surface + on-surface colors that read well on the cream card.
-    final cardColor = isDark ? const Color.fromARGB(29, 255, 128, 0) : AppColors.orangeLight;
+    final cardColor = isDark
+        ? const Color.fromARGB(29, 255, 128, 0)
+        : AppColors.orangeLight;
     final primary = isDark ? c.textPrimary : const Color(0xFF3D2E1E);
     final secondary = isDark ? c.textSecondary : const Color(0xFF9B7B4B);
 
@@ -217,10 +219,12 @@ class _MotivationCard extends StatelessWidget {
     for (final b in badges) {
       if (state.earnedBadgeIds.contains(b.id)) latest = b;
     }
-    // First streak badge still ahead of the current streak.
+    // Next badge still to unlock: the first one not yet earned. Uses earned
+    // status (not the current streak) so it stays correct even when the streak
+    // has reset to 0 after some badges were already earned.
     BadgeModel? next;
     for (final b in badges) {
-      if ((b.requiredDays ?? 0) > state.currentStreak) {
+      if (!state.earnedBadgeIds.contains(b.id)) {
         next = b;
         break;
       }
@@ -255,8 +259,11 @@ class _MotivationCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Image.asset('assets/streaks.png',
-                        width: 50.w, height: 50.h),
+                    Image.asset(
+                      'assets/streaks.png',
+                      width: 50.w,
+                      height: 50.h,
+                    ),
                     SizedBox(width: 10.w),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,12 +288,23 @@ class _MotivationCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 if (displayBadge != null)
-                  HexagonBadge(
-                    label: displayBadge.displayValue,
-                    earned: latest != null,
-                    earnedColor: AppColors.orange,
-                    size: 70.w,
-                    imageAsset: displayBadge.imageAsset,
+                  Column(
+                    children: [
+                      HexagonBadge(
+                        label: displayBadge.displayValue,
+                        earned: latest != null,
+                        earnedColor: AppColors.orange,
+                        size: 64.w,
+                        imageAsset: displayBadge.imageAsset,
+                      ),
+                      Text(
+                        localizedBadgeName(l10n, displayBadge.id),
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: secondary,
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),
@@ -370,11 +388,7 @@ class _WeekRow extends StatelessWidget {
         if (status == DayStatus.done) {
           // Validated day: solid orange fill with a contrasting check mark.
           circle = _circle(
-            child: Icon(
-              Icons.check_rounded,
-              size: 26.sp,
-              color: Colors.white,
-            ),
+            child: Icon(Icons.check_rounded, size: 26.sp, color: Colors.white),
             border: AppColors.orange,
             fill: AppColors.orange,
           );
@@ -727,14 +741,16 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                       return;
                     if (!context.mounted) return;
                     try {
-                      await context
-                          .read<AlarmCubit>()
-                          .toggleAlarm(alarm.id, val);
+                      await context.read<AlarmCubit>().toggleAlarm(
+                        alarm.id,
+                        val,
+                      );
                     } on AlarmLockedException {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text(l10n.alarmsLockedWhileRinging)),
+                            content: Text(l10n.alarmsLockedWhileRinging),
+                          ),
                         );
                       }
                     }
