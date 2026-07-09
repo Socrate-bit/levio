@@ -382,27 +382,20 @@ class _WeekRow extends StatelessWidget {
 
         Widget circle;
         if (status == DayStatus.done) {
+          // Validated day: solid orange fill with a contrasting check mark.
           circle = _circle(
             child: Icon(
               Icons.check_rounded,
               size: 26.sp,
-              color: AppColors.orange,
+              color: Colors.white,
             ),
             border: AppColors.orange,
+            fill: AppColors.orange,
           );
         } else if (status == DayStatus.frozen) {
           circle = _circle(
             child: Icon(Icons.ac_unit, size: 22.sp, color: AppColors.blue),
             border: AppColors.blue,
-          );
-        } else if (status == DayStatus.missed) {
-          circle = _circle(
-            child: Icon(
-              Icons.close_rounded,
-              size: 26.sp,
-              color: AppColors.error,
-            ),
-            border: AppColors.error,
           );
         } else if (isFuture) {
           circle = _circle(
@@ -459,12 +452,14 @@ class _WeekRow extends StatelessWidget {
     required Widget child,
     required Color border,
     double width = 3,
+    Color? fill,
   }) {
     return Container(
       width: 38.w,
       height: 38.w,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
+        color: fill,
         border: Border.all(color: border, width: width),
       ),
       child: Center(child: child),

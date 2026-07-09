@@ -7,8 +7,8 @@ import '../../milestones/services/streak_service.dart';
 import '../cubit/insights_state.dart';
 
 /// GitHub-style contribution grid: one column per week, one rounded cell per
-/// day. Colours match the home week view — win (blue), freeze (light blue),
-/// loss (red), no alarm (faint).
+/// day. Colours match the home week view — win (orange), freeze (light blue),
+/// no alarm / missed (faint).
 class StreakHeatmap extends StatelessWidget {
   final List<HeatmapDay> days;
 
@@ -22,7 +22,6 @@ class StreakHeatmap extends StatelessWidget {
 
     final winColor = AppColors.orange;
     final freezeColor = AppColors.blue.withAlpha(90);
-    final lossColor = AppColors.error;
     final emptyColor = c.textSecondary.withAlpha(20);
 
     return Container(
@@ -58,7 +57,6 @@ class StreakHeatmap extends StatelessWidget {
                     gap: gap,
                     winColor: winColor,
                     freezeColor: freezeColor,
-                    lossColor: lossColor,
                     emptyColor: emptyColor,
                     todayBorder: c.textPrimary.withAlpha(120),
                   ),
@@ -72,8 +70,6 @@ class StreakHeatmap extends StatelessWidget {
               _LegendItem(color: winColor, label: l10n.insightsWin),
               SizedBox(width: 14.w),
               _LegendItem(color: freezeColor, label: l10n.insightsFreeze),
-              SizedBox(width: 14.w),
-              _LegendItem(color: lossColor, label: l10n.insightsLoss),
             ],
           ),
         ],
@@ -88,7 +84,6 @@ class _HeatmapPainter extends CustomPainter {
   final double gap;
   final Color winColor;
   final Color freezeColor;
-  final Color lossColor;
   final Color emptyColor;
   final Color todayBorder;
 
@@ -98,7 +93,6 @@ class _HeatmapPainter extends CustomPainter {
     required this.gap,
     required this.winColor,
     required this.freezeColor,
-    required this.lossColor,
     required this.emptyColor,
     required this.todayBorder,
   });
@@ -129,8 +123,8 @@ class _HeatmapPainter extends CustomPainter {
             color = winColor;
           case DayStatus.frozen:
             color = freezeColor;
+          // Missed days are rendered like empty days (no red/loss cell).
           case DayStatus.missed:
-            color = lossColor;
           case DayStatus.none:
             color = emptyColor;
         }
