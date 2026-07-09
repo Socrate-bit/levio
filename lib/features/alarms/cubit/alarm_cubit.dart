@@ -669,8 +669,11 @@ class AlarmCubit extends Cubit<AlarmState> {
     final previousAlarms = state.alarms;
 
     // Block deleting an alarm mid-ring until the mission is completed.
-    final alarm = state.alarms.firstWhere((a) => a.id == id);
-    if (!force && await _isRingLocked(alarm)) throw AlarmLockedException();
+    // Unknown ids (e.g. native-only snooze alarms) fall through to cleanup.
+    final match = state.alarms.where((a) => a.id == id);
+    if (!force && match.isNotEmpty && await _isRingLocked(match.first)) {
+      throw AlarmLockedException();
+    }
 
     emit(
       state.copyWith(alarms: state.alarms.where((a) => a.id != id).toList()),
