@@ -745,7 +745,18 @@ class _NextAlarmCardState extends State<_NextAlarmCard> {
                     if (val && !await AlarmReadinessGuard.check(context))
                       return;
                     if (!context.mounted) return;
-                    context.read<AlarmCubit>().toggleAlarm(alarm.id, val);
+                    try {
+                      await context
+                          .read<AlarmCubit>()
+                          .toggleAlarm(alarm.id, val);
+                    } on AlarmLockedException {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(l10n.alarmsLockedWhileRinging)),
+                        );
+                      }
+                    }
                   }),
                 ),
               ],

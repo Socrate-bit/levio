@@ -251,6 +251,19 @@ class HistoryService {
     return sessions.any((s) => s.spinToWinUsed);
   }
 
+  /// True if a completed session exists for [alarmId] at or after [since]
+  /// (i.e. the ring starting at [since] was validated).
+  static Future<bool> hasValidatedRing(String alarmId, DateTime since) async {
+    final snap = await _sessions
+        .where('alarmId', isEqualTo: alarmId)
+        .where('timestamp',
+            isGreaterThanOrEqualTo: since.millisecondsSinceEpoch)
+        .orderBy('timestamp', descending: true)
+        .limit(5)
+        .get();
+    return snap.docs.any((d) => (d.data()['completed'] as bool?) ?? false);
+  }
+
   /// Returns the most recent pending (incomplete) session for the given alarm,
   /// or null if none exists.
   static Future<WakeupSession?> getPendingSession(String alarmId) async {

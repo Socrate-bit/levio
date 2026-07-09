@@ -137,6 +137,42 @@ extension AppAlarmEntryFire on AppAlarmEntry {
   }
 }
 
+extension AppAlarmEntryRingLock on AppAlarmEntry {
+  /// Fire time of the ring currently within its lock window: the most recent
+  /// scheduled fire on an active day such that [now] is in [start, start+window).
+  /// Returns null if no ring is currently within its window.
+  DateTime? activeRingStart(
+    DateTime now, {
+    Duration window = const Duration(minutes: 30),
+  }) {
+    if (isOneTime) {
+      final start = dateTime;
+      return (!now.isBefore(start) && now.isBefore(start.add(window)))
+          ? start
+          : null;
+    }
+    // Check today and yesterday so windows crossing midnight still lock.
+    for (int i = 0; i <= 1; i++) {
+      final day =
+          DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
+      final dayIndex = day.weekday % 7;
+      if (repeatDays.length > dayIndex && repeatDays[dayIndex]) {
+        final start = DateTime(
+          day.year,
+          day.month,
+          day.day,
+          dateTime.hour,
+          dateTime.minute,
+        );
+        if (!now.isBefore(start) && now.isBefore(start.add(window))) {
+          return start;
+        }
+      }
+    }
+    return null;
+  }
+}
+
 class AlarmState extends Equatable {
   final List<AppAlarmEntry> alarms;
   final bool isLoading;

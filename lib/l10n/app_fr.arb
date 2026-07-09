@@ -20,6 +20,7 @@
   "alarmsOneTime": "Une fois",
   "alarmsEveryDay": "Tous les jours",
   "alarmsWeekdays": "Lun, Mar, Mer, Jeu, Ven",
+  "alarmsLockedWhileRinging": "Termine la mission — tu ne peux pas désactiver cette alarme tant qu'elle est active.",
   "daySun": "Dim",
   "dayMon": "Lun",
   "dayTue": "Mar",

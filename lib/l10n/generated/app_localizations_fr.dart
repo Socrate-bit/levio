@@ -64,6 +64,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get alarmsWeekdays => 'Lun, Mar, Mer, Jeu, Ven';
 
   @override
+  String get alarmsLockedWhileRinging =>
+      'Termine la mission — tu ne peux pas désactiver cette alarme tant qu\'elle est active.';
+
+  @override
   String get daySun => 'Dim';
 
   @override

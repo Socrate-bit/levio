@@ -13,6 +13,10 @@ import '../services/alarm_firestore_service.dart';
 import '../services/notification_service.dart';
 import 'alarm_state.dart';
 
+/// Thrown when the user tries to deactivate/delete an alarm during its
+/// unvalidated ring window.
+class AlarmLockedException implements Exception {}
+
 class AlarmCubit extends Cubit<AlarmState> {
   // AlarmKit authorization is requested contextually (right before the user
   // picks their alarm time in onboarding), not at launch. Firestore
@@ -537,11 +541,22 @@ class AlarmCubit extends Cubit<AlarmState> {
     if (saved.spinToWin) await _clearSpinToWinExcept(saved.id);
   }
 
-  Future<void> toggleAlarm(String id, bool enabled) async {
+  /// True when [alarm] is within its ring window and that ring has not yet been
+  /// validated by a completed session — deactivation/deletion must be blocked.
+  Future<bool> _isRingLocked(AppAlarmEntry alarm) async {
+    final start = alarm.activeRingStart(DateTime.now());
+    if (start == null) return false;
+    return !await HistoryService.hasValidatedRing(alarm.id, start);
+  }
+
+  Future<void> toggleAlarm(String id, bool enabled, {bool force = false}) async {
     final alarm = state.alarms.firstWhere((a) => a.id == id);
     final previousAlarms = state.alarms;
 
     if (!enabled) {
+      // Block turning off an alarm mid-ring until the mission is completed.
+      if (!force && await _isRingLocked(alarm)) throw AlarmLockedException();
+
       final disabledAlarm = alarm.copyWith(isEnabled: false);
 
       emit(
@@ -650,8 +665,12 @@ class AlarmCubit extends Cubit<AlarmState> {
     if (saved.spinToWin) await _clearSpinToWinExcept(saved.id);
   }
 
-  Future<void> removeAlarm(String id) async {
+  Future<void> removeAlarm(String id, {bool force = false}) async {
     final previousAlarms = state.alarms;
+
+    // Block deleting an alarm mid-ring until the mission is completed.
+    final alarm = state.alarms.firstWhere((a) => a.id == id);
+    if (!force && await _isRingLocked(alarm)) throw AlarmLockedException();
 
     emit(
       state.copyWith(alarms: state.alarms.where((a) => a.id != id).toList()),

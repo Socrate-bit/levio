@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'Mon, Tue, Wed, Thu, Fri'**
   String get alarmsWeekdays;
 
+  /// No description provided for @alarmsLockedWhileRinging.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the mission — you can\'t turn this alarm off while it\'s active.'**
+  String get alarmsLockedWhileRinging;
+
   /// No description provided for @daySun.
   ///
   /// In en, this message translates to:

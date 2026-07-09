@@ -59,7 +59,9 @@ class _SimpleDismissScreenState extends State<SimpleDismissScreen> {
         .any((a) => a.id == widget.alarmId && a.isOneTime);
     if (isOneTime) {
       // ignore: use_build_context_synchronously
-      await context.read<AlarmCubit>().toggleAlarm(widget.alarmId, false);
+      await context
+          .read<AlarmCubit>()
+          .toggleAlarm(widget.alarmId, false, force: true);
     }
 
     // Complete the pending session for history, but skip streak validation.
