@@ -75,6 +75,12 @@ class _MilestonesView extends StatelessWidget {
                                   letterSpacing: -0.5,
                                 ),
                               ),
+                              SizedBox(height: 16.h),
+                              // Overall badge progress
+                              _BadgeProgress(
+                                earned: state.badgesEarned,
+                                total: state.totalBadges,
+                              ),
                               SizedBox(height: 20.h),
                               // Streak Badges
                               Text(
@@ -120,6 +126,53 @@ class _MilestonesView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Overall progress toward earning every badge (e.g. 5/19).
+class _BadgeProgress extends StatelessWidget {
+  final int earned;
+  final int total;
+
+  const _BadgeProgress({required this.earned, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final progress = total == 0 ? 0.0 : (earned / total).clamp(0.0, 1.0);
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.milestonesBadgeCount(earned, total),
+            style: TextStyle(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.bold,
+              color: c.textPrimary,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6.r),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8.h,
+              backgroundColor: c.background,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF7B61FF),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
