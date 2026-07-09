@@ -129,7 +129,7 @@ class BottomNavShellState extends State<BottomNavShell>
                 // Outer Padding owns the margins; let the bar fill the slot.
                 horizontalPadding: 0,
                 verticalPadding: 0,
-                barHeight: 85.h,
+                barHeight: 80.h,
                 iconSize: 35.sp,
                 labelFontSize: 11.sp,
                 selectedIconColor: c.textPrimary,
