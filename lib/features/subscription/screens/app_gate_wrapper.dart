@@ -46,9 +46,19 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
     // alarms and would duplicate them on every rebuild.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _applyAccess(context.read<SubscriptionCubit>().state.hasAccess);
+      final sub = context.read<SubscriptionCubit>().state;
+      // Only act once the subscription state is loaded — otherwise the default
+      // (userType=normal, status=unknown) reads as no-access and would flash the
+      // paywall at UGC/admin users. If not ready yet, the listener applies access
+      // when the real state arrives.
+      if (_isReady(sub)) _applyAccess(sub.hasAccess);
     });
   }
+
+  /// The subscription state is trustworthy once user_type is loaded and Superwall
+  /// has resolved status. Same gate used by build() and the access-change listener.
+  bool _isReady(SubscriptionState s) =>
+      s.isLoaded && s.status != SubscriptionGateStatus.unknown;
 
   /// Runs the access-gated alarm reconciliation for the given access state.
   /// Called from the mount postFrame callback and the access-change listener —
@@ -89,15 +99,19 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<SubscriptionCubit, SubscriptionState>(
-      listenWhen: (prev, curr) => prev.hasAccess != curr.hasAccess,
+      // Fire when the state first becomes ready (the unknown→loaded transition
+      // that a hasAccess-only check misses), and on later access changes.
+      listenWhen: (prev, curr) {
+        final now = _isReady(curr);
+        return (!_isReady(prev) && now) ||
+            (now && prev.hasAccess != curr.hasAccess);
+      },
       listener: (context, sub) => _applyAccess(sub.hasAccess),
       child: BlocBuilder<SubscriptionCubit, SubscriptionState>(
         builder: (context, sub) {
           return BlocBuilder<AlarmCubit, AlarmState>(
             builder: (context, alarm) {
-              final subReady =
-                  sub.isLoaded && sub.status != SubscriptionGateStatus.unknown;
-              if (!subReady) {
+              if (!_isReady(sub)) {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
                 );
