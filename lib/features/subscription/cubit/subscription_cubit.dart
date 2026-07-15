@@ -161,6 +161,7 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
         AnalyticsService.referralRedeemSuccess,
         {'user_type': userType},
       );
+      AnalyticsService.setUserProperty('user_type', userType);
     } catch (e, st) {
       debugPrint('[SubscriptionCubit] redeemReferralCode failed: $e');
       AnalyticsService.trackError('SubscriptionCubit.redeemReferralCode', e, st);

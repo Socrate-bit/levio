@@ -472,7 +472,13 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     if (state.referralStatus == ReferralStatus.valid &&
         state.referralCode.trim().isNotEmpty) {
       try {
-        await ReferralService.redeemCode(state.referralCode.trim());
+        final userType =
+            await ReferralService.redeemCode(state.referralCode.trim());
+        AnalyticsService.capture(
+          AnalyticsService.referralRedeemSuccess,
+          {'user_type': userType},
+        );
+        AnalyticsService.setUserProperty('user_type', userType);
       } catch (e, st) {
         debugPrint('[OnboardingCubit] referral redeem failed: $e');
         AnalyticsService.trackError('OnboardingCubit.completeOnboarding.redeemCode', e, st);
@@ -646,7 +652,13 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     if (state.referralStatus == ReferralStatus.valid &&
         state.referralCode.trim().isNotEmpty) {
       try {
-        await ReferralService.redeemCode(state.referralCode.trim());
+        final userType =
+            await ReferralService.redeemCode(state.referralCode.trim());
+        AnalyticsService.capture(
+          AnalyticsService.referralRedeemSuccess,
+          {'user_type': userType},
+        );
+        AnalyticsService.setUserProperty('user_type', userType);
       } catch (e, st) {
         debugPrint('[OnboardingCubit] v2 referral redeem failed: $e');
         AnalyticsService.trackError(
