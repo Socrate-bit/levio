@@ -223,11 +223,24 @@ class _ActivatedCard extends StatelessWidget {
                 : withHapticValue((v) async {
                     final cubit = context.read<ScreenTimeCubit>();
                     final messenger = ScaffoldMessenger.of(context);
+                    final navigator = Navigator.of(context);
                     await cubit.setEnabled(v);
                     if (v && cubit.state.auth == ScreenTimeAuth.denied) {
                       messenger.showSnackBar(
                         SnackBar(content: Text(l10n.screenTimeAuthDenied)),
                       );
+                    }
+                    // Just activated with no schedules yet → prompt to create
+                    // one so the block actually has a window to run in.
+                    if (v &&
+                        cubit.state.enabled &&
+                        cubit.state.schedules.isEmpty) {
+                      final result = await navigator.push<ScreenTimeSchedule>(
+                        MaterialPageRoute(
+                          builder: (_) => const ScheduleFormScreen(),
+                        ),
+                      );
+                      if (result != null) cubit.addSchedule(result);
                     }
                   }),
           ),
