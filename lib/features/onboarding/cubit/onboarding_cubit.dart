@@ -363,7 +363,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           .collection('users')
           .doc(uid)
           .set({'phone': phone}, SetOptions(merge: true));
-      AnalyticsService.setUserProperty('phone', phone);
+      // Personal data: kept in Firestore only, never sent to Mixpanel.
       await _setPhonePending(false);
       return true;
     } catch (e, st) {
