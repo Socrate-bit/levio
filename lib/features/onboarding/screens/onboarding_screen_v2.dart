@@ -11,12 +11,14 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/loading_barrier.dart';
 import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/services/alarm_channel.dart';
+import '../../auth/auth_service.dart';
 import '../../missions/models/mission.dart';
 import '../../missions/widgets/mission_icon.dart';
 import '../../missions/widgets/routine_picker_screen.dart';
 import '../../screentime/cubit/screentime_cubit.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
+import '../../subscription/services/analytics_service.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
 import '../data/mission_explanations.dart';
@@ -32,7 +34,6 @@ import '../widgets/morning_plan_step.dart';
 import '../widgets/multi_select_step.dart';
 import '../widgets/notification_step.dart';
 import '../widgets/paywall_step.dart';
-import '../widgets/phone_number_step.dart';
 import '../widgets/rating_step.dart';
 import '../widgets/referral_step.dart';
 import '../widgets/relaxing_activities_step.dart';
@@ -45,7 +46,12 @@ import '../widgets/time_picker_step.dart';
 import '../widgets/trial_reminder_step.dart';
 import '../widgets/survey_step.dart';
 
-const _totalPages = 40;
+const _totalPages = 39;
+// Account-creation step, hidden unless the show_signin_step flag is on.
+const _signInPage = 32;
+// Closing trial steps (paywall intro + trial reminder), hidden unless the
+// show_trial_steps flag is on.
+const _trialPages = {37, 38};
 
 /// Redesigned onboarding funnel (v2). Runs in parallel with the original
 /// [OnboardingScreen]; which one shows is chosen by `useOnboardingV2` in
@@ -68,6 +74,9 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
   // OnboardingStartScreen, outside this funnel. PageView index = page - 1.
   int _currentPage = 1;
   bool _finalizing = false;
+  // Set once the onboarding has been finalized, so going back and forward
+  // past the (hidden) sign-in step doesn't recreate the alarms.
+  bool _finalized = false;
 
   late final ValueNotifier<TimeOfDay> _alarmTimeNotifier;
   late final ValueNotifier<TimeOfDay> _sleepTimeNotifier;
@@ -123,8 +132,10 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
           !(s.wantsScreenBlock == true && s.wantsSleepAlarm != true)) {
         continue;
       }
-      // 37: beta phone step — only when the beta_phone flag is on.
-      if (i == 37 && !betaPhoneEnabled.value) continue;
+      // 32: sign-in step — only when the show_signin_step flag is on.
+      if (i == _signInPage && !showSignInStep.value) continue;
+      // 37-38: trial steps — only when the show_trial_steps flag is on.
+      if (_trialPages.contains(i) && !showTrialSteps.value) continue;
       pages.add(i);
     }
     return pages;
@@ -139,18 +150,38 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
 
   bool _isLastPage(OnboardingState s) => _currentPage == _visiblePages(s).last;
 
+  // Advances to the next visible page. A null target means the funnel is over
+  // (trailing steps hidden), so the onboarding finishes from here.
   void _next() {
     final visible = _visiblePages(context.read<OnboardingCubit>().state);
     final pos = visible.indexOf(_currentPage);
-    if (pos >= 0 && pos < visible.length - 1) _goToPage(visible[pos + 1]);
+    if (pos < 0) return;
+    final target = pos < visible.length - 1 ? visible[pos + 1] : null;
+    // Sign-in step hidden: finalize when stepping past where it would be.
+    if (!_finalized &&
+        _currentPage < _signInPage &&
+        (target == null || target > _signInPage)) {
+      _finalizeAndGo(target);
+      return;
+    }
+    _goTo(target);
+  }
+
+  // Goes to [target], or finishes the onboarding when there is no page left.
+  void _goTo(int? target) {
+    if (target == null) {
+      context.read<OnboardingCubit>().finishOnboarding();
+    } else {
+      _goToPage(target);
+    }
   }
 
   void _back() {
     // Loading, plan recap, paywall, trial disallow going back.
     if (_currentPage == 29 ||
         _currentPage == 30 ||
-        _currentPage == 38 ||
-        _currentPage == 39) {
+        _currentPage == 37 ||
+        _currentPage == 38) {
       return;
     }
     final visible = _visiblePages(context.read<OnboardingCubit>().state);
@@ -167,7 +198,9 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     }
   }
 
-  Future<void> _finalizeSignInStep() async {
+  // Saves the onboarding (alarms, answers, referral, user type) behind a
+  // blocking spinner. Runs once, from the sign-in step or in its place.
+  Future<void> _completeOnboarding() async {
     final cubit = context.read<OnboardingCubit>();
     final alarmCubit = context.read<AlarmCubit>();
     final subCubit = context.read<SubscriptionCubit>();
@@ -177,11 +210,46 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     try {
       await cubit.completeOnboardingV2(
           alarmCubit, subCubit, settingsCubit, screenTimeCubit);
+      _finalized = true;
     } finally {
-      if (mounted) {
-        setState(() => _finalizing = false);
-        _next();
-      }
+      if (mounted) setState(() => _finalizing = false);
+    }
+  }
+
+  // Finalizes onboarding after the sign-in step (whether the user signed in or
+  // skipped).
+  Future<void> _finalizeSignInStep() async {
+    try {
+      await _completeOnboarding();
+    } finally {
+      if (mounted) _next();
+    }
+  }
+
+  // Finalizes onboarding in place of the hidden sign-in step. The anonymous
+  // account is normally created on "Build my plan"; retry here if that failed,
+  // and stay on the current page if there is still no account.
+  Future<void> _finalizeAndGo(int? target) async {
+    if (_finalizing) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    setState(() => _finalizing = true);
+    try {
+      await AuthService.signInAnonymously();
+    } catch (e, st) {
+      debugPrint('[OnboardingScreenV2] anonymous sign-in failed: $e');
+      AnalyticsService.trackError('OnboardingScreenV2._finalizeAndGo', e, st);
+      if (mounted) setState(() => _finalizing = false);
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.onboardingNetworkError)),
+      );
+      return;
+    }
+    if (!mounted) return;
+    try {
+      await _completeOnboarding();
+    } finally {
+      if (mounted) _goTo(target);
     }
   }
 
@@ -232,12 +300,6 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     if (_currentPage == 35) {
       InAppReview.instance.requestReview();
     }
-    // Beta phone step: persist the number before advancing to the paywall.
-    if (_currentPage == 37) {
-      FocusScope.of(context).unfocus();
-      await cubit.savePhoneNumber();
-      if (!mounted) return;
-    }
     _next();
   }
 
@@ -278,8 +340,6 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         return state.referralStatus != ReferralStatus.checking &&
             state.referralStatus != ReferralStatus.invalid &&
             state.referralStatus != ReferralStatus.exhausted;
-      case 37: // beta phone — requires a valid number
-        return isValidPhone(state.phoneNumber);
       default:
         return true;
     }
@@ -292,8 +352,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
       page == 29 || // loading
       page == 32 || // sign in
       page == 36 || // signature
-      page == 38 || // paywall
-      page == 39; // trial reminder
+      page == 37 || // paywall
+      page == 38; // trial reminder
 
   // ---- Editable plan-recap pickers (modal sheets) ----
 
@@ -492,8 +552,8 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
                             child: (_currentPage > 0 &&
                                     _currentPage != 29 &&
                                     _currentPage != 30 &&
-                                    _currentPage != 38 &&
-                                    _currentPage != 39)
+                                    _currentPage != 37 &&
+                                    _currentPage != 38)
                                 ? GestureDetector(
                                     onTap: withHaptic(_back),
                                     child: Container(
@@ -605,7 +665,7 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
     });
   }
 
-  // The ordered PageView children (pages 1..39; welcome is outside the view).
+  // The ordered PageView children (pages 1..38; welcome is outside the view).
   List<Widget> _pages(OnboardingState state, OnboardingCubit cubit,
       AppLocalizations l10n, AppColors c) {
     final missionName = localizedMissionName(l10n, state.selectedMission);
@@ -1036,15 +1096,9 @@ class _OnboardingScreenV2State extends State<OnboardingScreenV2> {
         hasSleep: state.wantsSleepAlarm == true,
         onCommit: _next,
       ),
-      // 37: beta phone number (only visible when beta_phone flag is on)
-      PhoneNumberStep(
-        onChanged: cubit.setPhoneNumber,
-        showInvalid: state.phoneNumber.isNotEmpty &&
-            !isValidPhone(state.phoneNumber),
-      ),
-      // 38: paywall
+      // 37: paywall
       PaywallStep(onContinue: _next),
-      // 39: trial reminder
+      // 38: trial reminder
       TrialReminderStep(onContinue: cubit.finishOnboarding),
     ];
   }

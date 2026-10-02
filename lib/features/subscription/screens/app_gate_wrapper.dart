@@ -6,6 +6,8 @@ import '../../alarms/cubit/alarm_cubit.dart';
 import '../../alarms/cubit/alarm_state.dart';
 import '../../alarms/services/alarm_readiness_guard.dart';
 import '../../alarms/services/alarm_service.dart';
+import '../../onboarding/cubit/onboarding_cubit.dart';
+import '../../onboarding/screens/phone_number_screen.dart';
 import '../cubit/subscription_cubit.dart';
 import '../cubit/subscription_state.dart';
 import '../../../shared/bottom_nav_shell.dart';
@@ -30,6 +32,9 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
 
   /// Guards against stacking the readiness dialog on rapid taps.
   bool _readinessDialogOpen = false;
+
+  /// Guards against pushing the post-paywall phone screen twice.
+  bool _phoneScreenOpen = false;
 
   @override
   void initState() {
@@ -70,11 +75,32 @@ class _AppGateWrapperState extends State<AppGateWrapper> {
     if (hasAccess) {
       alarmCubit.restoreSubscriptionDisabled();
       alarmCubit.sync();
-      _checkAlarmReadiness();
+      _afterAccessGranted();
     } else {
       alarmCubit.disableAllForSubscription();
       Superwall.shared.registerPlacement('app_start');
     }
+  }
+
+  /// Runs once access is granted (right after the paywall): collects the beta
+  /// phone number if still pending, then the alarm readiness check — in that
+  /// order so the two never overlap.
+  Future<void> _afterAccessGranted() async {
+    await _askPhoneIfPending();
+    if (mounted) _checkAlarmReadiness();
+  }
+
+  /// Shows the mandatory phone screen when the onboarding finished with the
+  /// beta_phone flag on and no number has been saved yet.
+  Future<void> _askPhoneIfPending() async {
+    if (_phoneScreenOpen) return;
+    final pending = await context.read<OnboardingCubit>().isPhoneStepPending();
+    if (!pending || !mounted) return;
+    _phoneScreenOpen = true;
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const PhoneNumberScreen()));
+    _phoneScreenOpen = false;
   }
 
   /// Surfaces the OS-update / alarm-permission dialog while the device isn't

@@ -12,20 +12,27 @@ import '../onboarding_config.dart';
 ///   decision is re-rolled on every launch (no local persistence) and pushed to
 ///   Mixpanel as a user property for segmentation.
 /// - `beta_phone` (bool): gates the beta phone-number collection step.
+/// - `show_signin_step` (bool): shows the account-creation step (hidden by
+///   default).
+/// - `show_trial_steps` (bool): shows the closing trial steps (hidden by
+///   default).
 ///
-/// Both are read from a single doc fetch to avoid extra round-trips.
+/// All are read from a single doc fetch to avoid extra round-trips.
 class OnboardingAbService {
   static const _userProperty = 'onboarding_variant';
-  static const _defaultUseV2 = true; // matches current shipping behavior
+  static const _defaultUseV2 = false; // fall back to v1 when ratio_ab is unavailable
 
   /// Resolves the funnel + beta flags from a single `settings/app_settings`
-  /// read, publishes them to [useOnboardingV2] / [betaPhoneEnabled], and pushes
-  /// the variant to Mixpanel. Runs in the background at startup so it never
-  /// blocks launch; the v2 start screen renders meanwhile and AuthWrapper swaps
-  /// to v1 if this resolves there. Re-rolled every launch — not persisted.
+  /// read, publishes them to [useOnboardingV2] / [betaPhoneEnabled] /
+  /// [showSignInStep] / [showTrialSteps], and pushes the variant to Mixpanel.
+  /// Runs in the background at startup so it never blocks launch; the shared
+  /// start screen renders meanwhile and the funnel defaults to v1 until this
+  /// resolves. Re-rolled every launch — not persisted.
   static Future<void> resolveVariant() async {
     var useV2 = _defaultUseV2;
     var betaPhone = false;
+    var signInStep = false;
+    var trialSteps = false;
     try {
       final doc = await FirebaseFirestore.instance
           .collection('settings')
@@ -35,15 +42,19 @@ class OnboardingAbService {
       final data = doc.data();
       useV2 = _decideFromRatio(data?['ratio_ab']);
       betaPhone = data?['beta_phone'] as bool? ?? false;
+      signInStep = data?['show_signin_step'] as bool? ?? false;
+      trialSteps = data?['show_trial_steps'] as bool? ?? false;
     } catch (e, st) {
       debugPrint('[OnboardingAbService] resolveVariant failed: $e');
       AnalyticsService.trackError('OnboardingAbService.resolveVariant', e, st);
     }
 
-    // Publish so AuthWrapper swaps into the chosen funnel and the phone step
-    // shows/hides accordingly.
+    // Publish so AuthWrapper picks the chosen funnel and the phone / sign-in /
+    // trial steps show or hide accordingly.
     useOnboardingV2.value = useV2;
     betaPhoneEnabled.value = betaPhone;
+    showSignInStep.value = signInStep;
+    showTrialSteps.value = trialSteps;
 
     // Always push the chosen variant as a user property.
     await AnalyticsService.setUserProperty(_userProperty, useV2 ? 'v2' : 'v1');

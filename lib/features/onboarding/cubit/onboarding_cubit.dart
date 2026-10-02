@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared/services/branch_service.dart';
 import '../../auth/auth_service.dart';
@@ -15,32 +16,83 @@ import '../../screentime/models/screentime_schedule.dart';
 import '../../settings/cubit/settings_cubit.dart';
 import '../../subscription/cubit/subscription_cubit.dart';
 import 'package:levio/l10n/l10n_helpers.dart';
+import '../onboarding_config.dart';
 import 'onboarding_state.dart';
 
 class OnboardingCubit extends Cubit<OnboardingState> {
-  OnboardingCubit() : super(const OnboardingState());
+  OnboardingCubit() : super(const OnboardingState()) {
+    _restoreInProgress();
+  }
+
+  // Persisted "onboarding started but not finished" flag. The account is
+  // created on "Build my plan", so after a relaunch mid-onboarding the user is
+  // already signed in; this flag sends them back to the onboarding instead of
+  // into the app with no alarm.
+  static const _inProgressKey = 'onboarding_in_progress';
+
+  // Persisted "phone number still to collect" flag, set when the onboarding
+  // finishes with the beta_phone flag on. The phone screen is shown right
+  // after the paywall and stays pending until a number is saved.
+  static const _phonePendingKey = 'phone_step_pending';
 
   // Guards against re-entrant completion: the sign-in step can fire its
   // finalize callback more than once (e.g. a double-tap on "Skip for Now"),
   // and a second concurrent run would create duplicate alarms.
   bool _isCompleting = false;
 
+  /// Reads the persisted in-progress flag at launch, then marks the state as
+  /// restored so AuthWrapper can route a signed-in user.
+  Future<void> _restoreInProgress() async {
+    var inProgress = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      inProgress = prefs.getBool(_inProgressKey) ?? false;
+    } catch (e, st) {
+      debugPrint('[OnboardingCubit] restore in-progress flag failed: $e');
+      AnalyticsService.trackError('OnboardingCubit._restoreInProgress', e, st);
+    }
+    emit(state.copyWith(
+      isInProgress: state.isInProgress || inProgress,
+      isRestored: true,
+    ));
+  }
+
+  Future<void> _persistInProgress(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_inProgressKey, value);
+    } catch (e, st) {
+      debugPrint('[OnboardingCubit] persist in-progress flag failed: $e');
+      AnalyticsService.trackError('OnboardingCubit._persistInProgress', e, st);
+    }
+  }
+
   /// Marks the onboarding flow as in progress. Called when the user commits
   /// to the build-plan flow (e.g. on the welcome screen). AuthWrapper uses
   /// this to keep showing OnboardingScreen across reactive auth changes.
   void startOnboarding() {
-    if (state.isInProgress) return;
     emit(state.copyWith(isInProgress: true));
+    _persistInProgress(true);
     AnalyticsService.capture(
       AnalyticsService.onboardingStep,
       {'step_name': 'start'},
     );
   }
 
+  /// Leaves the onboarding without completing it — used when an existing
+  /// account signs in from the start screen, so the relaunch flag can't force
+  /// that account back into an onboarding that would replace its alarms.
+  void abandonOnboarding() {
+    emit(state.copyWith(isInProgress: false));
+    _persistInProgress(false);
+  }
+
   /// Marks the onboarding flow as finished. Called at the end of the trial
   /// reminder step. AuthWrapper then routes to AppGateWrapper.
   void finishOnboarding() {
     emit(state.copyWith(isInProgress: false, isComplete: true));
+    _persistInProgress(false);
+    if (betaPhoneEnabled.value) _setPhonePending(true);
     AnalyticsService.capture(
       AnalyticsService.onboardingStep,
       {'step_name': 'finish'},
@@ -272,17 +324,39 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     emit(state.copyWith(referralCode: code, referralStatus: ReferralStatus.none));
   }
 
-  // --- Beta phone step (gated by beta_phone flag) ---
+  // --- Beta phone screen (gated by beta_phone flag, shown after the paywall) ---
 
   void setPhoneNumber(String value) {
     emit(state.copyWith(phoneNumber: value));
   }
 
-  /// Persists the collected phone number on the user doc. Runs after sign-in
-  /// (paywall precedes trial), so the uid is available.
-  Future<void> savePhoneNumber() async {
+  /// Whether the post-paywall phone screen still has to be shown.
+  Future<bool> isPhoneStepPending() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_phonePendingKey) ?? false;
+    } catch (e, st) {
+      debugPrint('[OnboardingCubit] read phone pending flag failed: $e');
+      AnalyticsService.trackError('OnboardingCubit.isPhoneStepPending', e, st);
+      return false;
+    }
+  }
+
+  Future<void> _setPhonePending(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_phonePendingKey, value);
+    } catch (e, st) {
+      debugPrint('[OnboardingCubit] persist phone pending flag failed: $e');
+      AnalyticsService.trackError('OnboardingCubit._setPhonePending', e, st);
+    }
+  }
+
+  /// Persists the collected phone number on the user doc and clears the
+  /// pending flag. Returns false when the save failed (e.g. offline).
+  Future<bool> savePhoneNumber() async {
     final uid = AuthService.uidOrNull;
-    if (uid == null) return;
+    if (uid == null) return false;
     final phone = state.phoneNumber.trim();
     try {
       await FirebaseFirestore.instance
@@ -290,9 +364,12 @@ class OnboardingCubit extends Cubit<OnboardingState> {
           .doc(uid)
           .set({'phone': phone}, SetOptions(merge: true));
       AnalyticsService.setUserProperty('phone', phone);
+      await _setPhonePending(false);
+      return true;
     } catch (e, st) {
       debugPrint('[OnboardingCubit] phone save failed: $e');
       AnalyticsService.trackError('OnboardingCubit.savePhoneNumber', e, st);
+      return false;
     }
   }
 

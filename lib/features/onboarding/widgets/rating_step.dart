@@ -59,7 +59,7 @@ class RatingStep extends StatelessWidget {
           _TestimonialCard(
             name: l10n.onboardingRatingAlex,
             review: l10n.onboardingRatingAlexReview,
-            avatar: 'assets/onboarding/profil_comments/man2.jpg',
+            avatar: 'assets/onboarding/profil_comments/woman2.jpg',
             colors: c,
           ),
           SizedBox(height: 24.h),

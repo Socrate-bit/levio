@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'auth_service.dart';
+import '../subscription/services/analytics_service.dart';
 import '../alarms/cubit/alarm_cubit.dart';
 import '../onboarding/cubit/onboarding_cubit.dart';
 import '../onboarding/cubit/onboarding_state.dart';
@@ -19,8 +20,9 @@ import '../subscription/screens/app_gate_wrapper.dart';
 /// AppGateWrapper based on FirebaseAuth state and OnboardingCubit progress.
 ///
 /// - Not auth → side effects (clear settings, cancel native alarms) → onboarding.
-/// - Auth + onboarding in progress → onboarding (so the in-flow user keeps
-///   seeing it across the auth flip during sign-in step).
+/// - Auth + onboarding in progress → onboarding (the anonymous account is
+///   created on "Build my plan", so the in-flow user is signed in throughout;
+///   the flag is persisted so a relaunch mid-onboarding resumes it).
 /// - Auth + not in progress → AppGateWrapper.
 class AuthWrapper extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
@@ -63,6 +65,19 @@ class _AuthWrapperState extends State<AuthWrapper> {
       }
     }
     setState(() => _started = true);
+    _ensureAccount();
+  }
+
+  // Creates the anonymous account up front so everything the onboarding saves
+  // has a uid. No-op when already signed in. On failure (e.g. offline) the
+  // onboarding retries when it is finalized.
+  Future<void> _ensureAccount() async {
+    try {
+      await AuthService.signInAnonymously();
+    } catch (e, st) {
+      debugPrint('[AuthWrapper] anonymous sign-in failed: $e');
+      AnalyticsService.trackError('AuthWrapper._ensureAccount', e, st);
+    }
   }
 
   void _exitToStart() => setState(() => _started = false);
@@ -110,8 +125,17 @@ class _AuthWrapperState extends State<AuthWrapper> {
         }
 
         return BlocBuilder<OnboardingCubit, OnboardingState>(
-          buildWhen: (prev, curr) => prev.isInProgress != curr.isInProgress,
+          buildWhen: (prev, curr) =>
+              prev.isInProgress != curr.isInProgress ||
+              prev.isRestored != curr.isRestored,
           builder: (context, ob) {
+            // Wait for the persisted in-progress flag before routing a
+            // signed-in user, so a relaunch mid-onboarding never flashes the app.
+            if (isAuth && !ob.isRestored && !ob.isInProgress) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
             if (!isAuth || ob.isInProgress) {
               // Shared start screen for both variants. The A/B direction is
               // committed when the user leaves it and stays fixed afterwards, so

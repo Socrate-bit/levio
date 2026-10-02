@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:levio/l10n/generated/app_localizations.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/haptic_utils.dart';
+import '../cubit/onboarding_cubit.dart';
 import '../widgets/language_selector.dart';
 import '../widgets/sign_in_step.dart';
 import '../widgets/welcome_step_v2.dart';
@@ -107,9 +109,13 @@ class _StartSignInScreen extends StatelessWidget {
                 title: l10n.onboardingSignInTitle,
                 subtitle: l10n.onboardingSignInSubtitle,
                 onSkip: () => Navigator.of(context).pop(),
-                // After sign-in, pop. AuthWrapper reactively routes to
-                // AppGateWrapper because isInProgress is still false.
-                onSignInComplete: () => Navigator.of(context).pop(),
+                // After sign-in, leave any onboarding started earlier with
+                // "Build my plan" (it would replace this account's alarms),
+                // then pop. AuthWrapper reactively routes to AppGateWrapper.
+                onSignInComplete: () {
+                  context.read<OnboardingCubit>().abandonOnboarding();
+                  Navigator.of(context).pop();
+                },
                 showSkip: false,
                 blockNewAccounts: true,
                 showEmail: true,
