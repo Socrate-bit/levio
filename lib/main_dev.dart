@@ -26,7 +26,7 @@ void main() async {
   await NotificationService.init();
 
   // Resolve the onboarding A/B funnel in the background so it never blocks
-  // launch; the v2 start screen renders immediately while this resolves.
+  // launch; the funnel defaults to v1 until this resolves.
   unawaited(OnboardingAbService.resolveVariant());
 
   // Match paywall locale to the device locale (e.g. "en_US", "fr_FR").

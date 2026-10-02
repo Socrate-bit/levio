@@ -2092,16 +2092,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingWhereHeard => 'Où as-tu entendu parler de nous ?';
 
   @override
-  String get onboardingYouTube => 'YouTube';
+  String get onboardingTikTok => 'TikTok';
+
+  @override
+  String get onboardingInstagram => 'Instagram';
 
   @override
   String get onboardingFacebook => 'Facebook';
-
-  @override
-  String get onboardingTwitter => 'Twitter';
-
-  @override
-  String get onboardingReddit => 'Reddit';
 
   @override
   String get onboardingAppStore => 'App Store';
@@ -2155,6 +2152,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get onboardingAccountNotFound =>
       'Aucun compte trouvé. Crée d\'abord un compte via l\'inscription.';
+
+  @override
+  String get onboardingNetworkError =>
+      'Pas de connexion internet. Vérifie ta connexion et réessaie.';
 
   @override
   String get onboardingSignInEmail => 'Se connecter avec un email';
@@ -2334,21 +2335,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingRatingMarcReview =>
-      'Avant, je mettais 5 alarmes chaque matin. Maintenant je me réveille à la première et je me sens bien.';
+      'je me lève en plein forme j’adore le concept moi qui mettait 10 min à sortir du lit maintenant en 1 min je suis debout 😂';
 
   @override
   String get onboardingRatingSophie => 'Sophie D.';
 
   @override
   String get onboardingRatingSophieReview =>
-      'La fonctionnalité mission est géniale. Faire des pompes à 6h du matin semble fou, mais ça me réveille plus vite que le café.';
+      'Très bonne appli de réveil. Facile à configurer, elle fonctionne parfaitement et ne m’a jamais fait défaut. J’apprécie particulièrement son ergonomie et les options proposées pour personnaliser les alarmes. Idéale pour commencer la journée du bon pied !';
 
   @override
-  String get onboardingRatingAlex => 'Alex T.';
+  String get onboardingRatingAlex => 'Marie';
 
   @override
   String get onboardingRatingAlexReview =>
-      'Enfin une appli de réveil qui marche. J\'ai tout essayé et Levio est la seule qui me fait sortir du lit.';
+      'Ça faisait longtemps que je ne m’étais pas levé aussi tôt.';
 
   @override
   String get onboardingReferralTitle =>

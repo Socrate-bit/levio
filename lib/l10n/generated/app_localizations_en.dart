@@ -2065,16 +2065,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingWhereHeard => 'Where did you hear about us?';
 
   @override
-  String get onboardingYouTube => 'YouTube';
+  String get onboardingTikTok => 'TikTok';
+
+  @override
+  String get onboardingInstagram => 'Instagram';
 
   @override
   String get onboardingFacebook => 'Facebook';
-
-  @override
-  String get onboardingTwitter => 'Twitter';
-
-  @override
-  String get onboardingReddit => 'Reddit';
 
   @override
   String get onboardingAppStore => 'App Store';
@@ -2126,6 +2123,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingAccountNotFound =>
       'No account found. Please complete onboarding to create one.';
+
+  @override
+  String get onboardingNetworkError =>
+      'No internet connection. Check your connection and try again.';
 
   @override
   String get onboardingSignInEmail => 'Sign in with email';
@@ -2301,21 +2302,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingRatingMarcReview =>
-      'I used to set 5 alarms every morning. Now I wake up on the first one and actually feel good about it.';
+      'I wake up full of energy, I love the concept. It used to take me 10 min to get out of bed, now I\'m up in 1 min 😂';
 
   @override
   String get onboardingRatingSophie => 'Sophie D.';
 
   @override
   String get onboardingRatingSophieReview =>
-      'The mission feature is brilliant. Doing push-ups at 6am sounds crazy, but it genuinely wakes me up faster than coffee.';
+      'Great alarm app. Easy to set up, it works perfectly and has never let me down. I especially like how intuitive it is and all the options to customize alarms. Perfect for starting the day on the right foot!';
 
   @override
-  String get onboardingRatingAlex => 'Alex T.';
+  String get onboardingRatingAlex => 'Marie';
 
   @override
   String get onboardingRatingAlexReview =>
-      'Finally an alarm app that actually works. I\'ve tried everything and Levio is the only one that gets me out of bed.';
+      'It\'s been a long time since I got up this early.';
 
   @override
   String get onboardingReferralTitle => 'Enter referral code\n(optional)';

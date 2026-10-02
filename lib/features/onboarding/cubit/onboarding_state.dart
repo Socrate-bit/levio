@@ -47,6 +47,9 @@ class OnboardingState extends Equatable {
 
   final bool isInProgress;
   final bool isComplete;
+  // True once the persisted "onboarding in progress" flag has been read at
+  // launch; AuthWrapper waits for it before routing a signed-in user.
+  final bool isRestored;
 
   const OnboardingState({
     this.currentPage = 0,
@@ -77,6 +80,7 @@ class OnboardingState extends Equatable {
     this.wakeRoutine = const [],
     this.isInProgress = false,
     this.isComplete = false,
+    this.isRestored = false,
   });
 
   /// Minutes gained by waking at ideal vs usual time. Returns 0 when
@@ -119,6 +123,7 @@ class OnboardingState extends Equatable {
     List<String>? wakeRoutine,
     bool? isInProgress,
     bool? isComplete,
+    bool? isRestored,
   }) =>
       OnboardingState(
         currentPage: currentPage ?? this.currentPage,
@@ -150,6 +155,7 @@ class OnboardingState extends Equatable {
         wakeRoutine: wakeRoutine ?? this.wakeRoutine,
         isInProgress: isInProgress ?? this.isInProgress,
         isComplete: isComplete ?? this.isComplete,
+        isRestored: isRestored ?? this.isRestored,
       );
 
   @override
@@ -182,5 +188,6 @@ class OnboardingState extends Equatable {
         wakeRoutine,
         isInProgress,
         isComplete,
+        isRestored,
       ];
 }

@@ -3914,29 +3914,23 @@ abstract class AppLocalizations {
   /// **'Where did you hear about us?'**
   String get onboardingWhereHeard;
 
-  /// No description provided for @onboardingYouTube.
+  /// No description provided for @onboardingTikTok.
   ///
   /// In en, this message translates to:
-  /// **'YouTube'**
-  String get onboardingYouTube;
+  /// **'TikTok'**
+  String get onboardingTikTok;
+
+  /// No description provided for @onboardingInstagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Instagram'**
+  String get onboardingInstagram;
 
   /// No description provided for @onboardingFacebook.
   ///
   /// In en, this message translates to:
   /// **'Facebook'**
   String get onboardingFacebook;
-
-  /// No description provided for @onboardingTwitter.
-  ///
-  /// In en, this message translates to:
-  /// **'Twitter'**
-  String get onboardingTwitter;
-
-  /// No description provided for @onboardingReddit.
-  ///
-  /// In en, this message translates to:
-  /// **'Reddit'**
-  String get onboardingReddit;
 
   /// No description provided for @onboardingAppStore.
   ///
@@ -4033,6 +4027,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No account found. Please complete onboarding to create one.'**
   String get onboardingAccountNotFound;
+
+  /// No description provided for @onboardingNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Check your connection and try again.'**
+  String get onboardingNetworkError;
 
   /// No description provided for @onboardingSignInEmail.
   ///
@@ -4349,7 +4349,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingRatingMarcReview.
   ///
   /// In en, this message translates to:
-  /// **'I used to set 5 alarms every morning. Now I wake up on the first one and actually feel good about it.'**
+  /// **'I wake up full of energy, I love the concept. It used to take me 10 min to get out of bed, now I\'m up in 1 min 😂'**
   String get onboardingRatingMarcReview;
 
   /// No description provided for @onboardingRatingSophie.
@@ -4361,19 +4361,19 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingRatingSophieReview.
   ///
   /// In en, this message translates to:
-  /// **'The mission feature is brilliant. Doing push-ups at 6am sounds crazy, but it genuinely wakes me up faster than coffee.'**
+  /// **'Great alarm app. Easy to set up, it works perfectly and has never let me down. I especially like how intuitive it is and all the options to customize alarms. Perfect for starting the day on the right foot!'**
   String get onboardingRatingSophieReview;
 
   /// No description provided for @onboardingRatingAlex.
   ///
   /// In en, this message translates to:
-  /// **'Alex T.'**
+  /// **'Marie'**
   String get onboardingRatingAlex;
 
   /// No description provided for @onboardingRatingAlexReview.
   ///
   /// In en, this message translates to:
-  /// **'Finally an alarm app that actually works. I\'ve tried everything and Levio is the only one that gets me out of bed.'**
+  /// **'It\'s been a long time since I got up this early.'**
   String get onboardingRatingAlexReview;
 
   /// No description provided for @onboardingReferralTitle.
